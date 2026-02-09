@@ -442,68 +442,75 @@
 
         <!-- Periods Tab -->
         <div v-show="currentTab === 'periods'" class="space-y-4">
-          <div class="flex justify-between items-center">
-            <label class="text-sm font-medium text-gray-700">
-              Pricing Periods
-            </label>
+          <div class="flex justify-between items-center mb-4">
+            <h4 class="text-lg font-semibold text-gray-700">Pricing Periods</h4>
             <button
               type="button"
-              @click="addPeriod"
-              class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+              @click="openPeriodModal()"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
             >
               <i class="fa-solid fa-plus mr-1"></i>
-              Add & Configure Period
+              Add Period
             </button>
           </div>
 
-          <!-- Period Summary Cards -->
+          <!-- Period List (Display Only) -->
           <div v-if="formData.period.length > 0" class="space-y-3">
             <div
               v-for="(period, index) in formData.period"
               :key="index"
-              class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4"
+              class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
             >
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg">📅</span>
-                  <h5 class="font-semibold text-gray-900">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h5 class="font-semibold text-gray-900 mb-2">
                     {{ period.period_name }}
                   </h5>
+                  <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span class="text-gray-600">Duration:</span>
+                      <p class="font-medium text-gray-900">
+                        {{ formatDate(period.start_date) }} -
+                        {{ formatDate(period.end_date) }}
+                      </p>
+                    </div>
+                    <div>
+                      <span class="text-gray-600">Sale Price:</span>
+                      <p class="font-bold text-green-600">
+                        THB {{ formatPrice(period.sale_price) }}
+                      </p>
+                    </div>
+                    <div>
+                      <span class="text-gray-600">Cost:</span>
+                      <p class="font-medium text-orange-600">
+                        THB {{ formatPrice(period.cost_price) }}
+                      </p>
+                    </div>
+                    <div>
+                      <span class="text-gray-600">Agent Price:</span>
+                      <p class="font-medium text-blue-600">
+                        THB {{ formatPrice(period.agent_price) }}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  @click="removePeriodAtIndex(index)"
-                  class="p-1.5 text-red-500 hover:bg-red-100 rounded transition-colors"
-                >
-                  <i class="fa-solid fa-trash text-xs"></i>
-                </button>
-              </div>
-
-              <div class="grid grid-cols-2 gap-3 text-sm">
-                <div class="bg-white rounded px-3 py-2">
-                  <span class="text-gray-600 text-xs">Duration:</span>
-                  <p class="font-medium text-gray-900">
-                    {{ formatDate(period.start_date) }} -
-                    {{ formatDate(period.end_date) }}
-                  </p>
-                </div>
-                <div class="bg-white rounded px-3 py-2">
-                  <span class="text-gray-600 text-xs">Sale Price:</span>
-                  <p class="font-bold text-green-600">
-                    THB {{ formatPrice(period.sale_price) }}
-                  </p>
-                </div>
-                <div class="bg-white rounded px-3 py-2">
-                  <span class="text-gray-600 text-xs">Cost:</span>
-                  <p class="font-medium text-orange-600">
-                    THB {{ formatPrice(period.cost_price) }}
-                  </p>
-                </div>
-                <div class="bg-white rounded px-3 py-2">
-                  <span class="text-gray-600 text-xs">Agent Price:</span>
-                  <p class="font-medium text-blue-600">
-                    THB {{ formatPrice(period.agent_price) }}
-                  </p>
+                <div class="flex gap-2 ml-4">
+                  <button
+                    type="button"
+                    @click="openPeriodModal(index)"
+                    class="p-2 text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                    title="Edit period"
+                  >
+                    <i class="fa-solid fa-edit text-sm"></i>
+                  </button>
+                  <button
+                    type="button"
+                    @click="removePeriod(index)"
+                    class="p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
+                    title="Remove period"
+                  >
+                    <i class="fa-solid fa-trash text-sm"></i>
+                  </button>
                 </div>
               </div>
             </div>
@@ -517,30 +524,30 @@
             <i
               class="fa-solid fa-calendar-xmark text-5xl text-gray-300 mb-3"
             ></i>
-            <p class="text-gray-600 font-medium mb-1">
-              No pricing periods configured
-            </p>
+            <p class="text-gray-600 font-medium mb-2">No pricing periods</p>
             <p class="text-sm text-gray-500 mb-4">
               Add periods to define seasonal pricing
             </p>
             <button
               type="button"
-              @click="openPeriodModal"
+              @click="openPeriodModal()"
               class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
             >
+              <i class="fa-solid fa-plus mr-1"></i>
               Add First Period
             </button>
           </div>
         </div>
       </form>
     </div>
-    <!-- Period Management Modal -->
-    <RoomPeriodModal
+
+    <!-- Period Modal -->
+    <PeriodModal
       :isOpen="showPeriodModal"
-      :periods="formData.period"
-      :roomName="formData.name"
+      :period="editingPeriod"
+      :isEditing="editingPeriodIndex !== null"
       @close="closePeriodModal"
-      @save="handlePeriodsSave"
+      @save="handlePeriodSave"
     />
   </div>
 </template>
@@ -551,11 +558,10 @@ import { useToast } from "vue-toastification";
 import { Switch } from "@headlessui/vue";
 import { useRoomStore } from "../stores/room";
 import RoomAmenitiesComponent from "./RoomPart/Amenties.vue";
-// import RoomPeriodModal from "./RoomPart/RoomPeriodModal.vue";
+import PeriodModal from "./RoomPart/RoomPeriodModal.vue";
 import Swal from "sweetalert2";
 import router from "../router";
 import { useRoute } from "vue-router";
-import RoomPeriodModal from "./RoomPart/RoomPeriodModal.vue";
 
 const props = defineProps({
   id: {
@@ -578,6 +584,8 @@ const currentTab = ref("basic");
 const imageInput = ref(null);
 const onlyShowOn = ref(false);
 const showPeriodModal = ref(false);
+const editingPeriod = ref(null);
+const editingPeriodIndex = ref(null);
 
 const tabs = [
   { id: "basic", label: "Basic Info" },
@@ -586,50 +594,14 @@ const tabs = [
 ];
 
 const suggestPrice = (cost) => {
+  if (!cost) return 0;
   let amount = cost / 0.85;
-
-  // Get the last two digits
   let lastTwoDigits = amount % 100;
-
-  // If last two digits are over 50, round up to next 100
-  // If under or equal to 50, round to nearest 50
   if (lastTwoDigits > 50) {
     return (Math.ceil(amount / 100) * 100).toFixed(0);
   } else {
     return (Math.round(amount / 50) * 50).toFixed(0);
   }
-};
-
-// Period Modal Methods
-const openPeriodModal = () => {
-  showPeriodModal.value = true;
-};
-
-const closePeriodModal = () => {
-  showPeriodModal.value = false;
-};
-
-const handlePeriodsSave = (periods) => {
-  formData.value.period = [...periods];
-  closePeriodModal();
-  toast.success(`${periods.length} period(s) configured successfully`);
-};
-
-const removePeriodAtIndex = (index) => {
-  Swal.fire({
-    title: "Remove Period?",
-    text: `Remove "${formData.value.period[index].period_name}"?`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#ef4444",
-    cancelButtonColor: "#6b7280",
-    confirmButtonText: "Yes, remove it",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      formData.value.period.splice(index, 1);
-      toast.success("Period removed");
-    }
-  });
 };
 
 // Form data
@@ -662,7 +634,6 @@ const isEditing = computed(() => selectedRoomId.value !== null);
 const filteredRooms = computed(() => {
   let filtered = rooms.value;
 
-  // Apply search filter
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
@@ -672,7 +643,6 @@ const filteredRooms = computed(() => {
     );
   }
 
-  // Apply onlyShowOn filter
   if (onlyShowOn.value) {
     filtered = filtered.filter((room) => room?.meta?.is_show_on === "1");
   }
@@ -695,6 +665,66 @@ const formatPrice = (price) => {
   return Number(price).toLocaleString();
 };
 
+// Period Modal Methods
+const openPeriodModal = (index = null) => {
+  if (index !== null) {
+    // Edit existing period
+    editingPeriodIndex.value = index;
+    editingPeriod.value = { ...formData.value.period[index] };
+  } else {
+    // Add new period
+    editingPeriodIndex.value = null;
+    editingPeriod.value = {
+      period_name: "",
+      start_date: "",
+      end_date: "",
+      sale_price: null,
+      cost_price: null,
+      agent_price: null,
+    };
+  }
+  showPeriodModal.value = true;
+};
+
+const closePeriodModal = () => {
+  showPeriodModal.value = false;
+  editingPeriod.value = null;
+  editingPeriodIndex.value = null;
+};
+
+const handlePeriodSave = async (period) => {
+  if (editingPeriodIndex.value !== null) {
+    // Update existing period
+    formData.value.period[editingPeriodIndex.value] = { ...period };
+    // toast.success("Period updated successfully");
+    await saveRoom();
+  } else {
+    // Add new period
+    formData.value.period.push({ ...period });
+    // toast.success("Period added successfully");
+    await saveRoom();
+  }
+  closePeriodModal();
+};
+
+const removePeriod = async (index) => {
+  const result = await Swal.fire({
+    title: "Remove Period?",
+    text: `Remove "${formData.value.period[index].period_name}"?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, remove it",
+  });
+
+  if (result.isConfirmed) {
+    formData.value.period.splice(index, 1);
+    // toast.success("Period removed");
+    await saveRoom();
+  }
+};
+
 // Methods
 const fetchRooms = async () => {
   loading.value = true;
@@ -706,17 +736,12 @@ const fetchRooms = async () => {
     rooms.value = response.result.data || [];
 
     if (route.query.room_id) {
-      console.log(route.query.room_id, filteredRooms.value, "this is room");
-
       const roomToSelect = filteredRooms.value.find(
         (r) => r.id == route.query.room_id,
       );
-
       if (roomToSelect) {
         selectRoom(roomToSelect);
       }
-
-      console.log(roomToSelect, "this is room selected");
     }
   } catch (error) {
     toast.error("Failed to load rooms");
@@ -729,9 +754,8 @@ const fetchRooms = async () => {
 const selectRoom = async (room) => {
   selectedRoomId.value = room.id;
   router.push({ query: { room_id: room.id, quiteSwitch: 11 } });
-  currentTab.value = "basic";
+  // currentTab.value = "basic";
 
-  // Load full room details
   try {
     const response = await roomStore.detailAction(room.id);
     const data = response.result;
@@ -771,9 +795,10 @@ const selectRoom = async (room) => {
         })) || [],
     };
 
-    // Load existing images as previews
     if (data.images?.length > 0) {
       imagePreviews.value = data.images.map((img) => img.image);
+    } else {
+      imagePreviews.value = [];
     }
   } catch (error) {
     toast.error("Failed to load room details");
@@ -824,22 +849,6 @@ const handleImageUpload = (e) => {
 const removeImage = (index) => {
   formData.value.images.splice(index, 1);
   imagePreviews.value.splice(index, 1);
-};
-
-const addPeriod = () => {
-  // formData.value.period.push({
-  //   period_name: "",
-  //   start_date: "",
-  //   end_date: "",
-  //   sale_price: 0,
-  //   cost_price: 0,
-  //   agent_price: 0,
-  // });
-  openPeriodModal();
-};
-
-const removePeriod = (index) => {
-  formData.value.period.splice(index, 1);
 };
 
 const duplicateRoom = async (room) => {
@@ -894,7 +903,6 @@ const saveRoom = async () => {
 
   const frmData = new FormData();
 
-  // Basic fields
   frmData.append("name", formData.value.name);
   frmData.append("hotel_id", formData.value.hotel_id);
   frmData.append("description", formData.value.description);
@@ -904,7 +912,6 @@ const saveRoom = async () => {
   frmData.append("agent_price", formData.value.agent_price || 0);
   frmData.append("owner_price", formData.value.owner_price || 0);
 
-  // Boolean fields
   frmData.append("is_extra", formData.value.is_extra ? 1 : 0);
   frmData.append("has_breakfast", formData.value.has_breakfast ? 1 : 0);
   frmData.append("meta[is_double]", formData.value.is_double ? 1 : 0);
@@ -912,14 +919,12 @@ const saveRoom = async () => {
   frmData.append("meta[is_show_on]", formData.value.is_show_on ? 1 : 0);
   frmData.append("meta[room_size]", formData.value.room_size);
 
-  // Images
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       frmData.append(`images[${i}]`, formData.value.images[i]);
     }
   }
 
-  // Amenities
   if (formData.value.room_amen.length > 0) {
     for (let i = 0; i < formData.value.room_amen.length; i++) {
       frmData.append(
@@ -935,7 +940,6 @@ const saveRoom = async () => {
     }
   }
 
-  // Periods
   if (formData.value.period.length > 0) {
     for (let x = 0; x < formData.value.period.length; x++) {
       frmData.append(
@@ -987,14 +991,12 @@ const saveRoom = async () => {
   }
 };
 
-// Lifecycle
 onMounted(() => {
   fetchRooms();
 });
 </script>
 
 <style scoped>
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

@@ -9,18 +9,18 @@
 
         <!-- Modal panel -->
         <div
-          class="relative bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] flex flex-col"
+          class="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col"
         >
           <!-- Header -->
           <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-xl font-bold text-gray-900">
-                  Review Extracted Data
+                <h3 class="text-lg font-semibold text-gray-900">
+                  Review & Edit Extracted Data
                 </h3>
-                <p class="text-sm text-gray-600 mt-1">
-                  Compare and approve changes. Only checked items will be
-                  updated.
+                <p class="text-xs text-gray-600 mt-1">
+                  ✏️ You can edit the AI-extracted values before applying them.
+                  Only checked items will be updated.
                 </p>
               </div>
               <div class="flex items-center gap-3">
@@ -64,6 +64,33 @@
               </button>
             </div>
 
+            <!-- Info Banner -->
+            <!-- <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="flex items-start gap-3">
+                <svg
+                  class="w-5 h-5 text-blue-600 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <div>
+                  <h4 class="text-sm font-semibold text-blue-900">
+                    Editable Values
+                  </h4>
+                  <p class="text-sm text-blue-700 mt-1">
+                    Click on any blue field in the "New Value" column to edit
+                    the AI-extracted data. Your changes will be applied when you
+                    click "Apply Changes".
+                  </p>
+                </div>
+              </div>
+            </div> -->
+
             <!-- Comparison Tables -->
             <div class="space-y-8">
               <!-- Basic Info -->
@@ -72,6 +99,7 @@
                 icon="🏨"
                 :fields="basicInfoFields"
                 v-model="approvedFields"
+                @update:editableValues="handleEditableUpdate"
               />
 
               <!-- Contact Info -->
@@ -80,6 +108,7 @@
                 icon="📞"
                 :fields="contactFields"
                 v-model="approvedFields"
+                @update:editableValues="handleEditableUpdate"
               />
 
               <!-- Financial Info -->
@@ -88,6 +117,7 @@
                 icon="💳"
                 :fields="financialFields"
                 v-model="approvedFields"
+                @update:editableValues="handleEditableUpdate"
               />
 
               <!-- Policies -->
@@ -96,6 +126,7 @@
                 icon="📋"
                 :fields="policyFields"
                 v-model="approvedFields"
+                @update:editableValues="handleEditableUpdate"
               />
 
               <!-- Contract Info -->
@@ -104,23 +135,8 @@
                 icon="📄"
                 :fields="contractFields"
                 v-model="approvedFields"
+                @update:editableValues="handleEditableUpdate"
               />
-
-              <!-- Rooms & Periods -->
-              <div
-                class="bg-white border-2 border-gray-200 rounded-xl overflow-hidden"
-              >
-                <div
-                  class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4"
-                >
-                  <h3
-                    class="text-lg font-bold text-white flex items-center gap-2"
-                  >
-                    <span>🛏️</span>
-                    <span>Room Types & Periods</span>
-                  </h3>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -131,6 +147,9 @@
             <div class="text-sm text-gray-600">
               <span class="font-semibold">{{ approvedFieldsCount }}</span>
               changes selected
+              <span v-if="hasEdits" class="ml-2 text-blue-600 font-medium">
+                ({{ editCount }} edited)
+              </span>
             </div>
             <div class="flex gap-3">
               <button
@@ -171,14 +190,19 @@ const emit = defineEmits(["close", "applyChanges"]);
 
 // State
 const approvedFields = ref({});
-const approvedRooms = ref([]);
+const editableValues = ref({});
 
 // Computed
 const approvedFieldsCount = computed(() => {
-  return (
-    Object.values(approvedFields.value).filter(Boolean).length +
-    approvedRooms.value.length
-  );
+  return Object.values(approvedFields.value).filter(Boolean).length;
+});
+
+const hasEdits = computed(() => {
+  return Object.keys(editableValues.value).length > 0;
+});
+
+const editCount = computed(() => {
+  return Object.keys(editableValues.value).length;
 });
 
 // Helper function to check if values are different
@@ -204,12 +228,12 @@ const basicInfoFields = computed(() => [
     current: props.currentData?.legal_name,
     extracted: props.extractedData?.basic_info?.legal_name,
   },
-  {
-    key: "place",
-    label: "Place/Location",
-    current: props.currentData?.place,
-    extracted: props.extractedData?.basic_info?.place,
-  },
+  // {
+  //   key: "place",
+  //   label: "Place/Location",
+  //   current: props.currentData?.place,
+  //   extracted: props.extractedData?.basic_info?.place,
+  // },
 ]);
 
 const contactFields = computed(() => [
@@ -324,6 +348,11 @@ const contractFields = computed(() => [
   },
 ]);
 
+// Handle editable value updates
+const handleEditableUpdate = ({ key, value }) => {
+  editableValues.value[key] = value;
+};
+
 // Methods
 const selectAll = () => {
   const allFields = [
@@ -339,13 +368,10 @@ const selectAll = () => {
       approvedFields.value[field.key] = true;
     }
   });
-
-  approvedRooms.value = [...(props.extractedData?.rooms || [])];
 };
 
 const deselectAll = () => {
   approvedFields.value = {};
-  approvedRooms.value = [];
 };
 
 const selectOnlyChanges = () => {
@@ -364,9 +390,6 @@ const selectOnlyChanges = () => {
       approvedFields.value[field.key] = false;
     }
   });
-
-  // For rooms, select all (they need manual review anyway)
-  approvedRooms.value = [...(props.extractedData?.rooms || [])];
 };
 
 const closeModal = () => {
@@ -376,7 +399,7 @@ const closeModal = () => {
 const applyChanges = () => {
   const changes = {
     fields: approvedFields.value,
-    rooms: approvedRooms.value,
+    editableValues: editableValues.value,
     extractedData: props.extractedData,
   };
 
@@ -389,11 +412,20 @@ watch(
   (isOpen) => {
     if (isOpen) {
       selectOnlyChanges();
+      editableValues.value = {}; // Reset edits
     }
   },
 );
 </script>
 
 <style scoped>
-/* Same modal transitions as before */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
 </style>

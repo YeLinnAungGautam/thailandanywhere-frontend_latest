@@ -60,6 +60,8 @@ import UploadContractModal from "../components/HotelAIAutoFill/UploadContractMod
 import DataComparisonModal from "../components/HotelAIAutoFill/DataComparisonModal.vue";
 import ContractSaveConfirmModal from "../components/HotelAIAutoFill/ContractSaveConfirmModal.vue";
 import RoomPeriodImportModal from "../components/HotelAIAutoFill/RoomPeriodImportModal.vue";
+// Add this to your imports section
+import HotelAIImportPage from "../components/HotelAIAutoFill2/HotelAiImportPage.vue";
 
 // ==================== STORE INITIALIZATION ====================
 const toast = useToast();
@@ -107,6 +109,9 @@ const bankName = [
   { id: "26", name: "Indian Overseas Bank " },
 ];
 
+const isAiMood = ref(false);
+const isAiMoodPart = ref("general");
+
 const paymentMethod = [
   { id: "1", name: "Bank Transfer" },
   { id: "2", name: "International Remittance" },
@@ -147,9 +152,9 @@ const linkContract = ref({});
 
 // AI Auto-Fill State
 const showUploadModal = ref(false);
-const showComparisonModal = ref(false);
-const showContractSaveModal = ref(false);
-const showRoomPeriodModal = ref(false);
+// const showComparisonModal = ref(false);
+// const showContractSaveModal = ref(false);
+// const showRoomPeriodModal = ref(false);
 const extractedData = ref({});
 const uploadedFile = ref(null);
 const pendingChanges = ref({});
@@ -248,19 +253,20 @@ const handleDataExtracted = ({ extractedData: data, originalFile }) => {
   uploadedFile.value = originalFile;
   showUploadModal.value = false;
   nextTick(() => {
-    showComparisonModal.value = true;
+    // showComparisonModal.value = true;
+    isAiMood.value = true;
   });
 };
 
 /**
  * Close comparison modal
  */
-const closeComparisonModal = () => {
-  showComparisonModal.value = false;
-  extractedData.value = {};
-  uploadedFile.value = null;
-  pendingChanges.value = {};
-};
+// const closeComparisonModal = () => {
+//   showComparisonModal.value = false;
+//   extractedData.value = {};
+//   uploadedFile.value = null;
+//   pendingChanges.value = {};
+// };
 
 /**
  * Handle apply changes from comparison modal
@@ -282,6 +288,131 @@ const handleApplyChanges = (changes) => {
   }
 };
 
+const pendingHotelChanges = ref({});
+
+const handleApplyHotelData = (changes) => {
+  console.log("Applying hotel data changes:", changes);
+  pendingHotelChanges.value = changes;
+
+  const { fields, editableValues, extractedData: extracted } = changes;
+
+  Object.keys(fields).forEach((key) => {
+    if (fields[key]) {
+      let value = editableValues[key] ?? getExtractedValue(key, extracted);
+
+      if (key === "email" && typeof value === "string") {
+        value = value
+          .split(",")
+          .map((email) => email.trim())
+          .filter(Boolean);
+      }
+
+      if (value !== null && value !== undefined && value !== "") {
+        formData.value[key] = value;
+      }
+    }
+  });
+
+  toast.success(
+    `✅ ${
+      Object.values(fields).filter(Boolean).length
+    } hotel data changes applied!`,
+    { timeout: 3000 },
+  );
+};
+
+/**
+ * Handle AI Import Complete - Simple Version
+ */
+const handleAIImportComplete = async () => {
+  // Exit AI mode
+  isAiMood.value = false;
+
+  // Single confirmation with 3 options
+  const result = await Swal.fire({
+    title: "🎉 AI Import Complete!",
+    html: `
+      <div class="text-left space-y-3">
+        <div class="bg-green-50 border-2 border-green-200 rounded-lg p-3">
+          <p class="text-green-800 font-semibold">✅ Successfully processed:</p>
+          <ul class="text-sm text-green-700 mt-2 ml-4 list-disc">
+            <li>Hotel data updated</li>
+            <li>Rooms processed</li>
+          </ul>
+        </div>
+        
+        <div class="bg-purple-50 border-2 border-purple-200 rounded-lg p-3">
+          <p class="text-purple-800 font-semibold mb-2">📄 Contract File:</p>
+          <p class="text-sm text-purple-700">${
+            uploadedFile.value?.name || "Uploaded file"
+          }</p>
+        </div>
+        
+        <p class="text-gray-700 font-medium">What would you like to do?</p>
+      </div>
+    `,
+    icon: "question",
+    showCancelButton: true,
+    showDenyButton: true,
+    confirmButtonText: "💾 Save All + Contract",
+    denyButtonText: "💾 Save All (No Contract)",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#8b5cf6",
+    denyButtonColor: "#3b82f6",
+    cancelButtonColor: "#6b7280",
+    customClass: {
+      popup: "rounded-xl",
+      confirmButton: "font-semibold",
+      denyButton: "font-semibold",
+      cancelButton: "font-semibold",
+    },
+  });
+
+  if (result.isConfirmed) {
+    // Option 1: Save everything WITH contract
+    saveContractFile.value = true;
+    await updateHandler();
+  } else if (result.isDenied) {
+    // Option 2: Save everything WITHOUT contract
+    saveContractFile.value = false;
+    await updateHandler();
+  } else {
+    // Option 3: Review first (don't save yet)
+    saveContractFile.value = false;
+    toast.info("💡 Review the data, then click 'Update' button to save", {
+      timeout: 3000,
+      position: "top-center",
+    });
+  }
+};
+
+/**
+ * Cancel AI Import - Simplified
+ */
+const cancelAIImport = async () => {
+  const result = await Swal.fire({
+    title: "⚠️ Cancel AI Import?",
+    text: "Any unapplied changes will be lost.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Cancel Import",
+    cancelButtonText: "Continue Working",
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+  });
+
+  if (result.isConfirmed) {
+    // Reset everything
+    isAiMood.value = false;
+    extractedData.value = {};
+    uploadedFile.value = null;
+    pendingHotelChanges.value = {};
+    saveContractFile.value = false;
+
+    toast.info("AI import cancelled");
+  }
+};
+
 /**
  * Handle room period import
  */
@@ -298,16 +429,12 @@ const handleRoomPeriodImport = (importData) => {
  */
 const getExtractedValue = (key, extracted) => {
   const keyMap = {
-    // Basic info
     name: extracted?.basic_info?.hotel_name,
     legal_name: extracted?.basic_info?.legal_name,
-    place: extracted?.basic_info?.place,
-    // Contact
     official_phone_number: extracted?.contact?.official_phone_number,
     official_email: extracted?.contact?.official_email,
     email: extracted?.contact?.email,
     official_address: extracted?.contact?.official_address,
-    // Financial
     vat_inclusion: extracted?.financial?.vat_inclusion,
     vat_id: extracted?.financial?.vat_id,
     vat_name: extracted?.financial?.vat_name,
@@ -316,11 +443,9 @@ const getExtractedValue = (key, extracted) => {
     bank_account_number: extracted?.financial?.bank_account_number,
     account_name: extracted?.financial?.account_name,
     payment_method: extracted?.financial?.payment_method,
-    // Policies
     check_in: extracted?.policies?.check_in,
     check_out: extracted?.policies?.check_out,
     cancellation_policy: extracted?.policies?.cancellation_policy,
-    // Contract
     contract_due: extracted?.contract?.contract_due,
   };
   return keyMap[key];
@@ -330,28 +455,48 @@ const getExtractedValue = (key, extracted) => {
  * Apply approved changes to formData
  */
 const applyChangesToFormData = () => {
-  const { fields, rooms, extractedData: extracted } = pendingChanges.value;
+  const {
+    fields,
+    editableValues,
+    extractedData: extracted,
+  } = pendingChanges.value;
 
-  // Apply basic fields
+  // Apply basic fields (use edited values if available, otherwise use extracted)
   Object.keys(fields).forEach((key) => {
     if (fields[key]) {
-      const value = getExtractedValue(key, extracted);
+      // Priority: 1. Edited value, 2. Extracted value
+      let value = editableValues[key] ?? getExtractedValue(key, extracted);
+
+      // Special handling for array types (emails)
+      if (key === "email" && typeof value === "string") {
+        // Convert comma-separated string back to array
+        value = value
+          .split(",")
+          .map((email) => email.trim())
+          .filter(Boolean);
+      }
+
       if (value !== null && value !== undefined && value !== "") {
         formData.value[key] = value;
       }
     }
   });
 
-  // Handle rooms
-  if (rooms && rooms.length > 0) {
-    formData.value.ai_extracted_rooms = rooms;
+  // Handle rooms (if any)
+  if (pendingChanges.value.rooms && pendingChanges.value.rooms.length > 0) {
+    formData.value.ai_extracted_rooms = pendingChanges.value.rooms;
   }
 
-  toast.success(
-    `✅ ${
-      Object.values(fields).filter(Boolean).length
-    } changes applied! Review and save.`,
-  );
+  const changedCount = Object.values(fields).filter(Boolean).length;
+  const editedCount = Object.keys(editableValues).length;
+
+  let message = `✅ ${changedCount} changes applied!`;
+  if (editedCount > 0) {
+    message += ` (${editedCount} values edited)`;
+  }
+  message += " Review and save.";
+
+  toast.success(message);
 };
 
 /**
@@ -1512,7 +1657,16 @@ onMounted(async () => {
         />
       </svg>
     </button> -->
-    <div class="h-auto col-span-2 bg-white">
+    <HotelAIImportPage
+      v-if="isAiMood"
+      :extractedData="extractedData"
+      :currentData="formData"
+      :originalFile="uploadedFile"
+      @applyHotelData="handleApplyHotelData"
+      @complete="handleAIImportComplete"
+      @cancel="cancelAIImport"
+    />
+    <div class="h-auto col-span-2 bg-white" v-else>
       <div class="h-auto pb-4">
         <div class="py-2 px-6">
           <div class="flex gap-6 items-center mt-5 justify-between">
@@ -3070,6 +3224,32 @@ onMounted(async () => {
       </div>
     </div>
 
+    <!-- <div v-if="isAiMood"> -->
+    <!-- <DataComparisonModal
+        :isOpen="showComparisonModal"
+        :extractedData="extractedData"
+        :currentData="formData"
+        :originalFile="uploadedFile"
+        @close="closeComparisonModal"
+        @applyChanges="handleApplyChanges"
+      />
+
+      <ContractSaveConfirmModal
+        :isOpen="showContractSaveModal"
+        :file="uploadedFile"
+        @yes="saveWithContract"
+        @no="saveWithoutContract"
+      />
+      <RoomPeriodImportModal
+        :isOpen="showRoomPeriodModal"
+        :hotelId="formData.id"
+        :extractedRooms="extractedData.rooms || []"
+        @close="showRoomPeriodModal = false"
+        @complete="handleRoomPeriodImport"
+        @import="handleRoomPeriodImport"
+      /> -->
+    <!-- </div> -->
+
     <Dialog
       :open="imageGalleryModal"
       @close="closeImageGallery"
@@ -3215,30 +3395,6 @@ onMounted(async () => {
       :hotelData="formData"
       @close="showUploadModal = false"
       @dataExtracted="handleDataExtracted"
-    />
-
-    <DataComparisonModal
-      :isOpen="showComparisonModal"
-      :extractedData="extractedData"
-      :currentData="formData"
-      :originalFile="uploadedFile"
-      @close="closeComparisonModal"
-      @applyChanges="handleApplyChanges"
-    />
-
-    <ContractSaveConfirmModal
-      :isOpen="showContractSaveModal"
-      :file="uploadedFile"
-      @yes="saveWithContract"
-      @no="saveWithoutContract"
-    />
-    <RoomPeriodImportModal
-      :isOpen="showRoomPeriodModal"
-      :hotelId="formData.id"
-      :extractedRooms="extractedData.rooms || []"
-      @close="showRoomPeriodModal = false"
-      @complete="handleRoomPeriodImport"
-      @import="handleRoomPeriodImport"
     />
   </Layout>
 </template>

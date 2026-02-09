@@ -1,8 +1,8 @@
 <template>
   <div class="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-      <h3 class="text-lg font-bold text-white flex items-center gap-2">
+    <div class="px-6 py-4">
+      <h3 class="text-sm font-bold flex items-center gap-2">
         <span>{{ icon }}</span>
         <span>{{ title }}</span>
       </h3>
@@ -10,11 +10,23 @@
 
     <!-- Table -->
     <div class="overflow-x-auto">
-      <table class="w-full">
+      <table class="w-full table-fixed">
+        <colgroup>
+          <col class="w-16" />
+          <!-- Apply checkbox -->
+          <col class="w-[180px]" />
+          <!-- Field name -->
+          <col class="w-[250px]" />
+          <!-- Current Value - SMALLER -->
+          <col class="w-auto" />
+          <!-- New Value (Editable) - WIDER -->
+          <col class="w-[100px]" />
+          <!-- Status -->
+        </colgroup>
         <thead>
           <tr class="bg-gray-50 border-b-2 border-gray-200">
             <th
-              class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-16"
+              class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
             >
               Apply
             </th>
@@ -31,10 +43,10 @@
             <th
               class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
             >
-              New Value (from AI)
+              New Value (Editable)
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-24"
+              class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
             >
               Status
             </th>
@@ -65,38 +77,45 @@
 
             <!-- Field Label -->
             <td class="px-6 py-4">
-              <div class="flex items-center gap-2">
-                <span class="font-medium text-gray-900">{{ field.label }}</span>
+              <div class="flex flex-col gap-1">
+                <span class="font-medium text-gray-900 text-xs">{{
+                  field.label
+                }}</span>
                 <span
                   v-if="hasChanged(field.extracted, field.current)"
-                  class="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full font-semibold"
+                  class="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-[10px] rounded-full font-semibold w-fit"
                 >
                   Changed
                 </span>
               </div>
             </td>
 
-            <!-- Current Value -->
+            <!-- Current Value - SMALLER COLUMN -->
             <td class="px-6 py-4">
-              <div class="max-w-md">
+              <div class="max-w-full">
                 <template v-if="field.type === 'textarea'">
                   <div
-                    class="text-sm text-gray-600 whitespace-pre-wrap max-h-32 overflow-y-auto"
+                    class="text-xs text-gray-600 whitespace-pre-wrap max-h-24 overflow-y-auto break-words"
                   >
                     {{ field.current || "-" }}
                   </div>
                 </template>
+                <template v-else-if="field.type === 'array'">
+                  <div class="text-xs text-gray-600 break-words">
+                    {{ field.current || "-" }}
+                  </div>
+                </template>
                 <template v-else>
-                  <span class="text-sm text-gray-600">
+                  <span class="text-xs text-gray-600 break-words">
                     {{ field.current || "-" }}
                   </span>
                 </template>
               </div>
             </td>
 
-            <!-- New Value -->
+            <!-- New Value (EDITABLE) - WIDER COLUMN -->
             <td class="px-6 py-4">
-              <div class="max-w-md">
+              <div class="w-full">
                 <template
                   v-if="
                     field.extracted !== null &&
@@ -104,17 +123,56 @@
                     field.extracted !== ''
                   "
                 >
+                  <!-- Textarea for long text -->
                   <template v-if="field.type === 'textarea'">
-                    <div
-                      class="text-sm font-semibold text-blue-700 whitespace-pre-wrap max-h-32 overflow-y-auto"
-                    >
-                      {{ field.extracted }}
-                    </div>
+                    <textarea
+                      :value="editableValues[field.key] ?? field.extracted"
+                      @input="
+                        updateEditableValue(field.key, $event.target.value)
+                      "
+                      rows="4"
+                      class="w-full text-sm border border-[#FF613c] rounded-lg px-3 py-2 focus:outline-none resize-none"
+                      :class="{
+                        'opacity-50 cursor-not-allowed': !modelValue[field.key],
+                      }"
+                      :disabled="!modelValue[field.key]"
+                    ></textarea>
                   </template>
+
+                  <!-- Array (comma-separated emails) -->
+                  <template v-else-if="field.type === 'array'">
+                    <textarea
+                      :value="editableValues[field.key] ?? field.extracted"
+                      @input="
+                        updateEditableValue(field.key, $event.target.value)
+                      "
+                      rows="2"
+                      class="w-full text-sm border border-[#FF613c] rounded-lg px-3 py-2 focus:outline-none resize-none"
+                      :class="{
+                        'opacity-50 cursor-not-allowed': !modelValue[field.key],
+                      }"
+                      :disabled="!modelValue[field.key]"
+                      placeholder="email1@example.com, email2@example.com"
+                    ></textarea>
+                    <p class="text-xs text-gray-500 mt-1">
+                      Separate emails with commas
+                    </p>
+                  </template>
+
+                  <!-- Regular input -->
                   <template v-else>
-                    <span class="text-sm font-semibold text-blue-700">
-                      {{ field.extracted }}
-                    </span>
+                    <input
+                      type="text"
+                      :value="editableValues[field.key] ?? field.extracted"
+                      @input="
+                        updateEditableValue(field.key, $event.target.value)
+                      "
+                      class="w-full text-sm border border-[#FF613c] rounded-lg px-3 py-2.5 focus:outline-none"
+                      :class="{
+                        'opacity-50 cursor-not-allowed': !modelValue[field.key],
+                      }"
+                      :disabled="!modelValue[field.key]"
+                    />
                   </template>
                 </template>
                 <span v-else class="text-sm text-gray-400 italic"
@@ -135,7 +193,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { ref, computed, watch } from "vue";
 import StatusBadge from "./StatusBadge.vue";
 
 const props = defineProps({
@@ -145,7 +203,10 @@ const props = defineProps({
   modelValue: Object,
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "update:editableValues"]);
+
+// Store editable values separately
+const editableValues = ref({});
 
 const hasChanged = (newValue, oldValue) => {
   if (newValue === null || newValue === undefined || newValue === "")
@@ -166,4 +227,22 @@ const updateField = (key, value) => {
   updated[key] = value;
   emit("update:modelValue", updated);
 };
+
+const updateEditableValue = (key, value) => {
+  editableValues.value[key] = value;
+  emit("update:editableValues", { key, value });
+};
+
+// Initialize editable values when fields change
+watch(
+  () => props.fields,
+  (newFields) => {
+    newFields.forEach((field) => {
+      if (field.extracted && !editableValues.value[field.key]) {
+        editableValues.value[field.key] = field.extracted;
+      }
+    });
+  },
+  { immediate: true },
+);
 </script>

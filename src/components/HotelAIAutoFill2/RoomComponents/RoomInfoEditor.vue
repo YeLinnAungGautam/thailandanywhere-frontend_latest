@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <h4 class="text-lg font-semibold text-gray-800 mb-4">
-      ✨ New Room Information
+      ✨ Room Information
     </h4>
 
     <div class="grid grid-cols-2 gap-4">
@@ -78,7 +78,7 @@
         />
       </div>
 
-      <div class="col-span-2">
+      <div>
         <label class="block text-xs font-medium text-gray-600 mb-1">
           Agent Price (THB)
         </label>
@@ -92,57 +92,127 @@
         />
       </div>
 
-      <!-- Bed Types -->
-      <!-- <div
-        class="flex items-center justify-between p-2 bg-white rounded border"
-      >
-        <span class="text-xs font-medium">King Beds</span>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">
+          Walk-in Price (THB)
+        </label>
         <input
-          :value="modelValue.bed_types?.king || 0"
-          @input="updateBedType('king', Number($event.target.value))"
+          :value="modelValue.owner_price"
+          @input="update('owner_price', Number($event.target.value))"
           type="number"
           min="0"
-          class="w-16 px-2 py-1 text-xs border rounded"
+          step="0.01"
+          class="w-full px-3 py-2 text-sm border-2 border-purple-300 rounded-lg focus:outline-none focus:border-purple-500 bg-purple-50 font-semibold text-purple-700"
         />
       </div>
 
-      <div
-        class="flex items-center justify-between p-2 bg-white rounded border"
-      >
-        <span class="text-xs font-medium">Twin Beds</span>
-        <input
-          :value="modelValue.bed_types?.twin || 0"
-          @input="updateBedType('twin', Number($event.target.value))"
-          type="number"
-          min="0"
-          class="w-16 px-2 py-1 text-xs border rounded"
-        />
-      </div> -->
+      <!-- Toggles Section -->
+      <div class="col-span-2">
+        <label class="block text-xs font-medium text-gray-600 mb-3">
+          Room Options
+        </label>
+        <div
+          class="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
+        >
+          <!-- Extra Bed -->
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-medium text-gray-700">Extra Bed</label>
+            <Switch
+              :model-value="modelValue.is_extra"
+              @update:model-value="update('is_extra', $event)"
+              :class="modelValue.is_extra ? 'bg-purple-600' : 'bg-gray-300'"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            >
+              <span
+                :class="modelValue.is_extra ? 'translate-x-6' : 'translate-x-1'"
+                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+              />
+            </Switch>
+          </div>
 
-      <!-- Toggles -->
-      <div
-        class="flex items-center justify-between p-2 bg-white rounded border cursor-pointer"
-      >
-        <span class="text-xs font-medium">Include Breakfast</span>
-        <input
-          :checked="modelValue.has_breakfast"
-          @change="update('has_breakfast', $event.target.checked)"
-          type="checkbox"
-          class="w-4 h-4 text-purple-600 rounded"
-        />
+          <!-- Breakfast -->
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-medium text-gray-700">Breakfast</label>
+            <Switch
+              :model-value="modelValue.has_breakfast"
+              @update:model-value="update('has_breakfast', $event)"
+              :class="
+                modelValue.has_breakfast ? 'bg-purple-600' : 'bg-gray-300'
+              "
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            >
+              <span
+                :class="
+                  modelValue.has_breakfast ? 'translate-x-6' : 'translate-x-1'
+                "
+                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+              />
+            </Switch>
+          </div>
+
+          <!-- Double Bed -->
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-medium text-gray-700">Double Bed</label>
+            <Switch
+              :model-value="modelValue.bed_types?.king > 0"
+              @update:model-value="updateBedType('king', $event ? 1 : 0)"
+              :class="
+                modelValue.bed_types?.king > 0 ? 'bg-purple-600' : 'bg-gray-300'
+              "
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            >
+              <span
+                :class="
+                  modelValue.bed_types?.king > 0
+                    ? 'translate-x-6'
+                    : 'translate-x-1'
+                "
+                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+              />
+            </Switch>
+          </div>
+
+          <!-- Twin Bed -->
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-medium text-gray-700">Twin Bed</label>
+            <Switch
+              :model-value="modelValue.bed_types?.twin > 0"
+              @update:model-value="updateBedType('twin', $event ? 1 : 0)"
+              :class="
+                modelValue.bed_types?.twin > 0 ? 'bg-purple-600' : 'bg-gray-300'
+              "
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            >
+              <span
+                :class="
+                  modelValue.bed_types?.twin > 0
+                    ? 'translate-x-6'
+                    : 'translate-x-1'
+                "
+                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+              />
+            </Switch>
+          </div>
+
+          <!-- Show Online -->
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-medium text-gray-700">Show Online</label>
+            <Switch
+              :model-value="modelValue.is_show_on"
+              @update:model-value="update('is_show_on', $event)"
+              :class="modelValue.is_show_on ? 'bg-purple-600' : 'bg-gray-300'"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            >
+              <span
+                :class="
+                  modelValue.is_show_on ? 'translate-x-6' : 'translate-x-1'
+                "
+                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+              />
+            </Switch>
+          </div>
+        </div>
       </div>
-
-      <!-- <div
-        class="flex items-center justify-between p-2 bg-white rounded border cursor-pointer"
-      >
-        <span class="text-xs font-medium">Extra Bed Available</span>
-        <input
-          :checked="modelValue.is_extra"
-          @change="update('is_extra', $event.target.checked)"
-          type="checkbox"
-          class="w-4 h-4 text-purple-600 rounded"
-        />
-      </div> -->
 
       <!-- Description -->
       <div class="col-span-2">
@@ -152,7 +222,7 @@
         <textarea
           :value="modelValue.description"
           @input="update('description', $event.target.value)"
-          rows="2"
+          rows="3"
           class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-500"
           placeholder="Room description..."
         ></textarea>
@@ -162,6 +232,8 @@
 </template>
 
 <script setup>
+import { Switch } from "@headlessui/vue";
+
 const props = defineProps({
   modelValue: Object,
 });
@@ -173,7 +245,10 @@ const update = (key, value) => {
 };
 
 const updateBedType = (type, value) => {
-  const bed_types = { ...props.modelValue.bed_types, [type]: value };
+  const bed_types = {
+    ...(props.modelValue.bed_types || { king: 0, twin: 0 }),
+    [type]: value,
+  };
   emit("update:modelValue", { ...props.modelValue, bed_types });
 };
 </script>

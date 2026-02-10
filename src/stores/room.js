@@ -109,7 +109,7 @@ export const useRoomStore = defineStore("room", {
     async deleteImageAction(id, imageID) {
       try {
         const response = await axios.delete(
-          "/rooms/" + id + "/images/" + imageID
+          "/rooms/" + id + "/images/" + imageID,
         );
         return response.data;
       } catch (error) {
@@ -136,6 +136,34 @@ export const useRoomStore = defineStore("room", {
       } catch (err) {
         this.importLoading = false;
         throw err;
+      }
+    },
+
+    async hideAllRoomAction(params) {
+      try {
+        const response = await axios.post("/rooms/hide-all-by-hotel", params);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async copyImages(params) {
+      try {
+        const response = await axios.post("/rooms/copy-images", params);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async getRoomsWithImages(hotelId) {
+      try {
+        const response = await axios.get("/rooms/with-images", {
+          params: { hotel_id: hotelId },
+        });
+        return response.data;
+      } catch (error) {
+        throw error;
       }
     },
   },

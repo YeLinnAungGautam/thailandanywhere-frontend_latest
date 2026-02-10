@@ -5,13 +5,21 @@
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold text-gray-700">Rooms</h3>
         <div class="flex justify-end items-center gap-x-3">
-          <div class="flex justify-end gap-x-2 items-center">
+          <!-- <div class="flex justify-end gap-x-2 items-center">
             <p
               @click="onlyShowOn = !onlyShowOn"
               :class="onlyShowOn ? 'bg-[#FF613c] text-white' : 'bg-gray-300'"
               class="px-2 cursor-pointer py-1.5 text-sm rounded-lg"
             >
               Only show on
+            </p>
+          </div> -->
+          <div class="flex justify-end gap-x-2 items-center">
+            <p
+              @click="allRemoveShowOn"
+              class="px-2 cursor-pointer py-1.5 text-sm rounded-lg bg-[#FF613c] text-white"
+            >
+              {{ allRemoveLoading ? "Loading..." : "R. Show on" }}
             </p>
           </div>
           <button
@@ -21,6 +29,43 @@
             <i class="fa-solid fa-plus mr-1"></i>
             New Room
           </button>
+        </div>
+      </div>
+      <div class="flex justify-between items-center gap-x-2 mb-4">
+        <div class="flex justify-end items-center gap-x-3">
+          <div class="flex justify-end gap-x-2 items-center">
+            <p
+              @click="onlyShowOn = ''"
+              :class="
+                onlyShowOn == '' ? 'bg-[#FF613c] text-white' : 'bg-gray-300'
+              "
+              class="px-2 cursor-pointer py-1.5 text-sm rounded-lg"
+            >
+              All
+            </p>
+          </div>
+          <div class="flex justify-end gap-x-2 items-center">
+            <p
+              @click="onlyShowOn = '1'"
+              :class="
+                onlyShowOn == '1' ? 'bg-[#FF613c] text-white' : 'bg-gray-300'
+              "
+              class="px-2 cursor-pointer py-1.5 text-sm rounded-lg"
+            >
+              Show On
+            </p>
+          </div>
+          <div class="flex justify-end gap-x-2 items-center">
+            <p
+              @click="onlyShowOn = '0'"
+              :class="
+                onlyShowOn == '0' ? 'bg-[#FF613c] text-white' : 'bg-gray-300'
+              "
+              class="px-2 cursor-pointer py-1.5 text-sm rounded-lg"
+            >
+              Other
+            </p>
+          </div>
         </div>
       </div>
 
@@ -404,6 +449,14 @@
               <i class="fa-solid fa-image mr-2"></i>
               Add Images
             </button>
+            <button
+              type="button"
+              @click="chooseImportRoomImages"
+              class="px-4 py-2 bg-blue-600 ml-3 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              <i class="fa-solid fa-image mr-2"></i>
+              Choose Room Import Images
+            </button>
 
             <div
               v-if="imagePreviews.length > 0"
@@ -549,6 +602,17 @@
       @close="closePeriodModal"
       @save="handlePeriodSave"
     />
+
+    <!-- Modal Overlay -->
+    <RoomImageImportModal
+      :isOpen="showImageImportModal"
+      :targetRoomId="formData.id"
+      :targetRoomName="formData.name"
+      :hotelId="props.id"
+      :roomsWithImages="roomsWithImages"
+      @close="showImageImportModal = false"
+      @confirm="handleImageCopy"
+    />
   </div>
 </template>
 
@@ -562,6 +626,7 @@ import PeriodModal from "./RoomPart/RoomPeriodModal.vue";
 import Swal from "sweetalert2";
 import router from "../router";
 import { useRoute } from "vue-router";
+import RoomImageImportModal from "../components/HotelAIAutoFill2/RoomComponents/RoomCopyImage.vue";
 
 const props = defineProps({
   id: {
@@ -582,10 +647,12 @@ const selectedRoomId = ref(null);
 const searchQuery = ref("");
 const currentTab = ref("basic");
 const imageInput = ref(null);
-const onlyShowOn = ref(false);
+const onlyShowOn = ref("");
 const showPeriodModal = ref(false);
 const editingPeriod = ref(null);
 const editingPeriodIndex = ref(null);
+const showImageImportModal = ref(false);
+const roomsWithImages = ref([]);
 
 const tabs = [
   { id: "basic", label: "Basic Info" },
@@ -643,8 +710,10 @@ const filteredRooms = computed(() => {
     );
   }
 
-  if (onlyShowOn.value) {
+  if (onlyShowOn.value == "1") {
     filtered = filtered.filter((room) => room?.meta?.is_show_on === "1");
+  } else if (onlyShowOn.value == "0") {
+    filtered = filtered.filter((room) => room?.meta?.is_show_on === "0");
   }
 
   return filtered;
@@ -988,6 +1057,68 @@ const saveRoom = async () => {
     toast.error(error.response?.data?.message || "Failed to save room");
   } finally {
     saving.value = false;
+  }
+};
+
+const allRemoveLoading = ref(false);
+const allRemoveShowOn = async () => {
+  // formData.value.is_show_on = false;
+  // rooms.value.forEach((room) => {
+  //   room.is_show_on = false;
+  // });
+  // console.log(props.id, "this is id");
+  allRemoveLoading.value = true;
+  await roomStore
+    .hideAllRoomAction({
+      hotel_id: props.id,
+    })
+    .then((response) => {
+      toast.success(response.message);
+      fetchRooms();
+    })
+    .catch((error) => {
+      toast.error(error.response?.data?.message || "Failed to save room");
+    })
+    .finally(() => {
+      allRemoveLoading.value = false;
+    });
+};
+
+// Update chooseImportRoomImages method
+const chooseImportRoomImages = async () => {
+  if (!formData.value.id) {
+    toast.error("Please save the room first before importing images");
+    return;
+  }
+
+  try {
+    // Fetch rooms with images
+    const response = await roomStore.getRoomsWithImages(props.id);
+    roomsWithImages.value = response.result.rooms || [];
+
+    // Open modal
+    showImageImportModal.value = true;
+  } catch (error) {
+    toast.error("Failed to load rooms with images");
+    console.error(error);
+  }
+};
+
+// Handle image copy confirmation
+const handleImageCopy = async (params) => {
+  try {
+    const response = await roomStore.copyImages(params);
+
+    toast.success(response.message);
+
+    // Reload current room to show new images
+    await selectRoom({ id: formData.value.id });
+
+    // Close modal
+    showImageImportModal.value = false;
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Failed to copy images");
+    console.error(error);
   }
 };
 

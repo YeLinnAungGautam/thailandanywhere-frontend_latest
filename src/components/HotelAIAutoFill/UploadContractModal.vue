@@ -12,7 +12,7 @@
 
         <!-- Modal panel -->
         <div
-          class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all"
+          class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl transform transition-all"
         >
           <!-- Header -->
           <div class="px-6 py-4 border-b border-gray-200">
@@ -42,7 +42,68 @@
           </div>
 
           <!-- Body -->
-          <div class="p-6">
+          <div class="p-6 max-h-[70vh] overflow-y-auto">
+            <!-- Prompt Editor Section -->
+            <div class="mb-6">
+              <div class="flex items-center justify-between mb-3">
+                <label
+                  class="flex items-center gap-2 text-sm font-semibold text-gray-700"
+                >
+                  <span>📝</span>
+                  <span>AI Extraction Prompt</span>
+                </label>
+                <div class="flex items-center gap-2">
+                  <button
+                    @click="resetPrompt"
+                    class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors font-medium"
+                  >
+                    Reset to Default
+                  </button>
+                  <button
+                    @click="showPromptPreview = !showPromptPreview"
+                    class="text-xs px-3 py-1 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-md transition-colors font-medium"
+                  >
+                    {{ showPromptPreview ? "Hide" : "Show" }} Prompt
+                  </button>
+                </div>
+              </div>
+
+              <Transition name="slide">
+                <div v-if="showPromptPreview" class="space-y-3">
+                  <textarea
+                    v-model="customPrompt"
+                    rows="12"
+                    class="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all font-mono text-xs resize-y"
+                    placeholder="Enter your custom prompt..."
+                  ></textarea>
+
+                  <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div class="flex items-start gap-2">
+                      <span class="text-blue-600 text-lg">ℹ️</span>
+                      <div>
+                        <p class="text-sm font-semibold text-blue-900 mb-1">
+                          Important Notes:
+                        </p>
+                        <ul class="text-xs text-blue-800 space-y-1">
+                          <li>
+                            • You can customize the extraction instructions
+                          </li>
+                          <li>
+                            • The JSON format structure will be maintained
+                            automatically
+                          </li>
+                          <li>
+                            • Focus on describing what data to extract and how
+                          </li>
+                          <li>• Changes will apply to this extraction only</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Transition>
+            </div>
+
             <!-- Upload Area -->
             <div
               v-if="!isProcessing && !file"
@@ -173,7 +234,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { XMarkIcon, DocumentIcon } from "@heroicons/vue/24/outline";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -192,6 +253,121 @@ const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL;
 let genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 let currentApiKeyIndex = 1;
 
+// Enhanced Default Prompt Template
+const DEFAULT_PROMPT = `You are an expert hotel contract analyst with deep experience in hospitality revenue management and contract negotiations. Your task is to extract ALL information from this hotel contract document with the precision and understanding of a seasoned product manager.
+
+CRITICAL ANALYSIS APPROACH:
+Read this contract as a human would - understanding context, implications, and business relationships between different sections. Pay special attention to:
+- How different pricing periods relate to each other
+- Seasonal patterns and their business logic
+- Cancellation policies tied to specific date ranges
+- Special conditions that modify base rates
+- Relationships between room types and their pricing structures
+
+EXTRACTION METHODOLOGY:
+
+1. BASIC INFORMATION DISCOVERY:
+   - Hotel legal name (often in headers or signature sections)
+   - Hotel trading/brand name (may differ from legal name)
+   - Extract ALL email addresses mentioned anywhere in the document
+   - Phone numbers (official, reservation, sales contacts)
+   - Physical address (look in headers, footers, contact sections)
+
+2. FINANCIAL & TAX DETAILS:
+   - VAT/Tax status: Determine if prices are "Inclusive of VAT" or "No VAT" or "Exclusive of VAT"
+   - VAT ID / Tax ID number
+   - VAT registered name (may differ from hotel name)
+   - VAT registered address
+   - Bank account details (account number, bank name, branch, SWIFT code)
+   - Payment method: categorize as "Bank Transfer" / "International Remittance" / "Cash" / "Other"
+
+3. OPERATIONAL POLICIES (Extract times in HH:MM format):
+   - Check-in time (standard time, not early check-in)
+   - Check-out time (standard time, not late check-out)
+   - Cancellation policy (full text with all conditions)
+
+4. CONTRACT VALIDITY PERIODS:
+   - Contract signature/effective date
+   - Contract start date (validity_start)
+   - Contract end date (validity_end)
+   - Contract due date (if renewal/signing deadline mentioned)
+
+5. ROOM TYPE ANALYSIS (CRITICAL - read carefully):
+
+   For EACH room type mentioned, extract:
+   
+   a) Room Identification:
+      - room_type: Exact name as stated (e.g., "Superior Room", "Deluxe with Bathtub")
+      - room_size: Size with unit (e.g., "32 sqm", "24 m2")
+      - max_person: Maximum occupancy number
+   
+   b) Bed Configuration (count carefully):
+      - bed_types.king: Number of king beds
+      - bed_types.twin: Number of twin beds
+   
+   c) Pricing Logic (CRITICAL):
+      - cost_price: The NET RATE from the contract (base price hotel charges)
+      - sale_price: Calculate as cost_price / 0.85, then round to nearest 50 or 100
+        Example: cost_price 2,000 → 2,000/0.85 = 2,353 → round to 2,400
+      - agent_price: If mentioned separately
+   
+   d) Pricing Periods (Extract ALL mentioned periods):
+      For each period found:
+      - period_name: "High Season" / "Low Season" / "Peak Season" / specific name
+      - start_date: YYYY-MM-DD format
+      - end_date: YYYY-MM-DD format
+      - cost_price: Net rate for this period
+      - sale_price: Calculated rate (cost_price / 0.85, rounded)
+      - agent_price: If different from cost_price
+   
+   e) Surcharges & Special Dates:
+      - Look for "surcharge", "supplement", "blackout dates"
+      - Add these as separate periods with adjusted pricing
+      - Example: "THB 500 surcharge 25-31 Dec" means add 500 to base price
+   
+   f) Inclusions:
+      - has_breakfast: true/false (look for "ABF", "with breakfast", "including breakfast")
+      - is_extra: false for room types, true for extra bed charges
+
+6. CONTEXT-AWARE INTERPRETATION:
+
+   Date Format Intelligence:
+   - "01 Nov 25 - 31 Mar 26" → "2025-11-01" to "2026-03-31"
+   - "1 November 2025 Until 31 October 2026" → "2025-11-01" to "2026-10-31"
+   - Handle both year formats: "25" and "2025"
+   
+   Price Interpretation:
+   - "THB 2,000.-" or "2,000" or "Baht 2,000" → all mean 2000
+   - "RO" = Room Only, "RB" or "ABF" = Room with Breakfast
+   
+   Period Logic:
+   - If contract says "High Season: Nov-Mar" and "Low Season: Apr-Oct", create 2 separate period entries
+   - If surcharges mentioned, create additional period with higher price
+   - Blackout dates → create separate periods
+
+7. CONFIDENCE SCORING:
+   Assess extraction quality (0-100):
+   - 90-100: All fields clearly stated
+   - 70-89: Most fields clear, minor interpretation needed
+   - 50-69: Some fields unclear or missing
+   - Below 50: Significant information gaps
+
+CRITICAL RULES:
+✓ Extract ALL periods mentioned - don't consolidate or skip any
+✓ Keep original room type names - don't abbreviate
+✓ Extract ALL emails - they may be scattered throughout
+✓ Preserve exact cancellation policy language
+✓ Watch for footnotes and asterisks - crucial pricing conditions
+✓ Surcharges CREATE NEW PERIODS - don't just note them
+✓ Group rates (10+ rooms) are separate from FIT rates
+
+COMMON PATTERNS:
+1. Multiple Rate Tables: FIT, Group, Series rates
+2. Seasonal Structure: High/Peak/Low seasons
+3. Tax Variations: "Net, inclusive of tax" vs "Plus tax"
+
+RETURN FORMAT: Valid JSON only (no markdown, no backticks)`;
+
 // State
 const fileInput = ref(null);
 const file = ref(null);
@@ -199,6 +375,83 @@ const isDragging = ref(false);
 const isProcessing = ref(false);
 const processingStep = ref("");
 const error = ref("");
+const showPromptPreview = ref(false);
+const customPrompt = ref(DEFAULT_PROMPT);
+
+// JSON Schema (fixed structure)
+const JSON_SCHEMA = `{
+  "basic_info": {
+    "hotel_name": "string or null",
+    "legal_name": "string or null"
+  },
+  "contact": {
+    "official_phone_number": "string or null",
+    "official_email": "string or null",
+    "email": ["array of email strings or empty array"],
+    "official_address": "string or null"
+  },
+  "financial": {
+    "vat_inclusion": "Inclusive of VAT or No VAT or null",
+    "vat_id": "string or null",
+    "vat_name": "string or null",
+    "vat_address": "string or null",
+    "bank_account_number": "string or null",
+    "account_name": "string or null",
+    "payment_method": "Bank Transfer or International Remittance or Cash or Other or null"
+  },
+  "policies": {
+    "check_in": "time string (HH:MM format) or null",
+    "check_out": "time string (HH:MM format) or null",
+    "cancellation_policy": "string or null"
+  },
+  "contract": {
+    "contract_due": "YYYY-MM-DD format or null",
+    "validity_start": "YYYY-MM-DD format or null",
+    "validity_end": "YYYY-MM-DD format or null"
+  },
+  "rooms": [
+    {
+      "room_type": "string (room name)",
+      "max_person": number,
+      "room_size": "string with unit (e.g., '24 sqm') or null",
+      "bed_types": {
+        "king": number,
+        "twin": number
+      },
+      "cost_price": number,
+      "sale_price": number,
+      "agent_price": number or null,
+      "periods": [
+        {
+          "period_name": "High Season or Low Season or specific name",
+          "start_date": "YYYY-MM-DD",
+          "end_date": "YYYY-MM-DD",
+          "cost_price": number,
+          "sale_price": number,
+          "agent_price": number or null
+        }
+      ],
+      "has_breakfast": boolean,
+      "is_extra": boolean
+    }
+  ],
+  "ai_confidence": {
+    "overall": 0-100,
+    "notes": "string with extraction notes"
+  }
+}`;
+
+// Computed full prompt
+const fullPrompt = computed(() => {
+  return `${customPrompt.value}
+
+Return ONLY valid JSON (no markdown, no backticks, no explanation) in this EXACT format:
+
+${JSON_SCHEMA}
+
+Current hotel data for context:
+${JSON.stringify(props.hotelData, null, 2)}`;
+});
 
 // Methods
 const closeModal = () => {
@@ -214,6 +467,11 @@ const resetState = () => {
   isProcessing.value = false;
   processingStep.value = "";
   error.value = "";
+  showPromptPreview.value = false;
+};
+
+const resetPrompt = () => {
+  customPrompt.value = DEFAULT_PROMPT;
 };
 
 const triggerFileInput = () => {
@@ -305,90 +563,6 @@ const processFile = async (retryWithBackup = true) => {
     processingStep.value = "Sending to AI for analysis...";
     const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
-    const prompt = `You are a hotel contract data extraction expert. Extract ALL hotel information from this contract document.
-
-Return ONLY valid JSON (no markdown, no backticks, no explanation) in this EXACT format:
-
-{
-  "basic_info": {
-    "hotel_name": "string or null",
-    "legal_name": "string or null",
-    
-  },
-  "contact": {
-    "official_phone_number": "string or null",
-    "official_email": "string or null",
-    "email": ["array of email strings or empty array"],
-    "official_address": "string or null"
-  },
-  "financial": {
-    "vat_inclusion": "Inclusive of VAT or No VAT or null",
-    "vat_id": "string or null",
-    "vat_name": "string or null",
-    "vat_address": "string or null",
-    "bank_account_number": "string or null",
-    "account_name": "string or null",
-    "payment_method": "Bank Transfer or International Remittance or Cash or Other or null"
-  },
-  "policies": {
-    "check_in": "time string (HH:MM format) or null",
-    "check_out": "time string (HH:MM format) or null",
-    "cancellation_policy": "string or null"
-  },
-  "contract": {
-    "contract_due": "YYYY-MM-DD format or null",
-    "validity_start": "YYYY-MM-DD format or null",
-    "validity_end": "YYYY-MM-DD format or null"
-  },
-  "rooms": [
-    {
-      "room_type": "string (room name)",
-      "max_person": number,
-      "room_size": "string with unit (e.g., '24 sqm') or null",
-      "bed_types": {
-        "king": number,
-        "twin": number
-      },
-      "cost_price": number (the net rate from contract),
-      "sale_price": number (calculated as cost_price / 0.85, rounded to nearest 50 or 100),
-      "agent_price": number or null,
-      "periods": [
-        {
-          "period_name": "High Season or Low Season or specific name",
-          "start_date": "YYYY-MM-DD",
-          "end_date": "YYYY-MM-DD",
-          "sale_price": number,
-          "cost_price": number,
-          "agent_price": number or null
-        }
-      ],
-      "has_breakfast": boolean,
-      "is_extra": boolean
-    }
-  ],
-  "ai_confidence": {
-    "overall": 0-100,
-    "notes": "string with extraction notes"
-  }
-}
-
-CRITICAL RULES:
-1. Extract ALL fields you can find - use null for missing data
-2. For emails array: extract ALL email addresses mentioned
-3. For dates: convert to YYYY-MM-DD format
-4. For times: use HH:MM 24-hour format
-5. For prices: extract as numbers only (remove currency symbols)
-6. For VAT inclusion: must be exactly "Inclusive of VAT" or "No VAT"
-7. ROOM PRICING: cost_price = net rate, sale_price = cost_price/0.85 (round to nearest 50 or 100)
-8. Extract ALL pricing periods with their specific dates and prices
-9. Count bed types accurately (king beds and twin beds)
-10. max_person = maximum guests allowed
-11. Set ai_confidence.overall based on data quality (0-100)
-12. Return ONLY the JSON object - no markdown formatting
-
-Current hotel data for context:
-${JSON.stringify(props.hotelData, null, 2)}`;
-
     const imagePart = {
       inlineData: {
         data: base64Data,
@@ -397,7 +571,7 @@ ${JSON.stringify(props.hotelData, null, 2)}`;
     };
 
     processingStep.value = "AI is analyzing contract data...";
-    const result = await model.generateContent([prompt, imagePart]);
+    const result = await model.generateContent([fullPrompt.value, imagePart]);
     const response = await result.response;
     const text = response.text();
 
@@ -459,5 +633,20 @@ ${JSON.stringify(props.hotelData, null, 2)}`;
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

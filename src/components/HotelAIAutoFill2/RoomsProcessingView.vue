@@ -41,7 +41,6 @@
               </div>
 
               <div class="flex gap-1 flex-wrap mt-2">
-                <ActionBadge :action="room.action" />
                 <span
                   v-if="room.extractedRoom.periods?.length"
                   class="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-xs rounded"
@@ -58,11 +57,11 @@
     <!-- Right: Room Details (2 columns) -->
     <div class="col-span-2 space-y-6">
       <div v-if="currentRoom" class="space-y-6">
-        <!-- Action Selection -->
+        <!-- Action Buttons -->
         <div class="bg-white rounded-xl shadow-sm p-6">
-          <div class="flex justify-between items-center pb-5">
+          <div class="flex justify-between items-center">
             <h4 class="text-lg font-semibold text-gray-800">
-              Choose Import Action
+              Review & Create Room
             </h4>
             <!-- Action Buttons -->
             <div class="flex justify-end gap-3">
@@ -84,7 +83,9 @@
               >
                 <LoadingSpinner v-if="isProcessing" />
                 <span v-else>💾</span>
-                <span>{{ isProcessing ? "Processing..." : "Save Room" }}</span>
+                <span>{{
+                  isProcessing ? "Processing..." : "Create Room"
+                }}</span>
               </button>
 
               <button
@@ -97,68 +98,12 @@
               </button>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-4">
-            <ActionButton
-              action="create"
-              :selected="currentRoom.action === 'create'"
-              :disabled="isProcessing || isCompleted || isSkipped"
-              @click="changeAction('create')"
-            />
-            <ActionButton
-              action="merge"
-              :selected="currentRoom.action === 'merge'"
-              :disabled="
-                isProcessing ||
-                isCompleted ||
-                isSkipped ||
-                currentRooms.length === 0
-              "
-              @click="changeAction('merge')"
-            />
-          </div>
-
-          <!-- Merge Target Selection -->
-          <div
-            v-if="currentRoom.action === 'merge'"
-            class="mt-4 bg-blue-50 rounded-lg p-4 border-2 border-blue-200"
-          >
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Select Existing Room to Merge:
-            </label>
-            <select
-              v-model="currentRoom.targetRoomId"
-              @change="loadTargetRoomData"
-              :disabled="
-                isProcessing || isCompleted || isSkipped || isLoadingRoomDetail
-              "
-              class="w-full px-4 py-2.5 border-2 border-blue-300 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
-            >
-              <option :value="null">Choose a room...</option>
-              <option
-                v-for="existingRoom in currentRooms"
-                :key="existingRoom.id"
-                :value="existingRoom.id"
-              >
-                {{ existingRoom.name }} ({{ existingRoom.max_person }} guests,
-                {{ existingRoom.room_price }} THB)
-              </option>
-            </select>
-
-            <!-- Loading indicator for room detail -->
-            <div
-              v-if="isLoadingRoomDetail"
-              class="mt-2 flex items-center gap-2 text-sm text-blue-600"
-            >
-              <LoadingSpinner />
-              <span>Loading room details...</span>
-            </div>
-          </div>
         </div>
 
         <!-- Status Messages -->
         <StatusMessage
           :status="currentRoom.status"
-          :action="currentRoom.action"
+          action="create"
           :error="currentRoom.error"
         />
 
@@ -202,35 +147,14 @@
 
           <!-- Room Info Tab -->
           <div v-show="roomTab === 'info'" class="p-6">
-            <!-- ✅ FIXED: Pass currentRoomData properly -->
-            <RoomInfoComparison
-              v-if="
-                currentRoom.action === 'merge' &&
-                currentRoom.targetRoomId &&
-                currentRoomData
-              "
-              :current="currentRoomData"
-              :extracted="currentRoom.editableData"
-              @update="updateEditableData"
-            />
-            <RoomInfoEditor v-else v-model="currentRoom.editableData" />
+            <RoomInfoEditor v-model="currentRoom.editableData" />
           </div>
 
           <!-- Periods Tab -->
           <div v-show="roomTab === 'periods'" class="p-6">
-            <!-- ✅ FIXED: Pass currentRoomData periods properly -->
-            <PeriodsComparison
-              v-if="
-                currentRoom.action === 'merge' &&
-                currentRoom.targetRoomId &&
-                currentRoomData
-              "
-              :current="currentRoomData.periods || []"
-              :extracted="currentRoom.editableData.periods || []"
-            />
             <PeriodsList
-              v-else
               :periods="currentRoom.editableData.periods || []"
+              @update:periods="updatePeriods"
             />
           </div>
         </div>
@@ -250,13 +174,9 @@ import { ref, computed, watch } from "vue";
 import { useToast } from "vue-toastification";
 import { useRoomStore } from "../../stores/room";
 import StatusBadge from "./RoomComponents/StatusBadge.vue";
-import ActionBadge from "./RoomComponents/ActionBadge.vue";
-import ActionButton from "./RoomComponents/ActionButton.vue";
 import StatusMessage from "./RoomComponents/StatusMessage.vue";
 import LoadingSpinner from "./RoomComponents/LoadingSpinner.vue";
-import RoomInfoComparison from "./RoomComponents/RoomInfoComparison.vue";
 import RoomInfoEditor from "./RoomComponents/RoomInfoEditor.vue";
-import PeriodsComparison from "./RoomComponents/PeriodsComparison.vue";
 import PeriodsList from "./RoomComponents/PeriodsList.vue";
 
 const props = defineProps({
@@ -274,9 +194,6 @@ const roomStore = useRoomStore();
 const roomConfigs = ref([]);
 const selectedIndex = ref(0);
 const isProcessing = ref(false);
-const isLoadingRoomDetail = ref(false); // ✅ NEW: Loading state for room detail
-const currentRooms = ref([]);
-const currentRoomData = ref(null);
 const roomTab = ref("info");
 
 // Computed
@@ -317,186 +234,20 @@ const canProcess = computed(() => {
   if (isCompleted.value || isSkipped.value) return false;
   if (!currentRoom.value.editableData.name) return false;
   if (!currentRoom.value.editableData.sale_price) return false;
-
-  if (currentRoom.value.action === "create") return true;
-  if (currentRoom.value.action === "merge") {
-    return currentRoom.value.targetRoomId !== null;
-  }
-  return false;
+  return true;
 });
 
 // Methods
-const fetchCurrentRooms = async () => {
-  try {
-    const response = await roomStore.getListAction({
-      hotel_id: props.hotelId,
-      limit: 100,
-    });
-    currentRooms.value = response.result.data || [];
-  } catch (error) {
-    console.error("Failed to fetch current rooms:", error);
-    toast.error("Failed to load existing rooms");
-  }
-};
-
-const suggestBestMatch = (extractedRoom) => {
-  if (!currentRooms.value || currentRooms.value.length === 0) return null;
-
-  let bestMatch = null;
-  let bestScore = 0;
-
-  for (const currentRoom of currentRooms.value) {
-    let score = 0;
-
-    if (
-      currentRoom.name.toLowerCase() === extractedRoom.room_type.toLowerCase()
-    ) {
-      score = 90;
-    } else if (
-      currentRoom.name
-        .toLowerCase()
-        .includes(extractedRoom.room_type.toLowerCase()) &&
-      currentRoom.max_person === extractedRoom.max_person
-    ) {
-      score = 70;
-    } else if (currentRoom.max_person === extractedRoom.max_person) {
-      score = 50;
-    }
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatch = currentRoom.id;
-    }
-  }
-
-  return bestScore > 60 ? bestMatch : null;
-};
-
-const selectRoom = async (index) => {
+const selectRoom = (index) => {
   if (!isProcessing.value) {
     selectedIndex.value = index;
     roomTab.value = "info";
-
-    // ✅ FIXED: Load room detail when selecting room with merge action
-    if (
-      currentRoom.value?.action === "merge" &&
-      currentRoom.value?.targetRoomId
-    ) {
-      await loadTargetRoomData();
-    } else {
-      // Clear previous room data when switching to create or different room
-      currentRoomData.value = null;
-    }
   }
 };
 
-const changeAction = async (action) => {
-  if (currentRoom.value && !isCompleted.value && !isSkipped.value) {
-    currentRoom.value.action = action;
-    roomTab.value = "info";
-
-    if (action === "merge" && currentRoom.value.targetRoomId) {
-      // ✅ Load detail when switching to merge
-      await loadTargetRoomData();
-    } else if (action === "create") {
-      // ✅ Clear detail when switching to create
-      currentRoomData.value = null;
-
-      // Reset to original extracted data
-      currentRoom.value.editableData = {
-        name: currentRoom.value.extractedRoom.room_type,
-        max_person: currentRoom.value.extractedRoom.max_person,
-        sale_price: currentRoom.value.extractedRoom.sale_price,
-        cost_price: currentRoom.value.extractedRoom.cost_price || 0,
-        agent_price: currentRoom.value.extractedRoom.agent_price || 0,
-        owner_price: currentRoom.value.extractedRoom.owner_price || 0,
-        room_size: currentRoom.value.extractedRoom.room_size || "",
-        bed_types: currentRoom.value.extractedRoom.bed_types || {
-          king: 0,
-          twin: 0,
-        },
-        has_breakfast: currentRoom.value.extractedRoom.has_breakfast || false,
-        is_extra: currentRoom.value.extractedRoom.is_extra || false,
-        description: currentRoom.value.extractedRoom.description || "",
-        periods: currentRoom.value.extractedRoom.periods || [],
-      };
-    }
-  }
-};
-
-// ✅ FIXED: Improved loadTargetRoomData function
-const loadTargetRoomData = async () => {
-  if (!currentRoom.value || !currentRoom.value.targetRoomId) {
-    currentRoomData.value = null;
-    return;
-  }
-
-  isLoadingRoomDetail.value = true;
-
-  try {
-    console.log(
-      "🔍 Loading room detail for ID:",
-      currentRoom.value.targetRoomId,
-    );
-
-    // ✅ Call detail API
-    const response = await roomStore.detailAction(
-      currentRoom.value.targetRoomId,
-    );
-
-    console.log("✅ Room detail loaded:", response.result);
-
-    // ✅ Store the full room detail data
-    currentRoomData.value = response.result;
-
-    // ✅ Merge AI data with existing room data for editing
-    currentRoom.value.editableData = {
-      name: currentRoom.value.extractedRoom.room_type,
-      max_person: currentRoom.value.extractedRoom.max_person,
-      sale_price: currentRoom.value.extractedRoom.sale_price,
-      cost_price:
-        currentRoom.value.extractedRoom.cost_price ||
-        currentRoomData.value.cost ||
-        0,
-      agent_price:
-        currentRoom.value.extractedRoom.agent_price ||
-        currentRoomData.value.agent_price ||
-        0,
-      owner_price:
-        currentRoom.value.extractedRoom.owner_price ||
-        currentRoomData.value.owner_price ||
-        0,
-      room_size:
-        currentRoom.value.extractedRoom.room_size ||
-        currentRoomData.value.meta?.room_size ||
-        "",
-      bed_types: currentRoom.value.extractedRoom.bed_types || {
-        king: currentRoomData.value.meta?.is_double ? 1 : 0,
-        twin: currentRoomData.value.meta?.is_twin ? 1 : 0,
-      },
-      has_breakfast: currentRoom.value.extractedRoom.has_breakfast ?? false,
-      is_extra: currentRoom.value.extractedRoom.is_extra ?? false,
-      is_show_on: currentRoomData.value.meta?.is_show_on ?? true,
-      description:
-        currentRoom.value.extractedRoom.description ||
-        currentRoomData.value.description ||
-        "",
-      periods: currentRoom.value.extractedRoom.periods || [],
-    };
-
-    toast.success("Room details loaded successfully");
-  } catch (error) {
-    console.error("Failed to load target room:", error);
-    toast.error("Failed to load room details");
-    currentRoomData.value = null;
-  } finally {
-    isLoadingRoomDetail.value = false;
-  }
-};
-
-const updateEditableData = (key, value) => {
+const updatePeriods = (periods) => {
   if (currentRoom.value) {
-    currentRoom.value.editableData[key] = value;
+    currentRoom.value.editableData.periods = periods;
   }
 };
 
@@ -516,7 +267,7 @@ const moveToNextPending = () => {
   );
 
   if (nextIndex !== -1) {
-    selectRoom(nextIndex); // ✅ Use selectRoom to trigger data loading
+    selectRoom(nextIndex);
   } else {
     toast.info("No more pending rooms");
   }
@@ -529,23 +280,18 @@ const processCurrentRoom = async () => {
   currentRoom.value.status = "processing";
 
   try {
-    if (currentRoom.value.action === "create") {
-      await createNewRoom(currentRoom.value);
-    } else if (currentRoom.value.action === "merge") {
-      await mergeRoom(currentRoom.value);
-    }
+    await createNewRoom(currentRoom.value);
 
     currentRoom.value.status = "success";
-    toast.success(`✅ Room saved successfully!`);
+    toast.success(`✅ Room created successfully!`);
 
-    await fetchCurrentRooms();
     updateStatus();
     moveToNextPending();
   } catch (error) {
     currentRoom.value.status = "error";
     currentRoom.value.error = error.response?.data?.message || error.message;
-    toast.error(`Failed to process room: ${currentRoom.value.error}`);
-    console.error("Failed to import room:", error);
+    toast.error(`Failed to create room: ${currentRoom.value.error}`);
+    console.error("Failed to create room:", error);
   } finally {
     isProcessing.value = false;
   }
@@ -565,13 +311,14 @@ const createNewRoom = async (config) => {
   frmData.append("owner_price", data.owner_price || 0);
 
   frmData.append("meta[room_size]", data.room_size || "");
-  frmData.append("meta[is_double]", data.bed_types.king > 0 ? 1 : 0);
-  frmData.append("meta[is_twin]", data.bed_types.twin > 0 ? 1 : 0);
+  frmData.append("meta[is_double]", data.bed_types?.king > 0 ? 1 : 0);
+  frmData.append("meta[is_twin]", data.bed_types?.twin > 0 ? 1 : 0);
   frmData.append("meta[is_show_on]", data.is_show_on ? 1 : 0);
 
   frmData.append("is_extra", data.is_extra ? 1 : 0);
   frmData.append("has_breakfast", data.has_breakfast ? 1 : 0);
 
+  // Add periods
   if (data.periods && data.periods.length > 0) {
     for (let x = 0; x < data.periods.length; x++) {
       const period = data.periods[x];
@@ -587,70 +334,6 @@ const createNewRoom = async (config) => {
   await roomStore.addNewAction(frmData);
 };
 
-const mergeRoom = async (config) => {
-  const data = config.editableData;
-  const targetRoomId = config.targetRoomId;
-
-  // ✅ Use already loaded currentRoomData instead of fetching again
-  const existingRoom = currentRoomData.value;
-
-  if (!existingRoom) {
-    throw new Error("Room detail not loaded");
-  }
-
-  const frmData = new FormData();
-
-  frmData.append("name", data.name);
-  frmData.append("hotel_id", props.hotelId);
-  frmData.append("description", data.description);
-  frmData.append("max_person", data.max_person);
-  frmData.append("room_price", data.sale_price);
-  frmData.append("cost", data.cost_price || 0);
-  frmData.append("agent_price", data.agent_price || 0);
-  frmData.append(
-    "owner_price",
-    data.owner_price || existingRoom.owner_price || 0,
-  );
-
-  frmData.append("meta[room_size]", data.room_size || "");
-  frmData.append("meta[is_double]", data.bed_types.king > 0 ? 1 : 0);
-  frmData.append("meta[is_twin]", data.bed_types.twin > 0 ? 1 : 0);
-  frmData.append("meta[is_show_on]", data.is_show_on ? 1 : 0);
-
-  frmData.append("is_extra", data.is_extra ? 1 : 0);
-  frmData.append("has_breakfast", data.has_breakfast ? 1 : 0);
-
-  // ✅ AI periods REPLACE existing periods
-  if (data.periods && data.periods.length > 0) {
-    for (let x = 0; x < data.periods.length; x++) {
-      const period = data.periods[x];
-      frmData.append(`periods[${x}][period_name]`, period.period_name);
-      frmData.append(`periods[${x}][start_date]`, period.start_date);
-      frmData.append(`periods[${x}][end_date]`, period.end_date);
-      frmData.append(`periods[${x}][sale_price]`, period.sale_price);
-      frmData.append(`periods[${x}][cost_price]`, period.cost_price || 0);
-      frmData.append(`periods[${x}][agent_price]`, period.agent_price || 0);
-    }
-  }
-
-  // ✅ Preserve amenities from existing room
-  if (existingRoom.amenities && existingRoom.amenities.length > 0) {
-    for (let i = 0; i < existingRoom.amenities.length; i++) {
-      frmData.append(`amenities[${i}][title]`, existingRoom.amenities[i].title);
-      const lists = existingRoom.amenities[i].list || [];
-      for (let l = 0; l < lists.length; l++) {
-        const listName =
-          typeof lists[l] === "string" ? lists[l] : lists[l].list_name;
-        frmData.append(`amenities[${i}][list][${l}]`, listName);
-      }
-    }
-  }
-
-  frmData.append("_method", "PUT");
-
-  await roomStore.updateAction(frmData, targetRoomId);
-};
-
 const updateStatus = () => {
   emit("complete", {
     completed: completedCount.value,
@@ -662,48 +345,32 @@ const updateStatus = () => {
 // Initialize
 watch(
   () => props.extractedRooms,
-  async (rooms) => {
+  (rooms) => {
     if (rooms && rooms.length > 0) {
-      await fetchCurrentRooms();
-
-      roomConfigs.value = rooms.map((room, index) => {
-        const suggestedTarget = suggestBestMatch(room);
-
-        return {
-          id: `extracted_${index}`,
-          extractedRoom: room,
-          action: suggestedTarget ? "merge" : "create",
-          targetRoomId: suggestedTarget,
-          editableData: {
-            name: room.room_type,
-            max_person: room.max_person,
-            sale_price: room.sale_price,
-            cost_price: room.cost_price || 0,
-            agent_price: room.agent_price || 0,
-            owner_price: room.owner_price || 0,
-            room_size: room.room_size || "",
-            bed_types: room.bed_types || { king: 0, twin: 0 },
-            has_breakfast: room.has_breakfast || false,
-            is_extra: room.is_extra || false,
-            is_show_on: true,
-            description: room.description || "",
-            periods: room.periods || [],
-          },
-          status: "pending",
-          error: null,
-        };
-      });
+      roomConfigs.value = rooms.map((room, index) => ({
+        id: `extracted_${index}`,
+        extractedRoom: room,
+        editableData: {
+          name: room.room_type,
+          max_person: room.max_person,
+          sale_price: room.sale_price,
+          cost_price: room.cost_price || 0,
+          agent_price: room.agent_price || 0,
+          owner_price: room.owner_price || 0,
+          room_size: room.room_size || "",
+          bed_types: room.bed_types || { king: 0, twin: 0 },
+          has_breakfast: room.has_breakfast || false,
+          is_extra: room.is_extra || false,
+          is_show_on: true, // ✅ Default to true
+          description: room.description || "",
+          periods: room.periods || [],
+        },
+        status: "pending",
+        error: null,
+      }));
 
       selectedIndex.value = 0;
       updateStatus();
-
-      // ✅ Load detail for first suggested merge room
-      if (
-        roomConfigs.value[0]?.action === "merge" &&
-        roomConfigs.value[0]?.targetRoomId
-      ) {
-        await loadTargetRoomData();
-      }
     }
   },
   { immediate: true },

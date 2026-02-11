@@ -5,15 +5,6 @@
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold text-gray-700">Rooms</h3>
         <div class="flex justify-end items-center gap-x-3">
-          <!-- <div class="flex justify-end gap-x-2 items-center">
-            <p
-              @click="onlyShowOn = !onlyShowOn"
-              :class="onlyShowOn ? 'bg-[#FF613c] text-white' : 'bg-gray-300'"
-              class="px-2 cursor-pointer py-1.5 text-sm rounded-lg"
-            >
-              Only show on
-            </p>
-          </div> -->
           <div class="flex justify-end gap-x-2 items-center">
             <p
               @click="allRemoveShowOn"
@@ -177,7 +168,10 @@
     </div>
 
     <!-- Right Side - Room Form -->
-    <div class="flex-1 bg-white rounded-lg shadow-sm p-6 overflow-y-auto">
+    <div
+      class="flex-1 bg-white rounded-lg shadow-sm p-6 overflow-y-auto"
+      v-if="!loadingRoom"
+    >
       <!-- Form Header -->
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-xl font-semibold text-gray-700">
@@ -594,6 +588,14 @@
       </form>
     </div>
 
+    <div v-if="loadingRoom">
+      <div class="flex justify-center items-center h-full w-[600px]">
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-2 border-[#ff613c] border-t-transparent"
+        ></div>
+      </div>
+    </div>
+
     <!-- Period Modal -->
     <PeriodModal
       :isOpen="showPeriodModal"
@@ -820,8 +822,12 @@ const fetchRooms = async () => {
   }
 };
 
+const loadingRoom = ref(false);
+const images = ref([]);
 const selectRoom = async (room) => {
   selectedRoomId.value = room.id;
+
+  loadingRoom.value = true;
   router.push({ query: { room_id: room.id, quiteSwitch: 11 } });
   // currentTab.value = "basic";
 
@@ -868,7 +874,12 @@ const selectRoom = async (room) => {
       imagePreviews.value = data.images.map((img) => img.image);
     } else {
       imagePreviews.value = [];
+      images.value = [];
     }
+
+    images.value = data.images;
+
+    loadingRoom.value = false;
   } catch (error) {
     toast.error("Failed to load room details");
   }
@@ -898,6 +909,7 @@ const createNewRoom = () => {
     period: [],
   };
   imagePreviews.value = [];
+  images.value = [];
 };
 
 const cancelEdit = () => {
@@ -915,9 +927,18 @@ const handleImageUpload = (e) => {
   }
 };
 
-const removeImage = (index) => {
-  formData.value.images.splice(index, 1);
-  imagePreviews.value.splice(index, 1);
+const removeImage = async (index) => {
+  if (index) {
+    let getId = images.value[index].id;
+    if (getId) {
+      const res = await roomStore.deleteImageAction(
+        selectedRoomId.value,
+        getId,
+      );
+      formData.value.images.splice(index, 1);
+      imagePreviews.value.splice(index, 1);
+    }
+  }
 };
 
 const duplicateRoom = async (room) => {

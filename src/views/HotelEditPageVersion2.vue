@@ -1056,31 +1056,16 @@ const addNewHandler = async () => {
 const updateHandler = async () => {
   const frmData = new FormData();
 
-  // Only add changed and non-empty fields
-  if (hasChanged(originalFormData.value.name, formData.value.name)) {
-    frmData.append("name", formData.value.name);
-  }
+  // Basic Information - ပို့သမျှ ပို့မယ်
+  frmData.append("name", formData.value.name || "");
+  frmData.append("place", formData.value.place || "");
+  frmData.append("city_id", formData.value.city_id || "");
 
-  if (hasChanged(originalFormData.value.place, formData.value.place)) {
-    frmData.append("place", formData.value.place);
-  }
-
-  if (hasChanged(originalFormData.value.city_id, formData.value.city_id)) {
-    frmData.append("city_id", formData.value.city_id);
-  }
-
-  if (
-    hasChanged(originalFormData.value.place_id, formData.value.place_id) &&
-    formData.value.place_id != null
-  ) {
+  if (formData.value.place_id != null) {
     frmData.append("place_id", formData.value.place_id);
   }
 
   if (
-    hasChanged(
-      originalFormData.value.category_id,
-      formData.value.category_id,
-    ) &&
     formData.value.category_id != undefined &&
     formData.value.category_id != "undefined" &&
     formData.value.category_id != "" &&
@@ -1089,103 +1074,37 @@ const updateHandler = async () => {
     frmData.append("category_id", formData.value.category_id);
   }
 
-  if (
-    hasChanged(
-      originalFormData.value.vat_inclusion,
-      formData.value.vat_inclusion,
-    ) &&
-    formData.value.vat_inclusion != ""
-  ) {
+  if (formData.value.vat_inclusion != "") {
     frmData.append("vat_inclusion", formData.value.vat_inclusion);
   }
 
-  if (hasChanged(originalFormData.value.type, formData.value.type)) {
-    frmData.append("type", formData.value.type);
-  }
+  // Type & Payment
+  frmData.append("type", formData.value.type || "");
+  frmData.append("payment_method", formData.value.payment_method || "");
+  frmData.append("bank_name", formData.value.bank_name || "");
+  frmData.append(
+    "bank_account_number",
+    formData.value.bank_account_number || "",
+  );
+  frmData.append("account_name", formData.value.account_name || "");
 
-  if (
-    hasChanged(
-      originalFormData.value.payment_method,
-      formData.value.payment_method,
-    )
-  ) {
-    frmData.append("payment_method", formData.value.payment_method);
-  }
+  // Official Information
+  frmData.append("official_address", formData.value.official_address || "");
+  frmData.append("vat_id", formData.value.vat_id || "");
+  frmData.append("vat_name", formData.value.vat_name || "");
+  frmData.append("vat_address", formData.value.vat_address || "");
+  frmData.append(
+    "official_phone_number",
+    formData.value.official_phone_number || "",
+  );
 
-  if (hasChanged(originalFormData.value.bank_name, formData.value.bank_name)) {
-    frmData.append("bank_name", formData.value.bank_name);
-  }
-
-  if (
-    hasChanged(
-      originalFormData.value.bank_account_number,
-      formData.value.bank_account_number,
-    )
-  ) {
-    frmData.append("bank_account_number", formData.value.bank_account_number);
-  }
-
-  if (
-    hasChanged(originalFormData.value.account_name, formData.value.account_name)
-  ) {
-    frmData.append("account_name", formData.value.account_name);
-  }
-
-  if (
-    hasChanged(
-      originalFormData.value.official_address,
-      formData.value.official_address,
-    )
-  ) {
-    frmData.append("official_address", formData.value.official_address);
-  }
-
-  if (hasChanged(originalFormData.value.vat_id, formData.value.vat_id)) {
-    frmData.append("vat_id", formData.value.vat_id);
-  }
-
-  if (hasChanged(originalFormData.value.vat_name, formData.value.vat_name)) {
-    frmData.append("vat_name", formData.value.vat_name);
-  }
-
-  if (
-    hasChanged(originalFormData.value.vat_address, formData.value.vat_address)
-  ) {
-    frmData.append("vat_address", formData.value.vat_address);
-  }
-
-  if (
-    hasChanged(
-      originalFormData.value.official_phone_number,
-      formData.value.official_phone_number,
-    )
-  ) {
-    frmData.append(
-      "official_phone_number",
-      formData.value.official_phone_number,
-    );
-  }
-
-  if (
-    hasChanged(
-      originalFormData.value.official_email,
-      formData.value.official_email,
-    ) &&
-    formData.value.official_email &&
-    formData.value.official_email !== null
-  ) {
+  if (formData.value.official_email && formData.value.official_email !== null) {
     frmData.append("official_email", formData.value.official_email);
   }
 
-  if (
-    hasChanged(
-      originalFormData.value.official_remark,
-      formData.value.official_remark,
-    )
-  ) {
-    frmData.append("official_remark", formData.value.official_remark);
-  }
+  frmData.append("official_remark", formData.value.official_remark || "");
 
+  // Official Logo
   if (
     formData.value.official_logo &&
     formData.value.official_logo instanceof File
@@ -1193,72 +1112,32 @@ const updateHandler = async () => {
     frmData.append("official_logo", formData.value.official_logo);
   }
 
-  if (
-    hasChanged(originalFormData.value.check_in, formData.value.check_in) &&
-    formData.value.check_in &&
-    formData.value.check_in !== null
-  ) {
+  // Policies
+  if (formData.value.check_in && formData.value.check_in !== null) {
     frmData.append("check_in", formData.value.check_in);
   }
 
-  if (
-    hasChanged(originalFormData.value.check_out, formData.value.check_out) &&
-    formData.value.check_out &&
-    formData.value.check_out !== null
-  ) {
+  if (formData.value.check_out && formData.value.check_out !== null) {
     frmData.append("check_out", formData.value.check_out);
   }
 
-  if (
-    hasChanged(
-      originalFormData.value.cancellation_policy,
-      formData.value.cancellation_policy,
-    )
-  ) {
-    frmData.append("cancellation_policy", formData.value.cancellation_policy);
-  }
+  frmData.append(
+    "cancellation_policy",
+    formData.value.cancellation_policy || "",
+  );
+  frmData.append("child_policy", formData.value.child_policy || "");
 
-  if (
-    hasChanged(originalFormData.value.child_policy, formData.value.child_policy)
-  ) {
-    frmData.append("child_policy", formData.value.child_policy);
-  }
+  // Additional Information
+  frmData.append("legal_name", formData.value.legal_name || "");
+  frmData.append("description", formData.value.description || "");
+  frmData.append("full_description", formData.value.full_description || "");
+  frmData.append(
+    "full_description_en",
+    formData.value.full_description_en || "",
+  );
 
+  // Contract Due
   if (
-    hasChanged(originalFormData.value.legal_name, formData.value.legal_name)
-  ) {
-    frmData.append("legal_name", formData.value.legal_name);
-  }
-
-  if (
-    hasChanged(originalFormData.value.description, formData.value.description)
-  ) {
-    frmData.append("description", formData.value.description);
-  }
-
-  if (
-    hasChanged(
-      originalFormData.value.full_description,
-      formData.value.full_description,
-    )
-  ) {
-    frmData.append("full_description", formData.value.full_description);
-  }
-
-  if (
-    hasChanged(
-      originalFormData.value.full_description_en,
-      formData.value.full_description_en,
-    )
-  ) {
-    frmData.append("full_description_en", formData.value.full_description_en);
-  }
-
-  if (
-    hasChanged(
-      originalFormData.value.contract_due,
-      formData.value.contract_due,
-    ) &&
     formData.value.contract_due != null &&
     formData.value.contract_due != undefined &&
     formData.value.contract_due != "null" &&
@@ -1267,39 +1146,21 @@ const updateHandler = async () => {
     frmData.append("contract_due", formData.value.contract_due);
   }
 
+  // Data Checked
   frmData.append("data_checked", formData.value.data_checked ? 1 : 0);
 
-  if (
-    hasChanged(
-      originalFormData.value.location_map_title,
-      formData.value.location_map_title,
-    )
-  ) {
-    frmData.append("location_map_title", formData.value.location_map_title);
-  }
+  // Location Information
+  frmData.append("location_map_title", formData.value.location_map_title || "");
+  frmData.append("location_map", formData.value.location_map || "");
 
-  if (
-    hasChanged(originalFormData.value.location_map, formData.value.location_map)
-  ) {
-    frmData.append("location_map", formData.value.location_map);
-  }
-
-  if (
-    hasChanged(originalFormData.value.rating, formData.value.rating) &&
-    formData.value.rating !== "" &&
-    formData.value.rating !== null
-  ) {
+  if (formData.value.rating !== "" && formData.value.rating !== null) {
     frmData.append("rating", formData.value.rating);
   }
 
-  if (
-    hasChanged(originalFormData.value.latitude, formData.value.latitude) ||
-    hasChanged(originalFormData.value.longitude, formData.value.longitude)
-  ) {
-    if (formData.value.latitude && formData.value.longitude) {
-      frmData.append("latitude", formData.value.latitude);
-      frmData.append("longitude", formData.value.longitude);
-    }
+  // Latitude & Longitude
+  if (formData.value.latitude && formData.value.longitude) {
+    frmData.append("latitude", formData.value.latitude);
+    frmData.append("longitude", formData.value.longitude);
   }
 
   // Contracts
@@ -1320,34 +1181,24 @@ const updateHandler = async () => {
     }
   }
 
-  // Only append email if changed
-  if (hasChanged(originalFormData.value.email, formData.value.email)) {
-    if (formData.value.email.length > 0) {
-      for (let i = 0; i < formData.value.email.length; i++) {
-        frmData.append("email[" + i + "]", formData.value.email[i]);
-      }
+  // Emails - အားလုံးပို့မယ်
+  if (formData.value.email && formData.value.email.length > 0) {
+    for (let i = 0; i < formData.value.email.length; i++) {
+      frmData.append("email[" + i + "]", formData.value.email[i]);
     }
   }
 
-  // Only append youtube links if changed
-  if (
-    hasChanged(originalFormData.value.youtube_link, formData.value.youtube_link)
-  ) {
-    frmData.append(
-      "youtube_link[0][mm_link]",
-      formData.value.youtube_link.mm_link
-        ? formData.value.youtube_link.mm_link
-        : "",
-    );
-    frmData.append(
-      "youtube_link[0][en_link]",
-      formData.value.youtube_link.en_link
-        ? formData.value.youtube_link.en_link
-        : "",
-    );
-  }
+  // YouTube Links - အားလုံးပို့မယ်
+  frmData.append(
+    "youtube_link[0][mm_link]",
+    formData.value.youtube_link.mm_link || "",
+  );
+  frmData.append(
+    "youtube_link[0][en_link]",
+    formData.value.youtube_link.en_link || "",
+  );
 
-  // Add AI extracted rooms if any
+  // AI extracted rooms
   if (
     formData.value.ai_extracted_rooms &&
     formData.value.ai_extracted_rooms.length > 0
@@ -1358,51 +1209,40 @@ const updateHandler = async () => {
     );
   }
 
-  // Only append nearby places if changed
-  if (
-    hasChanged(
-      originalFormData.value.nearby_places,
-      formData.value.nearby_places,
-    )
-  ) {
-    if (formData.value.nearby_places.length > 0) {
-      for (let i = 0; i < formData.value.nearby_places.length; i++) {
-        if (formData.value.nearby_places[i].img) {
-          frmData.append(
-            "nearby_places[" + i + "][image]",
-            formData.value.nearby_places[i].img,
-          );
-        } else if (formData.value.nearby_places[i].image) {
-          frmData.append(
-            "nearby_places[" + i + "][image]",
-            formData.value.nearby_places[i].image,
-          );
-        }
+  // Nearby Places - အားလုံးပို့မယ်
+  if (formData.value.nearby_places && formData.value.nearby_places.length > 0) {
+    for (let i = 0; i < formData.value.nearby_places.length; i++) {
+      if (formData.value.nearby_places[i].img) {
         frmData.append(
-          "nearby_places[" + i + "][name]",
-          formData.value.nearby_places[i].place,
+          "nearby_places[" + i + "][image]",
+          formData.value.nearby_places[i].img,
         );
+      } else if (formData.value.nearby_places[i].image) {
         frmData.append(
-          "nearby_places[" + i + "][distance]",
-          formData.value.nearby_places[i].distance,
+          "nearby_places[" + i + "][image]",
+          formData.value.nearby_places[i].image,
         );
       }
+      frmData.append(
+        "nearby_places[" + i + "][name]",
+        formData.value.nearby_places[i].place || "",
+      );
+      frmData.append(
+        "nearby_places[" + i + "][distance]",
+        formData.value.nearby_places[i].distance || "",
+      );
     }
   }
 
-  // Only append facilities if changed
-  if (
-    hasChanged(originalFormData.value.facilities, formData.value.facilities)
-  ) {
-    if (formData.value.facilities.length > 0) {
-      for (let f = 0; f < formData.value.facilities.length; f++) {
-        frmData.append("facilities[" + f + "]", formData.value.facilities[f]);
-      }
+  // Facilities - အားလုံးပို့မယ်
+  if (formData.value.facilities && formData.value.facilities.length > 0) {
+    for (let f = 0; f < formData.value.facilities.length; f++) {
+      frmData.append("facilities[" + f + "]", formData.value.facilities[f]);
     }
   }
 
-  // Only append new images
-  if (formData.value.images.length > 0) {
+  // Images - အသစ်တွေပဲ ပို့မယ်
+  if (formData.value.images && formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
       frmData.append("images[" + i + "]", file);
@@ -1672,6 +1512,7 @@ onMounted(async () => {
       v-if="isAiMood"
       :extractedData="extractedData"
       :currentData="formData"
+      :editImagesPreview="editImagesPreview"
       :originalFile="uploadedFile"
       @applyHotelData="handleApplyHotelData"
       @complete="handleAIImportComplete"
@@ -1779,7 +1620,7 @@ onMounted(async () => {
           >
             <p
               class="px-4 py-2 cursor-pointer text-sm rounded-lg transition-all duration-200 whitespace-nowrap"
-              @click="quiteSwitch = 1"
+              @click="changeSwitch(1)"
               :class="
                 quiteSwitch == 1
                   ? 'bg-[#FF613c] text-white shadow-md'
@@ -1790,7 +1631,7 @@ onMounted(async () => {
             </p>
             <p
               class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
-              @click="quiteSwitch = 2"
+              @click="changeSwitch(2)"
               :class="
                 quiteSwitch == 2
                   ? 'bg-[#FF613c] text-white shadow-md'
@@ -1801,7 +1642,7 @@ onMounted(async () => {
             </p>
             <p
               class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
-              @click="quiteSwitch = 3"
+              @click="changeSwitch(3)"
               :class="
                 quiteSwitch == 3
                   ? 'bg-[#FF613c] text-white shadow-md'
@@ -1812,7 +1653,7 @@ onMounted(async () => {
             </p>
             <p
               class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
-              @click="quiteSwitch = 4"
+              @click="changeSwitch(4)"
               :class="
                 quiteSwitch == 4
                   ? 'bg-[#FF613c] text-white shadow-md'
@@ -1824,7 +1665,7 @@ onMounted(async () => {
             <p
               v-if="formData.id"
               class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
-              @click="quiteSwitch = 5"
+              @click="changeSwitch(5)"
               :class="
                 quiteSwitch == 5
                   ? 'bg-[#FF613c] text-white shadow-md'
@@ -1837,7 +1678,7 @@ onMounted(async () => {
             <p
               v-if="formData.id"
               class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
-              @click="quiteSwitch = 7"
+              @click="changeSwitch(7)"
               :class="
                 quiteSwitch == 7
                   ? 'bg-[#FF613c] text-white shadow-md'

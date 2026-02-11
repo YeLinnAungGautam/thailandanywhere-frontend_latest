@@ -57,7 +57,7 @@
     </div>
 
     <!-- Tab Navigation -->
-    <div class="bg-white border-b border-gray-200">
+    <div class="bg-white border-b sticky top-[69px] z-10 border-gray-200">
       <div class="max-w-full mx-auto">
         <div class="flex gap-1">
           <button
@@ -77,7 +77,17 @@
               {{ approvedFieldsCount }} selected
             </span>
           </button>
-
+          <button
+            @click="currentStep = 'detail&info'"
+            :class="[
+              'px-6 py-3 text-sm font-medium transition-all border-b-2',
+              currentStep === 'detail&info'
+                ? 'text-blue-600 border-blue-600 bg-blue-50'
+                : 'text-gray-600 border-transparent hover:bg-gray-50',
+            ]"
+          >
+            Detail & Info
+          </button>
           <button
             @click="currentStep = 'rooms'"
             :class="[
@@ -120,13 +130,20 @@
         @complete="handleRoomsComplete"
         @back="currentStep = 'data-compare'"
       />
+
+      <!-- Detail & Info -->
+      <DetailAndInfoView
+        v-show="currentStep === 'detail&info'"
+        :currentData="currentData"
+        :editImagesPreview="editImagesPreview"
+      />
     </div>
 
     <!-- Bottom Action Bar -->
     <div
       class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg"
     >
-      <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="max-w-full pl-32 pr-10 py-4">
         <div class="flex items-center justify-between">
           <div class="text-sm text-gray-600">
             <span v-if="currentStep === 'data-compare'">
@@ -154,7 +171,7 @@
             </span>
           </div>
 
-          <div class="flex gap-3">
+          <div class="flex justify-end items-center gap-3">
             <button
               @click="cancelImport"
               class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors"
@@ -164,11 +181,31 @@
 
             <button
               v-if="currentStep === 'data-compare'"
-              @click="goToRooms"
+              @click="goToDetail"
               :disabled="approvedFieldsCount === 0"
               class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
-              <span>Apply & Continue to Rooms</span>
+              <span>Next Step</span>
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+            <button
+              v-if="currentStep === 'detail&info'"
+              @click="goToRooms"
+              class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            >
+              <span>Next Step</span>
               <svg
                 class="w-4 h-4"
                 fill="none"
@@ -190,7 +227,7 @@
               class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
             >
               <span>✓</span>
-              <span>Click When All Finish</span>
+              <span>Complete</span>
             </button>
           </div>
         </div>
@@ -205,11 +242,13 @@ import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import DataComparisonView from "./DataComparisonView.vue";
 import RoomsProcessingView from "./RoomsProcessingView.vue";
+import DetailAndInfoView from "./DetailAndInfoView.vue";
 
 const props = defineProps({
   extractedData: Object,
   currentData: Object,
   originalFile: Object,
+  editImagesPreview: Array,
 });
 
 const emit = defineEmits(["complete", "cancel"]);
@@ -243,6 +282,10 @@ const totalRooms = computed(() => {
 const completedRooms = computed(() => roomsStatus.value.completed);
 const skippedRooms = computed(() => roomsStatus.value.skipped);
 const pendingRooms = computed(() => roomsStatus.value.pending);
+
+const goToDetail = () => {
+  currentStep.value = "detail&info";
+};
 
 // Methods
 const goToRooms = () => {

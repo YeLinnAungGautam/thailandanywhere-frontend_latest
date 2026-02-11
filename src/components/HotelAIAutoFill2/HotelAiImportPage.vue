@@ -89,7 +89,18 @@
             Detail & Info
           </button>
           <button
-            @click="currentStep = 'rooms'"
+            @click="currentStep = 'location'"
+            :class="[
+              'px-6 py-3 text-sm font-medium transition-all border-b-2',
+              currentStep === 'location'
+                ? 'text-blue-600 border-blue-600 bg-blue-50'
+                : 'text-gray-600 border-transparent hover:bg-gray-50',
+            ]"
+          >
+            Location & Map Detail
+          </button>
+          <button
+            @click="goToRooms"
             :class="[
               'px-6 py-3 text-sm font-medium transition-all border-b-2',
               currentStep === 'rooms'
@@ -136,6 +147,12 @@
         v-show="currentStep === 'detail&info'"
         :currentData="currentData"
         :editImagesPreview="editImagesPreview"
+      />
+
+      <!-- location & map -->
+      <LocationMap
+        v-show="currentStep === 'location'"
+        :currentData="currentData"
       />
     </div>
 
@@ -202,6 +219,27 @@
             </button>
             <button
               v-if="currentStep === 'detail&info'"
+              @click="currentStep = 'location'"
+              class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            >
+              <span>Next Step</span>
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+
+            <button
+              v-if="currentStep === 'location'"
               @click="goToRooms"
               class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
@@ -243,6 +281,7 @@ import { useToast } from "vue-toastification";
 import DataComparisonView from "./DataComparisonView.vue";
 import RoomsProcessingView from "./RoomsProcessingView.vue";
 import DetailAndInfoView from "./DetailAndInfoView.vue";
+import LocationMap from "./LocationMap.vue";
 
 const props = defineProps({
   extractedData: Object,

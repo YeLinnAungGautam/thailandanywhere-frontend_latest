@@ -928,16 +928,15 @@ const handleImageUpload = (e) => {
 };
 
 const removeImage = async (index) => {
-  if (index) {
-    let getId = images.value[index].id;
-    if (getId) {
-      const res = await roomStore.deleteImageAction(
-        selectedRoomId.value,
-        getId,
-      );
-      formData.value.images.splice(index, 1);
-      imagePreviews.value.splice(index, 1);
-    }
+  console.log(index, "this is index");
+
+  let getId = images.value[index].id;
+  console.log(getId, "this is id");
+
+  if (getId) {
+    const res = await roomStore.deleteImageAction(selectedRoomId.value, getId);
+    formData.value.images.splice(index, 1);
+    imagePreviews.value.splice(index, 1);
   }
 };
 
@@ -1057,6 +1056,8 @@ const saveRoom = async () => {
         formData.value.period[x].agent_price,
       );
     }
+  } else {
+    frmData.append("periods", "[]");
   }
 
   if (isEditing.value) {

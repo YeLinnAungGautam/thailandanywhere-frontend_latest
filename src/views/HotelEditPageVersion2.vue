@@ -62,6 +62,7 @@ import ContractSaveConfirmModal from "../components/HotelAIAutoFill/ContractSave
 import RoomPeriodImportModal from "../components/HotelAIAutoFill/RoomPeriodImportModal.vue";
 // Add this to your imports section
 import HotelAIImportPage from "../components/HotelAIAutoFill2/HotelAiImportPage.vue";
+import LocationDetail from "./LocationDetail.vue";
 
 // ==================== STORE INITIALIZATION ====================
 const toast = useToast();
@@ -2887,6 +2888,8 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
+
+                <!-- <LocationDetail :formData="formData" /> -->
 
                 <div
                   class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"

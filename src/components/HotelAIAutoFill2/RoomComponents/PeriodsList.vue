@@ -84,6 +84,9 @@
           <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">
               Sale Price (THB) *
+              <span class="text-red-500"
+                >Suggest : {{ suggestPrice(period.cost_price) }}</span
+              >
             </label>
             <input
               v-model.number="period.sale_price"
@@ -173,6 +176,17 @@ const localPeriods = ref(
     id: period.id || `period_${periodIdCounter++}`,
   })),
 );
+
+const suggestPrice = (cost) => {
+  if (!cost) return 0;
+  let amount = cost / 0.85;
+  let lastTwoDigits = amount % 100;
+  if (lastTwoDigits > 50) {
+    return (Math.ceil(amount / 100) * 100).toFixed(0);
+  } else {
+    return (Math.round(amount / 50) * 50).toFixed(0);
+  }
+};
 
 // Watch for external changes only
 watch(

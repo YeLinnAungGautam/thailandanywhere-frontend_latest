@@ -332,6 +332,18 @@ EXTRACTION METHODOLOGY:
 9. Extra Bed do not add profit.
 - For rooms that are extra beds do not add profit.
 
+10. If there are room prices divided as GIT (Group Inclusive Tour) and FIT (Free Independent Traveler), take only one. Take the FIT prices and room only. If not please ignore.
+
+11. If there are room prices divided as breakfast included and breakfast not included; take the breakfast included room only. Ignore breakfast not included data. If not please ignore.
+
+12. For room names, make it simple and easy for customers to understand, make short and concise.
+
+13. For each room take only one variations of the room (e.g. do not create breakfast and no breakfast, bathtub and no bathtub; instead take only one prioritising  prices of with breakfast).
+
+14. Always have a default price. This would be the price in current period.
+
+15. For period names try to use simple name such as (High Season, Low Season, New Year, Chinese New Year)
+
 CRITICAL RULES:
 ✓ Extract ALL periods mentioned - don't consolidate or skip any
 ✓ Keep original room type names - don't abbreviate

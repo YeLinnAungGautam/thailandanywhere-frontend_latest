@@ -234,6 +234,13 @@ const policyFields = computed(() => [
     extracted: props.extractedData?.policies?.cancellation_policy,
     type: "textarea",
   },
+  {
+    key: "child_policy",
+    label: "Child Policy",
+    current: props.currentData?.child_policy,
+    extracted: props.extractedData?.policies?.child_policy,
+    type: "textarea",
+  },
 ]);
 
 const contractFields = computed(() => [

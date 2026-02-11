@@ -17,9 +17,9 @@
           <div class="flex justify-end gap-x-2 items-center">
             <p
               @click="allRemoveShowOn"
-              class="px-2 cursor-pointer py-1.5 text-sm rounded-lg bg-[#FF613c] text-white"
+              class="px-2 cursor-pointer py-1.5 text-sm rounded-lg bg-red-600 text-white"
             >
-              {{ allRemoveLoading ? "Loading..." : "R. Show on" }}
+              {{ allRemoveLoading ? "Loading..." : "Remove Show on" }}
             </p>
           </div>
           <button

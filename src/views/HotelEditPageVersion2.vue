@@ -176,6 +176,7 @@ const formData = ref({
   check_in: "",
   check_out: "",
   cancellation_policy: "",
+  child_policy: "",
   official_address: "",
   vat_id: "",
   vat_name: "",
@@ -446,6 +447,7 @@ const getExtractedValue = (key, extracted) => {
     check_in: extracted?.policies?.check_in,
     check_out: extracted?.policies?.check_out,
     cancellation_policy: extracted?.policies?.cancellation_policy,
+    child_policy: extracted?.policies?.child_policy,
     contract_due: extracted?.contract?.contract_due,
   };
   return keyMap[key];
@@ -829,6 +831,7 @@ const closeModal = () => {
     check_in: "",
     check_out: "",
     cancellation_policy: "",
+    child_policy: "",
     official_address: "",
     vat_id: "",
     vat_name: "",
@@ -922,6 +925,7 @@ const addNewHandler = async () => {
   frmData.append("check_in", formData.value.check_in);
   frmData.append("check_out", formData.value.check_out);
   frmData.append("cancellation_policy", formData.value.cancellation_policy);
+  frmData.append("child_policy", formData.value.child_policy);
   frmData.append("place", formData.value.place);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
@@ -1212,6 +1216,12 @@ const updateHandler = async () => {
     )
   ) {
     frmData.append("cancellation_policy", formData.value.cancellation_policy);
+  }
+
+  if (
+    hasChanged(originalFormData.value.child_policy, formData.value.child_policy)
+  ) {
+    frmData.append("child_policy", formData.value.child_policy);
   }
 
   if (
@@ -1509,6 +1519,7 @@ const getDetail = async (params) => {
     formData.value.check_in = data.check_in;
     formData.value.check_out = data.check_out;
     formData.value.cancellation_policy = data.cancellation_policy;
+    formData.value.child_policy = data.child_policy;
 
     // Official Info
     formData.value.official_address = data.official_address;
@@ -2781,6 +2792,20 @@ onMounted(async () => {
                         id="cancellation-policy"
                         rows="4"
                         placeholder="Enter cancellation policy details..."
+                        class="w-full text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                      ></textarea>
+                    </div>
+                    <div class="space-y-2">
+                      <label
+                        for="child-policy"
+                        class="text-sm font-medium text-gray-700"
+                        >child Policy</label
+                      >
+                      <textarea
+                        v-model="formData.child_policy"
+                        id="child-policy"
+                        rows="4"
+                        placeholder="Enter child policy details..."
                         class="w-full text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                       ></textarea>
                     </div>

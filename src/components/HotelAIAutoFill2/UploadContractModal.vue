@@ -333,7 +333,8 @@ Return ONLY valid JSON (no markdown, no backticks, no explanation) in this EXACT
   "policies": {
     "check_in": "time string (HH:MM format) or null",
     "check_out": "time string (HH:MM format) or null",
-    "cancellation_policy": "string or null"
+    "cancellation_policy": "string or null",
+    "child_policy": "string or null"
   },
   "contract": {
     "contract_due": "YYYY-MM-DD format or null",

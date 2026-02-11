@@ -76,30 +76,6 @@
                     class="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all font-mono text-xs resize-y"
                     placeholder="Enter your custom prompt..."
                   ></textarea>
-
-                  <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div class="flex items-start gap-2">
-                      <span class="text-blue-600 text-lg">ℹ️</span>
-                      <div>
-                        <p class="text-sm font-semibold text-blue-900 mb-1">
-                          Important Notes:
-                        </p>
-                        <ul class="text-xs text-blue-800 space-y-1">
-                          <li>
-                            • You can customize the extraction instructions
-                          </li>
-                          <li>
-                            • The JSON format structure will be maintained
-                            automatically
-                          </li>
-                          <li>
-                            • Focus on describing what data to extract and how
-                          </li>
-                          <li>• Changes will apply to this extraction only</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </Transition>
             </div>
@@ -285,6 +261,7 @@ EXTRACTION METHODOLOGY:
    - Check-in time (standard time, not early check-in)
    - Check-out time (standard time, not late check-out)
    - Cancellation policy (full text with all conditions)
+   - Child policy (full text with all conditions)
 
 4. CONTRACT VALIDITY PERIODS:
    - Contract signature/effective date
@@ -345,12 +322,15 @@ EXTRACTION METHODOLOGY:
    - If surcharges mentioned, create additional period with higher price
    - Blackout dates → create separate periods
 
-7. CONFIDENCE SCORING:
-   Assess extraction quality (0-100):
-   - 90-100: All fields clearly stated
-   - 70-89: Most fields clear, minor interpretation needed
-   - 50-69: Some fields unclear or missing
-   - Below 50: Significant information gaps
+7. Contract Due Date:
+   - For contract due date use keywords such as validity to determine the last day the contract is valid.
+- If contract due date is not defined clearly, use the last date in the contract as the due date.
+
+8. Room Name:
+   - For Room names use clear and easy to comprehend rooms. If rooms do not include breakfast add this in room name as: Room Name "without Breakfast"
+
+9. Extra Bed do not add profit.
+- For rooms that are extra beds do not add profit.
 
 CRITICAL RULES:
 ✓ Extract ALL periods mentioned - don't consolidate or skip any
@@ -402,7 +382,8 @@ const JSON_SCHEMA = `{
   "policies": {
     "check_in": "time string (HH:MM format) or null",
     "check_out": "time string (HH:MM format) or null",
-    "cancellation_policy": "string or null"
+    "cancellation_policy": "string or null",
+    "child_policy": "string or null"
   },
   "contract": {
     "contract_due": "YYYY-MM-DD format or null",

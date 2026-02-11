@@ -287,6 +287,7 @@ EXTRACTION METHODOLOGY:
       - sale_price: Calculate as cost_price / 0.85, then round to nearest 50 or 100
         Example: cost_price 2,000 → 2,000/0.85 = 2,353 → round to 2,400
       - agent_price: If mentioned separately
+      - owner_price: For this price create a random number that is between 2 times and 3 times of the cost_price.
    
    d) Pricing Periods (Extract ALL mentioned periods):
       For each period found:
@@ -413,6 +414,7 @@ const JSON_SCHEMA = `{
       },
       "cost_price": number,
       "sale_price": number,
+      "owner_price": number,
       "agent_price": number or null,
       "periods": [
         {

@@ -52,6 +52,9 @@
       <div>
         <label class="block text-xs font-medium text-gray-600 mb-1">
           Sale Price (THB) *
+          <span class="text-red-500"
+            >Suggest : {{ suggestPrice(modelValue.cost_price) }}</span
+          >
         </label>
         <input
           :value="modelValue.sale_price"
@@ -242,6 +245,17 @@ const emit = defineEmits(["update:modelValue"]);
 
 const update = (key, value) => {
   emit("update:modelValue", { ...props.modelValue, [key]: value });
+};
+
+const suggestPrice = (cost) => {
+  if (!cost) return 0;
+  let amount = cost / 0.85;
+  let lastTwoDigits = amount % 100;
+  if (lastTwoDigits > 50) {
+    return (Math.ceil(amount / 100) * 100).toFixed(0);
+  } else {
+    return (Math.round(amount / 50) * 50).toFixed(0);
+  }
 };
 
 const updateBedType = (type, value) => {

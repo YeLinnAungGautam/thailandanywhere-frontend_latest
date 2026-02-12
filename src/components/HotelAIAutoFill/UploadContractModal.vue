@@ -245,7 +245,8 @@ EXTRACTION METHODOLOGY:
 1. BASIC INFORMATION DISCOVERY:
    - Hotel legal name (often in headers or signature sections)
    - Hotel trading/brand name (may differ from legal name)
-   - Extract ALL email addresses mentioned anywhere in the document
+   - Extract email addresses of the hotel mentioned anywhere in the document. Make sure
+   to not extract emails that include @thanywhere.com
    - Phone numbers (official, reservation, sales contacts)
    - Physical address (look in headers, footers, contact sections)
 
@@ -328,7 +329,7 @@ EXTRACTION METHODOLOGY:
 - If contract due date is not defined clearly, use the last date in the contract as the due date.
 
 8. Room Name:
-   - For Room names use clear and easy to comprehend rooms. If rooms do not include breakfast add this in room name as: Room Name "without Breakfast"
+   - For Room names use clear and easy to comprehend rooms.
 
 9. Extra Bed do not add profit.
 - For rooms that are extra beds do not add profit.

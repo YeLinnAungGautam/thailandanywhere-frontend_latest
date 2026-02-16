@@ -114,6 +114,7 @@ import HotelEditViewVersion2 from "../views/HotelEditPageVersion2.vue";
 import HotelCreateVersionV2 from "../views/HotelCreateVersionV2.vue";
 import FunnelReport from "../views/FunnelReport.vue";
 import EntranceCreateVersion2 from "../views/EntranceCreateVersion2.vue";
+import GenerateInclusive from "../views/GenerateInclusive.vue";
 
 const routes = [
   {
@@ -128,6 +129,11 @@ const routes = [
     path: "/",
     name: "home",
     component: HomeView,
+  },
+  {
+    path: "/home/generate-inclusive",
+    name: "generate-inclusive",
+    component: GenerateInclusive,
   },
   {
     path: "/home/sale-analysics",
@@ -216,7 +222,7 @@ const routes = [
     name: "attraction-v2",
     component: AttractionViewVersion2,
   },
-    {
+  {
     path: "/products-v2/attraction/create",
     name: "attraction-create-v2",
     component: EntranceCreateVersion2,

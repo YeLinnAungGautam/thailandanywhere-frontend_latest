@@ -85,17 +85,14 @@
                     ×
                   </button>
                   <div class="font-semibold">{{ item.name }}</div>
-                  <div class="opacity-90 mt-1">{{ item.type }}</div>
-                  <div class="opacity-75 text-[10px] mt-1">
-                    👤 {{ item.adults + item.children }} pax
-                  </div>
-                  <div class="opacity-75 text-[10px] mt-1">
-                    ฿{{
-                      (
-                        (item.price || 0) *
-                        (item.adults + item.children)
-                      ).toLocaleString()
-                    }}
+                  <div class="opacity-90 mt-1 text-[10px]">{{ item.type }}</div>
+                  <div class="flex justify-start items-center gap-x-1">
+                    <div class="opacity-75 text-sm font-medium mt-1">
+                      ฿{{ (item.sellingPrice || 0).toLocaleString() }}
+                    </div>
+                    <div class="opacity-75 text-xs mt-1">
+                      👤 A:{{ item.adults }}, C:{{ item.children }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -130,29 +127,31 @@
         </div>
         <div class="text-xs text-blue-500 font-semibold mb-1">
           {{ item.dayLabel }} •
-          {{ item.cities ? item.cities.join(" → ") : item.city }}
+          {{
+            item.cities
+              ? item.cities.map((city) => city.name).join(" → ")
+              : item.city
+          }}
         </div>
         <h4 class="font-semibold text-slate-800 text-base">
           {{ item.name || "Unnamed" }}
         </h4>
-        <div class="text-sm text-blue-600 mt-1">
+        <div class="text-[10px] text-blue-600 mt-1">
           {{ item.type || "Attraction" }}
         </div>
-        <div class="text-sm text-slate-600 mt-1">
+        <div class="text-[12px] text-slate-600 mt-1">
           {{ item.adults }} Adults, {{ item.children }} Children
         </div>
-        <div class="text-sm text-orange-600 font-bold mt-2">
-          ฿{{
-            ((item.price || 0) * (item.adults + item.children)).toLocaleString()
-          }}
+        <div class="text-lg text-orange-600 font-semibold mt-2">
+          ฿{{ (item.sellingPrice || 0).toLocaleString() }}
         </div>
-        <div v-if="item.variation" class="mt-2">
+        <!-- <div v-if="item.variation" class="mt-2">
           <span
             class="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium"
           >
             {{ item.variation }}
           </span>
-        </div>
+        </div> -->
       </div>
       <div
         v-if="attractions.length === 0"

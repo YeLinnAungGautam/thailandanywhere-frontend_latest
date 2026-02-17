@@ -81,7 +81,8 @@
                     authStore.isCashier ||
                     authStore.isAdmin ||
                     authStore.isSaleAdmin ||
-                    authStore.isAuditor
+                    authStore.isAuditor ||
+                    authStore.isReservation
                   "
                   :icon="CalendarIcon"
                   to="/bookings/%25/%25/%25"

@@ -179,7 +179,15 @@
                       {{ formatDate(endDateCalculated) }}
                     </div>
                   </div> -->
-                  <div class="grid grid-cols-4 pt-6 gap-2">
+                </div>
+              </div>
+
+              <!-- RIGHT SIDE: City Assignment - Step by Step -->
+              <div v-if="totalDays > 0">
+                <div class="bg-white rounded-xl pb-6">
+                  <div
+                    class="flex justify-start items-center overflow-x-scroll no-scrollbar pb-6 gap-2"
+                  >
                     <button
                       v-for="day in totalDays"
                       :key="`day-tab-${day}`"
@@ -210,12 +218,6 @@
                       </div>
                     </button>
                   </div>
-                </div>
-              </div>
-
-              <!-- RIGHT SIDE: City Assignment - Step by Step -->
-              <div v-if="totalDays > 0">
-                <div class="bg-white rounded-xl pb-6">
                   <!-- Day Selection Tabs -->
                   <div class="mb-6">
                     <p class="text-sm text-slate-600 mb-3">
@@ -283,13 +285,13 @@
                         :key="city"
                         @click="toggleCity(selectedDayForCities, city)"
                         :class="[
-                          'px-4 py-2 rounded-xl text-xs transition shadow-sm',
+                          ' px-3 py-1.5 rounded-xl text-xs transition shadow-sm',
                           isCitySelected(selectedDayForCities, city)
                             ? 'bg-orange-500 text-white hover:bg-orange-600'
                             : 'bg-white text-slate-700 hover:bg-orange-100 border-2 border-slate-200',
                         ]"
                       >
-                        {{ city }}
+                        {{ city.name }}
                         <span
                           v-if="isCitySelected(selectedDayForCities, city)"
                           class="ml-1"
@@ -346,7 +348,7 @@
                           :key="`selected-${city}-${idx}`"
                           class="inline-flex items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-xl text-xs"
                         >
-                          {{ city }}
+                          {{ city.name }}
                           <button
                             @click="removeCity(selectedDayForCities, city)"
                             class="hover:text-orange-900 ml-1"
@@ -420,7 +422,7 @@
                   </div>
 
                   <!-- Overall Trip Summary -->
-                  <div
+                  <!-- <div
                     v-if="allSelectedCities.length > 0"
                     class="mt-6 pt-6 border-t-2 border-slate-200"
                   >
@@ -443,7 +445,7 @@
                       Trip Summary
                     </h4>
 
-                    <!-- Total Days Configured -->
+                    
                     <div class="mb-3">
                       <div class="flex items-center gap-2 text-sm">
                         <span class="text-slate-600">Days with cities:</span>
@@ -459,7 +461,7 @@
                       </div>
                     </div>
 
-                    <!-- All Cities -->
+                    
                     <div>
                       <span class="text-xs text-slate-500 block mb-2"
                         >All cities in your trip:</span
@@ -474,7 +476,7 @@
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </div>
@@ -625,7 +627,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 import Layout from "./Layout.vue";
 import AttractionForm from "./GenerateInclusive/AttractionForm.vue";
 import AttractionList from "./GenerateInclusive/AttractionList.vue";
@@ -635,6 +637,12 @@ import VanTourForm from "./GenerateInclusive/VantourForm.vue";
 import VanTourList from "./GenerateInclusive/VantourList.vue";
 import FinalReview from "./GenerateInclusive/FinalReview.vue";
 import { watch } from "vue";
+import { useCityStore } from "../stores/city";
+import { storeToRefs } from "pinia";
+
+// Store part
+const cityStore = useCityStore();
+const { cities } = storeToRefs(cityStore);
 
 // ============================================
 // VIEW STATES
@@ -683,36 +691,17 @@ const packageData = reactive({
 const dayCityMap = reactive({});
 
 // Available cities
-const availableCities = [
-  "Bangkok",
-  "Chiang Mai",
-  "Chiang Rai",
-  "Phuket",
-  "Pattaya",
-  "Krabi",
-  "Koh Samui",
-  "Ayutthaya",
-  "Hua Hin",
-  "Khao Lak",
-  "Bangkok",
-  "Chiang Mai",
-  "Chiang Rai",
-  "Phuket",
-  "Pattaya",
-  "Krabi",
-  "Koh Samui",
-  "Ayutthaya",
-  "Hua Hin",
-  "Khao Lak",
-];
+// const availableCities = ref([]);
 
 // Filtered cities based on search
 const filteredCities = computed(() => {
   if (!citySearchQuery.value) {
-    return availableCities;
+    return cities.value.data;
   }
   const query = citySearchQuery.value.toLowerCase();
-  return availableCities.filter((city) => city.toLowerCase().includes(query));
+  return cities?.value.data?.filter((city) =>
+    city.name.toLowerCase().includes(query),
+  );
 });
 
 // Update this computed
@@ -742,6 +731,8 @@ const toggleCity = (day, city) => {
   } else {
     dayCityMap[day].push(city);
   }
+
+  console.log(dayCityMap, "this is day city map");
 
   // Clear search after selection
   citySearchQuery.value = "";
@@ -1037,6 +1028,8 @@ const startCreation = (type) => {
 // ATTRACTION HANDLERS
 // ============================================
 const handleAttractionSubmit = (attraction) => {
+  console.log(attraction, "this is attraction");
+
   if (editingAttraction.value !== null) {
     packageData.attractions[editingAttraction.value] = attraction;
     editingAttraction.value = null;
@@ -1131,6 +1124,20 @@ const finalizePackage = () => {
   alert("Package created successfully! 🎉\n\nReady to send to customer.");
   console.log("Final Package:", packageData);
 };
+
+// get city data
+const getCityData = async () => {
+  try {
+    const res = await cityStore.getSimpleListAction();
+    console.log(cities.value, "this is city list");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+onMounted(async () => {
+  await getCityData();
+});
 </script>
 
 <style scoped>

@@ -47,9 +47,7 @@
       <label class="block text-sm font-medium text-slate-700 mb-2">
         Select Vehicle Type
       </label>
-      <div
-        class="space-y-2 max-h-64 overflow-y-auto bg-slate-50 border-2 border-slate-200 rounded-xl p-4"
-      >
+      <div class="space-y-2 max-h-64 overflow-y-auto bg-slate-50">
         <div
           v-for="(variation, idx) in availableVariations"
           :key="idx"

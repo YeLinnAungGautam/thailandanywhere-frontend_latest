@@ -187,7 +187,7 @@
     </div>
 
     <!-- Finalize Button -->
-    <div class="flex justify-end items-center pt-6">
+    <div class="flex justify-end items-center">
       <button
         @click="$emit('finalize')"
         class="px-12 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold hover:from-green-700 hover:to-green-800 shadow-lg transition transform hover:scale-105"

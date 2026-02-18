@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white rounded-xl border-2 border-slate-200 p-6 overflow-y-auto"
+    class="bg-white rounded-xl border-2 border-slate-200 p-4 overflow-y-auto"
   >
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-slate-700">
@@ -12,7 +12,7 @@
         <button
           @click="$emit('update:viewMode', 'list')"
           :class="[
-            'px-3 py-1.5 rounded text-sm font-medium transition',
+            'px-3 py-1.5 rounded-lg text-sm font-medium transition',
             viewMode === 'list'
               ? 'bg-white text-orange-600 shadow-sm'
               : 'text-slate-600 hover:text-slate-800',
@@ -23,7 +23,7 @@
         <button
           @click="$emit('update:viewMode', 'calendar')"
           :class="[
-            'px-3 py-1.5 rounded text-sm font-medium transition',
+            'px-3 py-1.5 rounded-lg text-sm font-medium transition',
             viewMode === 'calendar'
               ? 'bg-white text-orange-600 shadow-sm'
               : 'text-slate-600 hover:text-slate-800',
@@ -31,6 +31,36 @@
         >
           Calendar
         </button>
+      </div>
+    </div>
+
+    <div
+      v-if="viewMode != 'calendar'"
+      class="flex justify-start items-center gap-x-2 overflow-x-scroll no-scrollbar pb-3"
+    >
+      <div
+        @click="selectedDay = ''"
+        :class="
+          selectedDay == ''
+            ? 'bg-[#FF613c] text-white'
+            : 'bg-gray-100 text-slate-600'
+        "
+        class="px-3 py-2 text-xs cursor-pointer whitespace-nowrap font-medium rounded-xl"
+      >
+        <p>All Days</p>
+      </div>
+      <div
+        v-for="d in totalDays"
+        :key="d"
+        @click="selectedDay = d"
+        :class="
+          selectedDay == d
+            ? 'bg-[#FF613c] text-white'
+            : 'bg-gray-100 text-slate-600'
+        "
+        class="px-3 py-2 cursor-pointer text-xs whitespace-nowrap font-medium rounded-xl"
+      >
+        <p>Day {{ d }}</p>
       </div>
     </div>
 
@@ -55,9 +85,6 @@
               <div class="text-lg font-bold mt-1">
                 {{ getDayNumber(day) }}
               </div>
-              <!-- <div class="text-xs mt-1 opacity-75">
-                {{ getDayCity(getDayDateRaw(day)) || "—" }}
-              </div> -->
             </div>
           </div>
 
@@ -105,18 +132,11 @@
     <!-- List View -->
     <div v-if="viewMode === 'list'" class="space-y-2">
       <div
-        v-for="(item, idx) in attractions"
+        v-for="(item, idx) in getAttractionsForDay(selectedDay)"
         :key="idx"
-        class="bg-white border-2 border-blue-200 rounded-xl p-4 relative group hover:shadow-md transition"
+        class="bg-white border-2 border-blue-200 rounded-xl px-4 pt-4 pb-2 relative group hover:shadow-md transition"
       >
         <div class="flex gap-2 absolute top-2 right-2">
-          <button
-            @click="$emit('edit', idx)"
-            class="w-6 h-6 bg-blue-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
-            title="Edit"
-          >
-            ✎
-          </button>
           <button
             @click="$emit('remove', idx)"
             class="w-6 h-6 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
@@ -136,22 +156,15 @@
         <h4 class="font-semibold text-slate-800 text-base">
           {{ item.name || "Unnamed" }}
         </h4>
-        <div class="text-[10px] text-blue-600 mt-1">
-          {{ item.type || "Attraction" }}
+
+        <div class="flex justify-between items-center">
+          <div class="text-[12px] text-slate-600">
+            {{ item.adults }} Adults, {{ item.children }} Children
+          </div>
+          <div class="text-lg text-orange-600 font-semibold">
+            ฿{{ (item.sellingPrice || 0).toLocaleString() }}
+          </div>
         </div>
-        <div class="text-[12px] text-slate-600 mt-1">
-          {{ item.adults }} Adults, {{ item.children }} Children
-        </div>
-        <div class="text-lg text-orange-600 font-semibold mt-2">
-          ฿{{ (item.sellingPrice || 0).toLocaleString() }}
-        </div>
-        <!-- <div v-if="item.variation" class="mt-2">
-          <span
-            class="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium"
-          >
-            {{ item.variation }}
-          </span>
-        </div> -->
       </div>
       <div
         v-if="attractions.length === 0"
@@ -164,7 +177,7 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps({
   attractions: Array,
@@ -173,6 +186,8 @@ const props = defineProps({
   startDate: String,
   dayCityMap: Object,
 });
+
+const selectedDay = ref("");
 
 defineEmits(["update:viewMode", "edit", "remove"]);
 
@@ -212,5 +227,12 @@ const getDayCity = (dateStr) => {
 
 const getAttractionsForDate = (dateStr) => {
   return props.attractions.filter((a) => a.serviceDate === dateStr);
+};
+
+const getAttractionsForDay = (day) => {
+  if (!day) return props.attractions;
+  console.log(props.attractions);
+
+  return props.attractions.filter((a) => a.dayNumber === day);
 };
 </script>

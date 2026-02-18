@@ -88,18 +88,17 @@
 
         <!-- Right Content Area - Question Display -->
         <div
-          class="col-span-4 border-2 border-slate-300 rounded-2xl overflow-y-auto bg-white p-8"
+          class="col-span-4 border-2 border-slate-300 rounded-2xl overflow-y-auto bg-white p-4"
           style="height: calc(100vh - 7.5rem)"
         >
-          <!-- Question 1: Basic Trip Info -->
           <!-- Question 1: Basic Trip Info -->
           <div v-if="activeQuestion === 0" class="h-full">
             <div class="grid grid-cols-2 gap-6 h-full">
               <!-- LEFT SIDE: Basic Info -->
               <div>
-                <h2 class="text-2xl font-bold text-slate-800 mb-6">
+                <!-- <h2 class="text-2xl font-bold text-slate-800 mb-6">
                   Basic Trip Info
-                </h2>
+                </h2> -->
 
                 <!-- Number of People -->
                 <div class="bg-white rounded-xl mb-6">
@@ -484,9 +483,9 @@
 
           <!-- Question 2: Attractions -->
           <div v-if="activeQuestion === 1" class="h-full">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6">
+            <!-- <h2 class="text-2xl font-bold text-slate-800 mb-6">
               Where do you want to visit?
-            </h2>
+            </h2> -->
 
             <div
               :class="
@@ -494,7 +493,7 @@
                   ? 'grid grid-cols-1'
                   : 'grid grid-cols-2'
               "
-              class="gap-6 h-[calc(100%-5rem)]"
+              class="gap-6 h-full"
             >
               <!-- LEFT SIDE: Add Form -->
               <AttractionForm
@@ -527,10 +526,6 @@
 
           <!-- Question 3: Hotels -->
           <div v-if="activeQuestion === 2" class="h-full">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6">
-              Which hotel do you want?
-            </h2>
-
             <div
               :class="
                 hotelViewMode === 'calendar'
@@ -568,10 +563,6 @@
 
           <!-- Question 4: Van Tours -->
           <div v-if="activeQuestion === 3" class="h-full">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6">
-              Van Tour Services
-            </h2>
-
             <div
               :class="
                 vanTourViewMode === 'calendar'
@@ -614,10 +605,21 @@
               :total-days="totalDays"
               :start-date="packageData.startDate"
               :day-city-map="dayCityMap"
-              :attractions="packageData.attractions"
-              :hotels="packageData.hotels"
-              :van-tours="packageData.vanTours"
+              :ordered-items="packageData.orderedItems"
+              @update:ordered-items="onOrderedItemsUpdate"
               @finalize="finalizePackage"
+            />
+          </div>
+
+          <!-- Question 6: Description -->
+          <div v-if="activeQuestion === 5">
+            <Description
+              :total-days="totalDays"
+              :start-date="packageData.startDate"
+              :ordered-items="packageData.orderedItems"
+              :day-city-map="dayCityMap"
+              :descriptions="packageData.descriptions"
+              @update:descriptions="packageData.descriptions = $event"
             />
           </div>
         </div>
@@ -639,6 +641,7 @@ import FinalReview from "./GenerateInclusive/FinalReview.vue";
 import { watch } from "vue";
 import { useCityStore } from "../stores/city";
 import { storeToRefs } from "pinia";
+import Description from "./GenerateInclusive/Description.vue";
 
 // Store part
 const cityStore = useCityStore();
@@ -668,7 +671,9 @@ const questions = ref([
   { title: "Attractions", summary: "" },
   { title: "Hotels", summary: "" },
   { title: "Van Tours", summary: "" },
-  { title: "Final Review", summary: "" },
+  { title: "Sorting Items", summary: "" },
+  { title: "Description", summary: "" },
+  { title: "Generate PDF", summary: "" },
 ]);
 
 // City search and selection
@@ -686,6 +691,8 @@ const packageData = reactive({
   attractions: [],
   hotels: [],
   vanTours: [],
+  descriptions: {},
+  orderedItems: [],
 });
 
 const dayCityMap = reactive({});
@@ -1058,6 +1065,7 @@ const removeAttraction = (index) => {
 // HOTEL HANDLERS
 // ============================================
 const handleHotelSubmit = (hotel) => {
+  console.log(hotel, "this is hotel");
   if (editingHotel.value !== null) {
     packageData.hotels[editingHotel.value] = hotel;
     editingHotel.value = null;
@@ -1086,6 +1094,7 @@ const removeHotel = (index) => {
 // VAN TOUR HANDLERS
 // ============================================
 const handleVanTourSubmit = (vanTour) => {
+  console.log(vanTour, "this is van tour");
   if (editingVanTour.value !== null) {
     packageData.vanTours[editingVanTour.value] = vanTour;
     editingVanTour.value = null;
@@ -1134,6 +1143,108 @@ const getCityData = async () => {
     console.log(error);
   }
 };
+
+let uidCounter = 0;
+const mkUid = () => `_uid_${++uidCounter}`;
+
+const onOrderedItemsUpdate = (updated) => {
+  // 1. Save new ordered list
+  packageData.orderedItems = updated;
+
+  // 2. Write day changes back into source arrays so AttractionList / VanTourList stay in sync
+  updated.forEach((item) => {
+    if (item._type === "attraction") {
+      const src = packageData.attractions.find((a) => a._uid === item._uid);
+      if (src) {
+        src.dayNumber = item.dayNumber;
+        src.serviceDate = item.serviceDate;
+        src.dayLabel = item.dayLabel;
+      }
+    } else if (item._type === "van") {
+      const src = packageData.vanTours.find((v) => v._uid === item._uid);
+      if (src) {
+        src.dayNumber = item.dayNumber;
+        src.serviceDate = item.serviceDate;
+        src.dayLabel = item.dayLabel;
+      }
+    }
+    // Hotels: date is intentionally NOT written back (day-change blocked in FinalReview)
+  });
+};
+
+// (e.g. when user adds an attraction then comes back to FinalReview)
+watch(
+  () => [
+    packageData.attractions.length,
+    packageData.hotels.length,
+    packageData.vanTours.length,
+  ],
+  () => {
+    const existingUids = new Set(packageData.orderedItems.map((i) => i._uid));
+
+    // ── Van Tours ──
+    packageData.vanTours.forEach((v) => {
+      if (!v._uid) v._uid = mkUid();
+      if (!existingUids.has(v._uid)) {
+        packageData.orderedItems.push({
+          ...v,
+          _type: "van",
+          _order: packageData.orderedItems.filter((x) => x._type === "van")
+            .length,
+        });
+        existingUids.add(v._uid);
+      }
+    });
+
+    // ── Attractions ──
+    packageData.attractions.forEach((a) => {
+      if (!a._uid) a._uid = mkUid();
+      if (!existingUids.has(a._uid)) {
+        packageData.orderedItems.push({
+          ...a,
+          _type: "attraction",
+          _order: packageData.orderedItems.filter(
+            (x) => x._type === "attraction",
+          ).length,
+        });
+        existingUids.add(a._uid);
+      }
+    });
+
+    // ── Hotels ──
+    packageData.hotels.forEach((h) => {
+      if (!h._uid) h._uid = mkUid();
+      if (!existingUids.has(h._uid)) {
+        packageData.orderedItems.push({
+          ...h,
+          _type: "hotel",
+          _order: packageData.orderedItems.filter((x) => x._type === "hotel")
+            .length,
+        });
+        existingUids.add(h._uid);
+      }
+    });
+
+    // ── Remove items deleted from source arrays ──
+    const vanUids = new Set(
+      packageData.vanTours.map((v) => v._uid).filter(Boolean),
+    );
+    const attUids = new Set(
+      packageData.attractions.map((a) => a._uid).filter(Boolean),
+    );
+    const hotUids = new Set(
+      packageData.hotels.map((h) => h._uid).filter(Boolean),
+    );
+
+    packageData.orderedItems = packageData.orderedItems.filter((item) => {
+      if (item._type === "van") return vanUids.has(item._uid);
+      if (item._type === "attraction") return attUids.has(item._uid);
+      if (item._type === "hotel") return hotUids.has(item._uid);
+      return true;
+    });
+  },
+  { immediate: true },
+);
 
 onMounted(async () => {
   await getCityData();

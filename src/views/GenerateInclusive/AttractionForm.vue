@@ -1,69 +1,77 @@
 <template>
   <div class="space-y-4">
-    <h3 class="text-lg font-semibold text-slate-700 mb-4">
-      {{ editingIndex !== null ? "Edit Attraction" : "Add Attraction" }}
-    </h3>
-
-    <!-- Select Day -->
-    <div>
-      <label class="block text-sm font-medium text-slate-700 mb-2">
-        Select Day
-      </label>
-      <select
-        v-model.number="localData.dayNumber"
-        @change="onDayChange"
-        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-      >
-        <option value="">Select Day</option>
-        <option v-for="day in totalDays" :key="day" :value="day">
-          Day {{ day }} - {{ getDayDateShort(day) }}{{ getDayCitiesText(day) }}
-        </option>
-      </select>
-    </div>
-
-    <!-- Adults & Children Count Inputs -->
-    <div class="grid grid-cols-2 gap-4">
+    <div class="flex justify-between items-center pb-3">
+      <h3 class="text-lg font-semibold text-slate-700">
+        {{ editingIndex !== null ? "Edit Attraction" : "Add Attraction" }}
+      </h3>
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-2"
-          >Adults</label
+        <select
+          v-model.number="localData.dayNumber"
+          @change="onDayChange"
+          class="w-[150px] px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
         >
-        <div class="flex items-center gap-2">
-          <input
-            v-model.number="localData.adults"
-            type="number"
-            min="0"
-            class="flex-1 px-3 py-2 min-w-[80px] border border-slate-300 rounded-xl text-center font-semibold text-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-          />
-        </div>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-2"
-          >Children</label
-        >
-        <div class="flex items-center gap-2">
-          <input
-            v-model.number="localData.children"
-            type="number"
-            min="0"
-            class="flex-1 px-3 py-2 min-w-[80px] border border-slate-300 rounded-xl text-center font-semibold text-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
-          />
-        </div>
+          <option value="">Select Day</option>
+          <option v-for="day in totalDays" :key="day" :value="day">
+            Day {{ day }}
+          </option>
+        </select>
       </div>
     </div>
 
     <!-- Search Products with Dropdown -->
-    <div v-if="localData.dayNumber" class="relative">
+    <div v-if="!localData.dayNumber">
       <label class="block text-sm font-medium text-slate-700 mb-2">
         Search Product
       </label>
+      <p
+        class="px-4 py-3 bg-gray-100 rounded-xl flex justify-start items-center gap-x-2 text-gray-400"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-ferris-wheel-icon lucide-ferris-wheel"
+        >
+          <circle cx="12" cy="12" r="2" />
+          <path d="M12 2v4" />
+          <path d="m6.8 15-3.5 2" />
+          <path d="m20.7 7-3.5 2" />
+          <path d="M6.8 9 3.3 7" />
+          <path d="m20.7 17-3.5-2" />
+          <path d="m9 22 3-8 3 8" />
+          <path d="M8 22h8" />
+          <path d="M18 18.7a9 9 0 1 0-12 0" />
+        </svg>
+        First you need to select a day
+      </p>
+    </div>
+    <!-- FIX: Added `relative` wrapper + click-outside close + capped dropdown height with proper overflow -->
+    <div
+      v-if="localData.dayNumber"
+      class="relative"
+      v-click-outside="closeDropdown"
+    >
+      <label class="block text-sm font-medium text-slate-700 mb-2">
+        Search Product
+      </label>
+
       <div class="relative" v-if="!localData.selectedProduct">
+        <MagnifyingGlassIcon
+          class="w-6 h-6 absolute left-3 top-3.5 text-orange-500 cursor-pointer"
+        />
         <input
           v-model="searchQuery"
           @input="onSearchChange"
-          @focus="showDropdown = true"
+          @focus="focusAction"
           type="text"
           placeholder="Search entrance tickets or destinations..."
-          class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+          class="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
         />
         <div
           v-if="attractionStore.loading"
@@ -75,36 +83,43 @@
         </div>
       </div>
 
-      <!-- Dropdown List -->
+      <!-- Dropdown List — FIX: position absolute but max-h + overflow-y-auto contained inside parent -->
       <div
         v-if="
           showDropdown &&
           !attractionStore.loading &&
           allMixedProducts.length > 0
         "
-        class="absolute z-50 w-full mt-2 bg-white border border-slate-300 rounded-xl shadow-lg max-h-96 overflow-y-auto"
+        class="z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl max-h-[450px] overflow-y-auto overscroll-contain"
+        style="top: 100%"
       >
         <div
           v-for="product in allMixedProducts"
           :key="`${product.type}-${product.id}`"
           @click="selectProduct(product)"
-          class="p-3 hover:bg-orange-50 cursor-pointer border-b border-slate-100 last:border-b-0 transition"
+          class="p-3 hover:bg-orange-50 cursor-pointer border-b border-slate-100 last:border-b-0 transition-colors"
         >
-          <div class="flex items-start gap-3">
+          <div class="flex items-center gap-3">
             <img
               v-if="product.cover_image || product.feature_img"
               :src="product.cover_image || product.feature_img"
               :alt="product.name"
-              class="w-12 h-12 rounded object-cover flex-shrink-0"
+              class="w-10 h-10 rounded-lg object-cover flex-shrink-0"
             />
+            <div
+              v-else
+              class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0"
+            >
+              <span class="text-orange-500 text-lg">🎫</span>
+            </div>
             <div class="flex-1 min-w-0">
               <div class="font-semibold text-sm text-slate-800 truncate">
                 {{ product.name }}
               </div>
-              <div class="flex items-center gap-2 mt-1">
+              <div class="flex items-center gap-2 mt-0.5 flex-wrap">
                 <span
                   :class="[
-                    'text-xs px-2 py-0.5 rounded',
+                    'text-xs px-2 py-0.5 rounded-full font-medium',
                     product.type === 'entrance_ticket'
                       ? 'bg-orange-100 text-orange-700'
                       : 'bg-blue-100 text-blue-700',
@@ -116,15 +131,15 @@
                       : "Destination"
                   }}
                 </span>
-                <span v-if="product.city" class="text-xs text-slate-500">
+                <span v-if="product.city" class="text-xs text-slate-400">
                   📍 {{ product.city }}
                 </span>
-                <p
+                <span
                   v-if="product?.cities?.length > 0"
-                  class="text-xs text-slate-500"
+                  class="text-xs text-slate-400"
                 >
                   <span v-for="i in product.cities" :key="i">📍 {{ i }}</span>
-                </p>
+                </span>
               </div>
             </div>
           </div>
@@ -139,9 +154,13 @@
           searchQuery &&
           allMixedProducts.length === 0
         "
-        class="absolute z-50 w-full mt-2 bg-white border border-slate-300 rounded-xl shadow-lg p-4 text-center text-slate-500"
+        class="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl p-4 text-center text-slate-400 text-sm"
+        style="top: 100%"
       >
-        No products found for "{{ searchQuery }}"
+        No products found for "<span class="text-slate-600 font-medium">{{
+          searchQuery
+        }}</span
+        >"
       </div>
     </div>
 
@@ -188,9 +207,7 @@
       <label class="block text-sm font-medium text-slate-700 mb-2">
         Select Variation
       </label>
-      <div
-        class="space-y-2 max-h-64 overflow-y-auto bg-slate-50 p-2 rounded-lg"
-      >
+      <div class="space-y-2 h-[350px] overflow-y-auto rounded-lg">
         <div
           v-for="(variation, idx) in availableVariations"
           :key="idx"
@@ -207,12 +224,14 @@
           </div>
           <div class="flex justify-between items-center mt-2 flex-wrap gap-x-4">
             <div class="flex justify-start items-center gap-x-4">
-              <span class="text-sm text-orange-600 font-bold">
+              <span
+                class="text-sm bg-blue-100 px-2 py-1 rounded-lg text-blue-600 font-semibold"
+              >
                 Adult: ฿{{ variation.adult_price.toLocaleString() }}
               </span>
               <span
                 v-if="variation.child_info[0].child_price > 0"
-                class="text-sm text-blue-600 font-bold"
+                class="text-sm bg-blue-100 px-2 py-1 rounded-lg text-blue-600 font-semibold"
               >
                 Child: ฿{{
                   variation.child_info[0].child_price.toLocaleString()
@@ -239,7 +258,6 @@
       >
         Cancel
       </button>
-      <!-- This button now opens the modal, not submits directly -->
       <button
         @click="openPriceSummaryModal"
         :disabled="!canSubmit"
@@ -254,6 +272,7 @@
         {{ editingIndex !== null ? "✓ Update Attraction" : "+ Add to Package" }}
       </button>
     </div>
+
     <!-- ═══════════════════════════════════════════════════════ -->
     <!--  Price Summary Modal                                    -->
     <!--  Teleported to <body> to escape any overflow:hidden     -->
@@ -296,23 +315,66 @@
 
             <!-- ── Body ── -->
             <div class="px-6 pt-5 pb-2 space-y-4">
-              <!-- Pax summary chips -->
+              <!-- FIX: Adults & Children Count — shown inside the modal -->
               <div class="grid grid-cols-2 gap-3">
-                <div
-                  class="bg-slate-50 rounded-xl py-3 text-center border border-slate-200"
-                >
-                  <p class="text-xs text-slate-500 mb-0.5">Adults</p>
-                  <p class="text-2xl font-bold text-slate-800">
-                    {{ localData.adults }}
+                <!-- Adults -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                  <p
+                    class="text-xs font-medium text-slate-500 mb-2 text-center"
+                  >
+                    Adults
                   </p>
+                  <div class="flex items-center justify-between gap-1">
+                    <button
+                      @click="
+                        localData.adults = Math.max(1, localData.adults - 1)
+                      "
+                      class="w-8 h-8 rounded-lg bg-white border border-slate-300 text-slate-600 font-bold hover:bg-orange-50 hover:border-orange-400 hover:text-orange-600 transition flex items-center justify-center text-lg leading-none"
+                    >
+                      −
+                    </button>
+                    <span
+                      class="text-2xl font-bold text-slate-800 w-8 text-center"
+                    >
+                      {{ localData.adults }}
+                    </span>
+                    <button
+                      @click="localData.adults++"
+                      class="w-8 h-8 rounded-lg bg-white border border-slate-300 text-slate-600 font-bold hover:bg-orange-50 hover:border-orange-400 hover:text-orange-600 transition flex items-center justify-center text-lg leading-none"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-                <div
-                  class="bg-slate-50 rounded-xl py-3 text-center border border-slate-200"
-                >
-                  <p class="text-xs text-slate-500 mb-0.5">Children</p>
-                  <p class="text-2xl font-bold text-slate-800">
-                    {{ localData.children }}
+
+                <!-- Children -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                  <p
+                    class="text-xs font-medium text-slate-500 mb-2 text-center"
+                  >
+                    Children
                   </p>
+                  <div class="flex items-center justify-between gap-1">
+                    <button
+                      @click="
+                        localData.children = Math.max(0, localData.children - 1)
+                      "
+                      class="w-8 h-8 rounded-lg bg-white border border-slate-300 text-slate-600 font-bold hover:bg-orange-50 hover:border-orange-400 hover:text-orange-600 transition flex items-center justify-center text-lg leading-none"
+                    >
+                      −
+                    </button>
+                    <span
+                      class="text-2xl font-bold text-slate-800 w-8 text-center"
+                    >
+                      {{ localData.children }}
+                    </span>
+                    <button
+                      @click="localData.children++"
+                      class="w-8 h-8 rounded-lg bg-white border border-slate-300 text-slate-600 font-bold hover:bg-orange-50 hover:border-orange-400 hover:text-orange-600 transition flex items-center justify-center text-lg leading-none"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -324,7 +386,6 @@
                 "
               >
                 <div class="divide-y divide-slate-100">
-                  <!-- Adult line -->
                   <div class="flex justify-between items-center py-2.5">
                     <div class="text-sm">
                       <span class="font-medium text-slate-700">Adult</span>
@@ -343,7 +404,6 @@
                       }}
                     </span>
                   </div>
-                  <!-- Child line -->
                   <div
                     v-if="
                       localData.children > 0 &&
@@ -444,6 +504,7 @@
 <script setup>
 import { computed, reactive, watch, ref } from "vue";
 import { useAttractionStore } from "../../stores/attraction";
+import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps({
   totalDays: Number,
@@ -460,11 +521,41 @@ const emit = defineEmits(["submit", "cancel"]);
 const attractionStore = useAttractionStore();
 const searchQuery = ref("");
 const showDropdown = ref(false);
-const showPriceModal = ref(false); // ← drives the modal
+const showPriceModal = ref(false);
 let searchTimeout = null;
 
+const focusAction = () => {
+  // showDropdown.value = true;
+  console.log("this is focus action");
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    if (localData.dayNumber) fetchProductsForDay(localData.dayNumber);
+  }, 500);
+};
+
+// ─────────────────────────────────────────────
+// Custom directive: click-outside
+// ─────────────────────────────────────────────
+const vClickOutside = {
+  mounted(el, binding) {
+    el._clickOutsideHandler = (event) => {
+      if (!el.contains(event.target)) {
+        binding.value();
+      }
+    };
+    document.addEventListener("mousedown", el._clickOutsideHandler);
+  },
+  unmounted(el) {
+    document.removeEventListener("mousedown", el._clickOutsideHandler);
+  },
+};
+
+const closeDropdown = () => {
+  showDropdown.value = false;
+};
+
 const localData = reactive({
-  dayNumber: null,
+  dayNumber: "",
   type: "Attraction",
   productType: "",
   selectedProduct: null,
@@ -475,6 +566,7 @@ const localData = reactive({
   children: props.children ?? 0,
   costPrice: 0,
   sellingPrice: 0,
+  productImage: null,
 });
 
 // ─────────────────────────────────────────────
@@ -489,8 +581,14 @@ const calculatedSellingPrice = computed(() => {
   ) {
     const v = localData.selectedVariation;
     const adultTotal = (v.adult_price ?? 0) * localData.adults;
-    const childPrice = v.child_info?.[0]?.child_price ?? 0;
-    return adultTotal + childPrice * localData.children;
+    const childPrice =
+      v.child_info?.[0]?.child_price != "null"
+        ? v.child_info[0].child_price
+        : "null";
+    return (
+      adultTotal +
+      (childPrice != "null" ? childPrice : v.adult_price) * localData.children
+    );
   }
 
   if (localData.productType === "destination") {
@@ -512,8 +610,15 @@ const calculatedCostPrice = computed(() => {
   ) {
     const v = localData.selectedVariation;
     const adultCostTotal = (v.adult_cost_price ?? 0) * localData.adults;
-    const childCostPrice = v.child_info?.[0]?.child_cost_price ?? 0;
-    return adultCostTotal + childCostPrice * localData.children;
+    const childCostPrice =
+      v.child_info?.[0]?.child_cost_price != "null"
+        ? v.child_info[0].child_cost_price
+        : "null";
+    return (
+      adultCostTotal +
+      (childCostPrice != "null" ? childCostPrice : v.adult_cost_price) *
+        localData.children
+    );
   }
 
   if (localData.productType === "destination") {
@@ -600,10 +705,13 @@ const onSearchChange = () => {
 // Product / variation selection
 // ─────────────────────────────────────────────
 const selectProduct = (product) => {
+  console.log(product, "this is selected product");
+
   localData.selectedProduct = product;
   localData.productType = product.type;
   localData.selectedVariation = null;
   localData.name = product.name;
+  localData.productImage = product.cover_image || product.feature_img;
   showDropdown.value = false;
 };
 
@@ -653,6 +761,7 @@ const canSubmit = computed(() => {
 const openPriceSummaryModal = () => {
   if (!canSubmit.value) return;
   showPriceModal.value = true;
+  console.log(localData);
 };
 
 const confirmSubmit = () => {
@@ -671,6 +780,7 @@ const confirmSubmit = () => {
     productType: localData.productType,
     productId: localData.selectedProduct.id,
     productName: localData.selectedProduct.name,
+    productImage: localData.productImage,
     name: localData.name,
     adults: localData.adults,
     children: localData.children,

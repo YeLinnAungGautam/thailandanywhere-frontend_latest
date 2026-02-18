@@ -2,14 +2,44 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useVantourStore = defineStore("vantour", {
-  state: () => ({ vantours: null, loading: false, importLoading: false }),
+  state: () => ({
+    vantours: null,
+    loading: false,
+    importLoading: false,
+    searchResults: [],
+    searchLoading: false,
+  }),
   getters: {},
   actions: {
+    async searchVanTours(cityIds, search = "") {
+      try {
+        this.searchLoading = true;
+        const payload = { city_ids: cityIds };
+        if (search) payload.search = search;
+
+        const response = await axios.post(
+          "/private-van-tours-mulitple",
+          payload,
+        );
+        // shape: { result: { data: [...], meta: {...} } }
+        this.searchResults = response.data?.result?.data ?? [];
+        return response.data;
+      } catch (error) {
+        this.searchResults = [];
+        throw error;
+      } finally {
+        this.searchLoading = false;
+      }
+    },
+
+    clearSearchResults() {
+      this.searchResults = [];
+    },
     async getSimpleListAction(params) {
       try {
         this.loading = true;
         const response = await axios.get(
-          "/private-van-tours?limit=1000&page=1"
+          "/private-van-tours?limit=1000&page=1",
         );
         this.vantours = response.data.result;
         this.loading = false;
@@ -84,7 +114,7 @@ export const useVantourStore = defineStore("vantour", {
     async deleteCoverImageAction(id) {
       try {
         const response = await axios.delete(
-          "/private-van-tours/" + id + "/delete-cover-image"
+          "/private-van-tours/" + id + "/delete-cover-image",
         );
         console.log(response.data);
         return response.data;

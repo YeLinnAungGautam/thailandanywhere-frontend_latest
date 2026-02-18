@@ -8,9 +8,48 @@ export const useHotelStore = defineStore("hotel", {
     importLoading: false,
     loadingIncomplete: false,
     incompleteHotel: null,
+    searchResults: [],
+    searchLoading: false,
   }),
   getters: {},
   actions: {
+    async searchHotels(
+      cityIds,
+      search = "",
+      checkinDate = null,
+      checkoutDate = null,
+    ) {
+      try {
+        this.searchLoading = true;
+
+        const payload = {
+          city_ids: cityIds,
+        };
+        if (search) payload.search = search;
+        if (checkinDate) payload.checkin_date = checkinDate;
+        if (checkoutDate) payload.checkout_date = checkoutDate;
+
+        const response = await axios.post(
+          "/hotels-multiple/by-cities",
+          payload,
+        );
+
+        console.log(response, "this is from api");
+
+        // Response shape: { data: { data: [...hotels], meta: {...} } }
+        this.searchResults = response.data?.result?.data ?? [];
+        return response.data;
+      } catch (error) {
+        this.searchResults = [];
+        throw error;
+      } finally {
+        this.searchLoading = false;
+      }
+    },
+
+    clearSearchResults() {
+      this.searchResults = [];
+    },
     async getSimpleListAction(params) {
       try {
         this.loading = true;
@@ -95,7 +134,7 @@ export const useHotelStore = defineStore("hotel", {
     async deleteHotelContractAction(id, contract_id) {
       try {
         const response = await axios.delete(
-          "/hotels/" + id + "/contracts/" + contract_id
+          "/hotels/" + id + "/contracts/" + contract_id,
         );
         return response.data;
       } catch (error) {
@@ -106,7 +145,7 @@ export const useHotelStore = defineStore("hotel", {
     async deleteImageAction(id, imageID) {
       try {
         const response = await axios.delete(
-          "/hotels/" + id + "/images/" + imageID
+          "/hotels/" + id + "/images/" + imageID,
         );
         return response.data;
       } catch (error) {
@@ -175,7 +214,7 @@ export const useHotelStore = defineStore("hotel", {
           "https://api-blog.thanywhere.com/api/v2/map/hotels",
           {
             params: params,
-          }
+          },
         );
         this.loading = false;
 

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white rounded-xl border-2 border-slate-200 p-6 overflow-y-auto"
+    class="bg-white rounded-xl h-[81vh] border-2 border-slate-200 p-6 overflow-y-auto"
   >
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-slate-700">
@@ -34,6 +34,37 @@
       </div>
     </div>
 
+    <!-- Day filter tabs (list view only) -->
+    <div
+      v-if="viewMode === 'list'"
+      class="flex justify-start items-center gap-x-2 overflow-x-scroll no-scrollbar pb-3"
+    >
+      <div
+        @click="selectedDay = ''"
+        :class="
+          selectedDay === ''
+            ? 'bg-emerald-600 text-white'
+            : 'bg-gray-100 text-slate-600'
+        "
+        class="px-3 py-2 text-xs cursor-pointer whitespace-nowrap font-medium rounded-xl"
+      >
+        All Days
+      </div>
+      <div
+        v-for="d in totalDays"
+        :key="d"
+        @click="selectedDay = d"
+        :class="
+          selectedDay === d
+            ? 'bg-emerald-600 text-white'
+            : 'bg-gray-100 text-slate-600'
+        "
+        class="px-3 py-2 cursor-pointer text-xs whitespace-nowrap font-medium rounded-xl"
+      >
+        Day {{ d }}
+      </div>
+    </div>
+
     <!-- Calendar View -->
     <div v-if="viewMode === 'calendar' && totalDays > 0">
       <div
@@ -52,9 +83,7 @@
               <div class="text-xs font-medium uppercase">
                 {{ getDayName(day) }}
               </div>
-              <div class="text-lg font-bold mt-1">
-                {{ getDayNumber(day) }}
-              </div>
+              <div class="text-lg font-bold mt-1">{{ getDayNumber(day) }}</div>
             </div>
           </div>
 
@@ -79,18 +108,13 @@
                   >
                     ×
                   </button>
-                  <div class="font-semibold">{{ van.type }}</div>
-                  <div class="opacity-90 mt-1">
-                    {{ van.service }}
-                  </div>
+                  <div class="font-semibold">{{ van.vanTourName }}</div>
+                  <div class="opacity-90 mt-1">{{ van.carName }}</div>
                   <div class="opacity-75 text-[10px] mt-1">
-                    👥 {{ van.passengers }} pax
+                    🚗 {{ van.cars }} Rooms
                   </div>
-                  <div
-                    v-if="van.pickupTime"
-                    class="opacity-75 text-[10px] mt-1"
-                  >
-                    🕐 {{ van.pickupTime }}
+                  <div v-if="van.sellingPrice" class="text-sm mt-1">
+                    ฿{{ van.sellingPrice.toLocaleString() }}
                   </div>
                 </div>
               </div>
@@ -103,46 +127,47 @@
     <!-- List View -->
     <div v-if="viewMode === 'list'" class="space-y-2">
       <div
-        v-for="(van, idx) in vanTours"
+        v-for="(van, idx) in filteredVanTours"
         :key="idx"
-        class="bg-white border-2 border-emerald-200 rounded-xl p-4 relative group hover:shadow-md transition"
+        class="bg-white border-2 border-emerald-200 rounded-xl px-4 pt-4 pb-2 relative group hover:shadow-md transition"
       >
+        <!-- Edit / Delete buttons -->
         <div class="flex gap-2 absolute top-2 right-2">
           <button
-            @click="$emit('edit', idx)"
-            class="w-6 h-6 bg-blue-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
-            title="Edit"
-          >
-            ✎
-          </button>
-          <button
-            @click="$emit('remove', idx)"
+            @click="$emit('remove', vanTours.indexOf(van))"
             class="w-6 h-6 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
             title="Delete"
           >
             ×
           </button>
         </div>
+
+        <!-- Day tag -->
         <div class="text-xs text-emerald-500 font-semibold mb-1">
-          {{ van.dayLabel }}
+          Day {{ van.dayNumber }} {{ van.dayLabel }}
+          <span v-if="van.city"> • {{ van.city }}</span>
         </div>
+
         <h4 class="font-semibold text-slate-800 text-base">
-          {{ van.type || "Van Tour" }}
+          {{ van.vanTourName || "Van Tour" }}
         </h4>
         <div class="text-sm text-emerald-600 mt-1">
-          {{ van.service || "Service" }}
+          {{ van.carName || "Service" }}
         </div>
-        <div v-if="van.route" class="text-sm text-slate-600 mt-1">
-          {{ van.route }}
+
+        <div class="flex justify-between items-center mt-1">
+          <div class="text-sm text-slate-500">🚗 {{ van.cars }}</div>
+          <div class="text-lg text-emerald-600 font-semibold">
+            ฿{{ (van.sellingPrice || 0).toLocaleString() }}
+          </div>
         </div>
-        <div class="text-sm text-slate-600 mt-1">
-          {{ van.passengers }} Passenger(s)
-        </div>
+
         <div v-if="van.pickupTime" class="text-sm text-slate-500 mt-1">
           Pickup: {{ van.pickupTime }}
           <span v-if="van.duration" class="ml-2">({{ van.duration }} hrs)</span>
         </div>
       </div>
+
       <div
         v-if="vanTours.length === 0"
         class="text-center text-slate-400 text-sm py-12"
@@ -154,6 +179,8 @@
 </template>
 
 <script setup>
+import { ref, computed } from "vue";
+
 const props = defineProps({
   vanTours: Array,
   viewMode: String,
@@ -163,6 +190,21 @@ const props = defineProps({
 
 defineEmits(["update:viewMode", "edit", "remove"]);
 
+const selectedDay = ref("");
+
+// ─────────────────────────────────────────────────────────────
+// Filter by selected day tab
+// ─────────────────────────────────────────────────────────────
+const filteredVanTours = computed(() => {
+  console.log(props.vanTours, "this is vantour");
+
+  if (!selectedDay.value) return props.vanTours;
+  return props.vanTours.filter((v) => v.dayNumber === selectedDay.value);
+});
+
+// ─────────────────────────────────────────────────────────────
+// Date / day helpers
+// ─────────────────────────────────────────────────────────────
 const getDayDateRaw = (dayNumber) => {
   if (!props.startDate) return "";
   const start = new Date(props.startDate);
@@ -193,3 +235,13 @@ const getVanToursForDate = (dateStr) => {
   return props.vanTours.filter((v) => v.serviceDate === dateStr);
 };
 </script>
+
+<style scoped>
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>

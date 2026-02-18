@@ -4,15 +4,21 @@
       <h3 class="text-lg font-semibold text-slate-700">
         {{ editingIndex !== null ? "Edit Attraction" : "Add Attraction" }}
       </h3>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-slate-700 mb-2">
+        Choose Day
+      </label>
       <div>
         <select
           v-model.number="localData.dayNumber"
           @change="onDayChange"
-          class="w-[150px] px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+          class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
         >
           <option value="">Select Day</option>
           <option v-for="day in totalDays" :key="day" :value="day">
-            Day {{ day }}
+            Day {{ day }} - {{ getDayCitiesText(day) }}
           </option>
         </select>
       </div>
@@ -90,7 +96,7 @@
           !attractionStore.loading &&
           allMixedProducts.length > 0
         "
-        class="z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl max-h-[450px] overflow-y-auto overscroll-contain"
+        class="z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl max-h-[380px] overflow-y-auto overscroll-contain"
         style="top: 100%"
       >
         <div
@@ -207,7 +213,7 @@
       <label class="block text-sm font-medium text-slate-700 mb-2">
         Select Variation
       </label>
-      <div class="space-y-2 h-[350px] overflow-y-auto rounded-lg">
+      <div class="space-y-2 h-[280px] overflow-y-auto rounded-lg">
         <div
           v-for="(variation, idx) in availableVariations"
           :key="idx"

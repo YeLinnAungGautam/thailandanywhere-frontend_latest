@@ -181,7 +181,7 @@
       <!-- English -->
       <div>
         <label
-          class="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2"
+          class="text-sm font-medium text-slate-700 mb-1 flex items-center gap-2"
         >
           <span>🇬🇧</span> Summary (English) <span class="text-red-400">*</span>
         </label>
@@ -199,7 +199,7 @@
       <!-- Myanmar -->
       <div>
         <label
-          class="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-2"
+          class="text-sm font-medium text-slate-700 mb-1 flex items-center gap-2"
         >
           <span>🇲🇲</span> Summary (Myanmar) <span class="text-red-400">*</span>
         </label>

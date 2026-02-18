@@ -18,7 +18,7 @@
         >
           <option value="">CheckIn</option>
           <option v-for="day in totalDays" :key="day" :value="day">
-            Day {{ day }}
+            Day {{ day }} - {{ getDayCitiesText(day) }}
           </option>
         </select>
         <svg
@@ -48,7 +48,7 @@
             :value="day"
             :disabled="!!localData.checkInDay && day <= localData.checkInDay"
           >
-            Day {{ day }}
+            Day {{ day }} - {{ getDayCitiesText(day) }}
           </option>
         </select>
       </div>
@@ -92,7 +92,7 @@
           !hotelStore.searchLoading &&
           hotelStore.searchResults.length > 0
         "
-        class="w-full mt-2 bg-white border border-slate-300 rounded-xl max-h-[380px] overflow-y-auto"
+        class="w-full mt-2 bg-white border border-slate-300 rounded-xl max-h-[375px] overflow-y-auto"
       >
         <div
           v-for="hotel in hotelStore.searchResults"
@@ -211,7 +211,7 @@
       <label class="block text-sm font-medium text-slate-700 mb-2">
         Select Room Type
       </label>
-      <div class="space-y-2 max-h-[280px] overflow-y-auto">
+      <div class="space-y-2 max-h-[270px] overflow-y-auto">
         <div
           v-for="(room, idx) in availableRooms"
           :key="room.id ?? idx"

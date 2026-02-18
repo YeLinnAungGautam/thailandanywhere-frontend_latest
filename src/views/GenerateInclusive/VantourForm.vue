@@ -4,7 +4,7 @@
       <h3 class="text-lg font-semibold text-slate-700">
         {{ editingIndex !== null ? "Edit Van Tour" : "Add Van Tour" }}
       </h3>
-      <div>
+      <!-- <div>
         <select
           v-model.number="localData.dayNumber"
           @change="onDayChange"
@@ -13,6 +13,24 @@
           <option value="">Select Day</option>
           <option v-for="day in totalDays" :key="day" :value="day">
             Day {{ day }}
+          </option>
+        </select>
+      </div> -->
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-slate-700 mb-2">
+        Choose Day
+      </label>
+      <div>
+        <select
+          v-model.number="localData.dayNumber"
+          @change="onDayChange"
+          class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+        >
+          <option value="">Select Day</option>
+          <option v-for="day in totalDays" :key="day" :value="day">
+            Day {{ day }} - {{ getDayCitiesText(day) }}
           </option>
         </select>
       </div>
@@ -54,7 +72,7 @@
           !vanTourStore.searchLoading &&
           vanTourStore.searchResults.length > 0
         "
-        class="w-full mt-2 bg-white border border-slate-300 rounded-xl shadow-lg max-h-[450px] overflow-y-auto"
+        class="w-full mt-2 bg-white border border-slate-300 rounded-xl shadow-lg max-h-[375px] overflow-y-auto"
       >
         <div
           v-for="vt in vanTourStore.searchResults"
@@ -160,7 +178,7 @@
       <label class="block text-sm font-medium text-slate-700 mb-2">
         Select Car
       </label>
-      <div class="space-y-2 h-[350px] overflow-y-auto rounded-lg">
+      <div class="space-y-2 h-[270px] overflow-y-auto rounded-lg">
         <div
           v-for="(car, idx) in availableCars"
           :key="car.car_id ?? idx"

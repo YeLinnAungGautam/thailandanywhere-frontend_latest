@@ -131,7 +131,10 @@
           :selectMonth="selectMonth"
           :agentsList="agentsList"
         />
-        <TopSalesReps :salesReps="topSalesReps" />
+        <TopSalesReps
+          :salesReps="topSalesReps"
+          :todaySalesReps="todayTopSalesReps"
+        />
         <RecentBookings
           :bookings="recentBookings"
           :selectedMonth="selectMonth"
@@ -214,6 +217,7 @@ const revenueByProduct = ref([
 const commissionAmount = ref(0);
 const daysToTarget = ref(0);
 const topSalesReps = ref([]);
+const todayTopSalesReps = ref([]);
 const bookingsBySource = ref([]);
 
 const recentBookings = ref([]);
@@ -271,9 +275,7 @@ const getCurrentMonth = () => {
 const fetchDailySalesData = async (month) => {
   try {
     loadingMessage.value = "Loading sales data...";
-    const data = {
-      date: month,
-    };
+    const data = { date: month };
 
     if (!authStore.isSuperAdmin && !authStore.isAuditor) {
       data.created_by = authStore.user?.id;
@@ -282,7 +284,6 @@ const fetchDailySalesData = async (month) => {
     }
 
     const res = await homeStore.getTimeFilterAdminArray(data);
-
     console.log("Step 1: Sales data loaded", res.result);
 
     if (res?.result?.sales && res?.result?.airline_sales) {
@@ -290,7 +291,6 @@ const fetchDailySalesData = async (month) => {
       dailySalesData.value = [];
       let cumulativeTotal = 0;
 
-      // Determine if the selected month is the current month
       const selectedDate = new Date(month);
       const currentDate = new Date();
       const isCurrentMonth =
@@ -298,13 +298,11 @@ const fetchDailySalesData = async (month) => {
         selectedDate.getMonth() === currentDate.getMonth();
 
       res.result.sales.forEach((sale, index) => {
-        // Calculate daily total for this day (sales)
         let dailySalesTotal = 0;
         sale.agents.forEach((agent) => {
           dailySalesTotal += agent.total;
         });
 
-        // Calculate daily airline total for this day
         let dailyAirlineTotal = 0;
         const airlineSaleForDay = res.result.airline_sales[index];
         if (airlineSaleForDay && airlineSaleForDay.agents) {
@@ -313,22 +311,12 @@ const fetchDailySalesData = async (month) => {
           });
         }
 
-        // Calculate net sales (sales - airline)
         const dailyNetTotal = dailySalesTotal - dailyAirlineTotal;
-
-        // Store daily net total for daily view
         dailySalesData.value.push(dailyNetTotal);
-
-        // Add to cumulative total
         cumulativeTotal += dailyNetTotal;
 
-        // Get the day number from the date (e.g., "2025-11-01" -> 1)
         const dayNumber = parseInt(sale.date.split("-")[2]);
-
-        // Calculate cumulative average: total of all days so far / day number
         const cumulativeAverage = Math.round(cumulativeTotal / dayNumber);
-
-        // Push the cumulative average to the array
         monthlySalesData.value.push(cumulativeAverage);
 
         averageSales.value = Math.round(
@@ -336,6 +324,39 @@ const fetchDailySalesData = async (month) => {
             (isCurrentMonth ? currentDate.getDate() : res.result.sales.length),
         );
       });
+
+      // ✅ Extract todayTopSalesReps from sales data
+      if (isCurrentMonth) {
+        const todayStr = currentDate.toISOString().split("T")[0]; // "2026-02-19"
+        const todaySale = res.result.sales.find((s) => s.date === todayStr);
+        const todayAirlineSale = res.result.airline_sales.find(
+          (s) => s.date === todayStr,
+        );
+
+        if (todaySale) {
+          // Build airline map by agent name for today
+          const airlineByAgent = {};
+          if (todayAirlineSale?.agents) {
+            todayAirlineSale.agents.forEach((a) => {
+              airlineByAgent[a.name] = a.total || 0;
+            });
+          }
+
+          todayTopSalesReps.value = todaySale.agents
+            .map((agent) => ({
+              name: agent.name,
+              initials: getInitials(agent.name || "Unknown"),
+              amount: Math.round(
+                (agent.total || 0) - (airlineByAgent[agent.name] || 0),
+              ),
+            }))
+            .filter((rep) => rep.amount > 0)
+            .sort((a, b) => b.amount - a.amount)
+            .slice(0, 10);
+        } else {
+          todayTopSalesReps.value = [];
+        }
+      }
     }
   } catch (error) {
     console.error("Error fetching daily sales data:", error);
@@ -350,9 +371,21 @@ const fetchCommissionData = async () => {
     const today = new Date();
     const currentDay = today.getDate();
 
-    const [year, month] = selectMonth.value.split("-");
-    let startDate = new Date(year, month - 1, 1);
-    let endDate = new Date(year, month, 0);
+    // Guard: if selectMonth is empty, fall back to current year/month
+    let year, month;
+    if (selectMonth.value) {
+      [year, month] = selectMonth.value.split("-");
+    } else {
+      year = today.getFullYear().toString();
+      month = (today.getMonth() + 1).toString().padStart(2, "0");
+    }
+
+    // Parse as integers to avoid string issues
+    const yearInt = parseInt(year);
+    const monthInt = parseInt(month);
+
+    let startDate = new Date(yearInt, monthInt - 1, 1);
+    let endDate = new Date(yearInt, monthInt, 0);
 
     const data = {
       first: dateFormat(startDate),
@@ -401,6 +434,27 @@ const fetchCommissionData = async () => {
         }))
         .sort((a, b) => b.amount - a.amount)
         .slice(0, 10);
+
+      // todayTopSalesReps.value = resSaleAgent.result
+      //   .map((sale) => ({
+      //     id: sale.created_by?.id,
+      //     name: sale.created_by?.name || "Unknown",
+      //     initials: getInitials(sale.created_by?.name || "Unknown"),
+      //     amount: Math.round(
+      //       getTodayTotal(sale.created_at_grand_total_without_airline),
+      //     ),
+      //   }))
+      //   .sort((a, b) => b.amount - a.amount)
+      //   .slice(0, 10);
+
+      // console.log(
+      //   "API agents:",
+      //   resSaleAgent.result.map((s) => ({
+      //     id: s.created_by?.id,
+      //     name: s.created_by?.name,
+      //     lastDate: s.created_at_grand_total_without_airline?.split(",").pop(),
+      //   })),
+      // );
     }
   } catch (error) {
     console.error("Error fetching commission data:", error);

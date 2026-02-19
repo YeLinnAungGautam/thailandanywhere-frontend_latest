@@ -297,7 +297,7 @@ const calculateRateRoom = () => {
   if (formitem.value.checkin_date && formitem.value.checkout_date) {
     formitem.value.days = daysBetween(
       formitem.value.checkin_date,
-      formitem.value.checkout_date
+      formitem.value.checkout_date,
     );
   }
 };
@@ -313,7 +313,7 @@ watch(bottomOfWindow, (newVal) => {
         changePageCalled = true; // Set the flag to true
 
         changePage(
-          hotels?.value?.meta?.links[hotels?.value?.meta?.current_page + 1].url
+          hotels?.value?.meta?.links[hotels?.value?.meta?.current_page + 1].url,
         );
       }
     }
@@ -371,7 +371,7 @@ watch(
     }
     calculateRateRoom();
     await getRoomPeriod();
-  }
+  },
 );
 
 watch(
@@ -379,7 +379,7 @@ watch(
   debounce(async (newValue) => {
     destsList.value = [];
     await hotelStore.getListAction(watchSystem.value);
-  }, 500)
+  }, 500),
 );
 
 watch(
@@ -393,7 +393,7 @@ watch(
       // checkRoomPrice();
       formitem.value.comment = `Room : ${formitem.value.item_name}; Checkin : ${formitem.value.checkin_date} Checkout : ${formitem.value.checkout_date}`;
     }
-  }
+  },
 );
 
 onMounted(async () => {
@@ -480,7 +480,26 @@ onMounted(async () => {
         <div class="right-1 top-1 rounded-full absolute" @click="viewDetail(i)">
           <InformationCircleIcon class="w-5 h-5 text-[#ff613c] bg-white" />
         </div>
-        <div class="flex justify-start items-start gap-x-2">
+        <div class="flex justify-start items-start gap-x-2 relative">
+          <p class="absolute -top-2 -left-2 text-xs" v-if="i?.data_checked">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="green"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-badge-check-icon lucide-badge-check"
+            >
+              <path
+                d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"
+              />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </p>
           <img
             :src="
               i?.images[0]?.image != null
@@ -554,11 +573,12 @@ onMounted(async () => {
             v-for="i in formitem.car_list.length > 0 ? formitem.car_list : []"
             :key="i"
             @click="selectAction(i)"
-            :class="
+            :class="[
               formitem.car_id == i.id
                 ? 'border-[#ff613c] bg-[#ff613c]/20'
-                : 'border-gray-200'
-            "
+                : 'border-gray-200',
+              JSON.parse(i.meta)?.is_show_on === '1' ? '' : 'hidden',
+            ]"
           >
             <div class="flex justify-start items-start gap-x-2">
               <img

@@ -622,6 +622,18 @@
               @update:descriptions="packageData.descriptions = $event"
             />
           </div>
+
+          <!-- Question 6: Generate PDF -->
+          <div v-if="activeQuestion === 6">
+            <!-- <GeneratePDF
+              :total-days="totalDays"
+              :start-date="packageData.startDate"
+              :ordered-items="packageData.orderedItems"
+              :day-city-map="dayCityMap"
+              :descriptions="packageData.descriptions"
+            /> -->
+            <p>this is generate part</p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 <template>
+  <!-- (template is unchanged — no modifications needed) -->
   <div class="space-y-4">
     <!-- Top bar: Tabs + Generate All Button -->
     <div class="flex items-center gap-3">
@@ -48,11 +49,7 @@
         ></span>
         <span v-else>✨</span>
         <span>
-          {{
-            isGenerating
-              ? `Generating Day ${generatingDay}/${totalDays}...`
-              : "Generate All with AI"
-          }}
+          {{ isGenerating ? `Generating all days...` : "Generate All with AI" }}
         </span>
       </button>
     </div>
@@ -268,14 +265,13 @@ const props = defineProps({
   startDate: { type: String, default: "" },
   orderedItems: { type: Array, default: () => [] },
   dayCityMap: { type: Object, default: () => ({}) },
-  descriptions: { type: Object, default: () => ({}) }, // ← parent owns this
+  descriptions: { type: Object, default: () => ({}) },
 });
 
 const emit = defineEmits(["update:descriptions"]);
 
 const selectedDay = ref(1);
 
-// ── Per-day data — populated from parent prop on every mount ──
 const dayData = reactive({});
 
 watch(
@@ -283,7 +279,6 @@ watch(
   (newVal) => {
     for (let d = 1; d <= newVal; d++) {
       if (!dayData[d]) {
-        // Restore saved data from parent if available, otherwise empty
         const saved = props.descriptions?.[d];
         dayData[d] = saved
           ? {
@@ -299,7 +294,6 @@ watch(
   { immediate: true },
 );
 
-// Deep-clone to plain objects so parent receives serializable data, not reactive proxies
 const emitDescriptions = () => {
   emit("update:descriptions", JSON.parse(JSON.stringify(dayData)));
 };
@@ -341,7 +335,6 @@ const completedDays = computed(() => {
 
 const hasOrderedItems = computed(() => props.orderedItems?.length > 0);
 
-// Get items for a specific day
 const getItemsForDay = (day) =>
   (props.orderedItems || [])
     .filter((item) => {
@@ -352,7 +345,6 @@ const getItemsForDay = (day) =>
 
 const hasDayItems = (day) => getItemsForDay(day).length > 0;
 
-// Summary chips shown in the form
 const getDayItemsSummary = (day) =>
   getItemsForDay(day).map((item) => {
     if (item._type === "van")
@@ -403,8 +395,84 @@ const showStatus = (message, type = "generating", duration = 0) => {
     }, duration);
 };
 
-// ── Build Gemini prompt for one day ──────────────────────────
-const callGemini = async (day) => {
+// ── Build ONE prompt for ALL days ─────────────────────────────
+const buildAllDaysPrompt = (daysToGenerate) => {
+  const dayBlocks = daysToGenerate
+    .map((day) => {
+      const items = getItemsForDay(day);
+      const cities =
+        props.dayCityMap[day]?.map((c) => c.name).join(", ") || "Thailand";
+      const dateLabel = getDayDateFull(day);
+
+      const itemLines = items
+        .map((item) => {
+          if (item._type === "van")
+            return `  🚐 Van Tour: ${item.vanTourName} (${item.carName}) in ${item.city}`;
+          if (item._type === "attraction")
+            return `  🎫 Attraction: ${item.name} — ${item.city}`;
+          if (item._type === "hotel")
+            return `  🏨 Hotel Check-in: ${item.name} (${item.roomName}), ${item.nights} night(s)`;
+          return "";
+        })
+        .filter(Boolean)
+        .join("\n");
+
+      return `DAY ${day} — ${dateLabel}\nCities: ${cities}\nServices:\n${itemLines}`;
+    })
+    .join("\n\n---\n\n");
+
+  return `You are a professional travel writer for a Myanmar tour company creating day-by-day itinerary descriptions.
+
+Below are multiple days of a tour. Generate a description for EVERY day listed.
+
+${dayBlocks}
+
+Writing style to match exactly:
+---
+09:00 AM, Meet and welcome guests at the Hotel lobby and we will visit to *Laser Buddha (Khao Chi Chan)* that has become a Pattaya landmark due to its large golden Buddha laser engraving.
+
+Then continue your trip to *Nong Nooch Tropical Garden*, famous for its vast, beautifully landscaped themed gardens.
+
+Overnight at *Hotel Name*.
+---
+
+Rules for each day:
+- Start with a time like "09:00 AM," for the first activity
+- Use *PlaceName* formatting for attraction/place names
+- Mention each service naturally in paragraph flow
+- Include hotel check-in at the end if a hotel is present
+- English: 3-5 paragraphs, vivid and informative
+- Myanmar: Full, natural translation (not literal word-by-word)
+- Title: Short English title, 4-6 words
+
+Return ONLY this JSON structure with no markdown fences and no extra text:
+{
+  "days": {
+    "1": { "title": "...", "summaryEn": "...", "summaryMm": "..." },
+    "2": { "title": "...", "summaryEn": "...", "summaryMm": "..." }
+  }
+}
+
+Include an entry for every day number provided above.`;
+};
+
+// ── Single Gemini call for ALL days ───────────────────────────
+const callGeminiAllDays = async (daysToGenerate) => {
+  const prompt = buildAllDaysPrompt(daysToGenerate);
+  const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+  const result = await model.generateContent(prompt);
+  const text = result.response.text().trim();
+
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error("No JSON in response");
+
+  const parsed = JSON.parse(match[0]);
+  // Support both { days: { "1": {...} } } and flat { "1": {...} }
+  return parsed.days ?? parsed;
+};
+
+// ── Single Gemini call for ONE day (unchanged behaviour) ──────
+const callGeminiSingleDay = async (day) => {
   const items = getItemsForDay(day);
   const cities = props.dayCityMap[day]?.map((c) => c.name).join(", ") || "";
   const dateLabel = getDayDateFull(day);
@@ -422,7 +490,7 @@ const callGemini = async (day) => {
     .filter(Boolean)
     .join("\n");
 
-  const prompt = `You are a professional travel writer for a Myanmar tour company creating day-by-day itinerary descriptions.
+  const prompt = `You are a professional travel writer for a Myanmar tour company.
 
 Day ${day} — ${dateLabel}
 Cities: ${cities || "Thailand"}
@@ -430,37 +498,32 @@ Cities: ${cities || "Thailand"}
 Services planned for this day (in order):
 ${itemLines}
 
-Write a travel itinerary description matching this style exactly:
+Write a travel itinerary description matching this style:
 ---
-09:00 AM, Meet and welcome guests at the Hotel lobby and we will visit to *Laser Buddha (Khao Chi Chan)* that has become a Pattaya landmark due to its large 109 m (358 ft) by 70 m (230 ft) golden Buddha laser engraving. It was created in 1996 to commemorate the 50th anniversary of the coronation of His Majesty King Bhumibol Adulyadej.
+09:00 AM, Meet and welcome guests at the Hotel lobby and we will visit to *Laser Buddha (Khao Chi Chan)*.
 
-Then continue your trip to *Nong Nooch Tropical Garden*, famous for its vast, beautifully landscaped themed gardens.
+Then continue to *Nong Nooch Tropical Garden*, famous for its vast landscaped gardens.
 
 Overnight at *Hotel Name*.
 ---
 
 Rules:
-- Start with a time like "09:00 AM," for the first activity
-- Use *PlaceName* formatting for attraction/place names (italics marker)
-- Mention each service naturally in paragraph flow
-- Include hotel check-in at the end if present
+- Start with a time like "09:00 AM,"
+- Use *PlaceName* for attraction names
 - English: 3-5 paragraphs, vivid and informative
-- Myanmar: Full, natural translation (not literal word-by-word)
-- Title: Short English title for the day, 4-6 words
+- Myanmar: Full, natural translation
+- Title: 4-6 words
 
-Return ONLY this JSON, no markdown fences, no extra text:
+Return ONLY this JSON, no markdown fences:
 {"title":"...","summaryEn":"...","summaryMm":"..."}`;
 
   const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
   const result = await model.generateContent(prompt);
   const text = result.response.text().trim();
-
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error("No JSON in response");
   return JSON.parse(match[0]);
 };
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ── Generate single day ───────────────────────────────────────
 const generateSingleDay = async (day, withRetry = true) => {
@@ -475,11 +538,11 @@ const generateSingleDay = async (day, withRetry = true) => {
   showStatus(`✨ Generating Day ${day} description...`, "generating");
 
   try {
-    const data = await callGemini(day);
+    const data = await callGeminiSingleDay(day);
     if (data?.title) dayData[day].title = data.title;
     if (data?.summaryEn) dayData[day].summaryEn = data.summaryEn;
     if (data?.summaryMm) dayData[day].summaryMm = data.summaryMm;
-    emitDescriptions(); // force emit immediately after AI fills data
+    emitDescriptions();
     showStatus(`✅ Day ${day} generated successfully!`, "success", 4000);
   } catch (err) {
     console.error("Gemini error day", day, err);
@@ -500,63 +563,60 @@ const generateSingleDay = async (day, withRetry = true) => {
   }
 };
 
-// ── Generate ALL days ─────────────────────────────────────────
-const generateAllDays = async () => {
+// ── Generate ALL days — single API call ───────────────────────
+const generateAllDays = async (withRetry = true) => {
   if (isGenerating.value || !hasOrderedItems.value) return;
 
-  isGenerating.value = true;
-  let ok = 0,
-    fail = 0;
-
-  for (let day = 1; day <= props.totalDays; day++) {
-    if (!hasDayItems(day)) continue;
-
-    generatingDay.value = day;
-    showStatus(
-      `✨ Generating Day ${day} of ${props.totalDays}...`,
-      "generating",
-    );
-
-    try {
-      const data = await callGemini(day);
-      if (data?.title) dayData[day].title = data.title;
-      if (data?.summaryEn) dayData[day].summaryEn = data.summaryEn;
-      if (data?.summaryMm) dayData[day].summaryMm = data.summaryMm;
-      emitDescriptions(); // force emit immediately
-      ok++;
-      // Polite delay to avoid hitting rate limits
-      if (day < props.totalDays) await sleep(1000);
-    } catch (err) {
-      const isQuota =
-        err.message?.includes("429") || err.message?.includes("quota");
-      if (isQuota && switchKey()) {
-        try {
-          const data = await callGemini(day);
-          if (data?.title) dayData[day].title = data.title;
-          if (data?.summaryEn) dayData[day].summaryEn = data.summaryEn;
-          if (data?.summaryMm) dayData[day].summaryMm = data.summaryMm;
-          emitDescriptions();
-          ok++;
-        } catch {
-          fail++;
-        }
-      } else {
-        fail++;
-      }
-    }
+  // Collect only days that have services
+  const daysToGenerate = [];
+  for (let d = 1; d <= props.totalDays; d++) {
+    if (hasDayItems(d)) daysToGenerate.push(d);
   }
 
-  isGenerating.value = false;
-  generatingDay.value = null;
+  if (daysToGenerate.length === 0) {
+    showStatus("No days have services to generate.", "error", 3000);
+    return;
+  }
 
-  if (fail === 0) {
-    showStatus(`✅ All ${ok} days generated!`, "success", 5000);
-  } else {
+  isGenerating.value = true;
+  showStatus(
+    `✨ Generating all ${daysToGenerate.length} days in one request...`,
+    "generating",
+  );
+
+  try {
+    // ONE single API call returns data for every day
+    const allData = await callGeminiAllDays(daysToGenerate);
+
+    let ok = 0;
+    for (const day of daysToGenerate) {
+      const data = allData[String(day)] ?? allData[day];
+      if (data?.title) {
+        dayData[day].title = data.title;
+        dayData[day].summaryEn = data.summaryEn || "";
+        dayData[day].summaryMm = data.summaryMm || "";
+        ok++;
+      }
+    }
+
+    emitDescriptions();
+    showStatus(`✅ All ${ok} days generated with 1 API call!`, "success", 5000);
+  } catch (err) {
+    console.error("Gemini all-days error:", err);
+    const isQuota =
+      err.message?.includes("429") || err.message?.includes("quota");
+    if (isQuota && withRetry && switchKey()) {
+      isGenerating.value = false;
+      return generateAllDays(false);
+    }
     showStatus(
-      `⚠️ ${ok} days done, ${fail} failed — edit those manually.`,
+      `❌ Generation failed: ${isQuota ? "API quota exceeded." : err.message}`,
       "error",
-      6000,
+      5000,
     );
+  } finally {
+    isGenerating.value = false;
+    generatingDay.value = null;
   }
 };
 </script>

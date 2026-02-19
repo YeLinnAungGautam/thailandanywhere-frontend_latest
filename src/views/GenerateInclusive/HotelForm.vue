@@ -43,7 +43,7 @@
         >
           <option value="">CheckOut</option>
           <option
-            v-for="day in totalDays + 1"
+            v-for="day in totalDays"
             :key="day"
             :value="day"
             :disabled="!!localData.checkInDay && day <= localData.checkInDay"
@@ -471,6 +471,7 @@ const localData = reactive({
   rooms: 1,
   selectedHotel: null,
   selectedRoom: null,
+  hotelImage: null,
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -636,9 +637,12 @@ const resetSelection = () => {
 // Hotel / room selection
 // ─────────────────────────────────────────────────────────────
 const selectHotel = (hotel) => {
+  console.log(hotel, "this is hotel select part");
+
   localData.selectedHotel = hotel;
   localData.selectedRoom = null;
   showDropdown.value = false;
+  localData.hotelImage = hotel.images[0].image;
 };
 
 const clearHotelSelection = () => {
@@ -677,6 +681,7 @@ const confirmSubmit = () => {
     type: "Hotel",
     name: hotel.name,
     hotelId: hotel.id,
+    hotelImage: localData.hotelImage,
     roomId: room.id,
     roomName: room.name,
     rooms: localData.rooms,

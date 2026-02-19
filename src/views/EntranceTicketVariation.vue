@@ -959,19 +959,19 @@ const addNewHandler = async () => {
     frmData.append("child_info[0][info]", child_info_default.value.info);
     frmData.append(
       "child_info[0][child_price]",
-      child_info_default.value.child_price
+      child_info_default.value.child_price,
     );
     frmData.append(
       "child_info[0][child_owner_price]",
-      child_info_default.value.child_owner_price
+      child_info_default.value.child_owner_price,
     );
     frmData.append(
       "child_info[0][child_cost_price]",
-      child_info_default.value.child_cost_price
+      child_info_default.value.child_cost_price,
     );
     frmData.append(
       "child_info[0][child_agent_price]",
-      child_info_default.value.child_agent_price
+      child_info_default.value.child_agent_price,
     );
     // }
   }
@@ -983,11 +983,11 @@ const addNewHandler = async () => {
   ) {
     frmData.append(
       "meta_data[0][youtube_mm_link]",
-      formData.value.meta_data.youtube_mm_link
+      formData.value.meta_data.youtube_mm_link,
     );
     frmData.append(
       "meta_data[0][youtube_en_link]",
-      formData.value.meta_data.youtube_en_link
+      formData.value.meta_data.youtube_en_link,
     );
   }
   enabledMain.value
@@ -1009,7 +1009,7 @@ const addNewHandler = async () => {
     for (let i = 0; i < formData.value.services.length; i++) {
       frmData.append(
         "including_services[" + i + "]",
-        formData.value.services[i]
+        formData.value.services[i],
       );
     }
   }
@@ -1096,19 +1096,19 @@ const updateHandler = async () => {
   frmData.append("child_info[0][info]", child_info_default.value.info);
   frmData.append(
     "child_info[0][child_price]",
-    child_info_default.value.child_price
+    child_info_default.value.child_price,
   );
   frmData.append(
     "child_info[0][child_owner_price]",
-    child_info_default.value.child_owner_price
+    child_info_default.value.child_owner_price,
   );
   frmData.append(
     "child_info[0][child_cost_price]",
-    child_info_default.value.child_cost_price
+    child_info_default.value.child_cost_price,
   );
   frmData.append(
     "child_info[0][child_agent_price]",
-    child_info_default.value.child_agent_price
+    child_info_default.value.child_agent_price,
   );
   // }
   // }
@@ -1119,11 +1119,11 @@ const updateHandler = async () => {
   ) {
     frmData.append(
       "meta_data[0][youtube_mm_link]",
-      formData.value.meta_data.youtube_mm_link
+      formData.value.meta_data.youtube_mm_link,
     );
     frmData.append(
       "meta_data[0][youtube_en_link]",
-      formData.value.meta_data.youtube_en_link
+      formData.value.meta_data.youtube_en_link,
     );
   }
   enabledMain.value
@@ -1146,7 +1146,7 @@ const updateHandler = async () => {
       for (let i = 0; i < formData.value.services.length; i++) {
         frmData.append(
           "including_services[" + i + "]",
-          formData.value.services[i]
+          formData.value.services[i],
         );
       }
     } else {
@@ -1157,7 +1157,7 @@ const updateHandler = async () => {
   try {
     const response = await variationStore.updateAction(
       frmData,
-      formData.value.id
+      formData.value.id,
     );
     formData.value = {
       id: "",
@@ -1370,6 +1370,7 @@ watch(entAction, async (newValue) => {
 
 onMounted(async () => {
   route.query.id ? (entrance_ticket_id.value = route.query.id) : "";
+  route.query.search ? (search.value = route.query.search) : "";
   await variationStore.getListAction({
     search: search.value,
     entrance_ticket_id: entrance_ticket_id.value,
@@ -1391,7 +1392,7 @@ watch(
       entrance_ticket_id: entrance_ticket_id.value,
       order_by_score: scoreSortOrder.value,
     });
-  }, 500)
+  }, 500),
 );
 
 watch([entrance_ticket_id, scoreSortOrder], async (newValue, secondValue) => {

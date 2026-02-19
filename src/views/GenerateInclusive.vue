@@ -625,14 +625,14 @@
 
           <!-- Question 6: Generate PDF -->
           <div v-if="activeQuestion === 6">
-            <!-- <GeneratePDF
+            <GeneratePDF
               :total-days="totalDays"
               :start-date="packageData.startDate"
               :ordered-items="packageData.orderedItems"
               :day-city-map="dayCityMap"
               :descriptions="packageData.descriptions"
-            /> -->
-            <p>this is generate part</p>
+            />
+            <!-- <p>this is generate part</p> -->
           </div>
         </div>
       </div>
@@ -654,6 +654,7 @@ import { watch } from "vue";
 import { useCityStore } from "../stores/city";
 import { storeToRefs } from "pinia";
 import Description from "./GenerateInclusive/Description.vue";
+import GeneratePDF from "./GenerateInclusive/GeneratePDF.vue";
 
 // Store part
 const cityStore = useCityStore();

@@ -144,7 +144,7 @@ const addNewHandler = async () => {
     await destStore.getListAction();
     toast.success(response.message);
     changePage(
-      `https://api-blog.thanywhere.com/admin/destinations?page=${pageValue.value}`
+      `https://api-blog.thanywhere.com/admin/destinations?page=${pageValue.value}`,
     );
   } catch (error) {
     if (error.response.data.errors) {
@@ -368,6 +368,7 @@ watch([productAction, cityAction], async ([newValue, secValue]) => {
 });
 
 onMounted(async () => {
+  route.query.search ? (search.value = route.query.search) : "";
   await placeStore.getListAction();
   pageValue.value = route.query.pagi;
   console.log(pageValue.value, "this is from page value");
@@ -391,7 +392,7 @@ watch(
   search,
   debounce(async (newValue) => {
     await destStore.getListAction({ search: search.value });
-  }, 500)
+  }, 500),
 );
 </script>
 

@@ -490,13 +490,17 @@ const downloadFromPreview = async () => {
   gap: 8px;
   margin: 12px 0;
   width: 100%;
+  overflow: hidden; /* prevent overflow breaking the page */
+  flex-wrap: nowrap;
 }
+
 .pdf-img {
-  flex: 1;
-  min-width: 0;
-  height: 150px;
+  width: 220px; /* matches IMG_WIDTH */
+  height: 160px; /* matches IMG_HEIGHT */
   object-fit: cover;
   border-radius: 6px;
+  flex-shrink: 0; /* key fix: never shrink/stretch */
+  display: block;
 }
 
 .pdf-overnight {

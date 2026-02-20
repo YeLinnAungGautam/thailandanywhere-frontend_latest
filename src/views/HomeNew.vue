@@ -324,6 +324,24 @@ const fetchDailySalesData = async (month) => {
             (isCurrentMonth ? currentDate.getDate() : res.result.sales.length),
         );
       });
+    }
+  } catch (error) {
+    console.error("Error fetching daily sales data:", error);
+  }
+};
+
+const fetchAllData = async (month) => {
+  try {
+    const data = { date: month, created_by: selectedAgent.value };
+
+    const res = await homeStore.getTimeFilterAdminArray(data);
+
+    if (res?.result?.sales && res?.result?.airline_sales) {
+      const selectedDate = new Date(month);
+      const currentDate = new Date();
+      const isCurrentMonth =
+        selectedDate.getFullYear() === currentDate.getFullYear() &&
+        selectedDate.getMonth() === currentDate.getMonth();
 
       // ✅ Extract todayTopSalesReps from sales data
       if (isCurrentMonth) {
@@ -351,15 +369,14 @@ const fetchDailySalesData = async (month) => {
               ),
             }))
             .filter((rep) => rep.amount > 0)
-            .sort((a, b) => b.amount - a.amount)
-            .slice(0, 10);
+            .sort((a, b) => b.amount - a.amount);
         } else {
           todayTopSalesReps.value = [];
         }
       }
     }
   } catch (error) {
-    console.error("Error fetching daily sales data:", error);
+    console.log(error);
   }
 };
 
@@ -620,6 +637,7 @@ const initializeDashboard = async () => {
     console.log("=== Starting Sequential API Calls ===");
 
     await fetchDailySalesData(selectMonth.value);
+
     console.log("✓ Step 1 complete: Sales data");
 
     await fetchCommissionData();
@@ -639,6 +657,10 @@ const initializeDashboard = async () => {
 
     await loadAgentsList();
     console.log("✓ Step 7 complete: Agents list");
+
+    setTimeout(async () => {
+      await fetchAllData(selectMonth.value);
+    }, 2000);
 
     console.log("=== All API Calls Complete ===");
   } catch (error) {

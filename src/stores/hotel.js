@@ -18,16 +18,18 @@ export const useHotelStore = defineStore("hotel", {
       search = "",
       checkinDate = null,
       checkoutDate = null,
+      id = "",
     ) {
       try {
         this.searchLoading = true;
 
-        const payload = {
-          city_ids: cityIds,
-        };
+        const payload = {};
+
+        if (cityIds) payload.city_ids = cityIds;
         if (search) payload.search = search;
         if (checkinDate) payload.checkin_date = checkinDate;
         if (checkoutDate) payload.checkout_date = checkoutDate;
+        if (id) payload.id = id;
 
         const response = await axios.post(
           "/hotels-multiple/by-cities",

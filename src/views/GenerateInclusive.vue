@@ -1,7 +1,9 @@
 <template>
   <Layout :title="'generate inclusive'">
     <div class="min-h-full bg-slate-50">
-      <!-- Choose Step - Initial Selection -->
+      <!-- ══════════════════════════════════════════
+           CHOOSE STEP
+      ══════════════════════════════════════════ -->
       <div
         v-if="currentView === 'choose'"
         class="w-full h-[80vh] flex justify-center items-center gap-10 px-6"
@@ -27,6 +29,7 @@
             <p class="text-lg font-semibold text-slate-800">Create New</p>
           </div>
         </div>
+
         <div
           @click="startCreation('external')"
           class="w-[300px] h-[200px] border-2 border-slate-400 bg-slate-100 hover:bg-slate-200 flex justify-center items-center rounded-2xl cursor-pointer transition"
@@ -50,13 +53,26 @@
         </div>
       </div>
 
-      <!-- Question Steps -->
+      <!-- ══════════════════════════════════════════
+           QUESTION STEPS
+      ══════════════════════════════════════════ -->
       <div
         v-if="currentView === 'questions'"
         class="w-full min-h-full grid grid-cols-5 gap-4"
       >
-        <!-- Left Sidebar - Questions Navigation -->
+        <!-- ── Left Sidebar ── -->
         <div class="col-span-1 space-y-3">
+          <!-- Edit Mode Badge -->
+          <div
+            v-if="editingPackageId"
+            class="bg-blue-50 border-2 border-blue-300 rounded-xl p-3 text-center"
+          >
+            <p class="text-xs font-semibold text-blue-600">
+              ✏️ Editing #{{ editingPackageId }}
+            </p>
+          </div>
+
+          <!-- Step Navigation -->
           <div
             v-for="(question, idx) in questions"
             :key="idx"
@@ -84,23 +100,74 @@
               </p>
             </div>
           </div>
+
+          <!-- Save Button -->
+          <button
+            @click="savePackage"
+            :disabled="pkgStore.saveLoading"
+            :class="[
+              'w-full py-3 rounded-2xl font-semibold text-sm transition flex items-center justify-center gap-2',
+              pkgStore.saveLoading
+                ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                : 'bg-orange-500 hover:bg-orange-600 text-white shadow-md',
+            ]"
+          >
+            <span
+              v-if="pkgStore.saveLoading"
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+            />
+            <span v-else>💾</span>
+            {{
+              pkgStore.saveLoading
+                ? "Saving..."
+                : editingPackageId
+                ? "Update Package"
+                : "Save Package"
+            }}
+          </button>
+
+          <!-- Save Success -->
+          <Transition name="fade">
+            <div
+              v-if="saveSuccess"
+              class="bg-green-50 border-2 border-green-300 rounded-xl p-3 text-center"
+            >
+              <p class="text-xs font-semibold text-green-600">
+                ✅ {{ editingPackageId ? "Updated!" : "Saved!" }} successfully
+              </p>
+            </div>
+          </Transition>
+
+          <!-- Save Error -->
+          <Transition name="fade">
+            <div
+              v-if="pkgStore.error"
+              class="bg-red-50 border-2 border-red-300 rounded-xl p-3 text-center"
+            >
+              <p class="text-xs font-semibold text-red-600">
+                ❌ {{ pkgStore.error }}
+              </p>
+            </div>
+          </Transition>
+
+          <!-- Back Button -->
+          <button
+            @click="currentView = 'choose'"
+            class="w-full py-2.5 rounded-2xl font-semibold text-sm border-2 border-slate-300 text-slate-600 hover:bg-slate-50 transition"
+          >
+            ← Back
+          </button>
         </div>
 
-        <!-- Right Content Area - Question Display -->
+        <!-- ── Right Content Area ── -->
         <div
           class="col-span-4 border-2 border-slate-300 rounded-2xl overflow-y-auto bg-white p-4"
           style="height: calc(100vh - 7.5rem)"
         >
-          <!-- Question 1: Basic Trip Info -->
+          <!-- Step 1: Trip Info -->
           <div v-if="activeQuestion === 0" class="h-full">
             <div class="grid grid-cols-2 gap-6 h-full">
-              <!-- LEFT SIDE: Basic Info -->
               <div>
-                <!-- <h2 class="text-2xl font-bold text-slate-800 mb-6">
-                  Basic Trip Info
-                </h2> -->
-
-                <!-- Number of People -->
                 <div class="bg-white rounded-xl mb-6">
                   <h3 class="text-lg font-semibold text-slate-800 mb-4">
                     Number of People
@@ -109,9 +176,8 @@
                     <div>
                       <label
                         class="block text-sm font-medium text-slate-700 mb-2"
+                        >Adults</label
                       >
-                        Adults
-                      </label>
                       <input
                         v-model.number="packageData.adults"
                         type="number"
@@ -122,9 +188,8 @@
                     <div>
                       <label
                         class="block text-sm font-medium text-slate-700 mb-2"
+                        >Children</label
                       >
-                        Children
-                      </label>
                       <input
                         v-model.number="packageData.children"
                         type="number"
@@ -134,8 +199,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Trip Duration -->
                 <div class="bg-white rounded-xl">
                   <h3 class="text-lg font-semibold text-slate-800 mb-4">
                     Trip Duration
@@ -144,9 +207,8 @@
                     <div>
                       <label
                         class="block text-sm font-medium text-slate-700 mb-2"
+                        >Start Date</label
                       >
-                        Start Date
-                      </label>
                       <input
                         v-model="packageData.startDate"
                         type="date"
@@ -156,32 +218,20 @@
                     <div>
                       <label
                         class="block text-sm font-medium text-slate-700 mb-2"
+                        >Number of Nights</label
                       >
-                        Number of Nights
-                      </label>
                       <input
                         v-model.number="packageData.nights"
                         type="number"
                         min="1"
-                        placeholder="e.g., 3 nights = 4 days"
                         class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-lg"
                       />
                     </div>
                   </div>
-                  <!-- <div
-                    v-if="totalDays > 0"
-                    class="mt-4 text-center text-orange-600 font-semibold text-lg bg-orange-50 rounded-xl py-3"
-                  >
-                    {{ packageData.nights }} nights = {{ totalDays }} days
-                    <div class="text-sm text-slate-600 mt-1">
-                      {{ formatDate(packageData.startDate) }} to
-                      {{ formatDate(endDateCalculated) }}
-                    </div>
-                  </div> -->
                 </div>
               </div>
 
-              <!-- RIGHT SIDE: City Assignment - Step by Step -->
+              <!-- Day City Map -->
               <div v-if="totalDays > 0">
                 <div class="bg-white rounded-xl pb-6">
                   <div
@@ -204,28 +254,23 @@
                           >- {{ getDayDateShort(day) }}</span
                         >
                       </div>
-
                       <div
-                        v-if="dayCityMap[day] && dayCityMap[day].length > 0"
+                        v-if="dayCityMap[day]?.length > 0"
                         class="text-xs mt-1"
                       >
                         {{ dayCityMap[day].length }}
                         {{ dayCityMap[day].length === 1 ? "city" : "cities" }}
                       </div>
-                      <div v-else>
-                        <div class="text-xs mt-1">-----</div>
-                      </div>
+                      <div v-else class="text-xs mt-1">-----</div>
                     </button>
                   </div>
-                  <!-- Day Selection Tabs -->
+
                   <div class="mb-6">
                     <p class="text-sm text-slate-600 mb-3">
-                      Select cities for each day (you can select multiple cities
-                      per day)
+                      Select cities for each day
                     </p>
                   </div>
 
-                  <!-- City Selection for Selected Day -->
                   <div
                     v-if="selectedDayForCities"
                     class="border-2 border-orange-200 rounded-xl p-4 bg-orange-50"
@@ -237,14 +282,11 @@
                           {{ getDayDateShort(selectedDayForCities) }}
                         </h3>
                         <p class="text-xs text-slate-600 mt-1">
-                          Click cities to add them to this day's itinerary
+                          Click cities to add them
                         </p>
                       </div>
                       <button
-                        v-if="
-                          dayCityMap[selectedDayForCities] &&
-                          dayCityMap[selectedDayForCities].length > 0
-                        "
+                        v-if="dayCityMap[selectedDayForCities]?.length > 0"
                         @click="clearDayCities(selectedDayForCities)"
                         class="text-sm text-red-500 hover:text-red-700 font-medium"
                       >
@@ -252,14 +294,13 @@
                       </button>
                     </div>
 
-                    <!-- Search/Filter Cities -->
                     <div class="mb-4">
                       <div class="relative">
                         <input
                           v-model="citySearchQuery"
                           type="text"
                           placeholder="Search cities..."
-                          class="w-full px-4 py-2 pl-10 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                          class="w-full px-4 py-2 pl-10 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
                         />
                         <svg
                           class="w-5 h-5 absolute left-3 top-2.5 text-slate-400"
@@ -277,14 +318,13 @@
                       </div>
                     </div>
 
-                    <!-- City Selection Chips -->
                     <div class="flex flex-wrap gap-2 mb-4">
                       <button
                         v-for="city in filteredCities.slice(0, 5)"
                         :key="city"
                         @click="toggleCity(selectedDayForCities, city)"
                         :class="[
-                          ' px-3 py-1.5 rounded-xl text-xs transition shadow-sm',
+                          'px-3 py-1.5 rounded-xl text-xs transition shadow-sm',
                           isCitySelected(selectedDayForCities, city)
                             ? 'bg-orange-500 text-white hover:bg-orange-600'
                             : 'bg-white text-slate-700 hover:bg-orange-100 border-2 border-slate-200',
@@ -299,46 +339,10 @@
                       </button>
                     </div>
 
-                    <!-- No Results -->
                     <div
-                      v-if="filteredCities.length === 0"
-                      class="text-center py-4 text-slate-400 text-sm"
-                    >
-                      No cities found matching "{{ citySearchQuery }}"
-                    </div>
-
-                    <!-- Selected Cities Display (Route) -->
-                    <div
-                      v-if="
-                        dayCityMap[selectedDayForCities] &&
-                        dayCityMap[selectedDayForCities].length > 0
-                      "
+                      v-if="dayCityMap[selectedDayForCities]?.length > 0"
                       class="mt-4 pt-4 border-t-2 border-orange-300"
                     >
-                      <div class="flex items-center gap-2 mb-2">
-                        <svg
-                          class="w-4 h-4 text-orange-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                        <span class="text-sm font-semibold text-slate-700"
-                          >Route for Day {{ selectedDayForCities }}:</span
-                        >
-                      </div>
                       <div class="flex flex-wrap items-center gap-2">
                         <span
                           v-for="(city, idx) in dayCityMap[
@@ -355,53 +359,15 @@
                             ×
                           </button>
                         </span>
-                        <svg
-                          v-if="
-                            idx < dayCityMap[selectedDayForCities].length - 1
-                          "
-                          class="w-4 h-4 text-orange-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                          />
-                        </svg>
                       </div>
                     </div>
-
-                    <!-- Empty State for Selected Day -->
                     <div
                       v-else
                       class="text-center py-6 text-slate-400 text-sm bg-white rounded-lg border-2 border-dashed border-slate-300"
                     >
-                      <svg
-                        class="w-12 h-12 mx-auto mb-2 text-slate-300"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
                       No cities selected for this day yet
                     </div>
 
-                    <!-- Navigation Buttons -->
                     <div class="flex gap-2 mt-4">
                       <button
                         v-if="selectedDayForCities > 1"
@@ -419,74 +385,13 @@
                       </button>
                     </div>
                   </div>
-
-                  <!-- Overall Trip Summary -->
-                  <!-- <div
-                    v-if="allSelectedCities.length > 0"
-                    class="mt-6 pt-6 border-t-2 border-slate-200"
-                  >
-                    <h4
-                      class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"
-                    >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                        />
-                      </svg>
-                      Trip Summary
-                    </h4>
-
-                    
-                    <div class="mb-3">
-                      <div class="flex items-center gap-2 text-sm">
-                        <span class="text-slate-600">Days with cities:</span>
-                        <span class="font-semibold text-slate-800">
-                          {{
-                            Object.keys(dayCityMap).filter(
-                              (day) =>
-                                dayCityMap[day] && dayCityMap[day].length > 0,
-                            ).length
-                          }}
-                          / {{ totalDays }}
-                        </span>
-                      </div>
-                    </div>
-
-                    
-                    <div>
-                      <span class="text-xs text-slate-500 block mb-2"
-                        >All cities in your trip:</span
-                      >
-                      <div class="flex flex-wrap gap-2">
-                        <span
-                          v-for="city in allSelectedCities"
-                          :key="city"
-                          class="inline-block bg-gradient-to-r from-orange-100 to-orange-200 text-orange-700 px-3 py-1 rounded-full text-xs font-semibold"
-                        >
-                          {{ city }}
-                        </span>
-                      </div>
-                    </div>
-                  </div> -->
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Question 2: Attractions -->
+          <!-- Step 2: Attractions -->
           <div v-if="activeQuestion === 1" class="h-full">
-            <!-- <h2 class="text-2xl font-bold text-slate-800 mb-6">
-              Where do you want to visit?
-            </h2> -->
-
             <div
               :class="
                 attractionViewMode === 'calendar'
@@ -495,7 +400,6 @@
               "
               class="gap-6 h-full"
             >
-              <!-- LEFT SIDE: Add Form -->
               <AttractionForm
                 v-if="attractionViewMode === 'list'"
                 :total-days="totalDays"
@@ -509,8 +413,6 @@
                 @submit="handleAttractionSubmit"
                 @cancel="cancelEditAttraction"
               />
-
-              <!-- RIGHT SIDE: List with Toggle View -->
               <AttractionList
                 :attractions="packageData.attractions"
                 :view-mode="attractionViewMode"
@@ -524,7 +426,7 @@
             </div>
           </div>
 
-          <!-- Question 3: Hotels -->
+          <!-- Step 3: Hotels -->
           <div v-if="activeQuestion === 2" class="h-full">
             <div
               :class="
@@ -534,7 +436,6 @@
               "
               class="gap-6 h-[calc(100%-5rem)]"
             >
-              <!-- LEFT SIDE: Add Form -->
               <HotelForm
                 v-if="hotelViewMode === 'list'"
                 :total-days="totalDays"
@@ -547,8 +448,6 @@
                 @submit="handleHotelSubmit"
                 @cancel="cancelEditHotel"
               />
-
-              <!-- RIGHT SIDE: List with Toggle View -->
               <HotelList
                 :hotels="packageData.hotels"
                 :view-mode="hotelViewMode"
@@ -561,7 +460,7 @@
             </div>
           </div>
 
-          <!-- Question 4: Van Tours -->
+          <!-- Step 4: Van Tours -->
           <div v-if="activeQuestion === 3" class="h-full">
             <div
               :class="
@@ -571,7 +470,6 @@
               "
               class="gap-6 h-[calc(100%-5rem)]"
             >
-              <!-- LEFT SIDE: Form -->
               <VanTourForm
                 v-if="vanTourViewMode === 'list'"
                 :total-days="totalDays"
@@ -585,8 +483,6 @@
                 @submit="handleVanTourSubmit"
                 @cancel="cancelEditVanTour"
               />
-
-              <!-- RIGHT SIDE: List -->
               <VanTourList
                 :van-tours="packageData.vanTours"
                 :view-mode="vanTourViewMode"
@@ -599,7 +495,7 @@
             </div>
           </div>
 
-          <!-- Question 5: Final Review -->
+          <!-- Step 5: Sorting Items -->
           <div v-if="activeQuestion === 4">
             <FinalReview
               :total-days="totalDays"
@@ -607,11 +503,11 @@
               :day-city-map="dayCityMap"
               :ordered-items="packageData.orderedItems"
               @update:ordered-items="onOrderedItemsUpdate"
-              @finalize="finalizePackage"
+              @finalize="savePackage"
             />
           </div>
 
-          <!-- Question 6: Description -->
+          <!-- Step 6: Description -->
           <div v-if="activeQuestion === 5">
             <Description
               :total-days="totalDays"
@@ -623,7 +519,7 @@
             />
           </div>
 
-          <!-- Question 6: Generate PDF -->
+          <!-- Step 7: Generate PDF -->
           <div v-if="activeQuestion === 6">
             <GeneratePDF
               :total-days="totalDays"
@@ -632,16 +528,37 @@
               :day-city-map="dayCityMap"
               :descriptions="packageData.descriptions"
             />
-            <!-- <p>this is generate part</p> -->
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Modals -->
+    <PackageListModal
+      :show="showPackageModal"
+      @close="showPackageModal = false"
+      @select="onExternalPackageSelected"
+      @edit="onExternalPackageEdit"
+    />
+
+    <SaveNameModal
+      :show="showSaveModal"
+      v-model="packageName"
+      :is-update="!!editingPackageId"
+      :loading="pkgStore.saveLoading"
+      :start-date="packageData.startDate"
+      :nights="packageData.nights"
+      :adults="packageData.adults"
+      :children="packageData.children"
+      :total-selling="totalSellingPrice"
+      @close="showSaveModal = false"
+      @confirm="onSaveConfirmed"
+    />
   </Layout>
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from "vue";
+import { ref, computed, reactive, onMounted, watch, nextTick } from "vue";
 import Layout from "./Layout.vue";
 import AttractionForm from "./GenerateInclusive/AttractionForm.vue";
 import AttractionList from "./GenerateInclusive/AttractionList.vue";
@@ -650,52 +567,76 @@ import HotelList from "./GenerateInclusive/HotelList.vue";
 import VanTourForm from "./GenerateInclusive/VantourForm.vue";
 import VanTourList from "./GenerateInclusive/VantourList.vue";
 import FinalReview from "./GenerateInclusive/FinalReview.vue";
-import { watch } from "vue";
-import { useCityStore } from "../stores/city";
-import { storeToRefs } from "pinia";
 import Description from "./GenerateInclusive/Description.vue";
 import GeneratePDF from "./GenerateInclusive/GeneratePDF.vue";
+import SaveNameModal from "./GenerateInclusive/SaveNameModal.vue";
+import PackageListModal from "./GenerateInclusive/PackageListModal.vue";
+import { useInclusivePackageStore } from "../stores/inclusivePackage";
+import { useCityStore } from "../stores/city";
+import { useHotelStore } from "../stores/hotel";
+import { storeToRefs } from "pinia";
 
-// Store part
+// ══════════════════════════════════════════
+// STORES
+// ══════════════════════════════════════════
 const cityStore = useCityStore();
+const pkgStore = useInclusivePackageStore();
+const hotelStore = useHotelStore();
 const { cities } = storeToRefs(cityStore);
 
-// ============================================
-// VIEW STATES
-// ============================================
-const currentView = ref("choose");
+// ══════════════════════════════════════════
+// UID MANAGER
+// ══════════════════════════════════════════
+let uidCounter = 0;
+const mkUid = () => `_uid_${++uidCounter}`;
+
+/**
+ * Item တစ်ခုကို _uid မရှိရင် assign လုပ်ပေးတယ်
+ */
+const ensureUid = (item) => {
+  if (!item._uid) item._uid = mkUid();
+  return item;
+};
+
+// ══════════════════════════════════════════
+// VIEW STATE
+// ══════════════════════════════════════════
+const currentView = ref("choose"); // 'choose' | 'questions'
 const activeQuestion = ref(0);
 const attractionViewMode = ref("list");
 const hotelViewMode = ref("list");
 const vanTourViewMode = ref("list");
+const showPackageModal = ref(false);
+const showSaveModal = ref(false);
+const editingPackageId = ref(null);
+const saveSuccess = ref(false);
+const packageName = ref("");
+const selectedDayForCities = ref(1);
+const citySearchQuery = ref("");
 
-// ============================================
-// EDITING STATES
-// ============================================
+// ══════════════════════════════════════════
+// EDITING STATE
+// ══════════════════════════════════════════
 const editingAttraction = ref(null);
 const editingHotel = ref(null);
 const editingVanTour = ref(null);
 
-// ============================================
-// NAVIGATION DATA
-// ============================================
+// ══════════════════════════════════════════
+// QUESTIONS NAV
+// ══════════════════════════════════════════
 const questions = ref([
-  { title: "Trip Info", summary: "" },
-  { title: "Attractions", summary: "" },
-  { title: "Hotels", summary: "" },
-  { title: "Van Tours", summary: "" },
-  { title: "Sorting Items", summary: "" },
-  { title: "Description", summary: "" },
-  { title: "Generate PDF", summary: "" },
+  { title: "Trip Info" },
+  { title: "Attractions" },
+  { title: "Hotels" },
+  { title: "Van Tours" },
+  { title: "Sorting Items" },
+  { title: "Description" },
+  { title: "Generate PDF" },
 ]);
 
-// City search and selection
-const selectedDayForCities = ref(1); // Start with Day 1 selected
-const citySearchQuery = ref("");
-
-// ============================================
-// PACKAGE DATA
-// ============================================
+// ══════════════════════════════════════════
+// PACKAGE DATA (single reactive source of truth)
+// ══════════════════════════════════════════
 const packageData = reactive({
   adults: 2,
   children: 0,
@@ -705,260 +646,50 @@ const packageData = reactive({
   hotels: [],
   vanTours: [],
   descriptions: {},
-  orderedItems: [],
+  orderedItems: [], // ← single array, always in sync
 });
 
 const dayCityMap = reactive({});
 
-// Available cities
-// const availableCities = ref([]);
+// Mock data (populate from your real sources if needed)
+const mockAttractions = {};
+const mockHotels = {};
+const mockVanTours = {};
 
-// Filtered cities based on search
-const filteredCities = computed(() => {
-  if (!citySearchQuery.value) {
-    return cities.value.data;
-  }
-  const query = citySearchQuery.value.toLowerCase();
-  return cities?.value.data?.filter((city) =>
-    city.name.toLowerCase().includes(query),
-  );
-});
-
-// Update this computed
-const allSelectedCities = computed(() => {
-  return uniqueCitiesInTrip.value;
-});
-
-// Update uniqueCitiesInTrip to handle arrays
-const uniqueCitiesInTrip = computed(() => {
-  const cities = Object.values(dayCityMap)
-    .filter((citiesArray) => citiesArray && citiesArray.length > 0)
-    .flat();
-  return [...new Set(cities)];
-});
-
-// ============================================
-// CITY SELECTION HANDLERS
-// ============================================
-const toggleCity = (day, city) => {
-  if (!dayCityMap[day]) {
-    dayCityMap[day] = [];
-  }
-
-  const index = dayCityMap[day].indexOf(city);
-  if (index > -1) {
-    dayCityMap[day].splice(index, 1);
-  } else {
-    dayCityMap[day].push(city);
-  }
-
-  console.log(dayCityMap, "this is day city map");
-
-  // Clear search after selection
-  citySearchQuery.value = "";
-};
-
-const isCitySelected = (day, city) => {
-  return dayCityMap[day] && dayCityMap[day].includes(city);
-};
-
-const removeCity = (day, city) => {
-  if (dayCityMap[day]) {
-    const index = dayCityMap[day].indexOf(city);
-    if (index > -1) {
-      dayCityMap[day].splice(index, 1);
-    }
-  }
-};
-
-const clearDayCities = (day) => {
-  dayCityMap[day] = [];
-};
-
-// ============================================
-// MOCK DATA (Replace with API calls)
-// ============================================
-const mockAttractions = {
-  "Chiang Mai": {
-    "Doi Inthanon National Park": [
-      {
-        name: "Standard Package",
-        description: "Includes waterfall visits and summit",
-        price: 300,
-      },
-      {
-        name: "Premium Package",
-        description: "With lunch and local guide",
-        price: 450,
-      },
-    ],
-    "Wat Phra That Doi Suthep": [
-      {
-        name: "Temple Entry Only",
-        description: "Basic entrance to the temple",
-        price: 100,
-      },
-      {
-        name: "With Guide Tour",
-        description: "Guided temple tour included",
-        price: 200,
-      },
-    ],
-    "Queen Sirikit Botanic Garden": [
-      {
-        name: "General Admission",
-        description: "Access to all gardens",
-        price: 100,
-      },
-      {
-        name: "VIP Tour",
-        description: "Private garden tour with botanist",
-        price: 350,
-      },
-    ],
-  },
-  "Chiang Rai": {
-    "White Temple (Wat Rong Khun)": [
-      {
-        name: "Standard Entry",
-        description: "Basic temple entrance",
-        price: 200,
-      },
-      {
-        name: "Photography Package",
-        description: "With special photo spots",
-        price: 300,
-      },
-    ],
-    "Black House Museum": [
-      {
-        name: "Museum Entry",
-        description: "Access to all exhibits",
-        price: 100,
-      },
-      {
-        name: "Guided Tour",
-        description: "With art historian guide",
-        price: 250,
-      },
-    ],
-    "Blue Temple (Wat Rong Suea Ten)": [
-      {
-        name: "Temple Entry",
-        description: "General admission",
-        price: 60,
-      },
-    ],
-  },
-  Bangkok: {
-    "Grand Palace": [
-      {
-        name: "Standard Entry",
-        description: "Access to palace complex",
-        price: 500,
-      },
-      {
-        name: "VIP Tour",
-        description: "Skip line with guide",
-        price: 800,
-      },
-    ],
-    "Wat Arun": [
-      {
-        name: "Temple Entry",
-        description: "Climb the central prang",
-        price: 100,
-      },
-    ],
-    "Chatuchak Market": [
-      {
-        name: "Market Walking Tour",
-        description: "Guided tour with tastings",
-        price: 150,
-      },
-    ],
-  },
-};
-
-const mockHotels = {
-  "Chiang Mai": {
-    "Asana Grove Hotel": [
-      { roomType: "Deluxe Room", pricePerNight: 2500 },
-      { roomType: "Suite", pricePerNight: 4000 },
-      { roomType: "Villa", pricePerNight: 6500 },
-    ],
-    "Hyatt Regency": [
-      { roomType: "Standard Room", pricePerNight: 3500 },
-      { roomType: "Deluxe Room", pricePerNight: 4500 },
-      { roomType: "Executive Suite", pricePerNight: 7000 },
-    ],
-    "Sheraton Yogyakarta": [
-      { roomType: "Superior Room", pricePerNight: 3000 },
-      { roomType: "Suite", pricePerNight: 4500 },
-    ],
-  },
-  Bangkok: {
-    "Mandarin Oriental": [
-      { roomType: "Deluxe Room", pricePerNight: 8000 },
-      { roomType: "Suite", pricePerNight: 15000 },
-    ],
-    "Lebua Hotel": [
-      { roomType: "Standard Room", pricePerNight: 10000 },
-      { roomType: "Sky Suite", pricePerNight: 12000 },
-    ],
-  },
-  "Chiang Rai": {
-    "Le Meridien": [
-      { roomType: "Standard Room", pricePerNight: 2800 },
-      { roomType: "Deluxe Room", pricePerNight: 3500 },
-    ],
-    "Katiliya Hotel": [
-      { roomType: "Superior Room", pricePerNight: 2200 },
-      { roomType: "Deluxe Room", pricePerNight: 3000 },
-    ],
-  },
-};
-
-const mockVanTours = {
-  "Airport Transfer": [
-    { type: "Sedan (3 pax)", capacity: 3, pricePerDay: 1500 },
-    { type: "Van (9 pax)", capacity: 9, pricePerDay: 2500 },
-    { type: "Minibus (15 pax)", capacity: 15, pricePerDay: 4000 },
-  ],
-  "City Tour": [
-    { type: "Van (9 pax)", capacity: 9, pricePerDay: 3000 },
-    { type: "Minibus (15 pax)", capacity: 15, pricePerDay: 4500 },
-    { type: "Bus (30 pax)", capacity: 30, pricePerDay: 7000 },
-  ],
-  "Day Trip": [
-    { type: "Van (9 pax)", capacity: 9, pricePerDay: 3500 },
-    { type: "Minibus (15 pax)", capacity: 15, pricePerDay: 5000 },
-    { type: "Bus (30 pax)", capacity: 30, pricePerDay: 8000 },
-  ],
-  "Temple Tour": [
-    { type: "Van (9 pax)", capacity: 9, pricePerDay: 2800 },
-    { type: "Minibus (15 pax)", capacity: 15, pricePerDay: 4200 },
-  ],
-};
-
-// ============================================
-// COMPUTED PROPERTIES
-// ============================================
+// ══════════════════════════════════════════
+// COMPUTED
+// ══════════════════════════════════════════
 const totalDays = computed(() =>
   packageData.nights > 0 ? packageData.nights + 1 : 0,
 );
 
 const endDateCalculated = computed(() => {
   if (!packageData.startDate || packageData.nights <= 0) return "";
-  const start = new Date(packageData.startDate);
-  const end = new Date(start);
-  end.setDate(start.getDate() + packageData.nights);
-  return end.toISOString().split("T")[0];
+  const d = new Date(packageData.startDate);
+  d.setDate(d.getDate() + packageData.nights);
+  return d.toISOString().split("T")[0];
 });
 
+const totalSellingPrice = computed(() =>
+  [
+    ...packageData.attractions,
+    ...packageData.hotels,
+    ...packageData.vanTours,
+  ].reduce((sum, i) => sum + (Number(i.sellingPrice) || 0), 0),
+);
+
+const filteredCities = computed(() => {
+  const data = cities.value?.data ?? [];
+  if (!citySearchQuery.value) return data;
+  const q = citySearchQuery.value.toLowerCase();
+  return data.filter((c) => c.name.toLowerCase().includes(q));
+});
+
+// Editing data for forms (readonly computed)
 const editingAttractionData = computed(() => {
   if (editingAttraction.value === null) return null;
   const item = packageData.attractions[editingAttraction.value];
+  if (!item) return null;
   return {
     dayNumber: item.dayNumber,
     type: item.type,
@@ -979,6 +710,7 @@ const editingAttractionData = computed(() => {
 const editingHotelData = computed(() => {
   if (editingHotel.value === null) return null;
   const item = packageData.hotels[editingHotel.value];
+  if (!item) return null;
   return {
     name: item.name,
     variation: item.variation,
@@ -997,13 +729,11 @@ const editingHotelData = computed(() => {
 const editingVanTourData = computed(() => {
   if (editingVanTour.value === null) return null;
   const item = packageData.vanTours[editingVanTour.value];
+  if (!item) return null;
   return {
     dayNumber: item.dayNumber,
     selectedProduct: item.route,
-    selectedVariation: {
-      type: item.type,
-      capacity: item.passengers,
-    },
+    selectedVariation: { type: item.type, capacity: item.passengers },
     type: item.type,
     service: item.service,
     route: item.route,
@@ -1013,48 +743,312 @@ const editingVanTourData = computed(() => {
   };
 });
 
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
-const getDayDateShort = (dayNumber) => {
-  if (!packageData.startDate) return "";
-  const start = new Date(packageData.startDate);
-  const current = new Date(start);
-  current.setDate(start.getDate() + dayNumber - 1);
-  return current.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+const getDayDateRaw = (dayNumber, startDate = packageData.startDate) => {
+  if (!startDate || !dayNumber) return "";
+  const d = new Date(startDate);
+  d.setDate(d.getDate() + dayNumber - 1);
+  return d.toISOString().split("T")[0];
 };
 
-const formatDate = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+const getDayDateShort = (dayNumber, startDate = packageData.startDate) => {
+  if (!startDate || !dayNumber) return "";
+  const d = new Date(startDate);
+  d.setDate(d.getDate() + dayNumber - 1);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 };
 
-// ============================================
+// ══════════════════════════════════════════
+// ORDERED ITEMS SYNC
+// (orderedItems ကို manual ဆောင်ရွက်တာ — watch မပါ)
+// ══════════════════════════════════════════
+
+/**
+ * Item အသစ် add လုပ်တဲ့အချိန် orderedItems ကို update လုပ်တယ်
+ * @param {'attraction'|'hotel'|'van'} type
+ * @param {object} item  - _uid ပါပြီးသားဖြစ်ရမယ်
+ */
+const pushToOrderedItems = (type, item) => {
+  packageData.orderedItems.push({ ...item, _type: type });
+};
+
+/**
+ * Item update လုပ်တဲ့အချိန် orderedItems ထဲက copy ကိုလည်း sync လုပ်တယ်
+ * @param {'attraction'|'hotel'|'van'} type
+ * @param {object} item  - _uid ပါပြီးသားဖြစ်ရမယ်
+ */
+const syncOrderedItem = (type, item) => {
+  const idx = packageData.orderedItems.findIndex((o) => o._uid === item._uid);
+  if (idx !== -1) {
+    packageData.orderedItems.splice(idx, 1, { ...item, _type: type });
+  }
+};
+
+/**
+ * Item ဖျက်တဲ့အချိန် orderedItems ထဲကလည်း ဖျက်တယ်
+ * @param {string} uid
+ */
+const removeFromOrderedItems = (uid) => {
+  const idx = packageData.orderedItems.findIndex((o) => o._uid === uid);
+  if (idx !== -1) packageData.orderedItems.splice(idx, 1);
+};
+
+// ══════════════════════════════════════════
+// RESET
+// ══════════════════════════════════════════
+const resetAllData = () => {
+  packageData.adults = 2;
+  packageData.children = 0;
+  packageData.startDate = "";
+  packageData.nights = 3;
+  packageData.attractions.splice(0);
+  packageData.hotels.splice(0);
+  packageData.vanTours.splice(0);
+  packageData.descriptions = {};
+  packageData.orderedItems.splice(0);
+  Object.keys(dayCityMap).forEach((k) => delete dayCityMap[k]);
+  uidCounter = 0;
+  pkgStore.error = null;
+  editingAttraction.value = null;
+  editingHotel.value = null;
+  editingVanTour.value = null;
+};
+
+// ══════════════════════════════════════════
+// FILL FROM PACKAGE (DB မှ load လုပ်တဲ့နေရာ)
+// ══════════════════════════════════════════
+/**
+ * ★ BUG FIX အဓိက နေရာ ★
+ *
+ * ပြဿနာ: attractions/hotels/vanTours set လုပ်တဲ့အချိန် watch trigger ဖြစ်ပြီး
+ * orderedItems ကို overwrite လုပ်မိတယ်
+ *
+ * ဖြေရှင်းချက်:
+ * 1. watch ကို ဆွဲထုတ်ပစ်ပြီး orderedItems ကို ဒီ function ထဲမှာပဲ တိုက်ရိုက် build လုပ်တယ်
+ * 2. _uid တွေကို items set မတိုင်ခင် အရင် prepare လုပ်ထားတယ်
+ * 3. splice() သုံးပြီး reactive array ကို replace လုပ်တယ် (= assignment မသုံးဘဲ)
+ */
+const fillFromPackage = (pkg) => {
+  // ── Step 1: UID counter reset ──
+  uidCounter = 0;
+
+  // ── Step 2: source arrays ကို _uid assign လုပ်ပြီး prepare
+  //    IMPORTANT: uid ကို တစ်ခုချင်းစီ assign ပြီးသွားမှ orderedItems build မယ်
+  //    ဒါမှ source uid === orderedItems uid ဖြစ်မှာ
+  const attractions = (pkg.attractions ?? []).map((a) => ensureUid({ ...a }));
+  const hotels = (pkg.hotels ?? []).map((h) => ensureUid({ ...h }));
+  const vanTours = (pkg.van_tours ?? []).map((v) => ensureUid({ ...v }));
+
+  // ── Step 3: lookup maps — uid ရှာဖို့ O(1)
+  //    key: "type::name::dayOrCheckIn"  →  source item (with _uid)
+  const attMap = new Map(
+    attractions.map((a) => [`${a.name}::${a.dayNumber}`, a]),
+  );
+  const hotMap = new Map(hotels.map((h) => [`${h.name}::${h.checkIn}`, h]));
+  const vanMap = new Map(
+    vanTours.map((v) => [`${v.route}::${v.dayNumber}`, v]),
+  );
+
+  // ── Step 4: orderedItems build
+  let newOrderedItems;
+
+  if (pkg.ordered_items?.length > 0) {
+    newOrderedItems = pkg.ordered_items.map((stored) => {
+      if (stored._type === "attraction") {
+        // source item ကို lookup မှာ တွေ့ရင် source ရဲ့ _uid ကိုသုံး
+        const live = attMap.get(`${stored.name}::${stored.dayNumber}`);
+        if (live) return { ...live, _type: "attraction" };
+        // မတွေ့ရင် stored ထဲမှာ _uid ရှိပြီးသားဆိုရင် သုံး၊ မဟုတ်ရင် new uid
+        return { ...stored, _uid: stored._uid ?? mkUid(), _type: "attraction" };
+      }
+      if (stored._type === "hotel") {
+        const live = hotMap.get(`${stored.name}::${stored.checkIn}`);
+        if (live) return { ...live, _type: "hotel" };
+        return { ...stored, _uid: stored._uid ?? mkUid(), _type: "hotel" };
+      }
+      if (stored._type === "van") {
+        const live = vanMap.get(`${stored.route}::${stored.dayNumber}`);
+        if (live) return { ...live, _type: "van" };
+        return { ...stored, _uid: stored._uid ?? mkUid(), _type: "van" };
+      }
+      return { ...stored, _uid: stored._uid ?? mkUid() };
+    });
+  } else {
+    // DB ထဲမှာ order မသိမ်းရသေးတဲ့ case — default order
+    newOrderedItems = [
+      ...vanTours.map((v) => ({ ...v, _type: "van" })),
+      ...attractions.map((a) => ({ ...a, _type: "attraction" })),
+      ...hotels.map((h) => ({ ...h, _type: "hotel" })),
+    ];
+  }
+
+  // ── Step 5: dayCityMap reset + fill ──
+  Object.keys(dayCityMap).forEach((k) => delete dayCityMap[k]);
+  if (pkg.day_city_map) {
+    Object.entries(pkg.day_city_map).forEach(([day, citiesArr]) => {
+      dayCityMap[day] = citiesArr;
+    });
+  }
+
+  // ── Step 6: scalar values ──
+  packageData.adults = pkg.adults ?? 2;
+  packageData.children = pkg.children ?? 0;
+  packageData.startDate = pkg.start_date?.split("T")[0] ?? pkg.start_date ?? "";
+  packageData.nights = pkg.nights ?? 3;
+  packageData.descriptions = pkg.descriptions ?? {};
+
+  // ── Step 7: reactive arrays — splice() နဲ့ in-place replace (reactivity မပျောက်) ──
+  packageData.attractions.splice(
+    0,
+    packageData.attractions.length,
+    ...attractions,
+  );
+  packageData.hotels.splice(0, packageData.hotels.length, ...hotels);
+  packageData.vanTours.splice(0, packageData.vanTours.length, ...vanTours);
+
+  // ── Step 8: orderedItems — LAST မှ set (watch မရှိတော့ overwrite ဖြစ်မသွား) ──
+  packageData.orderedItems.splice(
+    0,
+    packageData.orderedItems.length,
+    ...newOrderedItems,
+  );
+
+  // ── Step 9: Sync uidCounter so new items don't collide ──
+  syncUidCounter(); // ← ADD THIS
+
+  // ── Debug: uid consistency check (development အတွက်) ──
+  if (import.meta.env.DEV) {
+    const orderUids = new Set(newOrderedItems.map((i) => i._uid));
+    const sourceUids = new Set([
+      ...attractions.map((a) => a._uid),
+      ...hotels.map((h) => h._uid),
+      ...vanTours.map((v) => v._uid),
+    ]);
+    const orphans = [...orderUids].filter((uid) => !sourceUids.has(uid));
+    if (orphans.length > 0) {
+      console.warn("[fillFromPackage] orphan uids in orderedItems:", orphans);
+    }
+  }
+};
+
+// Add this helper
+const syncUidCounter = () => {
+  let max = 0;
+  [
+    ...packageData.attractions,
+    ...packageData.hotels,
+    ...packageData.vanTours,
+  ].forEach((item) => {
+    if (item._uid) {
+      const num = parseInt(item._uid.replace("_uid_", ""), 10);
+      if (!isNaN(num) && num > max) max = num;
+    }
+  });
+  uidCounter = max; // next mkUid() will be max+1
+};
+
+// ══════════════════════════════════════════
 // NAVIGATION HANDLERS
-// ============================================
+// ══════════════════════════════════════════
 const startCreation = (type) => {
-  currentView.value = "questions";
+  if (type === "external") {
+    showPackageModal.value = true;
+  } else {
+    resetAllData();
+    editingPackageId.value = null;
+    currentView.value = "questions";
+    activeQuestion.value = 0;
+  }
 };
 
-// ============================================
-// ATTRACTION HANDLERS
-// ============================================
-const handleAttractionSubmit = (attraction) => {
-  console.log(attraction, "this is attraction");
+const onExternalPackageSelected = (pkg) => {
+  resetAllData();
+  fillFromPackage(pkg);
+  editingPackageId.value = null; // create new copy
+  currentView.value = "questions";
+  activeQuestion.value = 0;
+};
 
+const onExternalPackageEdit = (pkg) => {
+  resetAllData();
+  fillFromPackage(pkg);
+  editingPackageId.value = pkg.id; // update existing
+  currentView.value = "questions";
+  activeQuestion.value = 0;
+};
+
+// ══════════════════════════════════════════
+// SAVE
+// ══════════════════════════════════════════
+const savePackage = () => {
+  if (editingPackageId.value && !packageName.value) {
+    packageName.value = "Tour Package";
+  }
+  showSaveModal.value = true;
+};
+
+const onSaveConfirmed = async (name) => {
+  const payload = pkgStore.buildPayload(packageData, dayCityMap, name);
+  let result;
+
+  if (editingPackageId.value) {
+    result = await pkgStore.updatePackage(editingPackageId.value, payload);
+  } else {
+    result = await pkgStore.createPackage(payload);
+    if (result.success) {
+      editingPackageId.value = result.data?.data?.id ?? null;
+    }
+  }
+
+  if (result.success) {
+    showSaveModal.value = false;
+    saveSuccess.value = true;
+    setTimeout(() => {
+      saveSuccess.value = false;
+    }, 3000);
+  }
+};
+
+// ══════════════════════════════════════════
+// CITY HANDLERS
+// ══════════════════════════════════════════
+const toggleCity = (day, city) => {
+  if (!dayCityMap[day]) dayCityMap[day] = [];
+  const idx = dayCityMap[day].indexOf(city);
+  if (idx > -1) dayCityMap[day].splice(idx, 1);
+  else dayCityMap[day].push(city);
+  citySearchQuery.value = "";
+};
+
+const isCitySelected = (day, city) => dayCityMap[day]?.includes(city) ?? false;
+
+const removeCity = (day, city) => {
+  const idx = dayCityMap[day]?.indexOf(city) ?? -1;
+  if (idx > -1) dayCityMap[day].splice(idx, 1);
+};
+
+const clearDayCities = (day) => {
+  dayCityMap[day] = [];
+};
+
+// ══════════════════════════════════════════
+// ATTRACTION HANDLERS
+// ══════════════════════════════════════════
+const handleAttractionSubmit = (attraction) => {
   if (editingAttraction.value !== null) {
-    packageData.attractions[editingAttraction.value] = attraction;
+    // ── UPDATE ──
+    const existingUid = packageData.attractions[editingAttraction.value]._uid;
+    const updated = { ...attraction, _uid: existingUid };
+    packageData.attractions.splice(editingAttraction.value, 1, updated);
+    syncOrderedItem("attraction", updated); // ← orderedItems ကို sync
     editingAttraction.value = null;
   } else {
-    packageData.attractions.push(attraction);
+    // ── CREATE ──
+    const newItem = ensureUid({ ...attraction });
+    packageData.attractions.push(newItem);
+    pushToOrderedItems("attraction", newItem); // ← orderedItems ကို push
   }
 };
 
@@ -1068,22 +1062,26 @@ const cancelEditAttraction = () => {
 };
 
 const removeAttraction = (index) => {
+  const uid = packageData.attractions[index]?._uid;
   packageData.attractions.splice(index, 1);
-  if (editingAttraction.value === index) {
-    editingAttraction.value = null;
-  }
+  if (uid) removeFromOrderedItems(uid); // ← orderedItems ကလည်း ဖျက်
+  if (editingAttraction.value === index) editingAttraction.value = null;
 };
 
-// ============================================
+// ══════════════════════════════════════════
 // HOTEL HANDLERS
-// ============================================
+// ══════════════════════════════════════════
 const handleHotelSubmit = (hotel) => {
-  console.log(hotel, "this is hotel");
   if (editingHotel.value !== null) {
-    packageData.hotels[editingHotel.value] = hotel;
+    const existingUid = packageData.hotels[editingHotel.value]._uid;
+    const updated = { ...hotel, _uid: existingUid };
+    packageData.hotels.splice(editingHotel.value, 1, updated);
+    syncOrderedItem("hotel", updated);
     editingHotel.value = null;
   } else {
-    packageData.hotels.push(hotel);
+    const newItem = ensureUid({ ...hotel });
+    packageData.hotels.push(newItem);
+    pushToOrderedItems("hotel", newItem);
   }
 };
 
@@ -1097,22 +1095,26 @@ const cancelEditHotel = () => {
 };
 
 const removeHotel = (index) => {
+  const uid = packageData.hotels[index]?._uid;
   packageData.hotels.splice(index, 1);
-  if (editingHotel.value === index) {
-    editingHotel.value = null;
-  }
+  if (uid) removeFromOrderedItems(uid);
+  if (editingHotel.value === index) editingHotel.value = null;
 };
 
-// ============================================
+// ══════════════════════════════════════════
 // VAN TOUR HANDLERS
-// ============================================
+// ══════════════════════════════════════════
 const handleVanTourSubmit = (vanTour) => {
-  console.log(vanTour, "this is van tour");
   if (editingVanTour.value !== null) {
-    packageData.vanTours[editingVanTour.value] = vanTour;
+    const existingUid = packageData.vanTours[editingVanTour.value]._uid;
+    const updated = { ...vanTour, _uid: existingUid };
+    packageData.vanTours.splice(editingVanTour.value, 1, updated);
+    syncOrderedItem("van", updated);
     editingVanTour.value = null;
   } else {
-    packageData.vanTours.push(vanTour);
+    const newItem = ensureUid({ ...vanTour });
+    packageData.vanTours.push(newItem);
+    pushToOrderedItems("van", newItem);
   }
 };
 
@@ -1126,45 +1128,23 @@ const cancelEditVanTour = () => {
 };
 
 const removeVanTour = (index) => {
+  const uid = packageData.vanTours[index]?._uid;
   packageData.vanTours.splice(index, 1);
-  if (editingVanTour.value === index) {
-    editingVanTour.value = null;
-  }
+  if (uid) removeFromOrderedItems(uid);
+  if (editingVanTour.value === index) editingVanTour.value = null;
 };
 
-// Watch totalDays to auto-select first day
-watch(totalDays, (newVal) => {
-  if (newVal > 0 && !selectedDayForCities.value) {
-    selectedDayForCities.value = 1;
-  }
-});
-
-// ============================================
-// FINAL ACTIONS
-// ============================================
-const finalizePackage = () => {
-  alert("Package created successfully! 🎉\n\nReady to send to customer.");
-  console.log("Final Package:", packageData);
-};
-
-// get city data
-const getCityData = async () => {
-  try {
-    const res = await cityStore.getSimpleListAction();
-    console.log(cities.value, "this is city list");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-let uidCounter = 0;
-const mkUid = () => `_uid_${++uidCounter}`;
-
+// ══════════════════════════════════════════
+// ORDERED ITEMS UPDATE (from FinalReview drag)
+// ══════════════════════════════════════════
 const onOrderedItemsUpdate = (updated) => {
-  // 1. Save new ordered list
-  packageData.orderedItems = updated;
+  packageData.orderedItems.splice(
+    0,
+    packageData.orderedItems.length,
+    ...updated,
+  );
 
-  // 2. Write day changes back into source arrays so AttractionList / VanTourList stay in sync
+  // dayNumber/serviceDate ပြောင်းသွားရင် source arrays တွေကိုလည်း sync
   updated.forEach((item) => {
     if (item._type === "attraction") {
       const src = packageData.attractions.find((a) => a._uid === item._uid);
@@ -1181,106 +1161,115 @@ const onOrderedItemsUpdate = (updated) => {
         src.dayLabel = item.dayLabel;
       }
     }
-    // Hotels: date is intentionally NOT written back (day-change blocked in FinalReview)
   });
 };
 
-// (e.g. when user adds an attraction then comes back to FinalReview)
+// ══════════════════════════════════════════
+// DATE CHANGE WATCHER
+// startDate / nights ပြောင်းရင် dates တွေ recalculate
+// ══════════════════════════════════════════
 watch(
-  () => [
-    packageData.attractions.length,
-    packageData.hotels.length,
-    packageData.vanTours.length,
-  ],
-  () => {
-    const existingUids = new Set(packageData.orderedItems.map((i) => i._uid));
+  () => [packageData.startDate, packageData.nights],
+  async ([newStartDate, newNights], [oldStartDate, oldNights]) => {
+    if (!newStartDate || !newNights) return;
+    if (newStartDate === oldStartDate && newNights === oldNights) return;
 
-    // ── Van Tours ──
-    packageData.vanTours.forEach((v) => {
-      if (!v._uid) v._uid = mkUid();
-      if (!existingUids.has(v._uid)) {
-        packageData.orderedItems.push({
-          ...v,
-          _type: "van",
-          _order: packageData.orderedItems.filter((x) => x._type === "van")
-            .length,
-        });
-        existingUids.add(v._uid);
-      }
-    });
-
-    // ── Attractions ──
+    // Attractions
     packageData.attractions.forEach((a) => {
-      if (!a._uid) a._uid = mkUid();
-      if (!existingUids.has(a._uid)) {
-        packageData.orderedItems.push({
-          ...a,
-          _type: "attraction",
-          _order: packageData.orderedItems.filter(
-            (x) => x._type === "attraction",
-          ).length,
-        });
-        existingUids.add(a._uid);
-      }
+      if (!a.dayNumber) return;
+      a.serviceDate = getDayDateRaw(a.dayNumber, newStartDate);
+      a.dayLabel = getDayDateShort(a.dayNumber, newStartDate);
     });
 
-    // ── Hotels ──
-    packageData.hotels.forEach((h) => {
-      if (!h._uid) h._uid = mkUid();
-      if (!existingUids.has(h._uid)) {
-        packageData.orderedItems.push({
-          ...h,
-          _type: "hotel",
-          _order: packageData.orderedItems.filter((x) => x._type === "hotel")
-            .length,
-        });
-        existingUids.add(h._uid);
-      }
+    // VanTours
+    packageData.vanTours.forEach((v) => {
+      if (!v.dayNumber) return;
+      v.serviceDate = getDayDateRaw(v.dayNumber, newStartDate);
+      v.dayLabel = getDayDateShort(v.dayNumber, newStartDate);
     });
 
-    // ── Remove items deleted from source arrays ──
-    const vanUids = new Set(
-      packageData.vanTours.map((v) => v._uid).filter(Boolean),
-    );
-    const attUids = new Set(
-      packageData.attractions.map((a) => a._uid).filter(Boolean),
-    );
-    const hotUids = new Set(
-      packageData.hotels.map((h) => h._uid).filter(Boolean),
-    );
+    // Hotels — price refetch
+    for (const h of packageData.hotels) {
+      if (!h.checkInDay || !h.checkOutDay) continue;
+      h.checkIn = getDayDateRaw(h.checkInDay, newStartDate);
+      h.checkOut = getDayDateRaw(h.checkOutDay, newStartDate);
+      h.checkInLabel = getDayDateShort(h.checkInDay, newStartDate);
+      h.checkOutLabel = getDayDateShort(h.checkOutDay, newStartDate);
 
-    packageData.orderedItems = packageData.orderedItems.filter((item) => {
-      if (item._type === "van") return vanUids.has(item._uid);
-      if (item._type === "attraction") return attUids.has(item._uid);
-      if (item._type === "hotel") return hotUids.has(item._uid);
-      return true;
+      const res = await hotelStore.searchHotels(
+        [],
+        "",
+        h.checkIn,
+        h.checkOut,
+        h.hotelId,
+      );
+      if (res?.result?.data?.length > 0) {
+        const rooms = res.result.data[0].rooms ?? [];
+        for (const room of rooms) {
+          if (room.id === h.roomId) {
+            h.costPrice = room.total_cost_price * h.rooms;
+            h.sellingPrice = room.total_selling_price * h.rooms;
+          }
+        }
+      }
+    }
+
+    // orderedItems ထဲက dates ကိုလည်း sync
+    packageData.orderedItems.forEach((item) => {
+      if (item._type === "attraction" || item._type === "van") {
+        item.serviceDate = getDayDateRaw(item.dayNumber, newStartDate);
+        item.dayLabel = getDayDateShort(item.dayNumber, newStartDate);
+      }
+      if (item._type === "hotel") {
+        item.checkIn = getDayDateRaw(item.checkInDay, newStartDate);
+        item.checkOut = getDayDateRaw(item.checkOutDay, newStartDate);
+        item.checkInLabel = getDayDateShort(item.checkInDay, newStartDate);
+        item.checkOutLabel = getDayDateShort(item.checkOutDay, newStartDate);
+      }
     });
   },
-  { immediate: true },
 );
 
+watch(totalDays, (newVal) => {
+  if (newVal > 0 && !selectedDayForCities.value) selectedDayForCities.value = 1;
+});
+
+// ══════════════════════════════════════════
+// MOUNT
+// ══════════════════════════════════════════
 onMounted(async () => {
-  await getCityData();
+  await cityStore.getSimpleListAction();
 });
 </script>
 
 <style scoped>
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: #f1f5f9;
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

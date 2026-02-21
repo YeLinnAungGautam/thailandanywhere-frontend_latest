@@ -2,7 +2,6 @@
   <div class="space-y-3">
     <!-- Controls Row -->
     <div class="flex items-center gap-2 flex-wrap">
-      <!-- Tour Name Input -->
       <input
         type="text"
         v-model="tourName"
@@ -10,7 +9,6 @@
         class="flex-1 min-w-[200px] py-2.5 px-4 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none"
       />
 
-      <!-- Language Toggle -->
       <div
         class="flex rounded-xl border border-gray-300 overflow-hidden shrink-0"
       >
@@ -38,7 +36,6 @@
         </button>
       </div>
 
-      <!-- Preview Button -->
       <button
         @click="previewPDF"
         :disabled="isGenerating"
@@ -51,6 +48,97 @@
         <span v-else>👁️</span>
         {{ isGenerating ? "Preparing..." : "Preview PDF" }}
       </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         PER-DAY IMAGE SELECTOR
+    ══════════════════════════════════════════════════════ -->
+    <div class="space-y-4">
+      <div
+        v-for="day in totalDays"
+        :key="`img-day-${day}`"
+        class="border-2 border-slate-200 rounded-2xl p-4 bg-white"
+      >
+        <!-- Day header -->
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-semibold text-slate-700 text-sm">
+            📅 Day {{ day }} — {{ getDayDateFull(day) }}
+            <span class="ml-2 text-xs text-slate-400 font-normal">
+              ({{ selectedImages[day]?.length ?? 0 }} selected, max 3 shown in
+              PDF)
+            </span>
+          </h4>
+          <button
+            v-if="selectedImages[day]?.length > 0"
+            @click="selectedImages[day] = []"
+            class="text-xs text-red-400 hover:text-red-600 font-medium transition"
+          >
+            Clear
+          </button>
+        </div>
+
+        <!-- Image grid — all images from items on this day -->
+        <div
+          v-if="getDayAllImages(day).length > 0"
+          class="flex flex-wrap gap-2"
+        >
+          <div
+            v-for="img in getDayAllImages(day)"
+            :key="img.id"
+            @click="toggleImage(day, img)"
+            class="relative cursor-pointer group"
+          >
+            <img
+              :src="img.image"
+              class="w-20 h-20 object-cover rounded-xl transition"
+              :class="
+                isImageSelected(day, img)
+                  ? 'ring-4 ring-orange-500 opacity-100'
+                  : 'opacity-60 hover:opacity-90'
+              "
+            />
+            <!-- Checkbox overlay -->
+            <div
+              class="absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold transition"
+              :class="
+                isImageSelected(day, img)
+                  ? 'bg-orange-500 text-white'
+                  : 'bg-white/80 text-slate-400 border border-slate-300'
+              "
+            >
+              {{ isImageSelected(day, img) ? getImageOrder(day, img) : "" }}
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="text-sm text-slate-400 py-3 text-center">
+          No images available for this day
+        </div>
+
+        <!-- Preview of selected (ordered) -->
+        <div
+          v-if="selectedImages[day]?.length > 0"
+          class="mt-3 pt-3 border-t border-slate-100"
+        >
+          <p class="text-xs text-slate-500 mb-2 font-medium">
+            PDF preview order (max 3):
+          </p>
+          <div class="flex gap-2">
+            <div
+              v-for="(img, idx) in selectedImages[day].slice(0, 3)"
+              :key="`preview-${img.id}`"
+              class="relative"
+            >
+              <img :src="img.image" class="w-16 h-12 object-cover rounded-lg" />
+              <span
+                class="absolute -top-1 -left-1 w-4 h-4 bg-orange-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center"
+              >
+                {{ idx + 1 }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Preview Modal -->
@@ -166,19 +254,19 @@
             <span class="pdf-meal-badge">(- / L / -)</span>
           </div>
 
-          <!-- BODY — switches based on language -->
+          <!-- BODY -->
           <div
             class="pdf-body"
             :class="{ 'pdf-myanmar': language === 'mm' }"
             v-html="renderSummary(getSummary(day))"
           ></div>
 
-          <!-- IMAGES -->
-          <div v-if="getDayImages(day).length > 0" class="pdf-images">
+          <!-- IMAGES — user selected, max 3 -->
+          <div v-if="getPdfImages(day).length > 0" class="pdf-images">
             <img
-              v-for="(img, i) in getDayImages(day).slice(0, 3)"
+              v-for="(img, i) in getPdfImages(day)"
               :key="i"
-              :src="img"
+              :src="img.image"
               class="pdf-img"
               crossorigin="anonymous"
               @error="(e) => (e.target.style.display = 'none')"
@@ -205,7 +293,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 
 const props = defineProps({
   totalDays: { type: Number, default: 0 },
@@ -220,9 +308,62 @@ const isGenerating = ref(false);
 const showPreview = ref(false);
 const previewUrl = ref(null);
 const tourName = ref("Tour Itinerary");
-const language = ref("en"); // "en" | "mm"
+const language = ref("en");
 
-// ── Get correct summary based on language ────────────────────
+// ── Per-day selected images — { [day]: [{id, image}, ...] } ──
+const selectedImages = reactive({});
+
+// ── Collect ALL images available for a day ───────────────────
+// Pulls from: attraction.productImage + attraction.images[] + hotel.images[]
+const getDayAllImages = (day) => {
+  const items = getItemsForDay(day);
+  const seen = new Set();
+  const result = [];
+
+  items.forEach((item) => {
+    // images array (array of {id, image})
+    if (Array.isArray(item.images)) {
+      item.images.forEach((img) => {
+        if (img?.image && !seen.has(img.image)) {
+          seen.add(img.image);
+          result.push({ id: img.id ?? img.image, image: img.image });
+        }
+      });
+    }
+    // single productImage
+    if (item.productImage && !seen.has(item.productImage)) {
+      seen.add(item.productImage);
+      result.push({ id: `pi_${item._uid}`, image: item.productImage });
+    }
+  });
+
+  return result;
+};
+
+// ── Image selection helpers ───────────────────────────────────
+const toggleImage = (day, img) => {
+  if (!selectedImages[day]) selectedImages[day] = [];
+  const idx = selectedImages[day].findIndex((i) => i.id === img.id);
+  if (idx > -1) {
+    selectedImages[day].splice(idx, 1);
+  } else {
+    selectedImages[day].push(img);
+  }
+};
+
+const isImageSelected = (day, img) =>
+  selectedImages[day]?.some((i) => i.id === img.id) ?? false;
+
+// Returns 1-based position for display inside the checkbox circle
+const getImageOrder = (day, img) => {
+  const idx = selectedImages[day]?.findIndex((i) => i.id === img.id) ?? -1;
+  return idx > -1 ? idx + 1 : "";
+};
+
+// ── Images that go into the PDF (max 3, in selection order) ──
+const getPdfImages = (day) => (selectedImages[day] ?? []).slice(0, 3);
+
+// ── Language ──────────────────────────────────────────────────
 const getSummary = (day) => {
   const d = props.descriptions[day];
   if (!d) return "";
@@ -231,7 +372,7 @@ const getSummary = (day) => {
     : d.summaryEn || "";
 };
 
-// ── Date helpers ─────────────────────────────────────────────
+// ── Date helpers ──────────────────────────────────────────────
 const coverDateRange = computed(() => {
   if (!props.startDate || !props.totalDays) return "";
   const start = new Date(props.startDate);
@@ -263,19 +404,14 @@ const getItemsForDay = (day) =>
     .filter((i) =>
       i._type === "hotel" ? (i.checkInDay ?? 1) === day : i.dayNumber === day,
     )
-    .sort((a, b) => a._order - b._order);
+    .sort((a, b) => (a._order ?? 0) - (b._order ?? 0));
 
 const getDayHotel = (day) =>
   (props.orderedItems || []).find(
     (i) => i._type === "hotel" && (i.checkInDay ?? 1) === day,
   )?.name || null;
 
-const getDayImages = (day) =>
-  getItemsForDay(day)
-    .filter((i) => i._type === "attraction" && i.productImage)
-    .map((i) => i.productImage);
-
-// ── Render *Name* → orange italic ────────────────────────────
+// ── Render *text* → orange italic ────────────────────────────
 const renderSummary = (text) => {
   if (!text) return "";
   return text
@@ -297,15 +433,14 @@ const getPdfOptions = () => ({
     onclone:
       language.value === "mm"
         ? (clonedDoc) => {
-            // Inject Myanmar font into the cloned document html2canvas uses
             const style = clonedDoc.createElement("style");
             style.textContent = `
-            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700&display=swap');
-            .pdf-myanmar {
-              font-family: 'Noto Sans Myanmar', Pyidaungsu, 'Myanmar Text', sans-serif !important;
-              line-height: 2 !important;
-            }
-          `;
+              @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700&display=swap');
+              .pdf-myanmar {
+                font-family: 'Noto Sans Myanmar', Pyidaungsu, 'Myanmar Text', sans-serif !important;
+                line-height: 2 !important;
+              }
+            `;
             clonedDoc.head.appendChild(style);
           }
         : undefined,
@@ -315,7 +450,6 @@ const getPdfOptions = () => ({
 });
 
 const buildBlob = async () => {
-  // Wait for fonts before capture
   await document.fonts.ready;
   const html2pdf = (await import("html2pdf.js")).default;
   return await html2pdf()
@@ -354,6 +488,13 @@ const downloadFromPreview = async () => {
   showPreview.value = false;
   await generatePDF();
 };
+
+onMounted(() => {
+  // Pre-initialize selectedImages for each day so reactivity works
+  for (let d = 1; d <= props.totalDays; d++) {
+    if (!selectedImages[d]) selectedImages[d] = [];
+  }
+});
 </script>
 
 <style scoped>
@@ -366,8 +507,6 @@ const downloadFromPreview = async () => {
 .pdf-page + .pdf-page {
   page-break-before: always;
 }
-
-/* HEADER */
 .pdf-header {
   display: flex;
   justify-content: space-between;
@@ -408,14 +547,11 @@ const downloadFromPreview = async () => {
   font-size: 9px;
   color: #888;
 }
-
 .pdf-divider {
   border: none;
   border-top: 1px solid #ddd;
   margin: 8px 0 12px;
 }
-
-/* TITLE BLOCK */
 .pdf-title-block {
   text-align: center;
   padding: 8px 0 4px;
@@ -432,8 +568,6 @@ const downloadFromPreview = async () => {
   color: #ff613c;
   margin-bottom: 2px;
 }
-
-/* DAY BAR */
 .pdf-day-bar {
   display: flex;
   justify-content: space-between;
@@ -454,8 +588,6 @@ const downloadFromPreview = async () => {
   white-space: nowrap;
   flex-shrink: 0;
 }
-
-/* BODY */
 .pdf-body {
   font-size: 12px;
   line-height: 1.8;
@@ -467,14 +599,11 @@ const downloadFromPreview = async () => {
   white-space: normal;
   max-width: 100%;
 }
-
-/* Myanmar override — more line height needed */
 .pdf-myanmar {
   font-family: "Pyidaungsu", "Myanmar Text", "Noto Sans Myanmar", sans-serif !important;
   line-height: 2 !important;
   font-size: 13px !important;
 }
-
 :deep(.pdf-orange-italic) {
   color: #ff613c;
   font-style: italic;
@@ -483,31 +612,26 @@ const downloadFromPreview = async () => {
   color: #ff613c;
   font-style: italic;
 }
-
-/* IMAGES */
 .pdf-images {
   display: flex;
   gap: 8px;
   margin: 12px 0;
   width: 100%;
-  overflow: hidden; /* prevent overflow breaking the page */
+  overflow: hidden;
   flex-wrap: nowrap;
 }
-
 .pdf-img {
-  width: 220px; /* matches IMG_WIDTH */
-  height: 160px; /* matches IMG_HEIGHT */
+  width: 220px;
+  height: 160px;
   object-fit: cover;
   border-radius: 6px;
-  flex-shrink: 0; /* key fix: never shrink/stretch */
+  flex-shrink: 0;
   display: block;
 }
-
 .pdf-overnight {
   font-size: 12px;
   margin-top: 8px;
 }
-
 .pdf-thankyou {
   text-align: center;
   font-size: 14px;
@@ -515,7 +639,6 @@ const downloadFromPreview = async () => {
   color: #ff613c;
   padding: 28px 0 10px;
 }
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s;

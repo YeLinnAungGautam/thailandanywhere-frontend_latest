@@ -573,6 +573,7 @@ const localData = reactive({
   costPrice: 0,
   sellingPrice: 0,
   productImage: null,
+  images: [],
 });
 
 // ─────────────────────────────────────────────
@@ -718,6 +719,7 @@ const selectProduct = (product) => {
   localData.selectedVariation = null;
   localData.name = product.name;
   localData.productImage = product.cover_image || product.feature_img;
+  localData.images = product.images;
   showDropdown.value = false;
 };
 
@@ -787,6 +789,7 @@ const confirmSubmit = () => {
     productId: localData.selectedProduct.id,
     productName: localData.selectedProduct.name,
     productImage: localData.productImage,
+    images: localData.images,
     name: localData.name,
     adults: localData.adults,
     children: localData.children,

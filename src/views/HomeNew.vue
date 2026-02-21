@@ -330,55 +330,55 @@ const fetchDailySalesData = async (month) => {
   }
 };
 
-const fetchAllData = async (month) => {
-  try {
-    const data = { date: month, created_by: selectedAgent.value };
+// const fetchAllData = async (month) => {
+//   try {
+//     const data = { date: month, created_by: selectedAgent.value };
 
-    const res = await homeStore.getTimeFilterAdminArray(data);
+//     const res = await homeStore.getTimeFilterAdminArray(data);
 
-    if (res?.result?.sales && res?.result?.airline_sales) {
-      const selectedDate = new Date(month);
-      const currentDate = new Date();
-      const isCurrentMonth =
-        selectedDate.getFullYear() === currentDate.getFullYear() &&
-        selectedDate.getMonth() === currentDate.getMonth();
+//     if (res?.result?.sales && res?.result?.airline_sales) {
+//       const selectedDate = new Date(month);
+//       const currentDate = new Date();
+//       const isCurrentMonth =
+//         selectedDate.getFullYear() === currentDate.getFullYear() &&
+//         selectedDate.getMonth() === currentDate.getMonth();
 
-      // ✅ Extract todayTopSalesReps from sales data
-      if (isCurrentMonth) {
-        const todayStr = currentDate.toISOString().split("T")[0]; // "2026-02-19"
-        const todaySale = res.result.sales.find((s) => s.date === todayStr);
-        const todayAirlineSale = res.result.airline_sales.find(
-          (s) => s.date === todayStr,
-        );
+//       // ✅ Extract todayTopSalesReps from sales data
+//       if (isCurrentMonth) {
+//         const todayStr = currentDate.toISOString().split("T")[0]; // "2026-02-19"
+//         const todaySale = res.result.sales.find((s) => s.date === todayStr);
+//         const todayAirlineSale = res.result.airline_sales.find(
+//           (s) => s.date === todayStr,
+//         );
 
-        if (todaySale) {
-          // Build airline map by agent name for today
-          const airlineByAgent = {};
-          if (todayAirlineSale?.agents) {
-            todayAirlineSale.agents.forEach((a) => {
-              airlineByAgent[a.name] = a.total || 0;
-            });
-          }
+//         if (todaySale) {
+//           // Build airline map by agent name for today
+//           const airlineByAgent = {};
+//           if (todayAirlineSale?.agents) {
+//             todayAirlineSale.agents.forEach((a) => {
+//               airlineByAgent[a.name] = a.total || 0;
+//             });
+//           }
 
-          todayTopSalesReps.value = todaySale.agents
-            .map((agent) => ({
-              name: agent.name,
-              initials: getInitials(agent.name || "Unknown"),
-              amount: Math.round(
-                (agent.total || 0) - (airlineByAgent[agent.name] || 0),
-              ),
-            }))
-            .filter((rep) => rep.amount > 0)
-            .sort((a, b) => b.amount - a.amount);
-        } else {
-          todayTopSalesReps.value = [];
-        }
-      }
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
+//           todayTopSalesReps.value = todaySale.agents
+//             .map((agent) => ({
+//               name: agent.name,
+//               initials: getInitials(agent.name || "Unknown"),
+//               amount: Math.round(
+//                 (agent.total || 0) - (airlineByAgent[agent.name] || 0),
+//               ),
+//             }))
+//             .filter((rep) => rep.amount > 0)
+//             .sort((a, b) => b.amount - a.amount);
+//         } else {
+//           todayTopSalesReps.value = [];
+//         }
+//       }
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 
 // Fetch commission and target data
 const fetchCommissionData = async () => {
@@ -658,9 +658,9 @@ const initializeDashboard = async () => {
     await loadAgentsList();
     console.log("✓ Step 7 complete: Agents list");
 
-    setTimeout(async () => {
-      await fetchAllData(selectMonth.value);
-    }, 2000);
+    // setTimeout(async () => {
+    //   await fetchAllData(selectMonth.value);
+    // }, 2000);
 
     console.log("=== All API Calls Complete ===");
   } catch (error) {

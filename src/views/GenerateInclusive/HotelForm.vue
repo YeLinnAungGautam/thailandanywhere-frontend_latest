@@ -472,6 +472,7 @@ const localData = reactive({
   selectedHotel: null,
   selectedRoom: null,
   hotelImage: null,
+  images: [],
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -643,6 +644,7 @@ const selectHotel = (hotel) => {
   localData.selectedRoom = null;
   showDropdown.value = false;
   localData.hotelImage = hotel.images[0].image;
+  localData.images = hotel.images;
 };
 
 const clearHotelSelection = () => {
@@ -682,6 +684,7 @@ const confirmSubmit = () => {
     name: hotel.name,
     hotelId: hotel.id,
     hotelImage: localData.hotelImage,
+    images: localData.images,
     roomId: room.id,
     roomName: room.name,
     rooms: localData.rooms,

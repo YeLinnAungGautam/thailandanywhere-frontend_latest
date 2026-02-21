@@ -4,7 +4,7 @@
       <p class="text-gray-700 text-lg font-semibold">Top Sales Reps</p>
 
       <!-- Toggle Switch -->
-      <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+      <!-- <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
         <button
           @click="viewMode = 'today'"
           :class="[
@@ -27,7 +27,7 @@
         >
           Avg / Day
         </button>
-      </div>
+      </div> -->
     </div>
 
     <div class="space-y-3">
@@ -91,7 +91,7 @@ const props = defineProps({
   },
 });
 
-const viewMode = ref("today");
+const viewMode = ref("average");
 
 const displayReps = computed(() => {
   return viewMode.value === "today" ? props.todaySalesReps : props.salesReps;

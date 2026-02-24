@@ -1,6 +1,18 @@
+<!-- GenerateInclusive.vue  (updated - replaced PackageListModal with PackageListPage full-page view) -->
 <template>
   <Layout :title="'generate inclusive'">
     <div class="min-h-full bg-slate-50">
+      <!-- ══════════════════════════════════════════
+           PACKAGE LIST PAGE (full page, replaces modal)
+      ══════════════════════════════════════════ -->
+      <div v-if="currentView === 'packageList'">
+        <PackageListPage
+          @back="currentView = 'choose'"
+          @select="onExternalPackageSelected"
+          @edit="onExternalPackageEdit"
+        />
+      </div>
+
       <!-- ══════════════════════════════════════════
            CHOOSE STEP
       ══════════════════════════════════════════ -->
@@ -330,8 +342,8 @@
                             : 'bg-white text-slate-700 hover:bg-orange-100 border-2 border-slate-200',
                         ]"
                       >
-                        {{ city.name }}
-                        <span
+                        {{ city.name
+                        }}<span
                           v-if="isCitySelected(selectedDayForCities, city)"
                           class="ml-1"
                           >✓</span
@@ -533,14 +545,7 @@
       </div>
     </div>
 
-    <!-- Modals -->
-    <PackageListModal
-      :show="showPackageModal"
-      @close="showPackageModal = false"
-      @select="onExternalPackageSelected"
-      @edit="onExternalPackageEdit"
-    />
-
+    <!-- SaveNameModal -->
     <SaveNameModal
       :show="showSaveModal"
       v-model="packageName"
@@ -558,7 +563,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted, watch, nextTick } from "vue";
+import { ref, computed, reactive, onMounted, watch } from "vue";
 import Layout from "./Layout.vue";
 import AttractionForm from "./GenerateInclusive/AttractionForm.vue";
 import AttractionList from "./GenerateInclusive/AttractionList.vue";
@@ -570,7 +575,7 @@ import FinalReview from "./GenerateInclusive/FinalReview.vue";
 import Description from "./GenerateInclusive/Description.vue";
 import GeneratePDF from "./GenerateInclusive/GeneratePDF.vue";
 import SaveNameModal from "./GenerateInclusive/SaveNameModal.vue";
-import PackageListModal from "./GenerateInclusive/PackageListModal.vue";
+import PackageListPage from "./GenerateInclusive/PackageListModal.vue"; // ← NEW (replaces PackageListModal)
 import { useInclusivePackageStore } from "../stores/inclusivePackage";
 import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
@@ -589,10 +594,6 @@ const { cities } = storeToRefs(cityStore);
 // ══════════════════════════════════════════
 let uidCounter = 0;
 const mkUid = () => `_uid_${++uidCounter}`;
-
-/**
- * Item တစ်ခုကို _uid မရှိရင် assign လုပ်ပေးတယ်
- */
 const ensureUid = (item) => {
   if (!item._uid) item._uid = mkUid();
   return item;
@@ -601,12 +602,12 @@ const ensureUid = (item) => {
 // ══════════════════════════════════════════
 // VIEW STATE
 // ══════════════════════════════════════════
-const currentView = ref("choose"); // 'choose' | 'questions'
+// currentView: 'choose' | 'questions' | 'packageList'  ← added 'packageList'
+const currentView = ref("choose");
 const activeQuestion = ref(0);
 const attractionViewMode = ref("list");
 const hotelViewMode = ref("list");
 const vanTourViewMode = ref("list");
-const showPackageModal = ref(false);
 const showSaveModal = ref(false);
 const editingPackageId = ref(null);
 const saveSuccess = ref(false);
@@ -635,7 +636,7 @@ const questions = ref([
 ]);
 
 // ══════════════════════════════════════════
-// PACKAGE DATA (single reactive source of truth)
+// PACKAGE DATA
 // ══════════════════════════════════════════
 const packageData = reactive({
   adults: 2,
@@ -646,12 +647,10 @@ const packageData = reactive({
   hotels: [],
   vanTours: [],
   descriptions: {},
-  orderedItems: [], // ← single array, always in sync
+  orderedItems: [],
 });
 
 const dayCityMap = reactive({});
-
-// Mock data (populate from your real sources if needed)
 const mockAttractions = {};
 const mockHotels = {};
 const mockVanTours = {};
@@ -685,7 +684,6 @@ const filteredCities = computed(() => {
   return data.filter((c) => c.name.toLowerCase().includes(q));
 });
 
-// Editing data for forms (readonly computed)
 const editingAttractionData = computed(() => {
   if (editingAttraction.value === null) return null;
   const item = packageData.attractions[editingAttraction.value];
@@ -762,34 +760,17 @@ const getDayDateShort = (dayNumber, startDate = packageData.startDate) => {
 
 // ══════════════════════════════════════════
 // ORDERED ITEMS SYNC
-// (orderedItems ကို manual ဆောင်ရွက်တာ — watch မပါ)
 // ══════════════════════════════════════════
-
-/**
- * Item အသစ် add လုပ်တဲ့အချိန် orderedItems ကို update လုပ်တယ်
- * @param {'attraction'|'hotel'|'van'} type
- * @param {object} item  - _uid ပါပြီးသားဖြစ်ရမယ်
- */
 const pushToOrderedItems = (type, item) => {
   packageData.orderedItems.push({ ...item, _type: type });
 };
 
-/**
- * Item update လုပ်တဲ့အချိန် orderedItems ထဲက copy ကိုလည်း sync လုပ်တယ်
- * @param {'attraction'|'hotel'|'van'} type
- * @param {object} item  - _uid ပါပြီးသားဖြစ်ရမယ်
- */
 const syncOrderedItem = (type, item) => {
   const idx = packageData.orderedItems.findIndex((o) => o._uid === item._uid);
-  if (idx !== -1) {
+  if (idx !== -1)
     packageData.orderedItems.splice(idx, 1, { ...item, _type: type });
-  }
 };
 
-/**
- * Item ဖျက်တဲ့အချိန် orderedItems ထဲကလည်း ဖျက်တယ်
- * @param {string} uid
- */
 const removeFromOrderedItems = (uid) => {
   const idx = packageData.orderedItems.findIndex((o) => o._uid === uid);
   if (idx !== -1) packageData.orderedItems.splice(idx, 1);
@@ -817,32 +798,15 @@ const resetAllData = () => {
 };
 
 // ══════════════════════════════════════════
-// FILL FROM PACKAGE (DB မှ load လုပ်တဲ့နေရာ)
+// FILL FROM PACKAGE
 // ══════════════════════════════════════════
-/**
- * ★ BUG FIX အဓိက နေရာ ★
- *
- * ပြဿနာ: attractions/hotels/vanTours set လုပ်တဲ့အချိန် watch trigger ဖြစ်ပြီး
- * orderedItems ကို overwrite လုပ်မိတယ်
- *
- * ဖြေရှင်းချက်:
- * 1. watch ကို ဆွဲထုတ်ပစ်ပြီး orderedItems ကို ဒီ function ထဲမှာပဲ တိုက်ရိုက် build လုပ်တယ်
- * 2. _uid တွေကို items set မတိုင်ခင် အရင် prepare လုပ်ထားတယ်
- * 3. splice() သုံးပြီး reactive array ကို replace လုပ်တယ် (= assignment မသုံးဘဲ)
- */
 const fillFromPackage = (pkg) => {
-  // ── Step 1: UID counter reset ──
   uidCounter = 0;
 
-  // ── Step 2: source arrays ကို _uid assign လုပ်ပြီး prepare
-  //    IMPORTANT: uid ကို တစ်ခုချင်းစီ assign ပြီးသွားမှ orderedItems build မယ်
-  //    ဒါမှ source uid === orderedItems uid ဖြစ်မှာ
   const attractions = (pkg.attractions ?? []).map((a) => ensureUid({ ...a }));
   const hotels = (pkg.hotels ?? []).map((h) => ensureUid({ ...h }));
   const vanTours = (pkg.van_tours ?? []).map((v) => ensureUid({ ...v }));
 
-  // ── Step 3: lookup maps — uid ရှာဖို့ O(1)
-  //    key: "type::name::dayOrCheckIn"  →  source item (with _uid)
   const attMap = new Map(
     attractions.map((a) => [`${a.name}::${a.dayNumber}`, a]),
   );
@@ -851,16 +815,12 @@ const fillFromPackage = (pkg) => {
     vanTours.map((v) => [`${v.route}::${v.dayNumber}`, v]),
   );
 
-  // ── Step 4: orderedItems build
   let newOrderedItems;
-
   if (pkg.ordered_items?.length > 0) {
     newOrderedItems = pkg.ordered_items.map((stored) => {
       if (stored._type === "attraction") {
-        // source item ကို lookup မှာ တွေ့ရင် source ရဲ့ _uid ကိုသုံး
         const live = attMap.get(`${stored.name}::${stored.dayNumber}`);
         if (live) return { ...live, _type: "attraction" };
-        // မတွေ့ရင် stored ထဲမှာ _uid ရှိပြီးသားဆိုရင် သုံး၊ မဟုတ်ရင် new uid
         return { ...stored, _uid: stored._uid ?? mkUid(), _type: "attraction" };
       }
       if (stored._type === "hotel") {
@@ -876,7 +836,6 @@ const fillFromPackage = (pkg) => {
       return { ...stored, _uid: stored._uid ?? mkUid() };
     });
   } else {
-    // DB ထဲမှာ order မသိမ်းရသေးတဲ့ case — default order
     newOrderedItems = [
       ...vanTours.map((v) => ({ ...v, _type: "van" })),
       ...attractions.map((a) => ({ ...a, _type: "attraction" })),
@@ -884,7 +843,6 @@ const fillFromPackage = (pkg) => {
     ];
   }
 
-  // ── Step 5: dayCityMap reset + fill ──
   Object.keys(dayCityMap).forEach((k) => delete dayCityMap[k]);
   if (pkg.day_city_map) {
     Object.entries(pkg.day_city_map).forEach(([day, citiesArr]) => {
@@ -892,14 +850,12 @@ const fillFromPackage = (pkg) => {
     });
   }
 
-  // ── Step 6: scalar values ──
   packageData.adults = pkg.adults ?? 2;
   packageData.children = pkg.children ?? 0;
   packageData.startDate = pkg.start_date?.split("T")[0] ?? pkg.start_date ?? "";
   packageData.nights = pkg.nights ?? 3;
   packageData.descriptions = pkg.descriptions ?? {};
 
-  // ── Step 7: reactive arrays — splice() နဲ့ in-place replace (reactivity မပျောက်) ──
   packageData.attractions.splice(
     0,
     packageData.attractions.length,
@@ -907,47 +863,29 @@ const fillFromPackage = (pkg) => {
   );
   packageData.hotels.splice(0, packageData.hotels.length, ...hotels);
   packageData.vanTours.splice(0, packageData.vanTours.length, ...vanTours);
-
-  // ── Step 8: orderedItems — LAST မှ set (watch မရှိတော့ overwrite ဖြစ်မသွား) ──
   packageData.orderedItems.splice(
     0,
     packageData.orderedItems.length,
     ...newOrderedItems,
   );
 
-  // ── Step 9: Sync uidCounter so new items don't collide ──
-  syncUidCounter(); // ← ADD THIS
-
-  // ── Debug: uid consistency check (development အတွက်) ──
-  if (import.meta.env.DEV) {
-    const orderUids = new Set(newOrderedItems.map((i) => i._uid));
-    const sourceUids = new Set([
-      ...attractions.map((a) => a._uid),
-      ...hotels.map((h) => h._uid),
-      ...vanTours.map((v) => v._uid),
-    ]);
-    const orphans = [...orderUids].filter((uid) => !sourceUids.has(uid));
-    if (orphans.length > 0) {
-      console.warn("[fillFromPackage] orphan uids in orderedItems:", orphans);
-    }
-  }
+  syncUidCounter();
 };
 
-// Add this helper
 const syncUidCounter = () => {
   let max = 0;
   [
     ...packageData.attractions,
     ...packageData.hotels,
     ...packageData.vanTours,
-    ...packageData.orderedItems, // ← ADD: orphan uids from mkUid() during build may be higher
+    ...packageData.orderedItems,
   ].forEach((item) => {
     if (item._uid) {
       const num = parseInt(item._uid.replace("_uid_", ""), 10);
       if (!isNaN(num) && num > max) max = num;
     }
   });
-  uidCounter = max; // next mkUid() = max + 1
+  uidCounter = max;
 };
 
 // ══════════════════════════════════════════
@@ -955,20 +893,22 @@ const syncUidCounter = () => {
 // ══════════════════════════════════════════
 const startCreation = (type) => {
   if (type === "external") {
-    showPackageModal.value = true;
+    // Go to full-page package list instead of opening modal
+    currentView.value = "packageList";
   } else {
     resetAllData();
     editingPackageId.value = null;
+    packageName.value = "";
     currentView.value = "questions";
     activeQuestion.value = 0;
   }
 };
 
 const onExternalPackageSelected = (pkg) => {
-  console.log("Selected package:", pkg);
   resetAllData();
   fillFromPackage(pkg);
   editingPackageId.value = null; // create new copy
+  packageName.value = "";
   currentView.value = "questions";
   activeQuestion.value = 0;
 };
@@ -977,6 +917,7 @@ const onExternalPackageEdit = (pkg) => {
   resetAllData();
   fillFromPackage(pkg);
   editingPackageId.value = pkg.id; // update existing
+  packageName.value = pkg.package_name ?? ""; // ← auto-fill package name
   currentView.value = "questions";
   activeQuestion.value = 0;
 };
@@ -985,6 +926,7 @@ const onExternalPackageEdit = (pkg) => {
 // SAVE
 // ══════════════════════════════════════════
 const savePackage = () => {
+  // If editing and packageName not yet set, auto-fill from current data
   if (editingPackageId.value && !packageName.value) {
     packageName.value = "Tour Package";
   }
@@ -1025,12 +967,10 @@ const toggleCity = (day, city) => {
 };
 
 const isCitySelected = (day, city) => dayCityMap[day]?.includes(city) ?? false;
-
 const removeCity = (day, city) => {
   const idx = dayCityMap[day]?.indexOf(city) ?? -1;
   if (idx > -1) dayCityMap[day].splice(idx, 1);
 };
-
 const clearDayCities = (day) => {
   dayCityMap[day] = [];
 };
@@ -1040,17 +980,15 @@ const clearDayCities = (day) => {
 // ══════════════════════════════════════════
 const handleAttractionSubmit = (attraction) => {
   if (editingAttraction.value !== null) {
-    // ── UPDATE ──
     const existingUid = packageData.attractions[editingAttraction.value]._uid;
     const updated = { ...attraction, _uid: existingUid };
     packageData.attractions.splice(editingAttraction.value, 1, updated);
-    syncOrderedItem("attraction", updated); // ← orderedItems ကို sync
+    syncOrderedItem("attraction", updated);
     editingAttraction.value = null;
   } else {
-    // ── CREATE ──
     const newItem = ensureUid({ ...attraction });
     packageData.attractions.push(newItem);
-    pushToOrderedItems("attraction", newItem); // ← orderedItems ကို push
+    pushToOrderedItems("attraction", newItem);
   }
 };
 
@@ -1058,15 +996,13 @@ const editAttraction = (index) => {
   editingAttraction.value = index;
   attractionViewMode.value = "list";
 };
-
 const cancelEditAttraction = () => {
   editingAttraction.value = null;
 };
-
 const removeAttraction = (index) => {
   const uid = packageData.attractions[index]?._uid;
   packageData.attractions.splice(index, 1);
-  if (uid) removeFromOrderedItems(uid); // ← orderedItems ကလည်း ဖျက်
+  if (uid) removeFromOrderedItems(uid);
   if (editingAttraction.value === index) editingAttraction.value = null;
 };
 
@@ -1091,11 +1027,9 @@ const editHotel = (index) => {
   editingHotel.value = index;
   hotelViewMode.value = "list";
 };
-
 const cancelEditHotel = () => {
   editingHotel.value = null;
 };
-
 const removeHotel = (index) => {
   const uid = packageData.hotels[index]?._uid;
   packageData.hotels.splice(index, 1);
@@ -1124,11 +1058,9 @@ const editVanTour = (index) => {
   editingVanTour.value = index;
   vanTourViewMode.value = "list";
 };
-
 const cancelEditVanTour = () => {
   editingVanTour.value = null;
 };
-
 const removeVanTour = (index) => {
   const uid = packageData.vanTours[index]?._uid;
   packageData.vanTours.splice(index, 1);
@@ -1145,8 +1077,6 @@ const onOrderedItemsUpdate = (updated) => {
     packageData.orderedItems.length,
     ...updated,
   );
-
-  // dayNumber/serviceDate ပြောင်းသွားရင် source arrays တွေကိုလည်း sync
   updated.forEach((item) => {
     if (item._type === "attraction") {
       const src = packageData.attractions.find((a) => a._uid === item._uid);
@@ -1168,7 +1098,6 @@ const onOrderedItemsUpdate = (updated) => {
 
 // ══════════════════════════════════════════
 // DATE CHANGE WATCHER
-// startDate / nights ပြောင်းရင် dates တွေ recalculate
 // ══════════════════════════════════════════
 watch(
   () => [packageData.startDate, packageData.nights],
@@ -1176,21 +1105,18 @@ watch(
     if (!newStartDate || !newNights) return;
     if (newStartDate === oldStartDate && newNights === oldNights) return;
 
-    // Attractions
     packageData.attractions.forEach((a) => {
       if (!a.dayNumber) return;
       a.serviceDate = getDayDateRaw(a.dayNumber, newStartDate);
       a.dayLabel = getDayDateShort(a.dayNumber, newStartDate);
     });
 
-    // VanTours
     packageData.vanTours.forEach((v) => {
       if (!v.dayNumber) return;
       v.serviceDate = getDayDateRaw(v.dayNumber, newStartDate);
       v.dayLabel = getDayDateShort(v.dayNumber, newStartDate);
     });
 
-    // Hotels — price refetch
     for (const h of packageData.hotels) {
       if (!h.checkInDay || !h.checkOutDay) continue;
       h.checkIn = getDayDateRaw(h.checkInDay, newStartDate);
@@ -1216,7 +1142,6 @@ watch(
       }
     }
 
-    // orderedItems ထဲက dates ကိုလည်း sync
     packageData.orderedItems.forEach((item) => {
       if (item._type === "attraction" || item._type === "van") {
         item.serviceDate = getDayDateRaw(item.dayNumber, newStartDate);

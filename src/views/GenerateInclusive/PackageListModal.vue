@@ -212,21 +212,6 @@
               <!-- Actions -->
               <td class="px-5 py-3.5">
                 <div class="flex items-center justify-center gap-2">
-                  <!-- Use -->
-                  <button
-                    @click="confirmSelect(pkg)"
-                    :disabled="store.detailLoading && loadingId === pkg.id"
-                    class="flex items-center gap-1 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-lg font-medium transition disabled:opacity-60"
-                    title="Use this package"
-                  >
-                    <span
-                      v-if="store.detailLoading && loadingId === pkg.id"
-                      class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"
-                    />
-                    <span v-else>↗</span>
-                    Use
-                  </button>
-
                   <!-- Edit -->
                   <button
                     @click="onEdit(pkg)"
@@ -387,7 +372,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useInclusivePackageStore } from "../../stores/inclusivePackage";
 
-const emit = defineEmits(["select", "edit", "back"]);
+const emit = defineEmits(["edit", "back"]);
 
 const store = useInclusivePackageStore();
 const loadingId = ref(null);
@@ -400,16 +385,6 @@ onMounted(() => {
   store.resetFilters();
   store.fetchPackages();
 });
-
-// ── Use package ──
-const confirmSelect = async (pkg) => {
-  loadingId.value = pkg.id;
-  const detail = await store.fetchPackageDetail(pkg.id);
-  loadingId.value = null;
-  if (detail) {
-    emit("select", detail);
-  }
-};
 
 // ── Edit package ── auto-set package name in SaveNameModal
 const onEdit = async (pkg) => {

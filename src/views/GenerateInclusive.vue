@@ -8,7 +8,6 @@
       <div v-if="currentView === 'packageList'">
         <PackageListPage
           @back="currentView = 'choose'"
-          @select="onExternalPackageSelected"
           @edit="onExternalPackageEdit"
         />
       </div>
@@ -545,11 +544,20 @@
       </div>
     </div>
 
-    <!-- SaveNameModal -->
+    <!-- SaveChoiceModal — shown when editing a loaded package -->
+    <SaveChoiceModal
+      :show="showSaveChoiceModal"
+      :original-name="originalPackageName"
+      :original-id="editingPackageId"
+      @close="showSaveChoiceModal = false"
+      @choose="onSaveChoiceMade"
+    />
+
+    <!-- SaveNameModal — shown for new package OR after "Save as New" choice -->
     <SaveNameModal
       :show="showSaveModal"
       v-model="packageName"
-      :is-update="!!editingPackageId"
+      :is-update="saveMode === 'update'"
       :loading="pkgStore.saveLoading"
       :start-date="packageData.startDate"
       :nights="packageData.nights"
@@ -575,7 +583,8 @@ import FinalReview from "./GenerateInclusive/FinalReview.vue";
 import Description from "./GenerateInclusive/Description.vue";
 import GeneratePDF from "./GenerateInclusive/GeneratePDF.vue";
 import SaveNameModal from "./GenerateInclusive/SaveNameModal.vue";
-import PackageListPage from "./GenerateInclusive/PackageListModal.vue"; // ← NEW (replaces PackageListModal)
+import SaveChoiceModal from "./GenerateInclusive/SaveChoiceModal.vue";
+import PackageListPage from "./GenerateInclusive/PackageListModal.vue";
 import { useInclusivePackageStore } from "../stores/inclusivePackage";
 import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
@@ -609,7 +618,10 @@ const attractionViewMode = ref("list");
 const hotelViewMode = ref("list");
 const vanTourViewMode = ref("list");
 const showSaveModal = ref(false);
+const showSaveChoiceModal = ref(false); // ← NEW: choice modal (update vs new)
 const editingPackageId = ref(null);
+const originalPackageName = ref(""); // ← name of the package being edited
+const saveMode = ref("new"); // ← 'update' | 'new'
 const saveSuccess = ref(false);
 const packageName = ref("");
 const selectedDayForCities = ref(1);
@@ -916,8 +928,9 @@ const onExternalPackageSelected = (pkg) => {
 const onExternalPackageEdit = (pkg) => {
   resetAllData();
   fillFromPackage(pkg);
-  editingPackageId.value = pkg.id; // update existing
-  packageName.value = pkg.package_name ?? ""; // ← auto-fill package name
+  editingPackageId.value = pkg.id;
+  originalPackageName.value = pkg.package_name ?? ""; // ← store for SaveChoiceModal
+  packageName.value = pkg.package_name ?? ""; // ← pre-fill SaveNameModal
   currentView.value = "questions";
   activeQuestion.value = 0;
 };
@@ -926,23 +939,48 @@ const onExternalPackageEdit = (pkg) => {
 // SAVE
 // ══════════════════════════════════════════
 const savePackage = () => {
-  // If editing and packageName not yet set, auto-fill from current data
-  if (editingPackageId.value && !packageName.value) {
-    packageName.value = "Tour Package";
+  if (editingPackageId.value) {
+    // Loaded from an existing package → ask: Update Existing or Save as New?
+    showSaveChoiceModal.value = true;
+  } else {
+    // Brand-new package → go straight to name modal
+    saveMode.value = "new";
+    packageName.value = packageName.value || "";
+    showSaveModal.value = true;
   }
-  showSaveModal.value = true;
+};
+
+// Called when user picks a choice in SaveChoiceModal
+const onSaveChoiceMade = (mode) => {
+  showSaveChoiceModal.value = false;
+  saveMode.value = mode; // 'update' | 'new'
+
+  if (mode === "update") {
+    // Keep existing name, open SaveNameModal pre-filled (isUpdate = true)
+    packageName.value = originalPackageName.value;
+    showSaveModal.value = true;
+  } else {
+    // Save as new: clear name so user types a fresh one
+    packageName.value = "";
+    showSaveModal.value = true;
+  }
 };
 
 const onSaveConfirmed = async (name) => {
   const payload = pkgStore.buildPayload(packageData, dayCityMap, name);
   let result;
 
-  if (editingPackageId.value) {
+  if (saveMode.value === "update" && editingPackageId.value) {
+    // Update the original package
     result = await pkgStore.updatePackage(editingPackageId.value, payload);
   } else {
+    // Create a brand-new package
     result = await pkgStore.createPackage(payload);
     if (result.success) {
+      // Now we're editing this new package going forward
       editingPackageId.value = result.data?.data?.id ?? null;
+      originalPackageName.value = name;
+      saveMode.value = "update"; // subsequent saves default to update
     }
   }
 

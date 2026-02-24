@@ -236,11 +236,11 @@
                 Adult: ฿{{ variation.adult_price.toLocaleString() }}
               </span>
               <span
-                v-if="variation.child_info[0].child_price > 0"
+                v-if="variation.child_info?.[0]?.child_price > 0"
                 class="text-sm bg-blue-100 px-2 py-1 rounded-lg text-blue-600 font-semibold"
               >
                 Child: ฿{{
-                  variation.child_info[0].child_price.toLocaleString()
+                  variation.child_info?.[0]?.child_price.toLocaleString()
                 }}
               </span>
             </div>
@@ -422,14 +422,14 @@
                       <span class="font-medium text-slate-700">Child</span>
                       <span class="text-slate-400 ml-1.5 text-xs">
                         {{ localData.children }} x ฿{{
-                          localData.selectedVariation.child_info[0].child_price.toLocaleString()
+                          localData.selectedVariation.child_info?.[0].child_price.toLocaleString()
                         }}
                       </span>
                     </div>
                     <span class="font-semibold text-slate-800 text-sm">
                       ฿{{
                         (
-                          localData.selectedVariation.child_info[0]
+                          localData.selectedVariation.child_info?.[0]
                             .child_price * localData.children
                         ).toLocaleString()
                       }}
@@ -590,7 +590,7 @@ const calculatedSellingPrice = computed(() => {
     const adultTotal = (v.adult_price ?? 0) * localData.adults;
     const childPrice =
       v.child_info?.[0]?.child_price != "null"
-        ? v.child_info[0].child_price
+        ? v.child_info?.[0].child_price
         : "null";
     return (
       adultTotal +
@@ -619,7 +619,7 @@ const calculatedCostPrice = computed(() => {
     const adultCostTotal = (v.adult_cost_price ?? 0) * localData.adults;
     const childCostPrice =
       v.child_info?.[0]?.child_cost_price != "null"
-        ? v.child_info[0].child_cost_price
+        ? v.child_info?.[0].child_cost_price
         : "null";
     return (
       adultCostTotal +

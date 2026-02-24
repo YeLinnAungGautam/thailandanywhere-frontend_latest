@@ -1,7 +1,6 @@
 <template>
-  <!-- (template is unchanged — no modifications needed) -->
   <div class="space-y-4">
-    <!-- Top bar: Tabs + Generate All Button -->
+    <!-- Top bar: Tabs + Prompt Toggle + Generate All Button -->
     <div class="flex items-center gap-3">
       <div
         class="flex-1 flex justify-start items-center gap-x-2 overflow-x-scroll no-scrollbar pb-1"
@@ -27,6 +26,26 @@
         </div>
       </div>
 
+      <!-- Prompt Editor Toggle -->
+      <button
+        @click="openPromptModal"
+        class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition shrink-0 border-2"
+        :class="
+          promptOverride
+            ? 'bg-amber-50 border-amber-400 text-amber-700 hover:bg-amber-100'
+            : 'bg-slate-50 border-slate-300 text-slate-600 hover:bg-slate-100'
+        "
+        title="Edit AI prompt"
+      >
+        <span>✏️</span>
+        <span>Prompt</span>
+        <span
+          v-if="promptOverride"
+          class="w-2 h-2 rounded-full bg-amber-400 inline-block"
+          title="Custom prompt active"
+        ></span>
+      </button>
+
       <!-- Generate ALL days button -->
       <button
         @click="generateAllDays"
@@ -37,22 +56,39 @@
             ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
             : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white hover:shadow-md'
         "
-        :title="
-          !hasOrderedItems
-            ? 'Add services in Attractions/Van Tours first'
-            : 'Generate all day descriptions with AI'
-        "
       >
         <span
           v-if="isGenerating"
           class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
         ></span>
         <span v-else>✨</span>
-        <span>
-          {{ isGenerating ? `Generating all days...` : "Generate All with AI" }}
-        </span>
+        <span>{{
+          isGenerating ? "Generating all days..." : "Generate All with AI"
+        }}</span>
       </button>
     </div>
+
+    <!-- Custom prompt active notice -->
+    <Transition name="fade">
+      <div
+        v-if="promptOverride"
+        class="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-sm bg-amber-50 border border-amber-300 text-amber-800"
+      >
+        <div class="flex items-center gap-2">
+          <span>✏️</span>
+          <span class="font-medium">Custom prompt is active</span>
+          <span class="text-amber-600 text-xs"
+            >— AI will use your edited rules</span
+          >
+        </div>
+        <button
+          @click="resetPrompt"
+          class="text-xs text-amber-700 hover:text-amber-900 font-semibold underline"
+        >
+          Reset to default
+        </button>
+      </div>
+    </Transition>
 
     <!-- Status banner -->
     <Transition name="fade">
@@ -106,11 +142,6 @@
               ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
               : 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100'
           "
-          :title="
-            !hasDayItems(selectedDay)
-              ? 'No services on this day'
-              : 'Generate description for this day only'
-          "
         >
           <span
             v-if="isGenerating && generatingDay === selectedDay"
@@ -158,15 +189,14 @@
         </div>
       </div>
       <div v-else class="text-xs text-slate-400 italic px-1">
-        No services added for this day yet. Add attractions or van tours to
-        enable AI generation.
+        No services added for this day yet.
       </div>
 
       <!-- Title -->
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">
-          Day Title <span class="text-red-400">*</span>
-        </label>
+        <label class="block text-sm font-medium text-slate-700 mb-1"
+          >Day Title <span class="text-red-400">*</span></label
+        >
         <input
           v-model="dayData[selectedDay].title"
           type="text"
@@ -253,6 +283,146 @@
         </div>
       </div>
     </div>
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  Prompt Editor Modal                        -->
+    <!-- ═══════════════════════════════════════════ -->
+    <Teleport to="body">
+      <Transition name="modal-fade">
+        <div
+          v-if="showPromptModal"
+          class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+        >
+          <div
+            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            @click="closePromptModal"
+          />
+
+          <div
+            class="prompt-modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden"
+            style="max-height: 90vh"
+          >
+            <!-- Header -->
+            <div
+              class="bg-gradient-to-r from-slate-700 to-slate-800 px-6 py-4 flex items-start justify-between shrink-0"
+            >
+              <div>
+                <h3 class="text-lg font-bold text-white leading-tight">
+                  ✏️ Edit AI Prompt Rules
+                </h3>
+                <p class="text-slate-300 text-xs mt-1">
+                  Edit the writing instructions. Tour data and JSON format are
+                  appended automatically.
+                </p>
+              </div>
+              <button
+                @click="closePromptModal"
+                class="w-7 h-7 ml-4 shrink-0 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center transition text-xl leading-none"
+              >
+                &times;
+              </button>
+            </div>
+
+            <!-- Mode selector -->
+            <div class="px-6 pt-4 pb-0 flex items-center gap-3 shrink-0">
+              <span
+                class="text-xs font-semibold text-slate-500 uppercase tracking-wide"
+                >Apply to:</span
+              >
+              <div class="flex gap-2">
+                <button
+                  @click="promptMode = 'all'"
+                  :class="
+                    promptMode === 'all'
+                      ? 'bg-indigo-600 text-white shadow'
+                      : 'bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-700'
+                  "
+                  class="px-3 py-1.5 rounded-lg text-xs font-semibold transition"
+                >
+                  ✨ Generate All Days
+                </button>
+                <button
+                  @click="promptMode = 'single'"
+                  :class="
+                    promptMode === 'single'
+                      ? 'bg-purple-600 text-white shadow'
+                      : 'bg-slate-100 text-slate-600 hover:bg-purple-50 hover:text-purple-700'
+                  "
+                  class="px-3 py-1.5 rounded-lg text-xs font-semibold transition"
+                >
+                  ✨ This Day Only
+                </button>
+              </div>
+            </div>
+
+            <!-- Hint -->
+            <div class="px-6 pt-3 pb-0 shrink-0">
+              <div
+                class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 text-xs text-amber-800 flex items-start gap-2"
+              >
+                <span class="shrink-0 mt-0.5">💡</span>
+                <span>
+                  Write only the
+                  <strong>writing rules and instructions</strong> here. Tour
+                  data (attractions with venue + ticket names, van tours,
+                  hotels) and the JSON return format are automatically appended
+                  — no need to include them.
+                </span>
+              </div>
+            </div>
+
+            <!-- Textarea -->
+            <div class="px-6 pt-3 pb-0 flex-1 overflow-y-auto min-h-0">
+              <textarea
+                v-model="editingPrompt"
+                spellcheck="false"
+                placeholder="Write your custom prompt rules here..."
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none text-sm text-slate-800 font-mono leading-relaxed bg-slate-50"
+                style="min-height: 340px; height: 340px"
+              />
+              <p class="text-xs text-slate-400 text-right mt-1 mb-2">
+                {{ editingPrompt?.length ?? 0 }} characters
+              </p>
+            </div>
+
+            <!-- Footer -->
+            <div
+              class="px-6 py-4 flex gap-3 border-t border-slate-100 bg-slate-50 shrink-0"
+            >
+              <button
+                @click="resetEditingPrompt"
+                class="px-4 py-2.5 rounded-xl border-2 border-slate-300 text-slate-600 font-semibold hover:bg-white transition text-sm"
+                title="Reset to default rules"
+              >
+                🔄 Reset Default
+              </button>
+              <button
+                @click="closePromptModal"
+                class="flex-1 py-2.5 rounded-xl border-2 border-slate-300 text-slate-600 font-semibold hover:bg-white transition text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                @click="saveAndGenerate"
+                :disabled="isGenerating || !editingPrompt.trim()"
+                :class="
+                  isGenerating || !editingPrompt.trim()
+                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md'
+                "
+                class="flex-1 py-2.5 rounded-xl font-semibold transition text-sm flex items-center justify-center gap-2"
+              >
+                <span
+                  v-if="isGenerating"
+                  class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                ></span>
+                <span v-else>✨</span>
+                {{ isGenerating ? "Generating..." : "Save & Generate" }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -271,7 +441,6 @@ const props = defineProps({
 const emit = defineEmits(["update:descriptions"]);
 
 const selectedDay = ref(1);
-
 const dayData = reactive({});
 
 watch(
@@ -341,7 +510,7 @@ const getItemsForDay = (day) =>
       if (item._type === "hotel") return (item.checkInDay ?? 1) === day;
       return item.dayNumber === day;
     })
-    .sort((a, b) => a._order - b._order);
+    .sort((a, b) => (a._order ?? 0) - (b._order ?? 0));
 
 const hasDayItems = (day) => getItemsForDay(day).length > 0;
 
@@ -357,12 +526,24 @@ const getDayItemsSummary = (day) =>
       return {
         type: "attraction",
         emoji: "🎫",
-        label: item.name || "Attraction",
+        // Show "ProductName (TicketName)" if different, otherwise just one
+        label:
+          item.productName && item.productName !== item.name
+            ? `${item.productName} — ${item.name}`
+            : item.productName || item.name || "Attraction",
       };
     if (item._type === "hotel")
       return { type: "hotel", emoji: "🏨", label: item.name || "Hotel" };
     return { type: "", emoji: "", label: "" };
   });
+
+const getDaysToGenerate = () => {
+  const days = [];
+  for (let d = 1; d <= props.totalDays; d++) {
+    if (hasDayItems(d)) days.push(d);
+  }
+  return days;
+};
 
 // ── AI Setup ──────────────────────────────────────────────────
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
@@ -395,55 +576,23 @@ const showStatus = (message, type = "generating", duration = 0) => {
     }, duration);
 };
 
-// ── Build ONE prompt for ALL days ─────────────────────────────
-const buildAllDaysPrompt = (daysToGenerate) => {
-  const dayBlocks = daysToGenerate
-    .map((day) => {
-      const items = getItemsForDay(day);
-      const cities =
-        props.dayCityMap[day]?.map((c) => c.name).join(", ") || "Thailand";
-      const dateLabel = getDayDateFull(day);
+// ── Default writing rules ─────────────────────────────────────
+const DEFAULT_RULES = `You are a travel agency writing a professional itinerary for travellers before they travel.
 
-      const itemLines = items
-        .map((item) => {
-          if (item._type === "van")
-            return `  🚐 Van Tour: ${item.vanTourName} (${item.carName}) in ${item.city}`;
-          if (item._type === "attraction")
-            return `  🎫 Attraction: ${item.name} — ${item.city}`;
-          if (item._type === "hotel")
-            return `  🏨 Hotel Check-in: ${item.name} (${item.roomName}), ${item.nights} night(s)`;
-          return "";
-        })
-        .filter(Boolean)
-        .join("\n");
+Rules:
+- Write in a concise and easy to read format.
+- Write about the highlights of each attraction explaining readers why these items are a must visit. You can also include positive points about the attractions from online reviews such as TripAdvisor and Google reviews.
+- Write in an exciting but professional tone so that it makes customers want to purchase and travel as per itinerary.
+- Mention each service naturally in paragraph flow.
+- Include hotel check-in at the end if a hotel is present.
+- English: 3-5 paragraphs, vivid and informative.
+- Myanmar: Full, natural translation (not literal word-by-word). For attraction names, keep English names in the Myanmar text — do not translate attraction names into Myanmar.
+- Title: Short English title, 4-6 words.
+- Do not mention specific departure times (the trip is free and flexible). You may mention approximate travel durations between destinations (e.g. "it takes approximately X hours to drive from X to Y with no traffic").
+- Write professionally. Avoid excessive adjectives and do not oversell. Write only 2-3 brief sentences about each attraction.`;
 
-      return `DAY ${day} — ${dateLabel}\nCities: ${cities}\nServices:\n${itemLines}`;
-    })
-    .join("\n\n---\n\n");
-
-  return `You are a professional travel writer for a Myanmar tour company creating day-by-day itinerary descriptions.
-
-Below are multiple days of a tour. Generate a description for EVERY day listed.
-
-${dayBlocks}
-
-Writing style to match exactly:
----
-09:00 AM, Meet and welcome guests at the Hotel lobby and we will visit to *Laser Buddha (Khao Chi Chan)* that has become a Pattaya landmark due to its large golden Buddha laser engraving.
-
-Then continue your trip to *Nong Nooch Tropical Garden*, famous for its vast, beautifully landscaped themed gardens.
-
-Overnight at *Hotel Name*.
----
-
-Rules for each day:
-- Start with a time like "09:00 AM," for the first activity
-- Use *PlaceName* formatting for attraction/place names
-- Mention each service naturally in paragraph flow
-- Include hotel check-in at the end if a hotel is present
-- English: 3-5 paragraphs, vivid and informative
-- Myanmar: Full, natural translation (not literal word-by-word)
-- Title: Short English title, 4-6 words
+// ── JSON format instructions (always appended, not user-editable) ──
+const JSON_FORMAT_ALL = `
 
 Return ONLY this JSON structure with no markdown fences and no extra text:
 {
@@ -452,71 +601,186 @@ Return ONLY this JSON structure with no markdown fences and no extra text:
     "2": { "title": "...", "summaryEn": "...", "summaryMm": "..." }
   }
 }
-
 Include an entry for every day number provided above.`;
-};
 
-// ── Single Gemini call for ALL days ───────────────────────────
-const callGeminiAllDays = async (daysToGenerate) => {
-  const prompt = buildAllDaysPrompt(daysToGenerate);
-  const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim();
+const JSON_FORMAT_SINGLE = `
 
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("No JSON in response");
+Return ONLY this JSON with no markdown fences and no extra text:
+{"title":"...","summaryEn":"...","summaryMm":"..."}`;
 
-  const parsed = JSON.parse(match[0]);
-  // Support both { days: { "1": {...} } } and flat { "1": {...} }
-  return parsed.days ?? parsed;
-};
-
-// ── Single Gemini call for ONE day (unchanged behaviour) ──────
-const callGeminiSingleDay = async (day) => {
-  const items = getItemsForDay(day);
-  const cities = props.dayCityMap[day]?.map((c) => c.name).join(", ") || "";
-  const dateLabel = getDayDateFull(day);
-
-  const itemLines = items
+// ── Build item lines for one day ──────────────────────────────
+/**
+ * Formats ordered items for a given day into readable lines for the prompt.
+ * Attractions use:  productName (the venue) + name (the ticket type) + variation (full description)
+ */
+const buildItemLines = (day) => {
+  return getItemsForDay(day)
     .map((item) => {
-      if (item._type === "van")
-        return `🚐 Van Tour: ${item.vanTourName} (${item.carName}) in ${item.city}`;
-      if (item._type === "attraction")
-        return `🎫 Attraction: ${item.name} — ${item.city}`;
-      if (item._type === "hotel")
-        return `🏨 Hotel Check-in: ${item.name} (${item.roomName}), ${item.nights} night(s)`;
+      if (item._type === "van") {
+        return (
+          `  🚐 Van / Transfer: ${item.vanTourName}` +
+          (item.carName ? ` (vehicle: ${item.carName})` : "") +
+          `, city: ${item.city}`
+        );
+      }
+
+      if (item._type === "attraction") {
+        // productName = venue (e.g. "Dream World")
+        // name        = ticket tier (e.g. "Super Visa Plus Buffet Lunch")
+        // variation   = full description (e.g. "Dream World: Super Visa + Snow Town + Buffet Lunch")
+        const venue = item.productName || item.name;
+        const ticket =
+          item.name && item.name !== item.productName ? item.name : null;
+        const variation =
+          item.variation && item.variation !== item.name
+            ? item.variation
+            : null;
+
+        let line = `  🎫 Attraction venue: ${venue}`;
+        if (ticket) line += ` | ticket: ${ticket}`;
+        if (variation) line += ` | includes: ${variation}`;
+        line += ` | city: ${item.city}`;
+        return line;
+      }
+
+      if (item._type === "hotel") {
+        return (
+          `  🏨 Hotel check-in: ${item.name}` +
+          (item.roomName ? ` | room: ${item.roomName}` : "") +
+          ` | ${item.nights} night(s) | city: ${item.city}`
+        );
+      }
+
       return "";
     })
     .filter(Boolean)
     .join("\n");
+};
 
-  const prompt = `You are a professional travel writer for a Myanmar tour company.
+// ── Build ALL-days prompt ─────────────────────────────────────
+const buildAllDaysPrompt = (daysToGenerate, customRules = null) => {
+  const totalNights = props.totalDays > 0 ? props.totalDays - 1 : 0;
+  const rules = customRules ?? DEFAULT_RULES;
 
-Day ${day} — ${dateLabel}
-Cities: ${cities || "Thailand"}
+  const dayBlocks = daysToGenerate
+    .map((day) => {
+      const cities =
+        props.dayCityMap[day]?.map((c) => c.name).join(", ") || "Thailand";
+      const dateLabel = getDayDateFull(day);
+      const itemLines = buildItemLines(day);
+      return `DAY ${day} — ${dateLabel}\nCities visited: ${cities}\nServices (in chronological order):\n${
+        itemLines || "  (no services listed)"
+      }`;
+    })
+    .join("\n\n---\n\n");
 
-Services planned for this day (in order):
-${itemLines}
+  return `${rules}
 
-Write a travel itinerary description matching this style:
 ---
-09:00 AM, Meet and welcome guests at the Hotel lobby and we will visit to *Laser Buddha (Khao Chi Chan)*.
+TRIP OVERVIEW:
+- Total: ${totalNights} night(s) and ${props.totalDays} day(s)
+- Start date: ${getDayDateFull(1)}
 
-Then continue to *Nong Nooch Tropical Garden*, famous for its vast landscaped gardens.
+DAILY ITINERARY DATA:
 
-Overnight at *Hotel Name*.
+${dayBlocks}
+${JSON_FORMAT_ALL}`;
+};
+
+// ── Build SINGLE-day prompt ───────────────────────────────────
+const buildSingleDayPrompt = (day, customRules = null) => {
+  const totalNights = props.totalDays > 0 ? props.totalDays - 1 : 0;
+  const rules = customRules ?? DEFAULT_RULES;
+  const cities =
+    props.dayCityMap[day]?.map((c) => c.name).join(", ") || "Thailand";
+  const dateLabel = getDayDateFull(day);
+  const itemLines = buildItemLines(day);
+
+  return `${rules}
+
 ---
+TRIP OVERVIEW:
+- Total: ${totalNights} night(s) and ${props.totalDays} day(s)
+- Start date: ${getDayDateFull(1)}
 
-Rules:
-- Start with a time like "09:00 AM,"
-- Use *PlaceName* for attraction names
-- English: 3-5 paragraphs, vivid and informative
-- Myanmar: Full, natural translation
-- Title: 4-6 words
+DAY ${day} — ${dateLabel}
+Cities visited: ${cities}
+Services (in chronological order):
+${itemLines || "  (no services listed)"}
+${JSON_FORMAT_SINGLE}`;
+};
 
-Return ONLY this JSON, no markdown fences:
-{"title":"...","summaryEn":"...","summaryMm":"..."}`;
+// ── Prompt Editor State ───────────────────────────────────────
+const showPromptModal = ref(false);
+const promptMode = ref("all"); // 'all' | 'single'
+const editingPrompt = ref("");
 
+// Store custom RULES only (data + JSON format always appended by code)
+const promptOverrideAll = ref(null);
+const promptOverrideSingle = ref(null);
+
+const promptOverride = computed(
+  () => promptOverrideAll.value !== null || promptOverrideSingle.value !== null,
+);
+
+const openPromptModal = () => {
+  editingPrompt.value =
+    promptMode.value === "all"
+      ? promptOverrideAll.value ?? DEFAULT_RULES
+      : promptOverrideSingle.value ?? DEFAULT_RULES;
+  showPromptModal.value = true;
+};
+
+const closePromptModal = () => {
+  showPromptModal.value = false;
+};
+
+const resetEditingPrompt = () => {
+  editingPrompt.value = DEFAULT_RULES;
+  if (promptMode.value === "all") promptOverrideAll.value = null;
+  else promptOverrideSingle.value = null;
+};
+
+const resetPrompt = () => {
+  promptOverrideAll.value = null;
+  promptOverrideSingle.value = null;
+};
+
+const saveAndGenerate = async () => {
+  if (!editingPrompt.value.trim()) return;
+
+  if (promptMode.value === "all") promptOverrideAll.value = editingPrompt.value;
+  else promptOverrideSingle.value = editingPrompt.value;
+
+  showPromptModal.value = false;
+
+  if (promptMode.value === "all") await generateAllDays();
+  else await generateSingleDay(selectedDay.value);
+};
+
+// Re-fill textarea when switching mode inside the open modal
+watch(promptMode, () => {
+  if (!showPromptModal.value) return;
+  editingPrompt.value =
+    promptMode.value === "all"
+      ? promptOverrideAll.value ?? DEFAULT_RULES
+      : promptOverrideSingle.value ?? DEFAULT_RULES;
+});
+
+// ── Gemini calls ──────────────────────────────────────────────
+const callGeminiAllDays = async (daysToGenerate) => {
+  const prompt = buildAllDaysPrompt(daysToGenerate, promptOverrideAll.value);
+  const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+  const result = await model.generateContent(prompt);
+  const text = result.response.text().trim();
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error("No JSON in response");
+  const parsed = JSON.parse(match[0]);
+  return parsed.days ?? parsed;
+};
+
+const callGeminiSingleDay = async (day) => {
+  const prompt = buildSingleDayPrompt(day, promptOverrideSingle.value);
   const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
   const result = await model.generateContent(prompt);
   const text = result.response.text().trim();
@@ -563,16 +827,11 @@ const generateSingleDay = async (day, withRetry = true) => {
   }
 };
 
-// ── Generate ALL days — single API call ───────────────────────
+// ── Generate ALL days ─────────────────────────────────────────
 const generateAllDays = async (withRetry = true) => {
   if (isGenerating.value || !hasOrderedItems.value) return;
 
-  // Collect only days that have services
-  const daysToGenerate = [];
-  for (let d = 1; d <= props.totalDays; d++) {
-    if (hasDayItems(d)) daysToGenerate.push(d);
-  }
-
+  const daysToGenerate = getDaysToGenerate();
   if (daysToGenerate.length === 0) {
     showStatus("No days have services to generate.", "error", 3000);
     return;
@@ -585,9 +844,7 @@ const generateAllDays = async (withRetry = true) => {
   );
 
   try {
-    // ONE single API call returns data for every day
     const allData = await callGeminiAllDays(daysToGenerate);
-
     let ok = 0;
     for (const day of daysToGenerate) {
       const data = allData[String(day)] ?? allData[day];
@@ -598,7 +855,6 @@ const generateAllDays = async (withRetry = true) => {
         ok++;
       }
     }
-
     emitDescriptions();
     showStatus(`✅ All ${ok} days generated with 1 API call!`, "success", 5000);
   } catch (err) {
@@ -638,6 +894,26 @@ const generateAllDays = async (withRetry = true) => {
 }
 .fade-enter-from,
 .fade-leave-to {
+  opacity: 0;
+}
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+.modal-fade-enter-active .prompt-modal-card,
+.modal-fade-leave-active .prompt-modal-card {
+  transition: transform 0.22s ease, opacity 0.22s ease;
+}
+.modal-fade-enter-from .prompt-modal-card {
+  transform: scale(0.95) translateY(12px);
+  opacity: 0;
+}
+.modal-fade-leave-to .prompt-modal-card {
+  transform: scale(0.95) translateY(12px);
   opacity: 0;
 }
 </style>

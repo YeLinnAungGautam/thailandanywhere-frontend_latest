@@ -940,13 +940,14 @@ const syncUidCounter = () => {
     ...packageData.attractions,
     ...packageData.hotels,
     ...packageData.vanTours,
+    ...packageData.orderedItems, // ← ADD: orphan uids from mkUid() during build may be higher
   ].forEach((item) => {
     if (item._uid) {
       const num = parseInt(item._uid.replace("_uid_", ""), 10);
       if (!isNaN(num) && num > max) max = num;
     }
   });
-  uidCounter = max; // next mkUid() will be max+1
+  uidCounter = max; // next mkUid() = max + 1
 };
 
 // ══════════════════════════════════════════
@@ -964,6 +965,7 @@ const startCreation = (type) => {
 };
 
 const onExternalPackageSelected = (pkg) => {
+  console.log("Selected package:", pkg);
   resetAllData();
   fillFromPackage(pkg);
   editingPackageId.value = null; // create new copy

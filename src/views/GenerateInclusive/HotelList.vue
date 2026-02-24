@@ -160,7 +160,7 @@
           </button>
           <button
             @click="$emit('remove', hotels.indexOf(hotel))"
-            class="w-6 h-6 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+            class="w-6 h-6 bg-red-500 text-white rounded-full text-xs transition flex items-center justify-center"
             title="Delete"
           >
             ×

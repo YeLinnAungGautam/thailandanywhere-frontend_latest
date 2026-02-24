@@ -107,7 +107,7 @@
                 >
                   <button
                     @click="$emit('remove', attractions.indexOf(item))"
-                    class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+                    class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs transition flex items-center justify-center"
                   >
                     ×
                   </button>
@@ -162,7 +162,7 @@
           </button>
           <button
             @click="$emit('remove', idx)"
-            class="w-6 h-6 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+            class="w-6 h-6 bg-red-500 text-white rounded-full text-xs transition flex items-center justify-center"
             title="Delete"
           >
             ×

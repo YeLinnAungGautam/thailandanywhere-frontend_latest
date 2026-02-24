@@ -205,7 +205,19 @@
                 <!-- Attraction -->
                 <template v-else-if="item._type === 'attraction'">
                   <td class="px-4 py-2 border-r border-slate-200">
-                    <span class="font-medium text-orange-700">Attraction</span>
+                    <span
+                      class="font-medium"
+                      :class="
+                        item.productType == 'entrance_ticket'
+                          ? 'text-amber-700'
+                          : 'text-blue-700'
+                      "
+                      >{{
+                        item.productType === "entrance_ticket"
+                          ? "Attraction"
+                          : "Destination"
+                      }}</span
+                    >
                   </td>
                   <td class="px-4 py-2 border-r border-slate-200">
                     <div class="font-medium">{{ item.name }}</div>
@@ -230,7 +242,7 @@
                         }}
                       </div>
                     </div>
-                    <div v-else>
+                    <div v-else class="text-xs">
                       ฿{{ item.unitSellingPrice?.toLocaleString() }}/pax
                     </div>
                   </td>

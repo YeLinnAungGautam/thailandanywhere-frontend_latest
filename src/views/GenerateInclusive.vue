@@ -114,6 +114,7 @@
 
           <!-- Save Button -->
           <button
+            v-if="!is_clone"
             @click="savePackage"
             :disabled="pkgStore.saveLoading"
             :class="[
@@ -135,6 +136,15 @@
                 ? "Update Package"
                 : "Save Package"
             }}
+          </button>
+
+          <!-- Create Invoice Button -->
+          <button
+            @click="handleCreateInvoice"
+            v-if="!is_clone"
+            class="w-full py-3 text-sm font-semibold text-center border border-gray-600 rounded-2xl hover:bg-slate-50 transition"
+          >
+            Create Invoice
           </button>
 
           <!-- Save Success -->
@@ -513,7 +523,9 @@
               :start-date="packageData.startDate"
               :day-city-map="dayCityMap"
               :ordered-items="packageData.orderedItems"
+              :rate-per-person="packageData.ratePerPerson"
               @update:ordered-items="onOrderedItemsUpdate"
+              @update:rate-per-person="packageData.ratePerPerson = $event"
               @finalize="savePackage"
             />
           </div>
@@ -547,6 +559,7 @@
     <!-- SaveChoiceModal — shown when editing a loaded package -->
     <SaveChoiceModal
       :show="showSaveChoiceModal"
+      :is_mine="isMine"
       :original-name="originalPackageName"
       :original-id="editingPackageId"
       @close="showSaveChoiceModal = false"
@@ -567,6 +580,121 @@
       @close="showSaveModal = false"
       @confirm="onSaveConfirmed"
     />
+    <!-- SaveFirstModal — shown when user clicks Create Invoice on an unsaved package -->
+    <Teleport to="body">
+      <Transition name="modal-fade">
+        <div
+          v-if="showSaveFirstModal"
+          class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+        >
+          <div
+            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            @click="showSaveFirstModal = false"
+          />
+          <div
+            class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+          >
+            <!-- Header -->
+            <div
+              class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl shrink-0"
+                >
+                  ⚠️
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">
+                    Save Package First
+                  </h3>
+                  <p class="text-white/80 text-xs mt-0.5">
+                    Invoice မဖန်တီးမီ Package ကို သိမ်းဆည်းပါ
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="p-6 text-center">
+              <p class="text-slate-600 text-sm mb-6">
+                Invoice ဖန်တီးရန် ဤ Package ကို ဦးစွာ
+                <strong>Save</strong> လုပ်ရပါမည်။
+              </p>
+              <div class="flex gap-3">
+                <button
+                  @click="showSaveFirstModal = false"
+                  class="flex-1 py-2.5 border-2 border-slate-300 text-slate-600 rounded-xl font-semibold text-sm hover:bg-slate-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="goSaveFirst"
+                  class="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+                >
+                  <span>💾</span> Save Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+    <!-- RatePerPersonModal — shown when rate_per_person is missing -->
+    <Teleport to="body">
+      <Transition name="modal-fade">
+        <div
+          v-if="showRateWarningModal"
+          class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+        >
+          <div
+            class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            @click="showRateWarningModal = false"
+          />
+          <div
+            class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+          >
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl shrink-0"
+                >
+                  💰
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">
+                    Rate Per Person Required
+                  </h3>
+                  <p class="text-white/80 text-xs mt-0.5">
+                    Invoice မဖန်တီးမီ Rate Per Person ထည့်ပါ
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-6 text-center">
+              <p class="text-slate-600 text-sm mb-6">
+                Invoice ဖန်တီးရန် <strong>Step 5 (Sorting Items)</strong> တွင်
+                <strong class="text-blue-600">Rate Per Person</strong>
+                ထည့်သွင်းရပါမည်။
+              </p>
+              <div class="flex gap-3">
+                <button
+                  @click="showRateWarningModal = false"
+                  class="flex-1 py-2.5 border-2 border-slate-300 text-slate-600 rounded-xl font-semibold text-sm hover:bg-slate-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="goToRatePerPerson"
+                  class="flex-1 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+                >
+                  <span>✏️</span> Go to Step 5
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </Layout>
 </template>
 
@@ -589,6 +717,7 @@ import { useInclusivePackageStore } from "../stores/inclusivePackage";
 import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
 import { storeToRefs } from "pinia";
+import { useAuthStore } from "../stores/auth";
 
 // ══════════════════════════════════════════
 // STORES
@@ -597,6 +726,8 @@ const cityStore = useCityStore();
 const pkgStore = useInclusivePackageStore();
 const hotelStore = useHotelStore();
 const { cities } = storeToRefs(cityStore);
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 
 // ══════════════════════════════════════════
 // UID MANAGER
@@ -618,7 +749,8 @@ const attractionViewMode = ref("list");
 const hotelViewMode = ref("list");
 const vanTourViewMode = ref("list");
 const showSaveModal = ref(false);
-const showSaveChoiceModal = ref(false); // ← NEW: choice modal (update vs new)
+const showSaveChoiceModal = ref(false); // ← choice modal (update vs new)
+const showSaveFirstModal = ref(false); // ← invoice guard: save package first
 const editingPackageId = ref(null);
 const originalPackageName = ref(""); // ← name of the package being edited
 const saveMode = ref("new"); // ← 'update' | 'new'
@@ -660,6 +792,7 @@ const packageData = reactive({
   vanTours: [],
   descriptions: {},
   orderedItems: [],
+  ratePerPerson: 0,
 });
 
 const dayCityMap = reactive({});
@@ -807,6 +940,7 @@ const resetAllData = () => {
   editingAttraction.value = null;
   editingHotel.value = null;
   editingVanTour.value = null;
+  packageData.ratePerPerson = 0;
 };
 
 // ══════════════════════════════════════════
@@ -863,6 +997,7 @@ const fillFromPackage = (pkg) => {
   }
 
   packageData.adults = pkg.adults ?? 2;
+  packageData.ratePerPerson = pkg.rate_per_person ?? 0;
   packageData.children = pkg.children ?? 0;
   packageData.startDate = pkg.start_date?.split("T")[0] ?? pkg.start_date ?? "";
   packageData.nights = pkg.nights ?? 3;
@@ -916,19 +1051,25 @@ const startCreation = (type) => {
   }
 };
 
-const onExternalPackageSelected = (pkg) => {
-  resetAllData();
-  fillFromPackage(pkg);
-  editingPackageId.value = null; // create new copy
-  packageName.value = "";
-  currentView.value = "questions";
-  activeQuestion.value = 0;
-};
+const is_clone = ref(false);
+const isMine = ref(false);
 
 const onExternalPackageEdit = (pkg) => {
+  console.log(
+    pkg,
+    "this is detail",
+    user.value?.id,
+    pkg.created_by,
+    "mine?",
+    user.value,
+    pkg.created_by == user.value?.id ? true : false,
+  );
+  isMine.value = pkg.created_by == user.value?.id ? true : false;
+
   resetAllData();
   fillFromPackage(pkg);
   editingPackageId.value = pkg.id;
+  is_clone.value = pkg.is_clone ?? false;
   originalPackageName.value = pkg.package_name ?? ""; // ← store for SaveChoiceModal
   packageName.value = pkg.package_name ?? ""; // ← pre-fill SaveNameModal
   currentView.value = "questions";
@@ -993,6 +1134,33 @@ const onSaveConfirmed = async (name) => {
   }
 };
 
+const showRateWarningModal = ref(false);
+
+// ══════════════════════════════════════════
+// INVOICE
+// ══════════════════════════════════════════
+const handleCreateInvoice = () => {
+  if (!editingPackageId.value) {
+    showSaveFirstModal.value = true;
+  } else if (!packageData.ratePerPerson || packageData.ratePerPerson <= 0) {
+    // Show rate_per_person warning
+    showRateWarningModal.value = true;
+  } else {
+    window.open(`/bookings/new-create?inclusive_id=${editingPackageId.value}`);
+  }
+};
+
+// "Save Now" button inside the save-first popup
+const goSaveFirst = () => {
+  showSaveFirstModal.value = false;
+  savePackage();
+};
+
+const goToRatePerPerson = () => {
+  showRateWarningModal.value = false;
+  activeQuestion.value = 4; // Step 5 = index 4 (Sorting Items)
+};
+
 // ══════════════════════════════════════════
 // CITY HANDLERS
 // ══════════════════════════════════════════
@@ -1017,6 +1185,8 @@ const clearDayCities = (day) => {
 // ATTRACTION HANDLERS
 // ══════════════════════════════════════════
 const handleAttractionSubmit = (attraction) => {
+  console.log(attraction, "this is attraction from");
+
   if (editingAttraction.value !== null) {
     const existingUid = packageData.attractions[editingAttraction.value]._uid;
     const updated = { ...attraction, _uid: existingUid };
@@ -1048,6 +1218,8 @@ const removeAttraction = (index) => {
 // HOTEL HANDLERS
 // ══════════════════════════════════════════
 const handleHotelSubmit = (hotel) => {
+  console.log(hotel, "this is from hotel");
+
   if (editingHotel.value !== null) {
     const existingUid = packageData.hotels[editingHotel.value]._uid;
     const updated = { ...hotel, _uid: existingUid };
@@ -1079,6 +1251,8 @@ const removeHotel = (index) => {
 // VAN TOUR HANDLERS
 // ══════════════════════════════════════════
 const handleVanTourSubmit = (vanTour) => {
+  console.log(vanTour, "this is from vantour");
+
   if (editingVanTour.value !== null) {
     const existingUid = packageData.vanTours[editingVanTour.value]._uid;
     const updated = { ...vanTour, _uid: existingUid };
@@ -1235,6 +1409,26 @@ onMounted(async () => {
 }
 .fade-enter-from,
 .fade-leave-to {
+  opacity: 0;
+}
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+.modal-fade-enter-active .modal-card,
+.modal-fade-leave-active .modal-card {
+  transition: transform 0.22s ease, opacity 0.22s ease;
+}
+.modal-fade-enter-from .modal-card {
+  transform: scale(0.94) translateY(10px);
+  opacity: 0;
+}
+.modal-fade-leave-to .modal-card {
+  transform: scale(0.94) translateY(10px);
   opacity: 0;
 }
 </style>

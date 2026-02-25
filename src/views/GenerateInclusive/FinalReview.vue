@@ -247,7 +247,7 @@
                     </div>
                   </td>
                   <td class="px-4 py-2 text-center border-r border-slate-200">
-                    {{ item.adults + item.children }}
+                    {{ item.adults * 1 + item.children * 1 }}
                   </td>
                   <td
                     class="px-4 py-2 text-right border-r border-slate-200 font-bold text-orange-700"
@@ -366,6 +366,7 @@
       <div class="bg-white px-6 py-4 border-t-2 border-slate-300">
         <div class="flex justify-end">
           <div class="text-right space-y-2">
+            <!-- Total Selling + markup -->
             <div class="flex items-center justify-end gap-4">
               <span class="font-medium">Total Selling =</span>
               <span
@@ -375,36 +376,36 @@
               </span>
               <div
                 @click="percent = 10"
-                class="bg-orange-100 text-orange-600 py-1 px-4 border-2 border-orange-800"
+                class="bg-orange-100 text-orange-600 py-1 px-4 border-2 border-orange-800 cursor-pointer"
               >
                 10%
               </div>
               <div
                 @click="percent = 20"
-                class="bg-orange-100 text-orange-600 py-1 px-4 border-2 border-orange-800"
+                class="bg-orange-100 text-orange-600 py-1 px-4 border-2 border-orange-800 cursor-pointer"
               >
                 20%
               </div>
               <div
                 @click="percent = 30"
-                class="bg-orange-100 text-orange-600 py-1 px-4 border-2 border-orange-800"
+                class="bg-orange-100 text-orange-600 py-1 px-4 border-2 border-orange-800 cursor-pointer"
               >
                 30%
               </div>
               <input
                 type="number"
                 v-model="percent"
-                name=""
-                id=""
                 class="border-2 border-slate-800 py-1 px-4 w-20"
               />
               % =
               <span
                 class="inline-block border-2 border-slate-800 px-4 py-1 font-bold min-w-[140px] text-right text-orange-600"
               >
-                {{ (grandTotalSelling / (1 - percent / 100)).toFixed(0) }} THB
+                {{ markedUpTotal }} THB
               </span>
             </div>
+
+            <!-- Total Cost -->
             <div class="flex items-center justify-end gap-4">
               <span class="font-medium">Total Cost =</span>
               <span
@@ -413,19 +414,27 @@
                 {{ grandTotalCost.toLocaleString() }} THB
               </span>
             </div>
+
+            <!-- Gross Profit -->
             <div class="flex items-center justify-end gap-4">
               <span class="font-medium">Gross Profit =</span>
               <span
                 class="inline-block border-2 border-green-600 px-4 py-1 font-bold min-w-[140px] text-right text-green-700"
               >
-                {{
-                  (
-                    grandTotalSelling / (1 - percent / 100) -
-                    grandTotalCost
-                  ).toFixed(0)
-                }}
-                THB
+                {{ grossProfit }} THB
               </span>
+            </div>
+
+            <!-- Rate Per Person -->
+            <div class="flex items-center justify-end gap-4">
+              <span class="font-medium text-blue-700">Rate Per Person =</span>
+              <input
+                type="number"
+                v-model.number="ratePerPerson"
+                min="0"
+                placeholder="Enter rate per person..."
+                class="border-2 border-blue-500 py-1 px-4 w-[140px] text-right font-bold text-blue-700 rounded focus:ring-2 focus:ring-blue-400 outline-none"
+              />
             </div>
           </div>
         </div>
@@ -463,9 +472,20 @@ const props = defineProps({
   startDate: String,
   dayCityMap: Object,
   orderedItems: { type: Array, default: () => [] },
+  ratePerPerson: { type: Number, default: 0 },
 });
 
-const emit = defineEmits(["finalize", "update:orderedItems"]);
+const ratePerPerson = ref(props.ratePerPerson ?? 0);
+
+watch(ratePerPerson, (val) => {
+  emit("update:ratePerPerson", Number(val));
+});
+
+const emit = defineEmits([
+  "finalize",
+  "update:orderedItems",
+  "update:ratePerPerson",
+]);
 
 const copied = ref(false);
 const showHotelWarning = ref(false);
@@ -502,6 +522,19 @@ const pushUpdate = () => {
     items.value.map((i) => ({ ...i })),
   );
 };
+
+const markedUpTotal = computed(() =>
+  percent.value > 0
+    ? (grandTotalSelling.value / (1 - percent.value / 100)).toFixed(0)
+    : grandTotalSelling.value.toLocaleString(),
+);
+
+const grossProfit = computed(() =>
+  (
+    grandTotalSelling.value / (1 - percent.value / 100) -
+    grandTotalCost.value
+  ).toFixed(0),
+);
 
 // ─── Day filtering ───
 const getDayItems = (day) =>
@@ -654,11 +687,11 @@ const getDayCitiesLabel = (day) => {
 };
 
 // ─── Totals ───
-const grandTotalSelling = computed(() =>
-  items.value.reduce((s, i) => s + (i.sellingPrice ?? 0), 0),
+const grandTotalSelling = computed(
+  () => items.value.reduce((s, i) => s + (Number(i.sellingPrice) || 0), 0), // ✅ Number()
 );
-const grandTotalCost = computed(() =>
-  items.value.reduce((s, i) => s + (i.costPrice ?? 0), 0),
+const grandTotalCost = computed(
+  () => items.value.reduce((s, i) => s + (Number(i.costPrice) || 0), 0), // ✅ Number()
 );
 
 // ─── Copy ───

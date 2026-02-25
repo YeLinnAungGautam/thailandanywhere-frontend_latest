@@ -49,6 +49,7 @@
 
             <!-- Choice 1: Update existing -->
             <button
+              v-if="is_mine"
               @click="choose('update')"
               class="w-full flex items-center gap-4 px-5 py-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition group text-left"
             >
@@ -81,6 +82,13 @@
                 </p>
               </div>
             </button>
+
+            <div class="" v-if="!is_mine">
+              <p class="text-sm text-orange-600 font-medium text-center italic">
+                You are not the creator of this package. You can only save as
+                new.
+              </p>
+            </div>
 
             <!-- Choice 2: Save as new -->
             <button
@@ -125,6 +133,7 @@
 <script setup>
 defineProps({
   show: { type: Boolean, default: false },
+  is_mine: { type: Boolean, default: false },
   originalName: { type: String, default: "" },
   originalId: { type: [Number, String], default: null },
 });

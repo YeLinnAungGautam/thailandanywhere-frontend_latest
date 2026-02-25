@@ -51,8 +51,7 @@
         >
           <option value="">All Status</option>
           <option value="draft">Draft</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="sent">Sent</option>
+          <option value="active">Created Inclusive</option>
         </select>
         <input
           v-model="store.filters.start_date"

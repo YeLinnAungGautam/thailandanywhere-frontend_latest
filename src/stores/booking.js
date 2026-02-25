@@ -18,6 +18,15 @@ export const useBookingStore = defineStore("booking", {
         throw error;
       }
     },
+    async clonePackageAction(bookingId, packageId) {
+      const response = await axios.post(
+        `/bookings/${bookingId}/clone-package`,
+        {
+          package_id: packageId,
+        },
+      );
+      return response.data;
+    },
     async getChangePage(url, params) {
       console.log(params, "this is params pagi");
       this.loading = true;
@@ -96,7 +105,7 @@ export const useBookingStore = defineStore("booking", {
       try {
         const response = await axios.post(
           `/bookings/${id}/receipts/${receipt_id}`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -108,7 +117,7 @@ export const useBookingStore = defineStore("booking", {
       try {
         const response = await axios.post(
           "/booking/" + id + "/verify_status",
-          data
+          data,
         );
         return response.data;
       } catch (error) {

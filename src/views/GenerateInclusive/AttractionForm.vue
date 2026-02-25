@@ -57,7 +57,7 @@
         First you need to select a day
       </p>
     </div>
-    <!-- FIX: Added `relative` wrapper + click-outside close + capped dropdown height with proper overflow -->
+
     <div
       v-if="localData.dayNumber"
       class="relative"
@@ -89,7 +89,7 @@
         </div>
       </div>
 
-      <!-- Dropdown List — FIX: position absolute but max-h + overflow-y-auto contained inside parent -->
+      <!-- Dropdown List -->
       <div
         v-if="
           showDropdown &&
@@ -279,10 +279,7 @@
       </button>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════ -->
-    <!--  Price Summary Modal                                    -->
-    <!--  Teleported to <body> to escape any overflow:hidden     -->
-    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- Price Summary Modal -->
     <Teleport to="body">
       <Transition name="modal-fade">
         <div
@@ -299,7 +296,7 @@
           <div
             class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
           >
-            <!-- ── Header ── -->
+            <!-- Header -->
             <div
               class="bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-4 flex items-start justify-between"
             >
@@ -319,9 +316,9 @@
               </button>
             </div>
 
-            <!-- ── Body ── -->
+            <!-- Body -->
             <div class="px-6 pt-5 pb-2 space-y-4">
-              <!-- FIX: Adults & Children Count — shown inside the modal -->
+              <!-- Adults & Children Count -->
               <div class="grid grid-cols-2 gap-3">
                 <!-- Adults -->
                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
@@ -384,7 +381,7 @@
                 </div>
               </div>
 
-              <!-- ── Entrance Ticket breakdown ── -->
+              <!-- Entrance Ticket breakdown -->
               <template
                 v-if="
                   localData.productType === 'entrance_ticket' &&
@@ -438,7 +435,7 @@
                 </div>
               </template>
 
-              <!-- ── Destination breakdown ── -->
+              <!-- Destination breakdown -->
               <template
                 v-if="
                   localData.productType === 'destination' &&
@@ -462,7 +459,7 @@
                 </div>
               </template>
 
-              <!-- ── Totals box ── -->
+              <!-- Totals box -->
               <div
                 class="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 space-y-2"
               >
@@ -483,7 +480,7 @@
               </div>
             </div>
 
-            <!-- ── Footer ── -->
+            <!-- Footer -->
             <div class="px-6 py-5 flex gap-3">
               <button
                 @click="showPriceModal = false"
@@ -531,8 +528,6 @@ const showPriceModal = ref(false);
 let searchTimeout = null;
 
 const focusAction = () => {
-  // showDropdown.value = true;
-  console.log("this is focus action");
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
     if (localData.dayNumber) fetchProductsForDay(localData.dayNumber);
@@ -540,7 +535,7 @@ const focusAction = () => {
 };
 
 // ─────────────────────────────────────────────
-// Custom directive: click-outside
+// Click-outside directive
 // ─────────────────────────────────────────────
 const vClickOutside = {
   mounted(el, binding) {
@@ -712,8 +707,6 @@ const onSearchChange = () => {
 // Product / variation selection
 // ─────────────────────────────────────────────
 const selectProduct = (product) => {
-  console.log(product, "this is selected product");
-
   localData.selectedProduct = product;
   localData.productType = product.type;
   localData.selectedVariation = null;
@@ -769,16 +762,20 @@ const canSubmit = computed(() => {
 const openPriceSummaryModal = () => {
   if (!canSubmit.value) return;
   showPriceModal.value = true;
-  console.log(localData);
 };
 
+// ─────────────────────────────────────────────
+// confirmSubmit — booking-compatible fields ထည့်
+// ─────────────────────────────────────────────
 const confirmSubmit = () => {
   showPriceModal.value = false;
 
   const dayDate = getDayDateRaw(localData.dayNumber);
   const cities = props.dayCityMap[localData.dayNumber] || [];
 
+  // ── Base attraction object ──
   let attraction = {
+    // Package display fields
     type: localData.type,
     dayNumber: localData.dayNumber,
     serviceDate: dayDate,
@@ -795,15 +792,33 @@ const confirmSubmit = () => {
     children: localData.children,
     costPrice: calculatedCostPrice.value,
     sellingPrice: calculatedSellingPrice.value,
+
+    // ── Booking-compatible base fields ──
+    product_type: 4,
+    product_id: localData.selectedProduct.id,
+    product_name: localData.selectedProduct.name,
+    product_image: localData.productImage ?? "",
+    service_date: dayDate,
   };
 
+  // ── Entrance Ticket ──
   if (localData.productType === "entrance_ticket") {
     const v = localData.selectedVariation;
-    const childPrice = v.child_info?.[0]?.child_price ?? 0;
-    const childCostPrice = v.child_info?.[0]?.child_cost_price ?? 0;
+
+    // child_info: API က string သို့မဟုတ် array ဖြစ်နိုင်တယ် → parse လုပ်
+    const parsedChildInfo = v.child_info
+      ? typeof v.child_info === "string"
+        ? JSON.parse(v.child_info)
+        : v.child_info
+      : [];
+
+    const childPrice = parsedChildInfo?.[0]?.child_price ?? 0;
+    const childCostPrice = parsedChildInfo?.[0]?.child_cost_price ?? 0;
 
     attraction = {
       ...attraction,
+
+      // Package fields
       variationId: v.id,
       variation: v.description,
       adultPrice: v.adult_price,
@@ -814,14 +829,82 @@ const confirmSubmit = () => {
       childTotal: childPrice * localData.children,
       adultCostTotal: v.adult_cost_price * localData.adults,
       childCostTotal: childCostPrice * localData.children,
+
+      // ── Booking-compatible fields ──
+      car_id: v.id, // variation id = car_id
+      // car_list: localData.selectedProduct.variations ?? [], // booking modal options ဖြင့် dropdown
+      car_list: (localData.selectedProduct.variations ?? []).map((v) => ({
+        ...v,
+        price: v.adult_price, // booking modal reads 'price'
+        cost_price: v.adult_cost_price, // booking modal reads 'cost_price'
+        // child_info already included from getByMultipleCities
+        child_info:
+          typeof v.child_info === "string"
+            ? v.child_info // keep as string, booking modal parses it
+            : JSON.stringify(v.child_info ?? []),
+      })),
+      item_name: v.name,
+      child_info: parsedChildInfo, // parsed array
+      individual_pricing: {
+        adult: {
+          quantity: localData.adults,
+          selling_price: v.adult_price,
+          cost_price: v.adult_cost_price,
+          total_cost_price: v.adult_cost_price * localData.adults,
+          amount: v.adult_price * localData.adults,
+        },
+        child: {
+          quantity: localData.children,
+          selling_price: childPrice,
+          cost_price: childCostPrice,
+          total_cost_price: childCostPrice * localData.children,
+          amount: childPrice * localData.children,
+        },
+      },
+      quantity: localData.adults,
+      selling_price: v.adult_price,
+      cost_price: v.adult_cost_price,
     };
+
+    // ── Destination ──
   } else {
     attraction = {
       ...attraction,
+
+      // Package fields
       unitCostPrice: localData.selectedProduct.cost_price,
       unitSellingPrice: localData.selectedProduct.selling_price,
       destinationCity: localData.selectedProduct.city,
       destinationCityId: localData.selectedProduct.city_id,
+
+      // ── Booking-compatible fields ──
+      car_id: localData.selectedProduct.id, // destination မှာ variation မရှိ → product id သုံး
+      car_list: [],
+      item_name: localData.selectedProduct.name,
+      child_info: [],
+      individual_pricing: {
+        adult: {
+          quantity: localData.adults + localData.children,
+          selling_price: localData.selectedProduct.selling_price,
+          cost_price: localData.selectedProduct.cost_price,
+          total_cost_price:
+            localData.selectedProduct.cost_price *
+            (localData.adults + localData.children),
+          amount:
+            localData.selectedProduct.selling_price *
+            (localData.adults + localData.children),
+        },
+        child: {
+          quantity: 0,
+          selling_price: 0,
+          cost_price: 0,
+          total_cost_price: 0,
+          amount: 0,
+        },
+      },
+      quantity: localData.adults + localData.children,
+      selling_price: localData.selectedProduct.selling_price,
+      cost_price: localData.selectedProduct.cost_price,
     };
   }
 
@@ -850,7 +933,6 @@ const confirmSubmit = () => {
 </script>
 
 <style scoped>
-/* ── Modal fade + scale-up animation ── */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.2s ease;

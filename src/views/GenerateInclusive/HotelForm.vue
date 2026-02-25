@@ -118,12 +118,6 @@
                 {{ hotel.name }}
               </div>
               <div class="flex items-center gap-2 mt-1 flex-wrap">
-                <!-- <span
-                  v-if="hotel.rating"
-                  class="text-xs text-amber-500 font-semibold"
-                >
-                  ★ {{ hotel.rating }}
-                </span> -->
                 <span
                   v-if="hotel.period_summary?.cheapest_room_selling"
                   class="text-xs text-purple-600 font-bold"
@@ -451,7 +445,7 @@ import { useHotelStore } from "../../stores/hotel";
 
 const props = defineProps({
   totalDays: Number,
-  dayCityMap: Object, // { 1: [{id, name}, ...], ... }
+  dayCityMap: Object,
   startDate: String,
   editingIndex: Number,
   editingData: Object,
@@ -475,9 +469,9 @@ const localData = reactive({
   images: [],
 });
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Click-outside directive
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const vClickOutside = {
   mounted(el, binding) {
     el._clickOutsideHandler = (event) => {
@@ -494,9 +488,9 @@ const closeDropdown = () => {
   showDropdown.value = false;
 };
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Watch editing data
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 watch(
   () => props.editingData,
   (newData) => {
@@ -505,17 +499,17 @@ watch(
   { deep: true, immediate: true },
 );
 
-// ─────────────────────────────────────────────────────────────
-// Period nights (checkOutDay - checkInDay)
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// Period nights
+// ─────────────────────────────────────────────
 const periodNights = computed(() => {
   if (!localData.checkInDay || !localData.checkOutDay) return 0;
   return Math.max(0, localData.checkOutDay - localData.checkInDay);
 });
 
-// ─────────────────────────────────────────────────────────────
-// City IDs covered between check-in and check-out days
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// City IDs covered between check-in and check-out
+// ─────────────────────────────────────────────
 const coveredCityIds = computed(() => {
   if (!localData.checkInDay || !localData.checkOutDay) return [];
   const idSet = new Set();
@@ -526,9 +520,9 @@ const coveredCityIds = computed(() => {
   return Array.from(idSet);
 });
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Can show search?
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const canSearch = computed(
   () =>
     localData.checkInDay &&
@@ -536,14 +530,14 @@ const canSearch = computed(
     coveredCityIds.value.length > 0,
 );
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Rooms from selected hotel
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const availableRooms = computed(() => localData.selectedHotel?.rooms ?? []);
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Totals (rooms multiplier)
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const totalSellingPrice = computed(() => {
   if (!localData.selectedRoom) return 0;
   return (localData.selectedRoom.total_selling_price ?? 0) * localData.rooms;
@@ -554,9 +548,9 @@ const totalCostPrice = computed(() => {
   return (localData.selectedRoom.total_cost_price ?? 0) * localData.rooms;
 });
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Can submit?
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const canSubmit = computed(
   () =>
     localData.checkInDay &&
@@ -565,9 +559,9 @@ const canSubmit = computed(
     localData.selectedRoom,
 );
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Day / date helpers
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const getDayDateShort = (dayNumber) => {
   if (!props.startDate || !dayNumber) return "";
   const start = new Date(props.startDate);
@@ -590,9 +584,9 @@ const getDayCitiesText = (dayNumber) => {
   return ` (${cities.map((c) => c.name).join(" → ")})`;
 };
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Search handlers
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const fetchHotels = async () => {
   if (!canSearch.value) return;
   await hotelStore.searchHotels(
@@ -615,7 +609,6 @@ const onSearchFocus = () => {
 };
 
 const onCheckInDayChange = () => {
-  // Reset if check-out is now invalid
   if (localData.checkOutDay && localData.checkOutDay <= localData.checkInDay) {
     localData.checkOutDay = "";
   }
@@ -634,17 +627,15 @@ const resetSelection = () => {
   hotelStore.clearSearchResults();
 };
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Hotel / room selection
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const selectHotel = (hotel) => {
-  console.log(hotel, "this is hotel select part");
-
   localData.selectedHotel = hotel;
   localData.selectedRoom = null;
   showDropdown.value = false;
-  localData.hotelImage = hotel.images[0].image;
-  localData.images = hotel.images;
+  localData.hotelImage = hotel.images?.[0]?.image ?? "";
+  localData.images = hotel.images ?? [];
 };
 
 const clearHotelSelection = () => {
@@ -659,19 +650,24 @@ const selectRoom = (room) => {
   localData.selectedRoom = room;
 };
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Modal
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const openPriceSummaryModal = () => {
   if (!canSubmit.value) return;
   showPriceModal.value = true;
 };
 
+// ─────────────────────────────────────────────
+// confirmSubmit — booking-compatible fields ထည့်
+// ─────────────────────────────────────────────
 const confirmSubmit = () => {
   showPriceModal.value = false;
 
   const room = localData.selectedRoom;
   const hotel = localData.selectedHotel;
+
+  // Collect unique cities across checked-in days
   const cities = [];
   for (let d = localData.checkInDay; d < localData.checkOutDay; d++) {
     (props.dayCityMap[d] || []).forEach((c) => {
@@ -680,6 +676,7 @@ const confirmSubmit = () => {
   }
 
   const hotelEntry = {
+    // ── Package display fields ──
     type: "Hotel",
     name: hotel.name,
     hotelId: hotel.id,
@@ -697,13 +694,42 @@ const confirmSubmit = () => {
     nights: periodNights.value,
     cities,
     city: cities.map((c) => c.name).join(" → "),
-    // pricing
     costPrice: totalCostPrice.value,
     sellingPrice: totalSellingPrice.value,
     totalDiscount: room.total_discount_price,
     discountPercent: room.overall_discount_percent,
     dailyPricing: room.daily_pricing ?? [],
     coveredCityIds: coveredCityIds.value,
+
+    // ── Booking-compatible fields (ထည့်သစ်) ──
+    product_type: 6,
+    product_id: hotel.id,
+    product_name: hotel.name,
+    product_image: localData.hotelImage ?? "",
+    car_id: room.id, // room id = car_id (booking component ၏ convention)
+    car_list: (hotel.rooms ?? []).map((room) => ({
+      id: room.id,
+      name: room.name,
+      room_price: room.total_selling_price, // booking modal reads room_price
+      cost: room.total_cost_price, // booking modal reads cost
+      extra_price: room.extra_price ?? 0,
+      max_person: room.max_person,
+      has_breakfast: room.has_breakfast,
+      meta: room.meta, // for is_show_on filter
+      images: room.images ?? [],
+      // keep period pricing for reference
+      total_selling_price: room.total_selling_price,
+      total_cost_price: room.total_cost_price,
+      daily_pricing: room.daily_pricing ?? [],
+    })),
+    item_name: room.name, // selected room name
+    service_date: getDayDateRaw(localData.checkInDay),
+    checkin_date: getDayDateRaw(localData.checkInDay),
+    checkout_date: getDayDateRaw(localData.checkOutDay),
+    quantity: localData.rooms,
+    days: periodNights.value,
+    selling_price: room.total_selling_price, // per room, already × nights (API တွက်ပြီးသား)
+    cost_price: room.total_cost_price, // per room, already × nights
   };
 
   emit("submit", hotelEntry);
@@ -716,6 +742,8 @@ const confirmSubmit = () => {
       rooms: 1,
       selectedHotel: null,
       selectedRoom: null,
+      hotelImage: null,
+      images: [],
     });
     searchQuery.value = "";
     showDropdown.value = false;

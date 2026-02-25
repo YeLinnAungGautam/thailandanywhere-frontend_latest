@@ -36,6 +36,7 @@ import { useAdminStore } from "../stores/admin";
 import ArchiveConfirmationModal from "./BookingComponent/ConfirmationModel.vue";
 import { useAuthStore } from "../stores/auth";
 import CashImage from "./CashImageCreate/CashImage.vue";
+import { useInclusivePackageStore } from "../stores/inclusivePackage";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -43,9 +44,11 @@ const currentTag = ref("Van Tours");
 const currentSubTag = ref("items");
 const addItemModal = ref(false);
 const bookingStore = useBookingStore();
+const inclusivePackageStore = useInclusivePackageStore();
 const toast = useToast();
 const adminStore = useAdminStore();
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 
@@ -88,7 +91,7 @@ const componentsMap = {
 
 // Compute the current component based on the tag
 const currentComponent = computed(
-  () => componentsMap[currentTag.value] || Vantour
+  () => componentsMap[currentTag.value] || Vantour,
 );
 
 // data add action part
@@ -127,6 +130,8 @@ const formData = ref({
   inclusive_start_date: "",
   inclusive_end_date: "",
 });
+
+const pendingClonePackageId = ref(null);
 
 const sub_total = computed(() => {
   if (formData.value.is_inclusive != 1) {
@@ -359,7 +364,7 @@ const formatDate = (dateString) => {
 };
 
 const changeGetInclusiveForm = (data) => {
-  // console.log(data);
+  console.log(data);
   // formData.value.is_inclusive = data.is_inclusive;
   formData.value.inclusive_name = data.inclusive_name;
   formData.value.inclusive_quantity = data.inclusive_quantity;
@@ -513,7 +518,7 @@ const validateItemByType = (item) => {
     case "3": // AirportPickup
       if (!item.service_date) {
         toast.warning(
-          "ပစ္စည်းတစ်ခု၏ ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်"
+          "ပစ္စည်းတစ်ခု၏ ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်",
         );
         return false;
       }
@@ -535,7 +540,7 @@ const validateItemByType = (item) => {
     case "5": // Inclusive
       if (!item.service_date) {
         toast.warning(
-          "Inclusive ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်"
+          "Inclusive ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်",
         );
         return false;
       }
@@ -547,7 +552,7 @@ const validateItemByType = (item) => {
       }
       if (!item.checkin_date || !item.checkout_date) {
         toast.warning(
-          "ဟိုတယ်အတွက် Check-in နှင့် Check-out ရက်စွဲများ ထည့်သွင်းရန် လိုအပ်ပါသည်"
+          "ဟိုတယ်အတွက် Check-in နှင့် Check-out ရက်စွဲများ ထည့်သွင်းရန် လိုအပ်ပါသည်",
         );
         return false;
       }
@@ -738,12 +743,12 @@ const processSubmission = async () => {
       frmData.append("inclusive_rate", formData.value.inclusive_rate);
       frmData.append(
         "inclusive_start_date",
-        formData.value.inclusive_start_date
+        formData.value.inclusive_start_date,
       );
       frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
       frmData.append(
         "inclusive_description",
-        formData.value.inclusive_description
+        formData.value.inclusive_description,
       );
     }
 
@@ -774,34 +779,34 @@ const processSubmission = async () => {
       if (formData.value.items[x].product_type == "1") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\PrivateVanTour`
+          `App\\Models\\PrivateVanTour`,
         );
       } else if (formData.value.items[x].product_type == "2") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\GroupTour`
+          `App\\Models\\GroupTour`,
         );
       } else if (formData.value.items[x].product_type == "3") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\AirportPickup`
+          `App\\Models\\AirportPickup`,
         );
       } else if (formData.value.items[x].product_type == "4") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\EntranceTicket`
+          `App\\Models\\EntranceTicket`,
         );
       } else if (formData.value.items[x].product_type == "5") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\Inclusive`
+          `App\\Models\\Inclusive`,
         );
       } else if (formData.value.items[x].product_type == "6") {
         frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
       } else if (formData.value.items[x].product_type == "7") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\Airline`
+          `App\\Models\\Airline`,
         );
       }
     }
@@ -815,7 +820,7 @@ const processSubmission = async () => {
           frmData.append(`receipt_image[${x}][is_internal_transfer]`, true);
           frmData.append(
             `receipt_image[${x}][exchange_rate]`,
-            receipt.exchange_rate
+            receipt.exchange_rate,
           );
           frmData.append(`receipt_image[${x}][note]`, receipt.note || "");
 
@@ -824,64 +829,64 @@ const processSubmission = async () => {
             if (fromFile.file) {
               frmData.append(
                 `receipt_image[${x}][from_files][${fromIndex}][file]`,
-                fromFile.file
+                fromFile.file,
               );
             }
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][amount]`,
-              fromFile.amount
+              fromFile.amount,
             );
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][currency]`,
-              fromFile.currency
+              fromFile.currency,
             );
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][sender]`,
-              fromFile.sender
+              fromFile.sender,
             );
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][receiver]`,
-              fromFile.receiver
+              fromFile.receiver,
             );
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][interact_bank]`,
-              fromFile.interact_bank
+              fromFile.interact_bank,
             );
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][date]`,
-              fromFile.date
+              fromFile.date,
             );
           }); // Add to_files
           receipt.to_files.forEach((toFile, toIndex) => {
             if (toFile.file) {
               frmData.append(
                 `receipt_image[${x}][to_files][${toIndex}][file]`,
-                toFile.file
+                toFile.file,
               );
             }
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][amount]`,
-              toFile.amount
+              toFile.amount,
             );
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][currency]`,
-              toFile.currency
+              toFile.currency,
             );
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][sender]`,
-              toFile.sender
+              toFile.sender,
             );
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][receiver]`,
-              toFile.receiver
+              toFile.receiver,
             );
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][interact_bank]`,
-              toFile.interact_bank
+              toFile.interact_bank,
             );
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][date]`,
-              toFile.date
+              toFile.date,
             );
           });
         } else {
@@ -894,18 +899,18 @@ const processSubmission = async () => {
           frmData.append(`receipt_image[${x}][date]`, receipt.date);
           frmData.append(
             `receipt_image[${x}][bank_name]`,
-            receipt.bank_name ?? "other..."
+            receipt.bank_name ?? "other...",
           );
           frmData.append(`receipt_image[${x}][sender]`, receipt.sender);
           frmData.append(`receipt_image[${x}][reciever]`, receipt.reciever);
           frmData.append(
             `receipt_image[${x}][interact_bank]`,
-            receipt.interact_bank
+            receipt.interact_bank,
           );
           frmData.append(`receipt_image[${x}][currency]`, receipt.currency);
           frmData.append(
             `receipt_image[${x}][is_corporate]`,
-            receipt.is_corporate ? 1 : 0
+            receipt.is_corporate ? 1 : 0,
           );
           frmData.append(`receipt_image[${x}][note]`, receipt.note || "");
         }
@@ -915,7 +920,7 @@ const processSubmission = async () => {
     for (var x = 0; x < formData.value.items.length; x++) {
       frmData.append(
         "items[" + x + "][product_id]",
-        formData.value.items[x].product_id
+        formData.value.items[x].product_id,
       );
       if (formData.value.is_inclusive == 1) {
         frmData.append("items[" + x + "][is_inclusive]", 1);
@@ -925,34 +930,34 @@ const processSubmission = async () => {
 
       frmData.append(
         "items[" + x + "][amount]",
-        formData.value.items[x].total_amount
+        formData.value.items[x].total_amount,
       );
 
       formData.value.items[x].pickup_location
         ? frmData.append(
             "items[" + x + "][pickup_location]",
-            formData.value.items[x].pickup_location
+            formData.value.items[x].pickup_location,
           )
         : "";
 
       if (formData.value.items[x].pickup_time) {
         frmData.append(
           "items[" + x + "][pickup_time]",
-          formData.value.items[x].pickup_time
+          formData.value.items[x].pickup_time,
         );
       }
 
       if (formData.value.items[x].customer_attachment) {
         frmData.append(
           "items[" + x + "][customer_attachment]",
-          formData.value.items[x].customer_attachment
+          formData.value.items[x].customer_attachment,
         );
       }
       // add new cost price & total_cost_price
       if (formData.value.items[x].cost_price) {
         frmData.append(
           "items[" + x + "][cost_price]",
-          formData.value.items[x].cost_price
+          formData.value.items[x].cost_price,
         );
       }
 
@@ -963,43 +968,43 @@ const processSubmission = async () => {
       ) {
         frmData.append(
           "items[" + x + "][individual_pricing][adult][quantity]",
-          formData.value.items[x].individual_pricing.adult.quantity
+          formData.value.items[x].individual_pricing.adult.quantity,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][selling_price]",
-          formData.value.items[x].individual_pricing.adult.selling_price
+          formData.value.items[x].individual_pricing.adult.selling_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][cost_price]",
-          formData.value.items[x].individual_pricing.adult.cost_price
+          formData.value.items[x].individual_pricing.adult.cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][total_cost_price]",
-          formData.value.items[x].individual_pricing.adult.total_cost_price
+          formData.value.items[x].individual_pricing.adult.total_cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][amount]",
-          formData.value.items[x].individual_pricing.adult.amount
+          formData.value.items[x].individual_pricing.adult.amount,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][quantity]",
-          formData.value.items[x].individual_pricing.child.quantity
+          formData.value.items[x].individual_pricing.child.quantity,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][selling_price]",
-          formData.value.items[x].individual_pricing.child.selling_price
+          formData.value.items[x].individual_pricing.child.selling_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][cost_price]",
-          formData.value.items[x].individual_pricing.child.cost_price
+          formData.value.items[x].individual_pricing.child.cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][total_cost_price]",
-          formData.value.items[x].individual_pricing.child.total_cost_price
+          formData.value.items[x].individual_pricing.child.total_cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][amount]",
-          formData.value.items[x].individual_pricing.child.amount
+          formData.value.items[x].individual_pricing.child.amount,
         );
       } else {
         frmData.append("items[" + x + "][individual_pricing]", null);
@@ -1008,43 +1013,43 @@ const processSubmission = async () => {
       if (formData.value.items[x].discount) {
         frmData.append(
           "items[" + x + "][discount]",
-          formData.value.items[x].discount
+          formData.value.items[x].discount,
         );
       } else {
         frmData.append("items[" + x + "][discount]", 0);
       }
       frmData.append(
         "items[" + x + "][total_cost_price]",
-        formData.value.items[x].total_cost_price
+        formData.value.items[x].total_cost_price,
       );
       if (formData.value.items[x].dropoff_location) {
         frmData.append(
           "items[" + x + "][dropoff_location]",
-          formData.value.items[x].dropoff_location
+          formData.value.items[x].dropoff_location,
         );
       }
       if (formData.value.items[x].checkin_date) {
         frmData.append(
           "items[" + x + "][checkin_date]",
-          formData.value.items[x].checkin_date
+          formData.value.items[x].checkin_date,
         );
       }
       if (formData.value.items[x].room_number) {
         frmData.append(
           "items[" + x + "][room_number]",
-          formData.value.items[x].room_number
+          formData.value.items[x].room_number,
         );
       }
       if (formData.value.items[x].checkout_date) {
         frmData.append(
           "items[" + x + "][checkout_date]",
-          formData.value.items[x].checkout_date
+          formData.value.items[x].checkout_date,
         );
       }
       if (formData.value.items[x].route_plan) {
         frmData.append(
           "items[" + x + "][route_plan]",
-          formData.value.items[x].route_plan
+          formData.value.items[x].route_plan,
         );
       }
 
@@ -1052,7 +1057,7 @@ const processSubmission = async () => {
         if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][room_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
@@ -1067,7 +1072,7 @@ const processSubmission = async () => {
         if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][car_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
@@ -1078,7 +1083,7 @@ const processSubmission = async () => {
         if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][variation_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
@@ -1089,7 +1094,7 @@ const processSubmission = async () => {
         if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][ticket_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
@@ -1100,53 +1105,53 @@ const processSubmission = async () => {
       formData.value.items[x].service_date &&
         frmData.append(
           "items[" + x + "][service_date]",
-          formData.value.items[x].service_date
+          formData.value.items[x].service_date,
         );
       formData.value.items[x].quantity &&
         frmData.append(
           "items[" + x + "][quantity]",
-          formData.value.items[x].quantity
+          formData.value.items[x].quantity,
         );
       formData.value.days &&
         frmData.append("items[" + x + "][days]", formData.value.items[x].days);
       if (formData.value.items[x].duration) {
         frmData.append(
           "items[" + x + "][duration]",
-          formData.value.items[x].duration
+          formData.value.items[x].duration,
         );
       }
       if (formData.value.items[x].special_request) {
         frmData.append(
           "items[" + x + "][special_request]",
-          formData.value.items[x].special_request
+          formData.value.items[x].special_request,
         );
       }
       formData.value.items[x].selling_price &&
         frmData.append(
           "items[" + x + "][selling_price]",
-          formData.value.items[x].selling_price
+          formData.value.items[x].selling_price,
         );
       if (formData.value.items[x].comment) {
         frmData.append(
           "items[" + x + "][comment]",
-          formData.value.items[x].comment
+          formData.value.items[x].comment,
         );
       }
       // console.log(formData.value.items[x].comment, "this is comment");
       formData.value.items[x].reservation_status &&
         frmData.append(
           "items[" + x + "][reservation_status]",
-          formData.value.items[x].reservation_status
+          formData.value.items[x].reservation_status,
         );
       formData.value.items[x].payment_method &&
         frmData.append(
           "items[" + x + "][payment_method]",
-          formData.value.items[x].payment_method
+          formData.value.items[x].payment_method,
         );
       formData.value.items[x].payment_status &&
         frmData.append(
           "items[" + x + "][payment_status]",
-          formData.value.items[x].payment_status
+          formData.value.items[x].payment_status,
         );
       // frmData.append(
       //   "items[" + x + "][exchange_rate]",
@@ -1155,7 +1160,7 @@ const processSubmission = async () => {
       formData.value.items[x].exchange_rate &&
         frmData.append(
           "items[" + x + "][exchange_rate]",
-          formData.value.items[x].exchange_rate
+          formData.value.items[x].exchange_rate,
         );
     }
 
@@ -1183,15 +1188,29 @@ const processSubmission = async () => {
         };
 
         errors.value = null;
-        toast.success(response.message);
         featureImagePreview.value = [];
+        toast.success(response.message);
+
+        // ✅ Booking ဖန်တီးပြီးချင်း clone API ခေါ်သည်
+        if (pendingClonePackageId.value) {
+          try {
+            await bookingStore.clonePackageAction(
+              response.result.id, // booking id
+              pendingClonePackageId.value, // original package id
+            );
+          } catch (e) {
+            console.warn("Clone package failed:", e);
+          }
+          pendingClonePackageId.value = null;
+        }
+
         router.push("/bookings/new-update/" + response.result.id);
       }
       // bookings/update/65/edit
     } catch (error) {
       console.log(
         "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
-        error
+        error,
       );
       if (error.response.data.errors) {
         errors.value = error.response.data.errors;
@@ -1203,8 +1222,115 @@ const processSubmission = async () => {
   }
 };
 
+const fillFromInclusivePackage = (pkg) => {
+  console.log(pkg, "this is package");
+
+  // ── Package header info ──
+  // ── Inclusive header fields ──────────────────────────────────
+  formData.value.is_inclusive = 1;
+  formData.value.inclusive_name = pkg.package_name ?? ""; // "Testing one"
+  formData.value.inclusive_quantity = pkg.adults ?? 1; // 2
+
+  // start_date / end_date — ISO string → "YYYY-MM-DDTHH:mm" (datetime-local input format)
+  formData.value.inclusive_start_date = pkg.start_date
+    ? pkg.start_date.split("T")[0]
+    : "";
+
+  formData.value.inclusive_end_date = pkg.end_date
+    ? pkg.end_date.split("T")[0]
+    : "";
+  formData.value.inclusive_rate = pkg.rate_per_person ?? 0; // 5000
+  // ordered_items က day order အတိုင်း စီထားပြီးသား → ဒါကို သုံး
+  const items = pkg.ordered_items ?? [];
+
+  items.forEach((pkgItem) => {
+    if (pkgItem.productType != "destination") {
+      const productType = String(pkgItem.product_type ?? "");
+
+      // Base booking item — API fields တိုက်ရိုက် map
+      const bookingItem = {
+        product_type: productType,
+        product_id: pkgItem.product_id,
+        product_name: pkgItem.product_name ?? "",
+        product_image: pkgItem.product_image ?? "",
+        item_name: pkgItem.item_name ?? "",
+        car_id: pkgItem.car_id,
+        car_list: pkgItem.car_list ?? [],
+        service_date: pkgItem.service_date ?? "",
+        quantity: pkgItem.quantity ?? 1,
+        selling_price: pkgItem.selling_price,
+        cost_price: pkgItem.cost_price,
+        discount: 0,
+        pickup_time: pkgItem.pickup_time ?? "",
+        pickup_location: pkgItem.pickup_location ?? "",
+        route_plan: pkgItem.route_plan ?? "",
+        special_request: "",
+        comment: "",
+        reservation_status: "",
+        payment_method: "",
+        payment_status: "",
+        exchange_rate: "",
+        is_inclusive: "",
+      };
+
+      // ── VanTour (product_type: 1) ──
+      if (productType === "1") {
+        bookingItem.total_amount = pkgItem.sellingPrice; // 3500 (cars × price)
+        bookingItem.total_cost_price = pkgItem.costPrice; // 3100
+      }
+
+      // ── Hotel (product_type: 6) ──
+      else if (productType === "6") {
+        bookingItem.checkin_date = pkgItem.checkin_date; // "2026-02-25"
+        bookingItem.checkout_date = pkgItem.checkout_date; // "2026-02-26"
+        bookingItem.days = pkgItem.days; // 1
+        bookingItem.room_number = "";
+        bookingItem.total_amount = pkgItem.sellingPrice; // 1550 (rooms × selling_price)
+        bookingItem.total_cost_price = pkgItem.costPrice; // 1300
+      }
+
+      // ── Attraction / Entrance Ticket (product_type: 4) ──
+      else if (productType === "4") {
+        bookingItem.child_info = pkgItem.child_info ?? [];
+        bookingItem.individual_pricing = pkgItem.individual_pricing ?? {
+          adult: {
+            quantity: 0,
+            selling_price: 0,
+            cost_price: 0,
+            total_cost_price: 0,
+            amount: 0,
+          },
+          child: {
+            quantity: 0,
+            selling_price: 0,
+            cost_price: 0,
+            total_cost_price: 0,
+            amount: 0,
+          },
+        };
+        // total_amount = adult.amount + child.amount (API မှာ sellingPrice ပါပြီးသား)
+        bookingItem.total_amount = pkgItem.sellingPrice; // 2400 or 4400
+        bookingItem.total_cost_price = pkgItem.costPrice; // 2000 or 3600
+      }
+
+      formData.value.items.push(bookingItem);
+    }
+  });
+
+  currentSubTag.value = "items";
+};
+
 onMounted(async () => {
   await adminStore.getSimpleListAction();
+  const inclusiveId = route.query.inclusive_id;
+  if (inclusiveId) {
+    const pkg = await inclusivePackageStore.fetchPackageDetail(inclusiveId);
+    if (pkg) {
+      fillFromInclusivePackage(pkg);
+      // ✅ package_id ကို formData မှာ သိမ်းထားသည် — Booking save ပြီးနောက် clone ခေါ်ရန်
+      pendingClonePackageId.value = Number(inclusiveId);
+    }
+  }
 });
 </script>
 

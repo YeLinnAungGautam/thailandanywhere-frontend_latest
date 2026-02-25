@@ -13,7 +13,7 @@ export const useInclusivePackageStore = defineStore("inclusivePackage", {
     error: null,
     filters: {
       search: "",
-      status: "",
+      status: "draft",
       start_date: "",
       end_date: "",
       per_page: 15,
@@ -112,7 +112,7 @@ export const useInclusivePackageStore = defineStore("inclusivePackage", {
     resetFilters() {
       this.filters = {
         search: "",
-        status: "",
+        status: "draft",
         start_date: "",
         end_date: "",
         per_page: 15,
@@ -148,6 +148,7 @@ export const useInclusivePackageStore = defineStore("inclusivePackage", {
         descriptions: packageData.descriptions,
         total_cost_price: totalCost,
         total_selling_price: totalSelling,
+        rate_per_person: packageData.ratePerPerson,
       };
     },
   },

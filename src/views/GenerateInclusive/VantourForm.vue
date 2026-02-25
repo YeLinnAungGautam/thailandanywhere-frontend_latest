@@ -4,18 +4,6 @@
       <h3 class="text-lg font-semibold text-slate-700">
         {{ editingIndex !== null ? "Edit Van Tour" : "Add Van Tour" }}
       </h3>
-      <!-- <div>
-        <select
-          v-model.number="localData.dayNumber"
-          @change="onDayChange"
-          class="w-[150px] px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-        >
-          <option value="">Select Day</option>
-          <option v-for="day in totalDays" :key="day" :value="day">
-            Day {{ day }}
-          </option>
-        </select>
-      </div> -->
     </div>
 
     <div>
@@ -394,7 +382,7 @@ import { useVantourStore } from "../../stores/vantour";
 
 const props = defineProps({
   totalDays: Number,
-  dayCityMap: Object, // { 1: [{id, name}, ...], ... }
+  dayCityMap: Object,
   startDate: String,
   editingIndex: Number,
   editingData: Object,
@@ -415,9 +403,9 @@ const localData = reactive({
   selectedCar: null,
 });
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Click-outside directive
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const vClickOutside = {
   mounted(el, binding) {
     el._clickOutsideHandler = (event) => {
@@ -434,9 +422,9 @@ const closeDropdown = () => {
   showDropdown.value = false;
 };
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Watch editing data
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 watch(
   () => props.editingData,
   (newData) => {
@@ -445,22 +433,22 @@ watch(
   { deep: true, immediate: true },
 );
 
-// ─────────────────────────────────────────────────────────────
-// City IDs for the selected day
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// City IDs for selected day
+// ─────────────────────────────────────────────
 const dayCityIds = computed(() => {
   if (!localData.dayNumber) return [];
   return (props.dayCityMap[localData.dayNumber] ?? []).map((c) => c.id);
 });
 
-// ─────────────────────────────────────────────────────────────
-// Cars from the selected van tour
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// Cars from selected van tour
+// ─────────────────────────────────────────────
 const availableCars = computed(() => localData.selectedVanTour?.cars ?? []);
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Totals (cars multiplier)
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const totalSellingPrice = computed(() => {
   if (!localData.selectedCar) return 0;
   return (localData.selectedCar.price ?? 0) * localData.cars;
@@ -475,17 +463,17 @@ const totalCostPrice = computed(() => {
   );
 });
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Can submit?
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const canSubmit = computed(
   () =>
     localData.dayNumber && localData.selectedVanTour && localData.selectedCar,
 );
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Day / date helpers
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const getDayDateShort = (dayNumber) => {
   if (!props.startDate || !dayNumber) return "";
   const start = new Date(props.startDate);
@@ -508,9 +496,9 @@ const getDayCitiesText = (dayNumber) => {
   return ` (${cities.map((c) => c.name).join(" → ")})`;
 };
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Search handlers
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const fetchVanTours = async () => {
   if (!dayCityIds.value.length) return;
   await vanTourStore.searchVanTours(dayCityIds.value, searchQuery.value);
@@ -535,9 +523,9 @@ const onDayChange = () => {
   vanTourStore.clearSearchResults();
 };
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Van Tour / Car selection
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const selectVanTour = (vt) => {
   localData.selectedVanTour = vt;
   localData.selectedCar = null;
@@ -556,14 +544,17 @@ const selectCar = (car) => {
   localData.selectedCar = car;
 };
 
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Modal
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 const openPriceSummaryModal = () => {
   if (!canSubmit.value) return;
   showPriceModal.value = true;
 };
 
+// ─────────────────────────────────────────────
+// confirmSubmit — booking-compatible fields ထည့်
+// ─────────────────────────────────────────────
 const confirmSubmit = () => {
   showPriceModal.value = false;
 
@@ -571,6 +562,7 @@ const confirmSubmit = () => {
   const car = localData.selectedCar;
 
   const vanTourEntry = {
+    // ── Package display fields ──
     type: "VanTour",
     dayNumber: localData.dayNumber,
     serviceDate: getDayDateRaw(localData.dayNumber),
@@ -579,16 +571,32 @@ const confirmSubmit = () => {
     city: (props.dayCityMap[localData.dayNumber] ?? [])
       .map((c) => c.name)
       .join(" → "),
-    cars: localData.cars,
     vanTourId: vt.id,
     vanTourName: vt.name,
     vanTourType: vt.type,
     carId: car.car_id,
     carName: car.name,
     carCapacity: car.capacity,
+    cars: localData.cars,
     costPrice: totalCostPrice.value,
     sellingPrice: totalSellingPrice.value,
     agentPrice: (car.agent_price ?? 0) * localData.cars,
+
+    // ── Booking-compatible fields (ထည့်သစ်) ──
+    product_type: 1,
+    product_id: vt.id,
+    product_name: vt.name,
+    product_image: vt.cover_image ?? "",
+    car_id: car.car_id, // booking modal မှာ selected car ကို ဆွဲတဲ့ key
+    car_list: vt.cars ?? [], // booking modal မှာ options ပြဖို့ cars array တစ်ခုလုံး
+    item_name: car.name,
+    service_date: getDayDateRaw(localData.dayNumber),
+    quantity: localData.cars,
+    selling_price: car.price, // per car (booking မှာ × quantity တွက်မယ်)
+    cost_price: car.cost ?? car.price, // per car
+    pickup_time: "", // booking page မှာ user ဖြည့်မယ်
+    pickup_location: "", // booking page မှာ user ဖြည့်မယ်
+    route_plan: "", // booking page မှာ user ဖြည့်မယ်
   };
 
   emit("submit", vanTourEntry);

@@ -111,7 +111,7 @@
                   <div class="font-semibold">{{ van.vanTourName }}</div>
                   <div class="opacity-90 mt-1">{{ van.carName }}</div>
                   <div class="opacity-75 text-[10px] mt-1">
-                    🚗 {{ van.cars }} Rooms
+                    🚗 {{ van.cars }} Cars
                   </div>
                   <div v-if="van.sellingPrice" class="text-sm mt-1">
                     ฿{{ van.sellingPrice.toLocaleString() }}

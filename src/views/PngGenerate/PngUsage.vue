@@ -34,6 +34,14 @@ const invoice = ref({
   deposit: "",
   balanceDue: "",
   paymentStatus: "",
+  // ── Inclusive fields ──
+  isInclusive: false,
+  inclusiveName: "",
+  inclusiveStartDate: "",
+  inclusiveEndDate: "",
+  inclusiveQty: 0,
+  inclusiveRate: "",
+  inclusiveDescription: "",
 });
 
 const daysBetween = (a, b) => {
@@ -43,7 +51,7 @@ const daysBetween = (a, b) => {
     const startDateTimestamp = new Date(a).getTime();
     const endDateTimestamp = new Date(b).getTime();
     let result = Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay),
     );
     // console.log(formData.value.checkin_date, result, "this is result");
     return result;
@@ -116,6 +124,18 @@ const getDetailAction = async () => {
   invoice.value.deposit = formatNumber(response.result.deposit);
   invoice.value.balanceDue = formatNumber(response.result.balance_due);
   invoice.value.paymentStatus = response.result.payment_status;
+  // After setting invoice.value.paymentStatus:
+  invoice.value.isInclusive = response.result.is_inclusive === 1;
+  invoice.value.inclusiveName = response.result.inclusive_name ?? "";
+  invoice.value.inclusiveStartDate = response.result.inclusive_start_date ?? "";
+  invoice.value.inclusiveEndDate = response.result.inclusive_end_date ?? "";
+  invoice.value.inclusiveQty = response.result.inclusive_quantity ?? 0;
+  invoice.value.inclusiveRate = formatNumber(
+    response.result.inclusive_rate ?? 0,
+  );
+  invoice.value.inclusiveDescription =
+    response.result.inclusive_description ?? "";
+
   for (let i = 0; i <= response.result.items.length; i++) {
     if (response.result.items[i]?.product_type == "App\\Models\\Hotel") {
       invoice.value.items.push({
@@ -124,11 +144,11 @@ const getDetailAction = async () => {
         name: response.result.items[i]?.product?.name,
         description: response.result.items[i]?.room?.name,
         period: `In: ${formatDate(
-          response.result.items[i]?.checkin_date
+          response.result.items[i]?.checkin_date,
         )} - Out: ${formatDate(response.result.items[i]?.checkout_date)}`,
         details: `${daysBetween(
           response.result.items[i]?.checkin_date,
-          response.result.items[i]?.checkout_date
+          response.result.items[i]?.checkout_date,
         )} Nights x ${response.result.items[i]?.quantity} Rooms x ${
           response.result.items[i]?.selling_price
         }`,

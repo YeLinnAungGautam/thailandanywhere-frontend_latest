@@ -105,10 +105,7 @@
                 <RevenueByProduct :revenueData="summary" />
               </div>
               <div class="col-span-2">
-                <ConversionRate
-                  :rate="commissionAmount"
-                  :value="daysToTarget"
-                />
+                <ConversionRate :salesReps="topSalesReps" />
               </div>
             </div>
           </div>

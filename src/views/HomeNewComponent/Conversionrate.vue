@@ -247,25 +247,21 @@ const syncCommission = (reps) => {
 
 const nextTargetInfo = computed(() => {
   const today = new Date();
-  const currentDay = today.getDate(); // days passed (including today)
+  const currentDay = today.getDate();
   const daysInMonth = new Date(
     today.getFullYear(),
     today.getMonth() + 1,
     0,
   ).getDate();
-  const daysLeft = daysInMonth - currentDay;
+  const daysLeft = daysInMonth - currentDay + 1; // ✅ include today
 
-  // Current month total sales = average * days so far
   const currentMonthSales = commissionAmount.value * currentDay;
-
-  // Find next tier above current average
   const nextTier = commissionTiers.find(
     (tier) => tier.minSalary > commissionAmount.value,
   );
 
-  if (!nextTier) return null; // Already at max tier
+  if (!nextTier) return null;
 
-  // Amount needed = (nextTier target * total days) - current sales
   const needed = nextTier.minSalary * daysInMonth - currentMonthSales;
 
   return {

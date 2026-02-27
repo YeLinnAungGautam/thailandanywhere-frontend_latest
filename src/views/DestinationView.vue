@@ -369,7 +369,7 @@ watch([productAction, cityAction], async ([newValue, secValue]) => {
 
 onMounted(async () => {
   route.query.search ? (search.value = route.query.search) : "";
-  await placeStore.getListAction();
+  await placeStore.getSimpleListAction();
   pageValue.value = route.query.pagi;
   console.log(pageValue.value, "this is from page value");
 

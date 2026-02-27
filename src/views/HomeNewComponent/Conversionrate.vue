@@ -14,11 +14,36 @@
     </Transition>
 
     <div class="bg-white rounded-lg shadow-sm p-8">
-      <p class="text-gray-500 text-sm font-medium mb-2">AVERAGE</p>
-      <div class="flex items-end gap-4 mb-2">
-        <span class="text-4xl font-bold text-gray-900">{{
+      <!-- <p class="text-gray-500 text-sm font-medium mb-2">AVERAGE</p> -->
+      <!-- <div class="flex items-end gap-4 mb-2">
+        <span class="text-lg font-bold text-gray-900">{{
           commissionAmount.toFixed(2)
         }}</span>
+      </div> -->
+
+      <!-- Add this below the average display -->
+      <div v-if="nextTargetInfo" class="mt-2">
+        <p class="text-xs text-gray-400">
+          Next:
+          <span class="font-semibold text-lg text-gray-600">{{
+            nextTargetInfo.target.toLocaleString()
+          }}</span>
+          avg
+          <span class="text-gray-400">({{ nextTargetInfo.tierLabel }})</span>
+        </p>
+        <p class="text-xs mt-1">
+          <span class="font-semibold text-lg text-red-700">
+            {{ nextTargetInfo.needed.toLocaleString() }} THB
+          </span>
+          <span class="text-gray-400">
+            needed in {{ nextTargetInfo.daysLeft }} day{{
+              nextTargetInfo.daysLeft !== 1 ? "s" : ""
+            }}</span
+          >
+        </p>
+      </div>
+      <div v-else-if="commissionAmount > 0" class="mt-2">
+        <p class="text-xs text-green-500 font-semibold">🎉 Max tier reached!</p>
       </div>
 
       <div class="mt-4 pt-4 border-t border-gray-200">
@@ -118,7 +143,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, defineProps } from "vue";
+import { ref, watch, onMounted, defineProps, computed } from "vue";
 import animation from "../../assets/congratulations-7600_256.gif";
 import { useAuthStore } from "../../stores/auth";
 import { storeToRefs } from "pinia";
@@ -219,6 +244,37 @@ const syncCommission = (reps) => {
     }
   }
 };
+
+const nextTargetInfo = computed(() => {
+  const today = new Date();
+  const currentDay = today.getDate(); // days passed (including today)
+  const daysInMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    0,
+  ).getDate();
+  const daysLeft = daysInMonth - currentDay;
+
+  // Current month total sales = average * days so far
+  const currentMonthSales = commissionAmount.value * currentDay;
+
+  // Find next tier above current average
+  const nextTier = commissionTiers.find(
+    (tier) => tier.minSalary > commissionAmount.value,
+  );
+
+  if (!nextTier) return null; // Already at max tier
+
+  // Amount needed = (nextTier target * total days) - current sales
+  const needed = nextTier.minSalary * daysInMonth - currentMonthSales;
+
+  return {
+    target: nextTier.minSalary,
+    tierLabel: nextTier.label,
+    needed: Math.max(0, Math.round(needed)),
+    daysLeft,
+  };
+});
 
 // Watch salesReps prop for changes (e.g. when parent fetches data async)
 watch(

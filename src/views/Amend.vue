@@ -103,7 +103,7 @@ const clearFilter = () => {
 
 const userName = computed(() => {
   const filteredUser = adminLists?.value.find(
-    (user) => user.id === userFilter.value
+    (user) => user.id === userFilter.value,
   );
   return filteredUser ? filteredUser.name : undefined;
 });
@@ -250,13 +250,13 @@ const changeServiceDate = async (data) => {
   } else if (data == "7day") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(
-      new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+      new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
     );
     searchTime.value = endDate;
   } else if (data == "30day") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(
-      new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+      new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
     );
     searchTime.value = endDate;
   }
@@ -493,7 +493,7 @@ watch(
     getReservationListAction();
     searchModel.value = false;
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 
@@ -536,7 +536,7 @@ watch(
             <transition name="slide">
               <div
                 v-if="filterShow"
-                class="absolute top-full px-4 left-0 w-[300px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[50vh] overflow-y-scroll overflow-x-hidden"
+                class="absolute top-full px-4 left-0 w-[300px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[50vh] overflow-y-scroll"
               >
                 <div
                   class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
@@ -1048,7 +1048,7 @@ watch(
           </div>
 
           <div
-            class="shadow-sm rounded-lg h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
+            class="rounded-lg h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
           >
             <ReservationDetail :show="showSide" />
           </div>

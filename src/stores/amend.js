@@ -47,7 +47,7 @@ export const useAmendStore = defineStore("amend", {
       try {
         const response = await axios.post(
           "/booking-item-amendments/" + id,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -66,8 +66,16 @@ export const useAmendStore = defineStore("amend", {
       try {
         const response = await axios.post(
           "/booking-item-amendments/" + id + "/reject",
-          data
+          data,
         );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async approveUpdateAction(id) {
+      try {
+        const response = await axios.post("/amendments/" + id + "/approve");
         return response.data;
       } catch (error) {
         throw error;

@@ -2,13 +2,7 @@
   <div>
     <div class="">
       <div class="text-2xl font-bold">Amend Request</div>
-      <div class="text-sm text-gray-500 pt-2">
-        Amend request is a request to change the details of a booking. This
-        request can be made by the customer or the travel agent to Reservation
-        Team. The request can be for a change in the date, time, or location of
-        the booking. The request can also be for a change in the number of
-        people in the booking.
-      </div>
+
       <div>
         <div class="pt-4">
           <div class="font-semibold">

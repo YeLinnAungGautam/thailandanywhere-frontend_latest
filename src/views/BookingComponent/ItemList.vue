@@ -5,8 +5,9 @@ import {
   XCircleIcon,
   DocumentCheckIcon,
   MagnifyingGlassIcon,
-  ChatBubbleBottomCenterIcon,
-  ChatBubbleBottomCenterTextIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, defineProps, ref, defineEmits, watch } from "vue";
 import Modal from "../../components/Modal.vue";
@@ -16,12 +17,12 @@ import saloon from "../../../public/2.png";
 import deluxe from "../../../public/3.png";
 import { useAuthStore } from "../../stores/auth";
 import { useHotelStore } from "../../stores/hotel";
-import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { daysBetween } from "../help/DateBetween";
 import AmendCreate from "./AmendCreate.vue";
 import AmendIcon from "../../assets/refresh-button.png";
+import { useToast } from "vue-toastification";
 
 const props = defineProps({
   data: Object,
@@ -32,6 +33,7 @@ const itemList = ref([]);
 const editIndex = ref("");
 const openModal = ref(false);
 const authStore = useAuthStore();
+const toast = useToast();
 const hotelStore = useHotelStore();
 
 const search = ref("");
@@ -89,60 +91,102 @@ const formitem = ref({
 });
 
 const getRemoveFunction = (id, index) => {
-  let data = {
-    id: id,
-    index: index,
-  };
-  console.log("====================================");
-  console.log(data, "this is emit id");
-  console.log("====================================");
-  emit("remove", data);
+  emit("remove", { id, index });
   cancellationModal.value = false;
 };
 
 const router = useRouter();
-
 const cancellationModal = ref(false);
 
+// ── Amend Modal ──
 const amendModal = ref(false);
 const amendData = ref(null);
+// "history" | "create"  — which tab is active in the amend modal
+const amendTab = ref("history");
 
-const amendModalAction = (data, index) => {
+const amendModalAction = (data) => {
   amendData.value = data;
+  // If there are existing amendments → show history first, else go straight to create
+  amendTab.value =
+    data?.amend_info && data.amend_info.length > 0 ? "history" : "create";
   amendModal.value = true;
 };
+
 const amendCloseAction = () => {
   amendModal.value = false;
   amendData.value = null;
 };
 
+// ── Helpers ──
+const amendStatusLabel = (status) => {
+  switch (status) {
+    case "pending":
+      return { text: "Pending", cls: "bg-yellow-100 text-yellow-700" };
+    case "approved":
+      return { text: "Approved", cls: "bg-green-100 text-green-700" };
+    case "rejected":
+      return { text: "Rejected", cls: "bg-red-100 text-red-700" };
+    default:
+      return { text: status, cls: "bg-gray-100 text-gray-600" };
+  }
+};
+
+const formatTs = (ts) => {
+  if (!ts) return "-";
+  return new Date(ts).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const changeLabel = (key) => {
+  const map = {
+    service_date: "Service Date",
+    checkout_date: "Checkout Date",
+    quantity: "Quantity",
+    child_quantity: "Child Qty",
+    selling_price: "Selling Price",
+    cost_price: "Cost Price",
+    total_amount: "Total Amount",
+    total_cost_price: "Total Cost",
+    variation_id: "Variation ID",
+    variation_name: "Variation",
+    delete: "Delete Request",
+  };
+  return map[key] ?? key;
+};
+
+// keys we want to display in the diff table (excluding internal previous_* fields)
+const diffKeys = (changes) =>
+  Object.keys(changes).filter(
+    (k) =>
+      !k.startsWith("current_") && changes[k] !== "" && changes[k] !== null,
+  );
+
+const prevValue = (history, key) => {
+  const prev = history.previous_values ?? {};
+  return prev[`current_${key}`] ?? "-";
+};
+
+// ── Cancellation ──
 const cancellationAction = (data, index) => {
   editIndex.value = index;
   formitem.value = data;
   cancellationModal.value = true;
-  console.log("====================================");
-  console.log(formitem.value, "this is for cancel formitem");
-  console.log("====================================");
 };
 
-// Fix 4: Improved cancellation handling
 const cancellationModalAction = () => {
-  console.log("Cancellation state:", formitem.value.cancellation);
-
-  if (formitem.value.cancellation) {
-    console.log("Updated cancellation status to:", formitem.value.cancellation);
-  }
-
   cancellationModal.value = false;
 };
 
+// ── Edit ──
 const editAction = (index, data) => {
   editIndex.value = index;
   formitem.value = data;
   openModal.value = true;
-  console.log("====================================");
-  console.log(formitem.value, "this is formitem");
-  console.log("====================================");
 };
 
 const closeModalAction = () => {
@@ -204,11 +248,6 @@ const closeModalAction = () => {
 const addItemModal = ref(false);
 const addInfoModal = ref(false);
 
-const nextState = () => {
-  openModal.value = true;
-  addItemModal.value = false;
-};
-
 const openAddItemModalAction = () => {
   openModal.value = false;
   addItemModal.value = true;
@@ -216,15 +255,11 @@ const openAddItemModalAction = () => {
 
 const selectAction = (item) => {
   formitem.value.car_id = item.id;
-  console.log("====================================");
-  console.log(item, "this is selected item");
-  console.log("====================================");
   if (formitem.value.product_type != 7) {
     formitem.value.item_name = item.name;
     if (formitem.value.product_type == 1) {
       let des = formitem.value.comment.replace(/^[^;]*;\s*/, "");
       formitem.value.comment = `Car Type : ${item.name} ; ${des}`;
-      // formitem.value.selling_price = item.price ? item.price : item.room_price;
     }
     formitem.value.selling_price = item.price ? item.price : item.room_price;
     if (formitem.value.product_type == 6) {
@@ -240,11 +275,13 @@ const selectAction = (item) => {
         ? JSON.parse(item.child_info)
         : [];
       if (formitem.value.child_info.length == 0) {
-        formitem.value.individual_pricing.child.quantity = 0;
-        formitem.value.individual_pricing.child.selling_price = 0;
-        formitem.value.individual_pricing.child.cost_price = 0;
-        formitem.value.individual_pricing.child.total_cost_price = 0;
-        formitem.value.individual_pricing.child.amount = 0;
+        formitem.value.individual_pricing.child = {
+          quantity: 0,
+          selling_price: 0,
+          cost_price: 0,
+          total_cost_price: 0,
+          amount: 0,
+        };
       }
     }
   }
@@ -252,58 +289,20 @@ const selectAction = (item) => {
     formitem.value.item_name = item.description;
     formitem.value.comment = `Ticket : ${formitem.value.item_name}`;
   }
-  console.log(formitem.value, "this is formItem");
   getFunction();
 };
 
 const addOnList = ref([]);
 
-const changeAddOnList = (message) => {
-  console.log(message, "this is message");
-
-  addOnList.value = [];
-};
-
-// const addOnSellingPrice = computed(() => {
-//   let result = 0;
-//   if (addOnList.value != null) {
-//     for (let i = 0; i < addOnList.value.length; i++) {
-//       if (addOnList.value[i].select == true) {
-//         result += addOnList.value[i].price * addOnList.value[i].quantity;
-//       }
-//     }
-//   }
-//   return result;
-// });
-
-// const addOnCostPrice = computed(() => {
-//   let result = 0;
-//   if (addOnList.value != null) {
-//     for (let i = 0; i < addOnList.value.length; i++) {
-//       if (addOnList.value[i].select == true) {
-//         result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
-//       }
-//     }
-//   }
-//   return result;
-// });
-
 const goInfoModal = () => {
-  console.log("====================================");
-  console.log(formitem.value, "this is item");
-  console.log("====================================");
-
   todayCheck();
   addItemModal.value = false;
   openModal.value = false;
   addInfoModal.value = true;
 };
 
-// Fix 2: Improve the date validation functions
 const formatDate = (date) => {
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
-    return "";
-  }
+  if (!(date instanceof Date) || isNaN(date.getTime())) return "";
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
@@ -312,69 +311,58 @@ const formatDate = (date) => {
 
 const isAfterToday = (dateStr) => {
   if (!dateStr) return false;
-
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
-  let selectDate = new Date(dateStr);
-  selectDate.setHours(0, 0, 0, 0);
-
-  return selectDate >= today;
+  const d = new Date(dateStr);
+  d.setHours(0, 0, 0, 0);
+  return d >= today;
 };
 
 const todayVali = ref(false);
-
 const todayCheck = () => {
   if (!formitem.value.service_date) {
     todayVali.value = false;
     return;
   }
-
   todayVali.value = isAfterToday(formitem.value.service_date);
-  console.log("Date validation result:", todayVali.value);
 };
 
 const priceArray = ref([]);
 const getRoomPeriod = async () => {
   if (
-    formitem.value.car_id != "" &&
-    formitem.value.checkin_date != "" &&
-    formitem.value.checkout_date != ""
+    formitem.value.car_id &&
+    formitem.value.checkin_date &&
+    formitem.value.checkout_date
   ) {
-    let data = {
-      checkin_date: formitem.value.checkin_date,
-      checkout_date: formitem.value.checkout_date,
-    };
-    // data.room_ids = formitem.value.car_list.map((item) => item.id).join(",");
-    const res = await hotelStore.getRoomPrice(data, formitem.value.car_id);
-    console.log("====================================");
-    console.log(res, "this is room price");
-    console.log("====================================");
-    priceArray.value = res.data.daily_pricing;
-    formitem.value.selling_price = res.data.total_sale_price;
-    formitem.value.cost_price = res.data.total_cost_price;
+    try {
+      const res = await hotelStore.getRoomPrice(
+        {
+          checkin_date: formitem.value.checkin_date,
+          checkout_date: formitem.value.checkout_date,
+        },
+        formitem.value.car_id,
+      );
+      priceArray.value = res.data.daily_pricing;
+      formitem.value.selling_price = res.data.total_sale_price;
+      formitem.value.cost_price = res.data.total_cost_price;
+    } catch {
+      toast.error("This room is deleted so can't change");
+    }
   }
 };
 
-// send item
 const getFunction = () => {
-  // Ensure all values are properly parsed numbers to avoid string concatenation
   const quantity = parseFloat(formitem.value.quantity) || 0;
   const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
   const costPrice = parseFloat(formitem.value.cost_price) || 0;
   const discount = parseFloat(formitem.value.discount) || 0;
   const days = parseFloat(formitem.value.days) || 1;
-
-  const childAmount =
-    formitem.value.individual_pricing && formitem.value.individual_pricing.child
-      ? parseFloat(formitem.value.individual_pricing.child.amount) || 0
-      : 0;
-
-  const childCostPrice =
-    formitem.value.individual_pricing && formitem.value.individual_pricing.child
-      ? parseFloat(formitem.value.individual_pricing.child.total_cost_price) ||
-        0
-      : 0;
+  const childAmount = formitem.value.individual_pricing?.child
+    ? parseFloat(formitem.value.individual_pricing.child.amount) || 0
+    : 0;
+  const childCostPrice = formitem.value.individual_pricing?.child
+    ? parseFloat(formitem.value.individual_pricing.child.total_cost_price) || 0
+    : 0;
 
   if (days > 1) {
     formitem.value.total_amount = quantity * sellingPrice - discount;
@@ -384,9 +372,6 @@ const getFunction = () => {
       sellingPrice * quantity - discount + childAmount;
     formitem.value.total_cost_price = quantity * costPrice + childCostPrice;
   }
-
-  console.log("Calculated total amount:", formitem.value.total_amount);
-  console.log("Calculated total cost price:", formitem.value.total_cost_price);
 };
 
 const cancelAction = () => {
@@ -397,113 +382,68 @@ const cancelAction = () => {
 };
 
 const getCarImage = (type) => {
-  // Define the car images for each van tour type
-  const carImages = {
-    car1: van,
-    car2: saloon,
-    car3: deluxe,
-    // Add more car types and their corresponding images as needed
-  };
-
-  // Return the car image based on the van tour type
-  // return carImages[type.toLowerCase()] || 'https://placehold.co/400';
+  const imgs = { car1: van, car2: saloon, car3: deluxe };
   switch (type) {
     case "SUV":
-      return carImages["car2"]; // Use this for SUV logic
+      return imgs.car2;
     case "Saloon":
-      return carImages["car1"];
-    case "VIP Van": // Example of a different case, instead of repeating 'SUV'
-      return carImages["car2"];
+      return imgs.car1;
+    case "VIP Van":
+      return imgs.car2;
     default:
-      return carImages["car2"]; // Default case
-  }
-};
-
-const checkRoomPrice = async () => {
-  if (
-    formitem.value.car_id != "" &&
-    formitem.value.checkin_date != "" &&
-    formitem.value.checkout_date != ""
-  ) {
-    let data = {
-      checkin_date: formitem.value.checkin_date,
-      checkout_date: formitem.value.checkout_date,
-    };
-    const res = await hotelStore.getRoomPrice(data, formitem.value.car_id);
-    console.log("====================================");
-    console.log(res, "this is room price");
-    console.log("====================================");
-    // formitem.value.selling_price = res.data.room_price;
-    // formitem.value.selling_price = res.data.room_price;
-    // formitem.value.cost_price = res.data.room?.cost ? res.data.room.cost : 0;
-  } else {
-    console.log("need to fill");
+      return imgs.car2;
   }
 };
 
 const calculateRateRoom = () => {
-  if (formitem.value.checkin_date && formitem.value.checkout_date) {
+  if (formitem.value.checkin_date && formitem.value.checkout_date)
     formitem.value.days = daysBetween(
       formitem.value.checkin_date,
-      formitem.value.checkout_date
+      formitem.value.checkout_date,
     );
-  }
 };
 
 const score = (item) => {
-  console.log(item, "item score");
-
   if (item?.total_amount && item?.total_cost_price) {
-    let score =
-      (item?.total_amount * 1 - item?.total_cost_price) /
-      (item?.total_amount * 1);
-    // return score.toFixed(4);
-    if (score < 0.14) {
-      return "low";
-    } else if (score < 0.19) {
-      return "medium";
-    } else {
-      return "high";
-    }
+    const s =
+      (item.total_amount * 1 - item.total_cost_price) / (item.total_amount * 1);
+    if (s < 0.14) return "low";
+    if (s < 0.19) return "medium";
+    return "high";
   }
   return null;
 };
 
 const getDotClass = (item) => {
-  const scoreValue = score(item);
-  if (scoreValue === "low") return "bg-red-500 w-[30%]";
-  if (scoreValue === "medium") return "bg-orange-500 w-[40%]";
-  if (scoreValue === "high") return "bg-green-500 w-[60%]";
+  const v = score(item);
+  if (v === "low") return "bg-red-500 w-[30%]";
+  if (v === "medium") return "bg-orange-500 w-[40%]";
+  if (v === "high") return "bg-green-500 w-[60%]";
   return "bg-gray-500";
 };
 
-// Fix 5: Improved watch function for service_date and checkout_date
 watch(
   () => [
     formitem.value.service_date,
     formitem.value.checkout_date,
     formitem.value.item_name,
   ],
-  async ([newData, secData, thirdData]) => {
+  async ([, ,]) => {
     if (formitem.value.product_type == "6") {
-      if (formitem.value.service_date) {
+      if (formitem.value.service_date)
         formitem.value.checkin_date = formitem.value.service_date;
-      }
-
       if (
         formitem.value.item_name &&
         formitem.value.checkin_date &&
         formitem.value.checkout_date
-      ) {
+      )
         formitem.value.comment = `Room : ${formitem.value.item_name}; Checkin : ${formitem.value.checkin_date} Checkout : ${formitem.value.checkout_date}`;
-      }
     }
-
     if (formitem.value.checkin_date && formitem.value.checkout_date) {
       calculateRateRoom();
       await getRoomPeriod();
     }
-  }
+  },
 );
 
 watch(
@@ -512,45 +452,29 @@ watch(
     formitem.value.individual_pricing?.child?.quantity,
   ],
   ([newData, secData]) => {
-    if (formitem.value.product_type == 4) {
-      if (newData || secData) {
-        // checkRoomPrice();
-        formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.individual_pricing?.child?.quantity}`;
-      }
-    }
-  }
-);
-
-watch(
-  () => props.data?.items, // Watch for changes in items
-  (newItems) => {
-    console.log("props.data.items changed:", newItems);
-    if (newItems) {
-      itemList.value = newItems; // Update itemList when items change
-    }
+    if (formitem.value.product_type == 4 && (newData || secData))
+      formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.individual_pricing?.child?.quantity}`;
   },
-  { deep: true, immediate: true } // Optional: immediate triggers the callback initially
 );
 
 watch(
-  () => formitem.value.quantity, // Watch the quantity property
+  () => props.data?.items,
+  (newItems) => {
+    if (newItems) itemList.value = newItems;
+  },
+  { deep: true, immediate: true },
+);
+
+watch(
+  () => formitem.value.quantity,
   (newValue) => {
     if (formitem.value.product_type == 4) {
-      // Ensure newValue is a valid number
-      // if (typeof newValue !== "number" || isNaN(newValue)) {
-      //   console.error("Invalid quantity value:", newValue);
-      //   return;
-      // }
-
-      // Ensure cost_price and selling_price are valid numbers
       const costPrice = parseFloat(formitem.value.cost_price) || 0;
       const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
-
-      // Ensure individual_pricing is an object
       if (
         !formitem.value.individual_pricing ||
         typeof formitem.value.individual_pricing !== "object"
-      ) {
+      )
         formitem.value.individual_pricing = {
           adult: {
             quantity: 0,
@@ -566,70 +490,49 @@ watch(
             total_cost_price: 0,
             amount: 0,
           },
-        }; // Initialize as an empty object
-      }
-
-      // Create a new object for individual_pricing.adult
-      const updatedAdultPricing = {
+        };
+      formitem.value.individual_pricing.adult = {
         quantity: newValue * 1,
         selling_price: sellingPrice,
         cost_price: costPrice,
         total_cost_price: newValue * 1 * costPrice,
         amount: newValue * 1 * sellingPrice,
       };
-
-      // Update formitem.value.individual_pricing.adult
-      formitem.value.individual_pricing.adult = updatedAdultPricing;
-
-      // Debugging logs (optional)
-      console.log("====================================");
-      console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
-      console.log("====================================");
     }
   },
-  { immediate: true } // Optional: Trigger the watcher immediately on setup
+  { immediate: true },
 );
 
-// Fix 1: Improve the child quantity handling in watch function
 watch(
   () => formitem.value.individual_pricing?.child?.quantity,
   (newValue) => {
     if (formitem.value.product_type == 4) {
-      let costPrice = 0;
-      let sellingPrice = 0;
-
-      if (formitem.value.child_info?.length > 0) {
-        costPrice =
-          parseFloat(formitem.value.child_info[0]?.child_cost_price) || 0;
-        sellingPrice =
-          parseFloat(formitem.value.child_info[0]?.child_price) || 0;
-      }
-
-      const childQuantity = parseInt(newValue) || 0;
-
-      const updatedChildPricing = {
-        quantity: childQuantity,
+      const costPrice =
+        formitem.value.child_info?.length > 0
+          ? parseFloat(formitem.value.child_info[0]?.child_cost_price) || 0
+          : 0;
+      const sellingPrice =
+        formitem.value.child_info?.length > 0
+          ? parseFloat(formitem.value.child_info[0]?.child_price) || 0
+          : 0;
+      const qty = parseInt(newValue) || 0;
+      formitem.value.individual_pricing.child = {
+        quantity: qty,
         selling_price: sellingPrice,
         cost_price: costPrice,
-        total_cost_price: childQuantity * costPrice,
-        amount: childQuantity * sellingPrice,
+        total_cost_price: qty * costPrice,
+        amount: qty * sellingPrice,
       };
-
-      formitem.value.individual_pricing.child = updatedChildPricing;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 onMounted(() => {
-  console.log("====================================");
-  console.log(props.data, "this is props");
-  if (props.data) {
-    itemList.value = props.data.items;
-  }
-  console.log("====================================");
+  if (props.data) itemList.value = props.data.items;
 });
 </script>
+
 <template>
   <div class="relative w-full h-full">
     <div
@@ -640,14 +543,15 @@ onMounted(() => {
         {{ data?.is_inclusive ? itemList.length - 1 : itemList.length }} items
       </p>
     </div>
+
     <div
       class="space-y-3 divide-y-2 pb-3 divide-gray-200"
       v-if="itemList.length > 0"
     >
       <div
-        class="flex justify-start items-start gap-x-2 px-2 pt-2 rounded-lg"
         v-for="(i, index) in itemList ?? []"
         :key="i"
+        class="flex justify-start items-start gap-x-2 px-2 pt-2 rounded-lg"
         :class="{
           hidden: i?.product_type == undefined,
           'bg-yellow-200/40': i?.cancellation === 'cancel_request',
@@ -661,22 +565,32 @@ onMounted(() => {
           class="w-16 h-16 rounded-lg"
           alt=""
         />
+
         <div class="w-full space-y-0.5">
+          <!-- top row: name + actions -->
           <div class="flex justify-between items-center">
             <p class="text-xs font-medium">{{ i?.product_name }}</p>
             <div class="flex justify-end items-center gap-x-2">
-              <!-- <ChatBubbleBottomCenterTextIcon
+              <!-- Amend icon + badge -->
+              <div
+                class="relative"
                 v-if="i?.reservation_id && authStore?.isSuperAdmin"
-                class="w-4 h-4 cursor-pointer text-red-600"
-                @click="amendModalAction(i, index)"
-              /> -->
-              <img
-                :src="AmendIcon"
-                class="w-4 h-4 cursor-pointer"
-                @click="amendModalAction(i, index)"
-                v-if="i?.reservation_id && authStore?.isSuperAdmin"
-                alt=""
-              />
+              >
+                <img
+                  :src="AmendIcon"
+                  class="w-4 h-4 cursor-pointer"
+                  @click="amendModalAction(i)"
+                  alt="Amend"
+                />
+                <!-- Amendment count badge -->
+                <span
+                  v-if="i?.amend_info && i.amend_info.length > 0"
+                  class="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none"
+                >
+                  {{ i.amend_info.length }}
+                </span>
+              </div>
+
               <PencilSquareIcon
                 class="w-4 h-4 cursor-pointer text-blue-800"
                 @click="editAction(index, i)"
@@ -693,18 +607,19 @@ onMounted(() => {
               />
             </div>
           </div>
+
+          <!-- CRM ID -->
           <div
             v-if="i?.crm_id"
-            class="flex justify-start items-center gap-x-2 pt-1"
+            class="flex justify-start items-center gap-x-2 pt-1 cursor-pointer"
             @click="
               () => {
-                if (i?.product_type == 4) {
+                if (i?.product_type == 4)
                   router.push(`/group-attraction?id=${i?.group_id}`);
-                } else if (i?.product_type == 6) {
+                else if (i?.product_type == 6)
                   router.push(`/group-hotel?id=${i?.group_id}`);
-                } else if (i?.product_type == 1) {
+                else if (i?.product_type == 1)
                   router.push(`/group-vantour?id=${i?.group_id}`);
-                }
               }
             "
           >
@@ -712,13 +627,14 @@ onMounted(() => {
               class="w-5 h-5 text-[#ff613c] shadow-lg bg-white p-0.5 rounded-full"
             />
             <p
-              v-if="i?.crm_id"
-              class="text-[10px] cursor-pointer bg-[#ff613c] py-0.5 text-white px-2 inline-block rounded-md"
+              class="text-[10px] bg-[#ff613c] py-0.5 text-white px-2 inline-block rounded-md"
             >
               {{ i?.crm_id }}
             </p>
           </div>
+
           <p class="text-[10px] pt-1">{{ i?.item_name }}</p>
+
           <div class="flex justify-between items-center">
             <p class="text-[10px]">{{ i?.service_date }}</p>
             <p class="text-[10px]">
@@ -726,13 +642,13 @@ onMounted(() => {
               <span class="font-medium text-xs">{{ i?.discount }} ฿</span>
             </p>
           </div>
+
           <div class="flex justify-between items-center">
             <p class="text-[10px]" v-if="i?.product_type != 4">
               {{ i?.quantity }} x {{ i?.selling_price }} ฿
             </p>
             <p class="text-[10px]" v-if="i?.product_type == 4">
-              adult - {{ i?.quantity }} x {{ i?.selling_price }} ฿
-              <br />
+              adult - {{ i?.quantity }} x {{ i?.selling_price }} ฿<br />
               child - {{ i?.individual_pricing?.child?.quantity }} x
               {{ i?.individual_pricing?.child?.selling_price }} ฿
             </p>
@@ -741,19 +657,38 @@ onMounted(() => {
               <span class="font-medium text-sm">{{ i?.total_amount }} ฿</span>
             </p>
           </div>
+
+          <!-- Amendment status pills -->
+          <div
+            v-if="i?.amend_info && i.amend_info.length > 0"
+            class="flex flex-wrap gap-1 pt-1"
+          >
+            <span
+              v-for="am in i.amend_info"
+              :key="am.id"
+              class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-medium"
+              :class="amendStatusLabel(am.amend_status).cls"
+            >
+              <span v-if="am.is_delete">🗑</span>
+              {{ amendStatusLabel(am.amend_status).text }}
+            </span>
+          </div>
+
           <div class="flex items-center gap-2 pt-2" v-if="score(i) != null">
             <span :class="getDotClass(i)" class="h-2 rounded-full"></span>
           </div>
         </div>
       </div>
     </div>
+
     <div
       v-if="itemList.length == 0"
       class="text-xs font-medium text-gray-500 w-full h-[200px] flex justify-center items-center"
     >
       <p>please add items !</p>
     </div>
-    <!-- choose room type modal -->
+
+    <!-- ── Edit type modal ── -->
     <Modal :isOpen="openModal" @closeModal="closeModalAction">
       <DialogPanel
         class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
@@ -761,9 +696,8 @@ onMounted(() => {
         <DialogTitle
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
+          >Choose Detail Type</DialogTitle
         >
-          Choose Detail Type
-        </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
           <p class="text-xs text-gray-500">Please Choose detail type.</p>
         </div>
@@ -775,23 +709,19 @@ onMounted(() => {
                 class="w-16 h-16 rounded-lg"
                 alt=""
               />
-
               <div class="w-full">
                 <p class="text-sm font-medium pb-1 text-[#ff613c] line-clamp-1">
-                  <!-- {{ formitem?.product_name }} -->
                   Change type
                 </p>
                 <p class="text-xs">{{ formitem.item_name }}</p>
                 <div class="flex justify-between items-center">
                   <p class="text-xs">{{ formitem?.quantity }} Qty</p>
-                  <div class="flex justify-end items-center">
-                    <p
-                      @click="openAddItemModalAction"
-                      class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white"
-                    >
-                      Edit
-                    </p>
-                  </div>
+                  <p
+                    @click="openAddItemModalAction"
+                    class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white cursor-pointer"
+                  >
+                    Edit
+                  </p>
                 </div>
               </div>
             </div>
@@ -803,7 +733,6 @@ onMounted(() => {
                 class="w-16 h-16 rounded-lg"
                 alt=""
               />
-
               <div class="w-full">
                 <p class="text-sm font-medium pb-1 line-clamp-1">
                   Booking information
@@ -812,17 +741,15 @@ onMounted(() => {
                 <div class="flex justify-between items-center">
                   <p class="text-xs">
                     {{
-                      formitem?.is_driver_collect ? "collect" : "bank tranfer"
+                      formitem?.is_driver_collect ? "collect" : "bank transfer"
                     }}
                   </p>
-                  <div class="flex justify-end items-center">
-                    <p
-                      @click="goInfoModal"
-                      class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white"
-                    >
-                      Edit
-                    </p>
-                  </div>
+                  <p
+                    @click="goInfoModal"
+                    class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white cursor-pointer"
+                  >
+                    Edit
+                  </p>
                 </div>
               </div>
             </div>
@@ -839,7 +766,7 @@ onMounted(() => {
       </DialogPanel>
     </Modal>
 
-    <!-- choose room type modal -->
+    <!-- ── Choose type modal ── -->
     <Modal :isOpen="addItemModal" @closeModal="cancelAction">
       <DialogPanel
         class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
@@ -847,9 +774,8 @@ onMounted(() => {
         <DialogTitle
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
+          >Choose Type</DialogTitle
         >
-          Choose Type
-        </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
           <p class="text-xs text-gray-500">Please Choose the type.</p>
           <div class="relative w-full border border-gray-300 rounded-lg">
@@ -866,7 +792,7 @@ onMounted(() => {
         </div>
         <div class="h-[300px] overflow-y-scroll pr-2">
           <div
-            class="bg-white p-2 rounded-xl border mt-2 shadow-sm space-y-2"
+            class="bg-white p-2 rounded-xl border mt-2 shadow-sm space-y-2 cursor-pointer"
             v-for="i in formitem.car_list.length > 0 ? formitem.car_list : []"
             :key="i"
             @click="selectAction(i)"
@@ -893,75 +819,6 @@ onMounted(() => {
                 <div class="my-auto">
                   <p class="text-xs font-semibold whitespace-nowrap">
                     <span class="text-lg">{{ i?.price }}</span> / car
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div
-              class="flex justify-start items-start gap-x-2"
-              v-if="formitem?.product_type == 4"
-            >
-              <img
-                src="https://placehold.co/400"
-                class="w-16 h-16 rounded-lg"
-                alt=""
-              />
-              <div class="flex justify-between items-start w-full">
-                <div class="space-y-1">
-                  <p class="text-xs font-medium text-[#ff613c]">{{ i.name }}</p>
-                  <div class="flex justify-start items-center gap-x-1">
-                    <p
-                      class="text-[8px] text-white px-2 py-0.5 rounded-full inline-block"
-                      :class="
-                        i?.meta_data != null &&
-                        JSON.parse(i?.meta_data)[0].is_main == 1
-                          ? 'bg-green-500'
-                          : 'hidden'
-                      "
-                    >
-                      {{
-                        i?.meta_data != null &&
-                        JSON.parse(i?.meta_data)[0].is_show == 1
-                          ? "main"
-                          : "-"
-                      }}
-                    </p>
-                    <p
-                      class="text-[8px] text-white px-2 py-0.5 rounded-full inline-block"
-                      :class="
-                        i?.meta_data != null &&
-                        JSON.parse(i?.meta_data)[0].is_show == 1
-                          ? 'bg-green-500'
-                          : 'hidden'
-                      "
-                    >
-                      {{
-                        i?.meta_data != null &&
-                        JSON.parse(i?.meta_data)[0].is_show == 1
-                          ? "show"
-                          : "no show"
-                      }}
-                    </p>
-                  </div>
-                  <div>
-                    <p
-                      class="text-[10px] text-gray-800"
-                      v-for="a in i?.including_services != null &&
-                      i?.including_services != ''
-                        ? JSON.parse(i?.including_services)
-                        : []"
-                      :key="a"
-                    >
-                      <span
-                        class="h-1.5 w-1.5 mr-2 bg-gray-500 inline-block rounded-full"
-                      ></span
-                      >{{ a }}
-                    </p>
-                  </div>
-                </div>
-                <div class="my-auto">
-                  <p class="text-xs font-semibold whitespace-nowrap">
-                    <span class="text-lg">{{ i?.price }}</span> / ticket
                   </p>
                 </div>
               </div>
@@ -997,12 +854,8 @@ onMounted(() => {
                   class="w-16 h-16 object-cover rounded-lg"
                   alt=""
                 />
-                <div
-                  class="flex justify-between items-start gap-x-2 w-full h-auto"
-                >
-                  <div class="pt-2">
-                    <p class="text-xs font-medium">{{ i?.description }}</p>
-                  </div>
+                <div class="pt-2">
+                  <p class="text-xs font-medium">{{ i?.description }}</p>
                 </div>
               </div>
             </div>
@@ -1017,7 +870,7 @@ onMounted(() => {
           </button>
           <button
             @click="goInfoModal"
-            class="bg-[#ff613c] text-white px-3 py-2.5 rounded-lg text-xs"
+            class="text-white px-3 py-2.5 rounded-lg text-xs"
             :class="formitem.car_id ? 'bg-[#ff613c]' : 'bg-gray-300'"
           >
             Next : Details
@@ -1026,7 +879,7 @@ onMounted(() => {
       </DialogPanel>
     </Modal>
 
-    <!-- choose info booking modal -->
+    <!-- ── Booking info modal ── -->
     <Modal :isOpen="addInfoModal" @closeModal="addInfoModal = false">
       <DialogPanel
         class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
@@ -1034,9 +887,8 @@ onMounted(() => {
         <DialogTitle
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
+          >Provide Booking Information</DialogTitle
         >
-          Provide Booking Information
-        </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
           <p class="text-xs text-gray-500">
             Please provide booking information.
@@ -1046,326 +898,81 @@ onMounted(() => {
           <div v-if="formitem.product_type != 6" class="space-y-2">
             <div class="grid grid-cols-2 gap-x-2">
               <div class="space-y-1" v-if="formitem.product_type == 1">
-                <label for="" class="text-[12px] text-gray-500"
-                  >Pick up time <span class="text-red-800">*</span></label
-                >
+                <label class="text-[12px] text-gray-500">Pick up time</label>
                 <input
                   type="time"
-                  :disabled="authStore?.isSuperAdmin ? false : true"
+                  :disabled="!authStore?.isSuperAdmin"
                   v-model="formitem.pickup_time"
-                  name=""
                   class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                  id=""
                 />
               </div>
               <div class="space-y-1">
-                <label for="" class="text-[12px] text-gray-500"
+                <label class="text-[12px] text-gray-500"
                   >Service date <span class="text-red-800">*</span></label
                 >
                 <input
                   type="date"
-                  :disabled="authStore?.isSuperAdmin ? false : true"
+                  :disabled="!authStore?.isSuperAdmin"
                   v-model="formitem.service_date"
                   @change="todayCheck"
-                  name=""
                   class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                   :class="
                     todayVali
                       ? 'border-gray-300'
                       : 'border-red-600 text-red-600'
                   "
-                  id=""
                 />
                 <p v-if="!todayVali" class="text-[8px] text-red-600">
                   ! please change date
                 </p>
               </div>
             </div>
-            <div class="space-y-1" v-if="formitem.product_type == 1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Pick up location <span class="text-red-800">*</span></label
-              >
-              <input
-                type="text"
-                :disabled="authStore?.isSuperAdmin ? false : true"
-                v-model="formitem.pickup_location"
-                name=""
-                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
-            </div>
-            <div class="grid grid-cols-2 gap-x-2">
-              <!-- <div class="space-y-1" v-if="formitem.product_type == 1">
-                <label for="" class="text-[12px] text-gray-500"
-                  >Payment Method <span class="text-red-800">*</span></label
-                >
-                <div class="flex justify-start flex-col items-start gap-x-2">
-                  <select
-                    name=""
-                    v-model="formitem.is_driver_collect"
-                    id=""
-                    class="px-2 py-1.5 w-full rounded-lg text-xs border border-gray-300 focus:outline-none"
-                  >
-                    <option value=""></option>
-                    <option :value="true">Driver Collect</option>
-                    <option :value="false">Driver Not Collect</option>
-                  </select>
-                  <p class="text-xs pt-2">
-                    Is Driver Collect ? <span class="text-red-800">*</span>
-                  </p>
-                </div>
-              </div> -->
-              <div class="space-y-1" v-if="formitem.product_type != 7">
-                <label for="" class="text-[12px] text-gray-500"
-                  >Qty - selling : {{ formitem.selling_price }}
-                  <span class="text-red-800">*</span></label
-                >
-                <input
-                  type="number"
-                  :disabled="authStore?.isSuperAdmin ? false : true"
-                  v-model="formitem.quantity"
-                  name=""
-                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                  id=""
-                />
-              </div>
-              <div
-                class="relative space-y-1"
-                v-for="i in formitem.child_info ?? []"
-                :key="i"
-              >
-                <div class="flex justify-between items-center pb-1 pt-1">
-                  <label for="" class="text-xs text-gray-500 relative"
-                    >Child Qty - selling : {{ i.child_price
-                    }}<span class="text-red-800">*</span>
-                  </label>
-                  <p
-                    :title="i?.info"
-                    class="absolute top-0 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 right-1 flex justify-center items-center custom-tooltip"
-                  >
-                    ?
-                  </p>
-                </div>
-                <input
-                  type="number"
-                  v-model="formitem.individual_pricing.child.quantity"
-                  name=""
-                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                  id="adult_pricing"
-                />
-              </div>
-              <!-- <div
-                class="relative space-y-1"
-                v-if="formitem.child_info.length == 0"
-              >
-                <div class="flex justify-between items-center pb-1">
-                  <label for="" class="text-xs text-gray-500 relative"
-                    >Child Qty N/A <span class="text-red-800">*</span>
-                  </label>
-                  <p
-                    title="empty"
-                    class="absolute top-0 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 right-1 flex justify-center items-center custom-tooltip"
-                  >
-                    ?
-                  </p>
-                </div>
-                <input
-                  type="number"
-                  disabled
-                  name=""
-                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                  id="adult_pricing"
-                />
-              </div> -->
-              <div class="space-y-1 col-span-2">
-                <label for="" class="text-[12px] text-gray-500"
-                  >Ticket Info <span class="text-red-800">*</span></label
-                >
-                <div class="grid-cols-2 grid gap-2">
-                  <div class="relative space-y-1">
-                    <label for="" class="text-xs text-gray-500"
-                      >Selling Price <span class="text-red-800">*</span></label
-                    >
-                    <input
-                      type="number"
-                      v-model="formitem.selling_price"
-                      :disabled="authStore?.isSuperAdmin ? false : true"
-                      name=""
-                      class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                      id=""
-                    />
-                  </div>
-                  <div
-                    class="relative space-y-1"
-                    v-if="formitem.product_type == 7"
-                  >
-                    <label for="" class="text-xs text-gray-500"
-                      >Ticket Qty <span class="text-red-800">*</span></label
-                    >
-                    <input
-                      type="number"
-                      v-model="formitem.quantity"
-                      :disabled="authStore?.isSuperAdmin ? false : true"
-                      name=""
-                      class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                      id=""
-                    />
-                    <p
-                      @click="formitem.quantity++"
-                      class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-8"
-                    >
-                      +
-                    </p>
-                    <p
-                      @click="formitem.quantity--"
-                      v-if="formitem.quantity > 1"
-                      class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
-                    >
-                      -
-                    </p>
-                    <p
-                      v-if="formitem.quantity == 1"
-                      class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
-                    >
-                      -
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
           <div class="grid grid-cols-2 gap-2" v-if="formitem.product_type == 6">
             <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Check in date <span class="text-red-800">*</span></label
-              >
+              <label class="text-[12px] text-gray-500">Check in date</label>
               <input
                 type="date"
-                :disabled="authStore?.isSuperAdmin ? false : true"
+                :disabled="!authStore?.isSuperAdmin"
                 v-model="formitem.service_date"
                 @change="todayCheck"
-                name=""
                 class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                :class="
-                  todayVali ? 'border-gray-300' : 'border-red-600 text-red-600'
-                "
-                id=""
               />
-              <p v-if="!todayVali" class="text-[8px] text-red-600">
-                ! please change date
-              </p>
             </div>
             <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Check out date <span class="text-red-800">*</span></label
-              >
+              <label class="text-[12px] text-gray-500">Check out date</label>
               <input
                 type="date"
-                :disabled="authStore?.isSuperAdmin ? false : true"
+                :disabled="!authStore?.isSuperAdmin"
                 v-model="formitem.checkout_date"
-                name=""
                 class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
               />
             </div>
             <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Total Rooms <span class="text-red-800">*</span></label
-              >
+              <label class="text-[12px] text-gray-500">Total Rooms</label>
               <input
                 type="number"
-                :disabled="authStore?.isSuperAdmin ? false : true"
+                :disabled="!authStore?.isSuperAdmin"
                 v-model="formitem.quantity"
-                name=""
                 class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
               />
             </div>
-            <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Qty <span class="text-red-800">*</span></label
-              >
-              <p
-                class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              >
-                {{ formitem.days }} Night x {{ formitem.quantity }} Rooms
-              </p>
-            </div>
           </div>
           <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500">Discount</label>
+            <label class="text-[12px] text-gray-500">Discount</label>
             <input
               type="number"
-              :disabled="authStore?.isSuperAdmin ? false : true"
+              :disabled="!authStore?.isSuperAdmin"
               v-model="formitem.discount"
-              name=""
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
             />
           </div>
-          <div v-if="formitem.product_type == 6">
-            <div
-              v-for="i in priceArray"
-              :key="i"
-              class="text-xs flex justify-between items-center"
-            >
-              <p class="whitespace-nowrap px-2">{{ i.date }}</p>
-              <p class="h-0.5 w-full bg-black/10"></p>
-              <p class="px-2">{{ i.sale_price }}</p>
-              <p class="h-0.5 w-full bg-black/10"></p>
-              <p class="px-2">{{ i.cost_price }}</p>
-            </div>
-          </div>
-
-          <p class="text-xs text-gray-500">Total Price</p>
-          <div>
-            <p
-              class="text-sm text-start border border-gray-300 py-1.5 rounded-lg px-2"
-            >
-              <span class="font-medium text-[#ff613c]"
-                >{{
-                  formitem.selling_price * 1 * formitem.quantity -
-                  formitem.discount * 1 +
-                  (formitem.individual_pricing?.child?.amount || 0) * 1
-                }}
-                ฿</span
-              >
-            </p>
-          </div>
-          <div class="space-y-1" v-if="formitem.product_type == 1">
-            <label for="" class="text-[12px] text-gray-500"
-              >Route Plan <span class="text-red-800">*</span></label
-            >
-            <textarea
-              name=""
-              :disabled="authStore?.isSuperAdmin ? false : true"
-              v-model="formitem.route_plan"
-              class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
-            ></textarea>
-          </div>
           <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500"
-              >Special Request <span class="text-red-800">*</span></label
-            >
+            <label class="text-[12px] text-gray-500">Description</label>
             <textarea
-              name=""
-              :disabled="authStore?.isSuperAdmin ? false : true"
-              v-model="formitem.special_request"
-              class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
-            ></textarea>
-          </div>
-          <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500"
-              >Description <span class="text-red-800">*</span></label
-            >
-            <textarea
-              name=""
-              :disabled="authStore?.isSuperAdmin ? false : true"
+              :disabled="!authStore?.isSuperAdmin"
               v-model="formitem.comment"
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
             ></textarea>
           </div>
         </div>
@@ -1380,14 +987,12 @@ onMounted(() => {
             v-if="formitem.product_id && todayVali"
             @click="cancelAction"
             class="bg-[#ff613c] text-white px-3 py-2.5 rounded-lg text-xs"
-            :class="todayVali ? 'bg-[#ff613c]' : 'bg-gray-300'"
           >
             Add Item
           </button>
           <button
-            v-if="!formitem.product_id || !todayVali"
-            class="bg-[#ff613c] text-white px-3 py-2.5 rounded-lg text-xs"
-            :class="todayVali ? 'bg-[#ff613c]' : 'bg-gray-300'"
+            v-else
+            class="bg-gray-300 text-white px-3 py-2.5 rounded-lg text-xs"
           >
             Add Item
           </button>
@@ -1395,7 +1000,7 @@ onMounted(() => {
       </DialogPanel>
     </Modal>
 
-    <!-- for cancellation modal -->
+    <!-- ── Cancellation modal ── -->
     <Modal :isOpen="cancellationModal" @closeModal="cancellationModalAction">
       <DialogPanel
         class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
@@ -1403,9 +1008,8 @@ onMounted(() => {
         <DialogTitle
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
+          >Choose Cancellation Type</DialogTitle
         >
-          Choose Cancellation Type
-        </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
           <p class="text-xs text-gray-500">Please Choose cancellation type.</p>
         </div>
@@ -1415,18 +1019,11 @@ onMounted(() => {
               <input
                 type="radio"
                 name="cancellation"
-                id="cancel"
                 class="mr-2 focus:outline-none w-5 h-5"
                 @click="formitem.cancellation = 'cancel_request'"
-                :checked="
-                  formitem.cancellation != null &&
-                  formitem.cancellation == 'cancel_request'
-                    ? true
-                    : false
-                "
+                :checked="formitem.cancellation == 'cancel_request'"
               />
               <label
-                for="cancel"
                 class="text-xs font-medium text-yellow-600 bg-yellow-200 px-2 py-0.5 rounded-full"
                 >Cancel Request</label
               >
@@ -1435,18 +1032,11 @@ onMounted(() => {
               <input
                 type="radio"
                 name="cancellation"
-                id="cancel"
                 class="mr-2 focus:outline-none w-5 h-5"
                 @click="formitem.cancellation = 'cancel_confirm'"
-                :checked="
-                  formitem.cancellation != null &&
-                  formitem.cancellation == 'cancel_confirm'
-                    ? true
-                    : false
-                "
+                :checked="formitem.cancellation == 'cancel_confirm'"
               />
               <label
-                for="cancel"
                 class="text-xs font-medium text-green-600 bg-green-200 px-2 py-0.5 rounded-full"
                 >Cancel Complete</label
               >
@@ -1455,14 +1045,11 @@ onMounted(() => {
               <input
                 type="radio"
                 name="cancellation"
-                id="cancel"
                 class="mr-2 focus:outline-none w-5 h-5"
                 @click="formitem.cancellation = null"
-                :checked="formitem.cancellation == null ? true : false"
+                :checked="formitem.cancellation == null"
               />
-              <label
-                for="cancel"
-                class="text-xs font-medium bg-white-200 px-2 py-0.5 rounded-full"
+              <label class="text-xs font-medium px-2 py-0.5 rounded-full"
                 >Cancel remove & Cancel empty</label
               >
             </div>
@@ -1491,23 +1078,238 @@ onMounted(() => {
       </DialogPanel>
     </Modal>
 
+    <!-- ══════════════════════════════════════════════════════════
+         AMEND MODAL — History + Create tabs
+    ══════════════════════════════════════════════════════════ -->
     <Modal :isOpen="amendModal" @closeModal="amendCloseAction">
       <DialogPanel
-        class="w-full max-w-4xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-4xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
-        <DialogTitle
-          as="h3"
-          class="text-lg font-medium leading-6 text-gray-900 mb-1"
-        >
-          Amend: {{ amendData?.crm_id }}
-        </DialogTitle>
-        <div class="space-y-2.5 pb-3 border-b border-gray-300">
-          <p class="text-xs text-gray-500">Please Choose amend .</p>
+        <!-- Header -->
+        <div class="flex justify-between items-center bg-[#ff613c] px-4 py-2.5">
+          <div>
+            <p class="text-white font-medium text-sm">
+              Amend: {{ amendData?.crm_id }}
+            </p>
+            <p class="text-white/70 text-[10px]">
+              {{ amendData?.product_name }} — {{ amendData?.item_name }}
+            </p>
+          </div>
+          <XCircleIcon
+            class="w-5 h-5 text-white cursor-pointer"
+            @click="amendCloseAction"
+          />
         </div>
-        <AmendCreate
-          :amendData="amendData"
-          :amendCloseAction="amendCloseAction"
-        />
+
+        <!-- Tab bar -->
+        <div class="flex border-b border-gray-200 bg-gray-50 px-4">
+          <button
+            @click="amendTab = 'history'"
+            class="px-4 py-2.5 text-xs font-medium border-b-2 transition-colors flex items-center gap-1.5"
+            :class="
+              amendTab === 'history'
+                ? 'border-[#ff613c] text-[#ff613c]'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            "
+          >
+            <ClockIcon class="w-3.5 h-3.5" />
+            Amendment History
+            <span
+              v-if="amendData?.amend_info?.length"
+              class="bg-[#ff613c] text-white text-[9px] font-bold rounded-full px-1.5 py-0.5 leading-none"
+              >{{ amendData.amend_info.length }}</span
+            >
+          </button>
+          <button
+            @click="amendTab = 'create'"
+            class="px-4 py-2.5 text-xs font-medium border-b-2 transition-colors flex items-center gap-1.5"
+            :class="
+              amendTab === 'create'
+                ? 'border-[#ff613c] text-[#ff613c]'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            "
+          >
+            <PencilSquareIcon class="w-3.5 h-3.5" />
+            Create Amendment
+          </button>
+        </div>
+
+        <div class="p-4 max-h-[70vh] overflow-y-auto">
+          <!-- ── HISTORY TAB ── -->
+          <div v-if="amendTab === 'history'">
+            <div
+              v-if="!amendData?.amend_info || amendData.amend_info.length === 0"
+              class="flex flex-col items-center justify-center py-12 text-gray-400"
+            >
+              <ClockIcon class="w-10 h-10 mb-2 opacity-40" />
+              <p class="text-xs">No amendment history yet</p>
+              <button
+                @click="amendTab = 'create'"
+                class="mt-3 text-xs bg-[#ff613c] text-white px-4 py-1.5 rounded-lg"
+              >
+                Create First Amendment
+              </button>
+            </div>
+
+            <div v-else class="space-y-4">
+              <div
+                v-for="am in amendData.amend_info"
+                :key="am.id"
+                class="border border-gray-200 rounded-xl overflow-hidden"
+              >
+                <!-- Amendment card header -->
+                <div
+                  class="flex justify-between items-center px-4 py-2.5 bg-gray-50 border-b border-gray-200"
+                >
+                  <div class="flex items-center gap-2">
+                    <!-- Status badge -->
+                    <span
+                      class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                      :class="amendStatusLabel(am.amend_status).cls"
+                    >
+                      {{ amendStatusLabel(am.amend_status).text }}
+                    </span>
+                    <!-- Delete badge -->
+                    <span
+                      v-if="am.is_delete"
+                      class="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-[10px] font-semibold"
+                    >
+                      🗑 Delete Request
+                    </span>
+                    <!-- Flags -->
+                    <span
+                      v-if="am.amend_request"
+                      class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px]"
+                      >Requested</span
+                    >
+                    <span
+                      v-if="am.amend_approve"
+                      class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-[10px]"
+                      >Approved</span
+                    >
+                    <span
+                      v-if="am.amend_mail_sent"
+                      class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-[10px]"
+                      >Mail Sent</span
+                    >
+                  </div>
+                  <span class="text-[10px] text-gray-400">{{
+                    formatTs(am.created_at)
+                  }}</span>
+                </div>
+
+                <!-- Latest changes diff table -->
+                <div
+                  class="px-4 py-3"
+                  v-if="!am.is_delete && am.latest_changes"
+                >
+                  <p
+                    class="text-[10px] font-semibold text-gray-500 mb-2 uppercase tracking-wide"
+                  >
+                    Changes
+                  </p>
+                  <table class="w-full text-[10px]">
+                    <thead>
+                      <tr class="text-gray-400 border-b border-gray-100">
+                        <th class="text-left py-1 w-1/3">Field</th>
+                        <th class="text-center py-1 w-1/3">Before</th>
+                        <th class="text-center py-1 w-1/3">After</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <template
+                        v-for="history in am.amend_history"
+                        :key="history.timestamp"
+                      >
+                        <tr
+                          v-for="key in diffKeys(history.changes)"
+                          :key="key"
+                          class="border-b border-gray-50 hover:bg-gray-50"
+                        >
+                          <td class="py-1.5 text-gray-600 font-medium">
+                            {{ changeLabel(key) }}
+                          </td>
+                          <td
+                            class="py-1.5 text-center text-gray-400 line-through"
+                          >
+                            {{ prevValue(history, key) }}
+                          </td>
+                          <td
+                            class="py-1.5 text-center font-semibold"
+                            :class="
+                              key.includes('total')
+                                ? 'text-green-600'
+                                : 'text-[#ff613c]'
+                            "
+                          >
+                            {{ history.changes[key] }}
+                          </td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+
+                  <!-- History log (who/when) -->
+                  <div class="mt-3 space-y-1" v-if="am.amend_history?.length">
+                    <p
+                      class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1"
+                    >
+                      Activity Log
+                    </p>
+                    <div
+                      v-for="h in am.amend_history"
+                      :key="h.timestamp"
+                      class="flex items-center gap-2 text-[10px] text-gray-500"
+                    >
+                      <span
+                        class="w-1.5 h-1.5 rounded-full bg-[#ff613c] flex-shrink-0"
+                      ></span>
+                      <span class="font-medium text-gray-700">{{
+                        h.user_name
+                      }}</span>
+                      <span>requested changes</span>
+                      <span class="ml-auto text-gray-400">{{
+                        formatTs(h.timestamp)
+                      }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Delete request info -->
+                <div class="px-4 py-3" v-if="am.is_delete">
+                  <p class="text-xs text-red-600 font-medium">
+                    This item has been requested for deletion.
+                  </p>
+                  <p class="text-[10px] text-gray-500 mt-1">
+                    Original amount:
+                    <span class="font-semibold"
+                      >{{ am.latest_changes?.total_amount }} ฿</span
+                    >
+                  </p>
+                </div>
+              </div>
+
+              <!-- Button to switch to create tab -->
+              <div class="flex justify-end pt-2">
+                <button
+                  @click="amendTab = 'create'"
+                  class="text-xs bg-[#ff613c] text-white px-4 py-2 rounded-lg flex items-center gap-1.5"
+                >
+                  <PencilSquareIcon class="w-3.5 h-3.5" />
+                  Create New Amendment
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── CREATE TAB ── -->
+          <div v-if="amendTab === 'create'">
+            <AmendCreate
+              :amendData="amendData"
+              :amendCloseAction="amendCloseAction"
+            />
+          </div>
+        </div>
       </DialogPanel>
     </Modal>
   </div>
@@ -1517,7 +1319,6 @@ onMounted(() => {
 .custom-tooltip {
   position: relative;
 }
-
 .custom-tooltip:hover::after {
   content: attr(title);
   position: absolute;

@@ -382,7 +382,7 @@ const sendEmailFunction = async () => {
         }
         const res = await reservationStore.emailSendReservation(
           route.query.id,
-          frmData
+          frmData,
         );
         console.log(res, "this is email res");
 
@@ -428,7 +428,7 @@ const mailBodyChange = () => {
   // Determine if this is a hotel or ticket (entrance ticket)
 
   emailData.value.mail_subject = `Amend for ${showFormat(
-    props?.detail?.booking_item?.service_date
+    props?.detail?.booking_item?.service_date,
   )}: ${props?.detail?.booking_item?.crm_id}`;
 
   is_booking_request.value =
@@ -446,11 +446,11 @@ const mailBodyChange = () => {
     <p class="p1">Dear ${props?.detail.booking_item?.product?.name},</p>
     <p><strong>Greetings from ThAnywhere Co., Ltd.</strong></p>
     <p>We would like to book the accommodation as per the following description. Please note the booking is already checked and confirmed by phone.</p>
-    
+
     <p>Passports for the bookings are attached in the email. Please arrange for the customer accordingly.</p>
     <p>Payment transaction will be done soon. Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail.</p>
-    <p><strong>Tax ID:</strong> 0105565081822<br> 
-<strong>TH ANYWHERE CO.LTD.</strong><br> 
+    <p><strong>Tax ID:</strong> 0105565081822<br>
+<strong>TH ANYWHERE CO.LTD.</strong><br>
 <strong>Invoice Date:</strong> ${format(new Date(), "dd/MM/yyyy")}</p>
     <p>If you may have any questions or concerns, please feel free to call us at <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
     <p>Thank you,</p>
@@ -502,7 +502,7 @@ const daysBetween = (a, b) => {
     const startDateTimestamp = new Date(a).getTime();
     const endDateTimestamp = new Date(b).getTime();
     let result = Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay),
     );
     // console.log(formData.value.checkin_date, result, "this is result");
     return result;
@@ -537,18 +537,18 @@ onMounted(() => {
     emailData.value.mail_to_array =
       props.detail?.booking?.items?.product?.email || [];
 
-    if (props.detail?.booking_item?.receipt_images.length > 0) {
+    if (props.detail?.booking_item?.receipt_images?.length > 0) {
       for (
         let a = 0;
-        a < props.detail?.booking_item?.receipt_images.length;
+        a < props.detail?.booking_item?.receipt_images?.length;
         a++
       ) {
         editData.value.customer_passport_have.push({
-          id: props.detail?.booking_item?.receipt_images[a].id,
+          id: props.detail?.booking_item?.receipt_images?.[a].id,
           reservation_id: props.detail?.booking_item?.id,
           crm_id: props.detail?.booking_item?.crm_id,
 
-          file: props.detail?.booking_item?.receipt_images[a].file,
+          file: props.detail?.booking_item?.receipt_images?.[a].file,
         });
       }
     }

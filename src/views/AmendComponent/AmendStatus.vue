@@ -63,6 +63,12 @@ const updateAmendAction = async () => {
   const res = await amendStore.updateAction(frmData, props.detail.id);
   //   props.getDetailAction();
   if (res.status) {
+    if (amend_status.value == "completed") {
+      const ress = await amendStore.approveUpdateAction(props.detail.id);
+      console.log("====================================");
+      console.log(ress);
+      console.log("====================================");
+    }
     toast.success("Amend Request Updated Successfully");
     props.getDetailAction(route.query.id);
   } else {

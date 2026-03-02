@@ -105,7 +105,7 @@ const componentsMap = {
 
 // Compute the current component based on the tag
 const currentComponent = computed(
-  () => componentsMap[currentTag.value] || Vantour
+  () => componentsMap[currentTag.value] || Vantour,
 );
 
 // data add action part
@@ -350,15 +350,6 @@ const changeGetItem = (data) => {
   formitem.value = {};
   console.log(formData.value.items, "this is push items");
 };
-const changeItemList = (data) => {
-  console.log(data, "this is change item value");
-  if (formData.value.is_inclusive == 1) {
-    formData.value.items[data.id].is_inclusive = 1;
-  } else {
-    formData.value.items[data.id].is_inclusive = "";
-  }
-  formData.value.items[data.id] = data.data;
-};
 
 const addNewitem = () => {
   formData.value.items.push(formitem.value);
@@ -432,7 +423,7 @@ watch(
     if (newValue == "cash_at_office") {
       paymentForm.value.reciever = "Cash at Office";
     }
-  }
+  },
 );
 
 const openFileFeaturePicker = () => {
@@ -524,7 +515,7 @@ const validateItemByType = (item) => {
     case "3": // AirportPickup
       if (!item.service_date) {
         toast.warning(
-          "ပစ္စည်းတစ်ခု၏ ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်"
+          "ပစ္စည်းတစ်ခု၏ ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်",
         );
         return false;
       }
@@ -546,7 +537,7 @@ const validateItemByType = (item) => {
     case "5": // Inclusive
       if (!item.service_date) {
         toast.warning(
-          "Inclusive ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်"
+          "Inclusive ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်",
         );
         return false;
       }
@@ -558,7 +549,7 @@ const validateItemByType = (item) => {
       }
       if (!item.checkin_date || !item.checkout_date) {
         toast.warning(
-          "ဟိုတယ်အတွက် Check-in နှင့် Check-out ရက်စွဲများ ထည့်သွင်းရန် လိုအပ်ပါသည်"
+          "ဟိုတယ်အတွက် Check-in နှင့် Check-out ရက်စွဲများ ထည့်သွင်းရန် လိုအပ်ပါသည်",
         );
         return false;
       }
@@ -711,7 +702,8 @@ const internalTransferAction = (message) => {
   // If has ID, update existing item
   if (internalTransferData.id) {
     const index = formData.value.receipt_image.findIndex(
-      (item) => item.id === internalTransferData.id && item.is_internal_transfer
+      (item) =>
+        item.id === internalTransferData.id && item.is_internal_transfer,
     );
 
     if (index !== -1) {
@@ -787,7 +779,7 @@ const processSubmission = async () => {
       frmData.append("past_user_id", formData.value.past_user_id);
     frmData.append(
       "user_id",
-      formData.value.user_id ? formData.value.user_id : 0
+      formData.value.user_id ? formData.value.user_id : 0,
     );
 
     formData.value.payment_status &&
@@ -813,12 +805,12 @@ const processSubmission = async () => {
       frmData.append("inclusive_rate", formData.value.inclusive_rate);
       frmData.append(
         "inclusive_start_date",
-        formData.value.inclusive_start_date
+        formData.value.inclusive_start_date,
       );
       frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
       frmData.append(
         "inclusive_description",
-        formData.value.inclusive_description
+        formData.value.inclusive_description,
       );
     }
 
@@ -839,34 +831,34 @@ const processSubmission = async () => {
       if (formData.value.items[x].product_type == "1") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\PrivateVanTour`
+          `App\\Models\\PrivateVanTour`,
         );
       } else if (formData.value.items[x].product_type == "2") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\GroupTour`
+          `App\\Models\\GroupTour`,
         );
       } else if (formData.value.items[x].product_type == "3") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\AirportPickup`
+          `App\\Models\\AirportPickup`,
         );
       } else if (formData.value.items[x].product_type == "4") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\EntranceTicket`
+          `App\\Models\\EntranceTicket`,
         );
       } else if (formData.value.items[x].product_type == "5") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\Inclusive`
+          `App\\Models\\Inclusive`,
         );
       } else if (formData.value.items[x].product_type == "6") {
         frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
       } else if (formData.value.items[x].product_type == "7") {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\Airline`
+          `App\\Models\\Airline`,
         );
       }
     }
@@ -925,7 +917,7 @@ const processSubmission = async () => {
           frmData.append(`receipt_image[${x}][is_internal_transfer]`, true);
           frmData.append(
             `receipt_image[${x}][exchange_rate]`,
-            receipt.exchange_rate
+            receipt.exchange_rate,
           );
           frmData.append(`receipt_image[${x}][note]`, receipt.note || "");
           frmData.append(`receipt_image[${x}][id]`, receipt.id || "");
@@ -935,64 +927,64 @@ const processSubmission = async () => {
             if (fromFile.file) {
               frmData.append(
                 `receipt_image[${x}][from_files][${fromIndex}][file]`,
-                fromFile.file
+                fromFile.file,
               );
             }
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][amount]`,
-              fromFile.amount
+              fromFile.amount,
             );
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][currency]`,
-              fromFile.currency
+              fromFile.currency,
             );
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][sender]`,
-              fromFile.sender
+              fromFile.sender,
             );
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][receiver]`,
-              fromFile.receiver
+              fromFile.receiver,
             );
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][interact_bank]`,
-              fromFile.interact_bank
+              fromFile.interact_bank,
             );
             frmData.append(
               `receipt_image[${x}][from_files][${fromIndex}][date]`,
-              fromFile.date
+              fromFile.date,
             );
           }); // Add to_files
           receipt.to_files.forEach((toFile, toIndex) => {
             if (toFile.file) {
               frmData.append(
                 `receipt_image[${x}][to_files][${toIndex}][file]`,
-                toFile.file
+                toFile.file,
               );
             }
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][amount]`,
-              toFile.amount
+              toFile.amount,
             );
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][currency]`,
-              toFile.currency
+              toFile.currency,
             );
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][sender]`,
-              toFile.sender
+              toFile.sender,
             );
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][receiver]`,
-              toFile.receiver
+              toFile.receiver,
             );
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][interact_bank]`,
-              toFile.interact_bank
+              toFile.interact_bank,
             );
             frmData.append(
               `receipt_image[${x}][to_files][${toIndex}][date]`,
-              toFile.date
+              toFile.date,
             );
           });
         } else {
@@ -1005,18 +997,18 @@ const processSubmission = async () => {
           frmData.append(`receipt_image[${x}][date]`, receipt.date);
           frmData.append(
             `receipt_image[${x}][bank_name]`,
-            receipt.bank_name ?? "other..."
+            receipt.bank_name ?? "other...",
           );
           frmData.append(`receipt_image[${x}][sender]`, receipt.sender);
           frmData.append(`receipt_image[${x}][reciever]`, receipt.reciever);
           frmData.append(
             `receipt_image[${x}][interact_bank]`,
-            receipt.interact_bank
+            receipt.interact_bank,
           );
           frmData.append(`receipt_image[${x}][currency]`, receipt.currency);
           frmData.append(
             `receipt_image[${x}][is_corporate]`,
-            receipt.is_corporate ? 1 : 0
+            receipt.is_corporate ? 1 : 0,
           );
           frmData.append(`receipt_image[${x}][note]`, receipt.note || "");
         }
@@ -1029,7 +1021,7 @@ const processSubmission = async () => {
       }
       frmData.append(
         "items[" + x + "][product_id]",
-        formData.value.items[x].product_id
+        formData.value.items[x].product_id,
       );
       if (formData.value.is_inclusive) {
         frmData.append("items[" + x + "][is_inclusive]", 1);
@@ -1039,26 +1031,26 @@ const processSubmission = async () => {
 
       frmData.append(
         "items[" + x + "][amount]",
-        formData.value.items[x].total_amount
+        formData.value.items[x].total_amount,
       );
 
       formData.value.items[x].pickup_location
         ? frmData.append(
             "items[" + x + "][pickup_location]",
-            formData.value.items[x].pickup_location
+            formData.value.items[x].pickup_location,
           )
         : "";
 
       if (formData.value.items[x].pickup_time) {
         frmData.append(
           "items[" + x + "][pickup_time]",
-          formData.value.items[x].pickup_time
+          formData.value.items[x].pickup_time,
         );
       }
       if (formData.value.items[x].cancellation) {
         frmData.append(
           "items[" + x + "][cancellation]",
-          formData.value.items[x].cancellation
+          formData.value.items[x].cancellation,
         );
       }
       // if (formData.value.items[x].is_driver_collect) {
@@ -1070,14 +1062,14 @@ const processSubmission = async () => {
       if (formData.value.items[x].customer_attachment) {
         frmData.append(
           "items[" + x + "][customer_attachment]",
-          formData.value.items[x].customer_attachment
+          formData.value.items[x].customer_attachment,
         );
       }
       // add new cost price & total_cost_price
       if (formData.value.items[x].cost_price) {
         frmData.append(
           "items[" + x + "][cost_price]",
-          formData.value.items[x].cost_price
+          formData.value.items[x].cost_price,
         );
       }
       if (
@@ -1087,43 +1079,43 @@ const processSubmission = async () => {
       ) {
         frmData.append(
           "items[" + x + "][individual_pricing][adult][quantity]",
-          formData.value.items[x].individual_pricing.adult.quantity
+          formData.value.items[x].individual_pricing.adult.quantity,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][selling_price]",
-          formData.value.items[x].individual_pricing.adult.selling_price
+          formData.value.items[x].individual_pricing.adult.selling_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][cost_price]",
-          formData.value.items[x].individual_pricing.adult.cost_price
+          formData.value.items[x].individual_pricing.adult.cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][total_cost_price]",
-          formData.value.items[x].individual_pricing.adult.total_cost_price
+          formData.value.items[x].individual_pricing.adult.total_cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][amount]",
-          formData.value.items[x].individual_pricing.adult.amount
+          formData.value.items[x].individual_pricing.adult.amount,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][quantity]",
-          formData.value.items[x].individual_pricing.child.quantity
+          formData.value.items[x].individual_pricing.child.quantity,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][selling_price]",
-          formData.value.items[x].individual_pricing.child.selling_price
+          formData.value.items[x].individual_pricing.child.selling_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][cost_price]",
-          formData.value.items[x].individual_pricing.child.cost_price
+          formData.value.items[x].individual_pricing.child.cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][total_cost_price]",
-          formData.value.items[x].individual_pricing.child.total_cost_price
+          formData.value.items[x].individual_pricing.child.total_cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][amount]",
-          formData.value.items[x].individual_pricing.child.amount
+          formData.value.items[x].individual_pricing.child.amount,
         );
       } else {
         frmData.append("items[" + x + "][individual_pricing]", null);
@@ -1132,7 +1124,7 @@ const processSubmission = async () => {
       if (formData.value.items[x].discount) {
         frmData.append(
           "items[" + x + "][discount]",
-          formData.value.items[x].discount
+          formData.value.items[x].discount,
         );
       } else {
         frmData.append("items[" + x + "][discount]", 0);
@@ -1140,49 +1132,49 @@ const processSubmission = async () => {
 
       frmData.append(
         "items[" + x + "][total_cost_price]",
-        formData.value.items[x].total_cost_price
+        formData.value.items[x].total_cost_price,
       );
       if (formData.value.items[x].dropoff_location) {
         frmData.append(
           "items[" + x + "][dropoff_location]",
-          formData.value.items[x].dropoff_location
+          formData.value.items[x].dropoff_location,
         );
       }
       if (formData.value.items[x].checkin_date) {
         frmData.append(
           "items[" + x + "][checkin_date]",
-          formData.value.items[x].checkin_date
+          formData.value.items[x].checkin_date,
         );
       }
       if (formData.value.items[x].room_number) {
         frmData.append(
           "items[" + x + "][room_number]",
-          formData.value.items[x].room_number
+          formData.value.items[x].room_number,
         );
       }
       if (formData.value.items[x].checkout_date) {
         frmData.append(
           "items[" + x + "][checkout_date]",
-          formData.value.items[x].checkout_date
+          formData.value.items[x].checkout_date,
         );
       }
       if (formData.value.items[x].route_plan) {
         frmData.append(
           "items[" + x + "][route_plan]",
-          formData.value.items[x].route_plan
+          formData.value.items[x].route_plan,
         );
       }
       formData.value.items[x].reservation_id != "" &&
         frmData.append(
           "items[" + x + "][reservation_id]",
-          formData.value.items[x].reservation_id
+          formData.value.items[x].reservation_id,
         );
 
       if (formData.value.items[x].product_type == "6") {
         if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][room_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
@@ -1197,7 +1189,7 @@ const processSubmission = async () => {
         if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][car_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
@@ -1208,7 +1200,7 @@ const processSubmission = async () => {
         if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][variation_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
@@ -1219,7 +1211,7 @@ const processSubmission = async () => {
         if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][ticket_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
@@ -1229,51 +1221,51 @@ const processSubmission = async () => {
       formData.value.items[x].service_date &&
         frmData.append(
           "items[" + x + "][service_date]",
-          formData.value.items[x].service_date
+          formData.value.items[x].service_date,
         );
       formData.value.items[x].quantity &&
         frmData.append(
           "items[" + x + "][quantity]",
-          formData.value.items[x].quantity
+          formData.value.items[x].quantity,
         );
       if (formData.value.items[x].duration) {
         frmData.append(
           "items[" + x + "][duration]",
-          formData.value.items[x].duration
+          formData.value.items[x].duration,
         );
       }
       if (formData.value.items[x].special_request) {
         frmData.append(
           "items[" + x + "][special_request]",
-          formData.value.items[x].special_request
+          formData.value.items[x].special_request,
         );
       }
       formData.value.items[x].selling_price &&
         frmData.append(
           "items[" + x + "][selling_price]",
-          formData.value.items[x].selling_price
+          formData.value.items[x].selling_price,
         );
       if (formData.value.items[x].comment) {
         frmData.append(
           "items[" + x + "][comment]",
-          formData.value.items[x].comment
+          formData.value.items[x].comment,
         );
       }
       // console.log(formData.value.items[x].comment, "this is comment");
       formData.value.items[x].reservation_status &&
         frmData.append(
           "items[" + x + "][reservation_status]",
-          formData.value.items[x].reservation_status
+          formData.value.items[x].reservation_status,
         );
       formData.value.items[x].payment_method &&
         frmData.append(
           "items[" + x + "][payment_method]",
-          formData.value.items[x].payment_method
+          formData.value.items[x].payment_method,
         );
       formData.value.items[x].payment_status &&
         frmData.append(
           "items[" + x + "][payment_status]",
-          formData.value.items[x].payment_status
+          formData.value.items[x].payment_status,
         );
       // frmData.append(
       //   "items[" + x + "][exchange_rate]",
@@ -1282,14 +1274,14 @@ const processSubmission = async () => {
       formData.value.items[x].exchange_rate &&
         frmData.append(
           "items[" + x + "][exchange_rate]",
-          formData.value.items[x].exchange_rate
+          formData.value.items[x].exchange_rate,
         );
     }
 
     try {
       const response = await bookingStore.updateAction(
         frmData,
-        route.params.id
+        route.params.id,
       );
       console.log(response, "create response");
       if (response.status == 1) {
@@ -1327,7 +1319,7 @@ const processSubmission = async () => {
     } catch (error) {
       console.log(
         "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
-        error
+        error,
       );
       if (error.response.data.errors) {
         errors.value = error.response.data.errors;
@@ -1405,6 +1397,7 @@ const getProductId = (item) => {
       return ""; // Handle unknown product_type
   }
 };
+
 const getProductName = (item) => {
   if (!item) return ""; // Handle undefined or null item
 
@@ -1509,6 +1502,8 @@ const processItem = (item, isInclusive) => {
     associated_customer: item.associated_customer,
     customer_passport: item.customer_passports,
     reservation_status: item.reservation_status,
+    amend_info: item.amend_info ? item.amend_info : null,
+    has_amendment: item.has_amendment,
   };
 };
 
@@ -1639,7 +1634,7 @@ const getDetail = async () => {
 
     // Process items using map
     formData.value.items = data.items.map((item) =>
-      processItem(item, data.is_inclusive)
+      processItem(item, data.is_inclusive),
     );
 
     console.log("Processed form data:", formData.value);
@@ -1658,7 +1653,7 @@ const openPaid = () => {
     import.meta.env.VITE_API_URL +
       "/bookings/" +
       route.params.id +
-      "/receipt?paid=1"
+      "/receipt?paid=1",
   );
 };
 
@@ -1745,7 +1740,7 @@ const removeUserAdd = async () => {
       } catch (error) {
         console.log(
           "🚀 ~ file: BlogView.vue:65 ~ onDeleteHandler ~ error:",
-          error
+          error,
         );
       }
     }

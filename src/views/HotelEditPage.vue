@@ -156,6 +156,7 @@ const formData = ref({
   nearby_places: [],
   contract_due: "",
   data_checked: false,
+  data_status: "",
   contracts: [],
   images: [],
   facilities: [],
@@ -272,6 +273,7 @@ const closeModal = () => {
     },
     contract_due: "",
     data_checked: false,
+    data_status: "",
     contracts: [],
     images: [],
     facilities: [],
@@ -393,6 +395,7 @@ const addNewHandler = async () => {
   }
   frmData.append("contract_due", formData.value.contract_due);
   frmData.append("data_checked", formData.value.data_checked ? 1 : 0);
+  frmData.append("data_status", formData.value.data_status);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -496,6 +499,7 @@ const addNewHandler = async () => {
       },
       contract_due: "",
       data_checked: false,
+      data_status: "",
       images: [],
       contracts: [],
     };
@@ -567,6 +571,7 @@ const openCreate = () => {
   };
   formData.value.contract_due = "";
   formData.value.data_checked = false;
+  formData.value.data_status = "";
   formData.value.contracts = [];
   linkContract.value = {};
   imagesPreview.value = [];
@@ -640,6 +645,7 @@ const updateHandler = async () => {
     frmData.append("contract_due", formData.value.contract_due);
   }
   frmData.append("data_checked", formData.value.data_checked ? 1 : 0);
+  frmData.append("data_status", formData.value.data_status);
   frmData.append("location_map_title", formData.value.location_map_title);
   frmData.append("location_map", formData.value.location_map);
   if (formData.value.rating != "") {
@@ -752,6 +758,7 @@ const updateHandler = async () => {
       email: [],
       contract_due: "",
       data_checked: false,
+      data_status: "",
       description: "",
       full_description: null,
       full_description_en: null,
@@ -854,6 +861,7 @@ const getDetail = async (params) => {
     };
     formData.value.contract_due = formatDate(data.contract_due);
     formData.value.data_checked = data.data_checked;
+    formData.value.data_status = data.data_status;
     formData.value.bank_account_number = data.bank_account_number;
     formData.value.account_name = data.account_name;
     formData.value.check_in = data.check_in;
@@ -1333,6 +1341,20 @@ onMounted(async () => {
                 class="w-5 h-5 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
               />
               <!-- <p>{{ formData.contract_due }}</p> -->
+            </div>
+            <div v-if="quiteSwitch == 1" class="mb-2 space-y-1">
+              <label for="name" class="text-sm text-gray-800"
+                >Data Status</label
+              >
+              <div class="w-full h-10 px-4 py-2 text-xs">
+                <select name="" id="">
+                  <option value=""></option>
+                  <option value="contract_active">Contract Active</option>
+                  <option value="contract_outdated">Contract Outdated</option>
+                  <option value="contract_pending">Contract Pending</option>
+                  <option value="on_demand">On Demand</option>
+                </select>
+              </div>
             </div>
             <div v-if="quiteSwitch == 1" class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800">Contracts</label>

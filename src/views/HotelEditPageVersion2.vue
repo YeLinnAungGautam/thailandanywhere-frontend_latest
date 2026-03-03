@@ -202,6 +202,7 @@ const formData = ref({
   nearby_places: [],
   contract_due: "",
   data_checked: false,
+  data_status: "",
   contracts: [],
   contract_files_preview: [],
   images: [],
@@ -860,6 +861,7 @@ const closeModal = () => {
     },
     contract_due: "",
     data_checked: false,
+    data_status: "",
     contracts: [],
     contract_files_preview: [],
     images: [],
@@ -949,6 +951,7 @@ const addNewHandler = async () => {
 
   frmData.append("contract_due", formData.value.contract_due);
   frmData.append("data_checked", formData.value.data_checked ? 1 : 0);
+  frmData.append("data_status", formData.value.data_status);
 
   // Images
   if (formData.value.images.length > 0) {
@@ -1149,6 +1152,7 @@ const updateHandler = async () => {
 
   // Data Checked
   frmData.append("data_checked", formData.value.data_checked ? 1 : 0);
+  frmData.append("data_status", formData.value.data_status || "");
 
   // Location Information
   frmData.append("location_map_title", formData.value.location_map_title || "");
@@ -1353,6 +1357,7 @@ const getDetail = async (params) => {
     // Financial
     formData.value.contract_due = formatDate(data.contract_due);
     formData.value.data_checked = data.data_checked;
+    formData.value.data_status = data.data_status;
     formData.value.bank_account_number = data.bank_account_number;
     formData.value.account_name = data.account_name;
 
@@ -2203,16 +2208,45 @@ onMounted(async () => {
                     </button>
                   </div>
                   <div class="flex justify-between items-center">
-                    <div class="mb-2 space-y-1">
-                      <label for="name" class="text-sm text-gray-800"
-                        >Contract Due Date</label
-                      >
-                      <input
-                        v-model="formData.contract_due"
-                        type="date"
-                        class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                      />
-                      <!-- <p>{{ formData.contract_due }}</p> -->
+                    <div class="flex justify-start items-center gap-x-2">
+                      <div class="mb-2 space-y-1">
+                        <label for="name" class="text-sm text-gray-800"
+                          >Contract Due Date</label
+                        >
+                        <div>
+                          <input
+                            v-model="formData.contract_due"
+                            type="date"
+                            class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="mb-2 space-y-1">
+                        <label for="name" class="text-sm text-gray-800"
+                          >Data Status</label
+                        >
+                        <div class="w-full text-xs">
+                          <select
+                            name=""
+                            v-model="formData.data_status"
+                            id=""
+                            class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                          >
+                            <option value=""></option>
+                            <option value="contract_active">
+                              Contract Active
+                            </option>
+                            <option value="contract_outdated">
+                              Contract Outdated
+                            </option>
+                            <option value="contract_pending">
+                              Contract Pending
+                            </option>
+                            <option value="on_demand">On Demand</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                     <div class="mb-2 space-y-1">
                       <label for="name" class="text-sm text-gray-800"

@@ -700,6 +700,9 @@ const submitAmend = () => {
       current_variation_name: d.item_name,
       current_total_amount: currentTotalAmount.value,
       current_total_cost_price: currentTotalCostPrice.value,
+      // ✅ ဒါများ ထပ်ထည့်ရမည် — child previous prices
+      current_child_selling_price: childSellPrice.value,
+      current_child_cost_price: childCostPrice.value,
 
       // ── New values ──
       service_date: form.value.service_date,
@@ -710,6 +713,9 @@ const submitAmend = () => {
       cost_price: form.value.cost_price,
       variation_id: form.value.variation_id,
       variation_name: form.value.variation_name,
+      // ✅ ဒါများ ထပ်ထည့်ရမည် — child new prices (same prices, only qty changes)
+      child_selling_price: childSellPrice.value,
+      child_cost_price: childCostPrice.value,
 
       // ── Calculated totals (getFunction logic) ──
       total_amount: newTotalAmount.value,

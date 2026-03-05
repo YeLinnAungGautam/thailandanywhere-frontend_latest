@@ -748,6 +748,8 @@ const directAction = (message) => {
 };
 
 const processSubmission = async () => {
+  console.log(formData.value, "this is test");
+
   updatingLoading.value = true;
   if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
     if (!validateBasicInfo()) {
@@ -1074,48 +1076,56 @@ const processSubmission = async () => {
       }
       if (
         formData.value.items[x].product_type == "4" &&
-        formData.value.items[x].individual_pricing?.adult &&
-        formData.value.items[x].individual_pricing?.child
+        (formData.value.items[x].individual_pricing?.adult ||
+          formData.value.items[x].individual_pricing?.child)
       ) {
         frmData.append(
           "items[" + x + "][individual_pricing][adult][quantity]",
-          formData.value.items[x].individual_pricing.adult.quantity,
+          formData.value.items[x].individual_pricing?.adult?.quantity ??
+            formData.value.items[x].quantity,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][selling_price]",
-          formData.value.items[x].individual_pricing.adult.selling_price,
+          formData.value.items[x].individual_pricing?.adult?.selling_price ??
+            formData.value.items[x].selling_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][cost_price]",
-          formData.value.items[x].individual_pricing.adult.cost_price,
+          formData.value.items[x].individual_pricing?.adult?.cost_price ??
+            formData.value.items[x].cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][total_cost_price]",
-          formData.value.items[x].individual_pricing.adult.total_cost_price,
+          formData.value.items[x].individual_pricing?.adult?.total_cost_price ??
+            formData.value.items[x].cost_price *
+              formData.value.items[x].quantity,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][amount]",
-          formData.value.items[x].individual_pricing.adult.amount,
+          formData.value.items[x].individual_pricing?.adult?.amount ??
+            formData.value.items[x].selling_price *
+              formData.value.items[x].quantity,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][quantity]",
-          formData.value.items[x].individual_pricing.child.quantity,
+          formData.value.items[x].individual_pricing?.child?.quantity ?? 0,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][selling_price]",
-          formData.value.items[x].individual_pricing.child.selling_price,
+          formData.value.items[x].individual_pricing?.child?.selling_price ?? 0,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][cost_price]",
-          formData.value.items[x].individual_pricing.child.cost_price,
+          formData.value.items[x].individual_pricing?.child?.cost_price ?? 0,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][total_cost_price]",
-          formData.value.items[x].individual_pricing.child.total_cost_price,
+          formData.value.items[x].individual_pricing?.child?.total_cost_price ??
+            0,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][amount]",
-          formData.value.items[x].individual_pricing.child.amount,
+          formData.value.items[x].individual_pricing?.child?.amount ?? 0,
         );
       } else {
         frmData.append("items[" + x + "][individual_pricing]", null);
@@ -1356,6 +1366,8 @@ const choiceProductType = (type) => {
 };
 
 const checkType = (product) => {
+  console.log("product check :", product);
+
   if (product?.cars) {
     return product.cars;
   }
@@ -1470,6 +1482,9 @@ const processItem = (item, isInclusive) => {
     room_number: formatNullValue(item.room_number),
     total_amount: Number(item.amount),
     total_cost_price: Number(item.total_cost_price),
+    child_info: item?.variation?.child_info
+      ? JSON.parse(item.variation.child_info)
+      : [],
     // Fixed individual_pricing code
     individual_pricing:
       item.individual_pricing != "null" &&
@@ -1495,9 +1510,7 @@ const processItem = (item, isInclusive) => {
             },
           }
         : null,
-    child_info: item?.variation?.child_info
-      ? JSON.parse(item.variation.child_info)
-      : [],
+
     payment_status: item.payment_status,
     associated_customer: item.associated_customer,
     customer_passport: item.customer_passports,

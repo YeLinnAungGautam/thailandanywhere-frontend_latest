@@ -166,7 +166,7 @@
                   :activePaths="['chat']"
                 />
                 <SidebarItem
-                  v-if="authStore.isSuperAdmin"
+                  v-if="authStore.isSuperAdmin || authStore.isReservation"
                   name="Amend"
                   :icon="ArrowPathIcon"
                   to="/amend"

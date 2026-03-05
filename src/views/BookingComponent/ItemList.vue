@@ -507,25 +507,29 @@ watch(
   () => formitem.value.individual_pricing?.child?.quantity,
   (newValue) => {
     if (formitem.value.product_type == 4) {
+      // ✅ child_info မရောက်သေးလျှင် skip လုပ်သည်
+      if (
+        !formitem.value.child_info ||
+        formitem.value.child_info.length === 0
+      ) {
+        return;
+      }
+
       const costPrice =
-        formitem.value.child_info?.length > 0
-          ? parseFloat(formitem.value.child_info[0]?.child_cost_price) || 0
-          : 0;
+        parseFloat(formitem.value.child_info[0]?.child_cost_price) || 0;
       const sellingPrice =
-        formitem.value.child_info?.length > 0
-          ? parseFloat(formitem.value.child_info[0]?.child_price) || 0
-          : 0;
+        parseFloat(formitem.value.child_info[0]?.child_price) || 0;
       const qty = parseInt(newValue) || 0;
+
       formitem.value.individual_pricing.child = {
         quantity: qty,
-        selling_price: sellingPrice,
-        cost_price: costPrice,
-        total_cost_price: qty * costPrice,
-        amount: qty * sellingPrice,
+        selling_price: sellingPrice, // ✅ မှန်ကန်သော price
+        cost_price: costPrice, // ✅ မှန်ကန်သော cost
+        total_cost_price: qty * costPrice, // ✅ မှန်ကန်
+        amount: qty * sellingPrice, // ✅ မှန်ကန်
       };
     }
   },
-  { immediate: true },
 );
 
 onMounted(() => {
@@ -572,10 +576,7 @@ onMounted(() => {
             <p class="text-xs font-medium">{{ i?.product_name }}</p>
             <div class="flex justify-end items-center gap-x-2">
               <!-- Amend icon + badge -->
-              <div
-                class="relative"
-                v-if="i?.reservation_id && authStore?.isSuperAdmin"
-              >
+              <div class="relative" v-if="i?.reservation_id">
                 <img
                   :src="AmendIcon"
                   class="w-4 h-4 cursor-pointer"
@@ -847,6 +848,30 @@ onMounted(() => {
                 </div>
               </div>
             </div>
+            <div
+              class="flex justify-start items-start gap-x-2"
+              v-if="formitem?.product_type == 4"
+            >
+              <img
+                src="https://placehold.co/400"
+                class="w-16 h-16 rounded-lg"
+                alt=""
+              />
+              <div class="flex justify-between items-start w-full gap-x-2">
+                <div class="space-y-1">
+                  <p class="text-xs font-medium text-[#ff613c]">{{ i.name }}</p>
+                  <p class="text-[10px] text-gray-500">{{ i.description }}</p>
+                </div>
+                <div class="my-auto text-right">
+                  <p class="text-xs font-semibold whitespace-nowrap">
+                    <span class="text-lg">{{ i?.price }}</span> / person
+                  </p>
+                  <p class="text-[10px] text-gray-400" v-if="i?.cost_price">
+                    Cost: {{ i.cost_price }}
+                  </p>
+                </div>
+              </div>
+            </div>
             <div v-if="formitem?.product_type == 7">
               <div class="flex justify-start items-start gap-x-2">
                 <img
@@ -925,6 +950,66 @@ onMounted(() => {
                 <p v-if="!todayVali" class="text-[8px] text-red-600">
                   ! please change date
                 </p>
+              </div>
+            </div>
+          </div>
+          <div
+            v-if="formitem.product_type == 4"
+            class="space-y-3 border border-gray-200 rounded-lg p-3 bg-gray-50"
+          >
+            <p class="text-xs font-semibold text-[#ff613c]">Ticket Pricing</p>
+
+            <!-- Adult -->
+            <div class="grid grid-cols-3 gap-2 items-center">
+              <p class="text-xs text-gray-600 font-medium">Adult</p>
+              <div class="space-y-1">
+                <label class="text-[10px] text-gray-400">Qty</label>
+                <input
+                  type="number"
+                  v-model="formitem.quantity"
+                  min="0"
+                  class="border border-gray-300 w-full px-2 py-1.5 rounded-lg text-xs focus:outline-none"
+                />
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] text-gray-400">Price</label>
+                <input
+                  type="number"
+                  disabled
+                  v-model="formitem.selling_price"
+                  class="border border-gray-300 w-full px-2 py-1.5 rounded-lg text-xs focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <!-- Child (only show if child_info exists) -->
+            <div
+              v-if="formitem.child_info && formitem.child_info.length > 0"
+              class="grid grid-cols-3 gap-2 items-center"
+            >
+              <div>
+                <p class="text-xs text-gray-600 font-medium">Child</p>
+                <p class="text-[9px] text-gray-400">
+                  {{ formitem.child_info[0]?.info }}
+                </p>
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] text-gray-400">Qty</label>
+                <input
+                  type="number"
+                  v-model="formitem.individual_pricing.child.quantity"
+                  min="0"
+                  class="border border-gray-300 w-full px-2 py-1.5 rounded-lg text-xs focus:outline-none"
+                />
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] text-gray-400">Price</label>
+                <input
+                  type="number"
+                  disabled
+                  :value="formitem.child_info[0]?.child_price"
+                  class="border border-gray-300 w-full px-2 py-1.5 rounded-lg text-xs focus:outline-none bg-gray-100"
+                />
               </div>
             </div>
           </div>

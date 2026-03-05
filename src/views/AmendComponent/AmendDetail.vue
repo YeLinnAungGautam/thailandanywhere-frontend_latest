@@ -141,7 +141,7 @@ watch(
       getDetailAction(newId);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -154,7 +154,7 @@ watch(
         part: newPart,
       },
     });
-  }
+  },
 );
 
 onMounted(() => {
@@ -218,7 +218,7 @@ const hide = ref(true);
                 <p
                   @click="
                     router.push(
-                      `/bookings/new-update/${detail?.booking_item?.booking?.id}`
+                      `/bookings/new-update/${detail?.booking_item?.booking?.id}`,
                     )
                   "
                   class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
@@ -244,6 +244,7 @@ const hide = ref(true);
               </p>
               <div class="flex justify-end items-center gap-x-2">
                 <p
+                  v-if="authStore.isSuperAdmin"
                   @click="deleteAction"
                   class="text-[10px] bg-red-600 text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg flex justify-center items-center gap-x-1"
                 >

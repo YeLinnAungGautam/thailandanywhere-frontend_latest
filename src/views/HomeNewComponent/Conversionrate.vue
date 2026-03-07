@@ -33,10 +33,13 @@
         </p>
         <p class="text-xs mt-1">
           <span class="font-semibold text-lg text-red-700">
-            {{ nextTargetInfo.needed.toLocaleString() }} THB
+            {{
+              (nextTargetInfo.needed / (nextTargetInfo.daysLeft - 1)).toFixed(2)
+            }}
+            THB
           </span>
           <span class="text-gray-400">
-            needed in {{ nextTargetInfo.daysLeft }} day{{
+            average needed in {{ nextTargetInfo.daysLeft }} day{{
               nextTargetInfo.daysLeft !== 1 ? "s" : ""
             }}</span
           >

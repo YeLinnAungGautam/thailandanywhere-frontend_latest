@@ -102,7 +102,15 @@
           <div class="col-span-2">
             <div class="grid grid-cols-2 gap-3">
               <div class="col-span-2">
-                <RevenueByProduct :revenueData="summary" />
+                <!-- <RevenueByProduct :revenueData="summary" /> -->
+                <RecentBookings
+                  :bookings="recentBookings"
+                  :selectedMonth="selectMonth"
+                  :dataCount="receivableDataCount"
+                  :dataSummary="receivableDataSummary"
+                  :receivablesList="receivablesList"
+                  :receivablesLoading="receivablesLoading"
+                />
               </div>
               <div class="col-span-2">
                 <ConversionRate :salesReps="topSalesReps" />
@@ -132,14 +140,15 @@
           :salesReps="topSalesReps"
           :todaySalesReps="todayTopSalesReps"
         />
-        <RecentBookings
+        <!-- <RecentBookings
           :bookings="recentBookings"
           :selectedMonth="selectMonth"
           :dataCount="receivableDataCount"
           :dataSummary="receivableDataSummary"
           :receivablesList="receivablesList"
           :receivablesLoading="receivablesLoading"
-        />
+        /> -->
+        <RevenueByProduct :revenueData="summary" />
       </div>
     </div>
   </Layout>

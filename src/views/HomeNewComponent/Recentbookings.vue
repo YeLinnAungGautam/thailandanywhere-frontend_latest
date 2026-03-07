@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-6 rounded-lg shadow-sm h-[49.5vh] overflow-scroll">
+  <div class="bg-white p-6 rounded-lg shadow-sm h-[39vh] overflow-scroll">
     <!-- Header with filters -->
     <div class="mb-4">
       <h3 class="text-lg font-semibold mb-3">Receivables</h3>
@@ -157,7 +157,7 @@ const filteredReceivables = computed(() => {
     filtered = filtered.filter((r) => r.include_vantour === true);
   } else if (selectedType.value === "no_flight_no_vantour") {
     filtered = filtered.filter(
-      (r) => r.include_flight === false && r.include_vantour === false
+      (r) => r.include_flight === false && r.include_vantour === false,
     );
   }
 
@@ -192,7 +192,7 @@ const loadAgentsList = async () => {
   const res = await adminStore.getSimpleListAction();
   agentsList.value =
     res.result?.data?.filter(
-      (a) => a.role === "admin" || a.role === "sale_manager"
+      (a) => a.role === "admin" || a.role === "sale_manager",
     ) || [];
   console.log(agentsList.value);
 };

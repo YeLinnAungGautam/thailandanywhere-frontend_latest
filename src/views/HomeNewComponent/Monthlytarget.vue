@@ -37,10 +37,10 @@
             ({{ personalAgentName }})
           </span>
         </p>
-        <p class="text-xs text-gray-400">
+        <!-- <p class="text-xs text-gray-400">
           {{ formatCurrency(personalCurrentSales) }} /
           {{ formatCurrency(personalTargetAmount) }}
-        </p>
+        </p> -->
       </div>
       <div class="w-full bg-gray-200 rounded-full h-3 relative overflow-hidden">
         <div
@@ -163,7 +163,7 @@ const fetchCompanyTarget = async () => {
       const totalDateInMonth = new Date(
         selectedDate.getFullYear(),
         selectedDate.getMonth() + 1,
-        0
+        0,
       ).getDate();
 
       const divisor = isCurrentMonth ? currentDate.getDate() : totalDateInMonth;
@@ -209,7 +209,7 @@ const fetchPersonalTarget = async () => {
 
       // Find the agent's sales data
       const agentSale = res.result.find(
-        (sale) => sale.created_by?.id == targetUserId
+        (sale) => sale.created_by?.id == targetUserId,
       );
 
       if (agentSale) {
@@ -224,7 +224,7 @@ const fetchPersonalTarget = async () => {
         const totalDateInMonth = new Date(
           selectedDate.getFullYear(),
           selectedDate.getMonth() + 1,
-          0
+          0,
         ).getDate();
 
         const divisor = isCurrentMonth
@@ -276,7 +276,7 @@ watch(
   () => props.selectMonth,
   () => {
     loadTargets();
-  }
+  },
 );
 
 watch(
@@ -285,7 +285,7 @@ watch(
     // Company target doesn't change with agent selection
     // Only reload personal target
     fetchPersonalTarget();
-  }
+  },
 );
 
 // Load on mount

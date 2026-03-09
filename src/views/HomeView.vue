@@ -386,6 +386,58 @@
             <p class="text-gray-500 text-sm">Generate Inclusive</p>
           </div>
         </div>
+
+        <!-- 6. Inclusive graph Report -->
+        <div
+          @click="navigateTo('/home/inclusive-graph')"
+          class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden border border-gray-100 hover:border-gray-300 transform hover:-translate-y-1"
+        >
+          <div
+            class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gray-400 to-gray-600 rounded-bl-full opacity-10 group-hover:opacity-20 transition-opacity"
+          ></div>
+          <div class="p-6 relative z-10">
+            <div class="flex items-center justify-between mb-4">
+              <div
+                class="w-14 h-14 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  class="w-7 h-7 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+              </div>
+              <span
+                class="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </span>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">
+              Inclusive Graph
+            </h3>
+            <p class="text-gray-500 text-sm">Inclusive Graph</p>
+          </div>
+        </div>
       </div>
     </div>
   </Layout>

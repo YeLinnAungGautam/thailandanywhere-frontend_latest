@@ -59,7 +59,7 @@ const handleClick = () => {
             </p>
             <p
               class="text-white bg-gray-800 px-1 rounded-md"
-              v-if="data?.booking_item.booking?.is_inclusive == 1"
+              v-if="data?.booking_item?.booking?.is_inclusive == 1"
             >
               Inclusive
             </p>

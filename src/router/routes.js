@@ -115,6 +115,7 @@ import HotelCreateVersionV2 from "../views/HotelCreateVersionV2.vue";
 import FunnelReport from "../views/FunnelReport.vue";
 import EntranceCreateVersion2 from "../views/EntranceCreateVersion2.vue";
 import GenerateInclusive from "../views/GenerateInclusive.vue";
+import InclusiveGraph from "../views/DashboardPageSplit/InclusiveGraph.vue";
 
 const routes = [
   {
@@ -134,6 +135,11 @@ const routes = [
     path: "/home/generate-inclusive",
     name: "generate-inclusive",
     component: GenerateInclusive,
+  },
+  {
+    path: "/home/inclusive-graph",
+    name: "inclusive-graph",
+    component: InclusiveGraph,
   },
   {
     path: "/home/sale-analysics",

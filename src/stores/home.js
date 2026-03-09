@@ -11,7 +11,7 @@ export const useHomeStore = defineStore("home", {
     async getTimeFilterArray(params, member) {
       try {
         const response = await axios.get(
-          `/general-reports/${params}?${member}`
+          `/general-reports/${params}?${member}`,
         );
         // console.log(response, "one day filter");
 
@@ -81,7 +81,7 @@ export const useHomeStore = defineStore("home", {
     async generalCashImageReport(params) {
       try {
         const response = await axios.get(
-          `/general-cash-image-reports/${params}`
+          `/general-cash-image-reports/${params}`,
         );
         console.log(response, "cash image report");
 
@@ -95,7 +95,7 @@ export const useHomeStore = defineStore("home", {
     async getSaleCount(params) {
       try {
         const response = await axios.get(
-          `/sale-counts?daterange=${params.first},${params.second}`
+          `/sale-counts?daterange=${params.first},${params.second}`,
         );
         // console.log(response, "one day filter");
 
@@ -109,7 +109,7 @@ export const useHomeStore = defineStore("home", {
     async getTimeFilterAdminArray(params) {
       try {
         const response = await axios.get(
-          `/general-reports/${params.date}?created_by=${params.created_by}`
+          `/general-reports/${params.date}?created_by=${params.created_by}`,
         );
         // console.log(response, "one day filter");
 
@@ -135,7 +135,7 @@ export const useHomeStore = defineStore("home", {
     async getReportByChannel(params) {
       try {
         const response = await axios.get(
-          `/report-by-channel?daterange=${params.first},${params.second}`
+          `/report-by-channel?daterange=${params.first},${params.second}`,
         );
         return response.data;
       } catch (error) {
@@ -146,7 +146,7 @@ export const useHomeStore = defineStore("home", {
     async getReportByMethod(params) {
       try {
         const response = await axios.get(
-          `/report-by-payment-method?daterange=${params.first},${params.second}`
+          `/report-by-payment-method?daterange=${params.first},${params.second}`,
         );
         return response.data;
       } catch (error) {
@@ -157,7 +157,7 @@ export const useHomeStore = defineStore("home", {
     async getReportByStatus(params) {
       try {
         const response = await axios.get(
-          `/report-by-payment-status?daterange=${params.first},${params.second}`
+          `/report-by-payment-status?daterange=${params.first},${params.second}`,
         );
         return response.data;
       } catch (error) {
@@ -168,7 +168,7 @@ export const useHomeStore = defineStore("home", {
     async getReportByPaymentMethod(params) {
       try {
         const response = await axios.get(
-          `/report-by-payment-and-product?daterange=${params.first},${params.second}`
+          `/report-by-payment-and-product?daterange=${params.first},${params.second}`,
         );
         return response.data;
       } catch (error) {
@@ -179,7 +179,7 @@ export const useHomeStore = defineStore("home", {
     async getAgentSales(params) {
       try {
         const response = await axios.get(
-          `/sales-by-agent?daterange=${params.first},${params.second}`
+          `/sales-by-agent?daterange=${params.first},${params.second}`,
         );
         return response.data;
       } catch (error) {
@@ -190,7 +190,7 @@ export const useHomeStore = defineStore("home", {
     async getUnpaidSales(params) {
       try {
         const response = await axios.get(
-          `/unpaid-bookings?daterange=${params.first},${params.second}`
+          `/unpaid-bookings?daterange=${params.first},${params.second}`,
         );
         return response.data;
       } catch (error) {
@@ -201,7 +201,7 @@ export const useHomeStore = defineStore("home", {
     async unpaidAgentSales(params) {
       try {
         const response = await axios.get(
-          `/unpaid-bookings?daterange=${params.first},${params.second}&agent_id=${params.agent_id}`
+          `/unpaid-bookings?daterange=${params.first},${params.second}&agent_id=${params.agent_id}`,
         );
         return response.data;
       } catch (error) {
@@ -229,6 +229,29 @@ export const useHomeStore = defineStore("home", {
         const response = await axios.get("/car-bookings/complete/percentage", {
           params: params,
         });
+        return response;
+      } catch (error) {
+        return error;
+      }
+    },
+    async getInclusiveGraphList(month, params) {
+      try {
+        const response = await axios.get("/inclusive-sale-report/" + month, {
+          params: params,
+        });
+        return response;
+      } catch (error) {
+        return error;
+      }
+    },
+    async getInclusiveGraphBooking(date, params) {
+      try {
+        const response = await axios.get(
+          "/inclusive-sale-report/" + date + "/day-bookings",
+          {
+            params: params,
+          },
+        );
         return response;
       } catch (error) {
         return error;

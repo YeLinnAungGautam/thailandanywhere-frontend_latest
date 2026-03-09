@@ -337,10 +337,7 @@ const hide = ref(true);
                       <td
                         class="py-1 px-4 min-w-[120px] text-[10px] font-normal text-left"
                       >
-                        {{ detail?.booking_item?.car?.name }}
-                        {{ detail?.booking_item?.room?.name }}
-                        {{ detail?.booking_item?.variation?.name }}
-                        {{ detail?.booking_item?.ticket?.name }}
+                        {{ detail?.booking_item?.variation_snapshot?.name }}
                       </td>
                       <top-destination-cart
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"

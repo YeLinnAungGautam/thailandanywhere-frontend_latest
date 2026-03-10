@@ -121,11 +121,12 @@ const formatCurrency = (value) => {
 const fetchCompanyTarget = async () => {
   try {
     const data = {
-      date: props.selectMonth,
+      // date: props.selectMonth,
       created_by: "",
     };
+    let date = props.selectMonth;
 
-    const res = await homeStore.getTimeFilterAdminArray(data);
+    const res = await homeStore.getTimeFilterAdminArray(date, data);
 
     console.log(res, "this is from target");
 

@@ -8,7 +8,7 @@ export const useHomeStore = defineStore("home", {
   }),
   getters: {},
   actions: {
-    async getTimeFilterArray(params, member) {
+    async getTimeFilterArray(params, member = {}) {
       try {
         const response = await axios.get(
           `/general-reports/${params}?${member}`,
@@ -106,11 +106,13 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
-    async getTimeFilterAdminArray(params) {
+    async getTimeFilterAdminArray(date, params) {
+      console.log(params, "thsis is home new params");
+
       try {
-        const response = await axios.get(
-          `/general-reports/${params.date}?created_by=${params.created_by}`,
-        );
+        const response = await axios.get(`/general-reports/${date}`, {
+          params,
+        });
         // console.log(response, "one day filter");
 
         // bookings

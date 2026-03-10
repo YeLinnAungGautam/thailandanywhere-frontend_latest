@@ -279,9 +279,12 @@ const getCurrentMonth = () => {
 
 // Fetch daily sales data for chart
 const fetchDailySalesData = async (month) => {
+  console.log(month, "this is from fetch Daily sale");
+  if (!month) return;
+
   try {
     loadingMessage.value = "Loading sales data...";
-    const data = { date: month };
+    const data = {};
 
     if (!authStore.isSuperAdmin && !authStore.isAuditor) {
       data.created_by = authStore.user?.id;
@@ -289,7 +292,7 @@ const fetchDailySalesData = async (month) => {
       data.created_by = selectedAgent.value;
     }
 
-    const res = await homeStore.getTimeFilterAdminArray(data);
+    const res = await homeStore.getTimeFilterAdminArray(month, data);
     console.log("Step 1: Sales data loaded", res.result);
 
     if (res?.result?.sales && res?.result?.airline_sales) {
@@ -637,12 +640,10 @@ const getInitials = (name) => {
 const initializeDashboard = async () => {
   loading.value = true;
   try {
-    selectMonth.value = getCurrentMonth();
+    const currentMonth = getCurrentMonth(); // ← local var
+    selectMonth.value = currentMonth; // ← this triggers watcher, but watcher skips it now
 
-    // Call APIs one by one sequentially
-    console.log("=== Starting Sequential API Calls ===");
-
-    await fetchDailySalesData(selectMonth.value);
+    await fetchDailySalesData(currentMonth);
 
     console.log("✓ Step 1 complete: Sales data");
 
@@ -679,6 +680,7 @@ const initializeDashboard = async () => {
 
 // Watchers - also sequential
 watch(selectMonth, async (newValue, oldValue) => {
+  if (!oldValue) return;
   if (newValue && newValue !== oldValue) {
     loading.value = true;
     try {

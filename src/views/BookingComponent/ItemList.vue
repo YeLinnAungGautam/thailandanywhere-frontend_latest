@@ -532,6 +532,15 @@ watch(
   },
 );
 
+const calculatePrice = computed(() => {
+  if (!props.data?.items) return 0;
+  return props.data.items
+    .filter((item) => item?.product_type != undefined) // ← skip invalid items
+    .reduce((total, item) => {
+      return total + (parseFloat(item.total_amount) || 0);
+    }, 0);
+});
+
 onMounted(() => {
   if (props.data) itemList.value = props.data.items;
 });
@@ -680,6 +689,13 @@ onMounted(() => {
           </div>
         </div>
       </div>
+    </div>
+
+    <div
+      class="sticky bottom-0 py-2 bg-white border-t border-black/10 text-sm"
+      v-if="data?.is_inclusive"
+    >
+      Item Total Price : {{ Number(calculatePrice).toLocaleString() }} ฿
     </div>
 
     <div

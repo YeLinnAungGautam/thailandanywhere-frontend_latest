@@ -636,50 +636,33 @@ const getInitials = (name) => {
     .slice(0, 2);
 };
 
-// Initialize dashboard - SEQUENTIAL API CALLS
+const isInitializing = ref(false);
+
 const initializeDashboard = async () => {
+  isInitializing.value = true; // ← set flag
   loading.value = true;
   try {
-    const currentMonth = getCurrentMonth(); // ← local var
-    selectMonth.value = currentMonth; // ← this triggers watcher, but watcher skips it now
+    const currentMonth = getCurrentMonth();
+    selectMonth.value = currentMonth;
 
-    await fetchDailySalesData(currentMonth);
-
-    console.log("✓ Step 1 complete: Sales data");
-
+    // await fetchDailySalesData(currentMonth);
     await fetchCommissionData();
-    console.log("✓ Step 2 complete: Commission data");
-
     await fetchUnpaidBookings();
-    console.log("✓ Step 3 complete: Unpaid bookings");
-
     await fetchChannelSource();
-    console.log("✓ Step 4 complete: Channel data");
-
     await fetchReceivables();
-    console.log("✓ Step 5 complete: Receivables");
-
     await fetchSummary();
-    console.log("✓ Step 6 complete: Summary");
-
     await loadAgentsList();
-    console.log("✓ Step 7 complete: Agents list");
-
-    // setTimeout(async () => {
-    //   await fetchAllData(selectMonth.value);
-    // }, 2000);
-
-    console.log("=== All API Calls Complete ===");
   } catch (error) {
-    console.error("Error initializing dashboard:", error);
+    console.error(error);
   } finally {
     loading.value = false;
-    loadingMessage.value = "Loading...";
+    isInitializing.value = false; // ← clear flag
   }
 };
 
 // Watchers - also sequential
 watch(selectMonth, async (newValue, oldValue) => {
+  if (isInitializing.value) return; // ← block during init
   if (!oldValue) return;
   if (newValue && newValue !== oldValue) {
     loading.value = true;
@@ -708,7 +691,8 @@ watch(selectMonth, async (newValue, oldValue) => {
 });
 
 watch(selectedAgent, async (newValue, oldValue) => {
-  if (newValue && newValue !== oldValue) {
+  if (isInitializing.value) return; // ← block during init
+  if (newValue !== oldValue) {
     loading.value = true;
     try {
       console.log("=== Agent Changed - Starting Sequential API Calls ===");

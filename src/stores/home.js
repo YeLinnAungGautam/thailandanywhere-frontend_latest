@@ -108,6 +108,7 @@ export const useHomeStore = defineStore("home", {
     },
     async getTimeFilterAdminArray(date, params) {
       console.log(params, "thsis is home new params");
+      if (!date) return;
 
       try {
         const response = await axios.get(`/general-reports/${date}`, {
@@ -179,6 +180,8 @@ export const useHomeStore = defineStore("home", {
       }
     },
     async getAgentSales(params) {
+      if (params.first == "NaN-NaN-NaN" || params.second == "NaN-NaN-NaN")
+        return;
       try {
         const response = await axios.get(
           `/sales-by-agent?daterange=${params.first},${params.second}`,

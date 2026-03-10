@@ -6,13 +6,11 @@ import ReservationCartLoadingVue from "./Dashboard/ReservationCartLoading.vue";
 import { onMounted, ref, watch, computed } from "vue";
 import Pagination from "../components/PaginationExpense.vue";
 import {
-  ArrowDownTrayIcon,
   ArrowsUpDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   FunnelIcon,
   MagnifyingGlassIcon,
-  XMarkIcon,
 } from "@heroicons/vue/24/outline";
 import ReservationDetail from "./AmendComponent/AmendDetail.vue";
 import { useAuthStore } from "@/stores/auth";
@@ -34,6 +32,7 @@ const { isShowSidebar } = storeToRefs(sidebarStore);
 const amendStore = useAmendStore();
 const { amends, loading } = storeToRefs(amendStore);
 const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 const supplierStore = useSupplierStore();
 const reservationStore = useReservationStore();
 const { suppliers } = storeToRefs(supplierStore);
@@ -47,185 +46,96 @@ const limit = ref(10);
 const search = ref("");
 const searchId = ref("");
 const customerName = ref("");
-const hotel_name = ref("");
-const attraction_name = ref("");
 const userFilter = ref("");
-const dateRange = ref(null);
-const searchTime = ref("");
-const empty_unit_cost = ref("");
 const sale_daterange = ref(null);
-const booking_daterange = ref(null);
 const customer_name = ref("service_date");
 const sorting = ref("asc");
 const dateOnlyToggle = ref(false);
 const searchA = ref("");
 const showSide = ref(1);
-const oldCrmId = ref("");
 const filterShow = ref(false);
 const softShow = ref(false);
-const booking_date = ref("");
 const searchReservation = ref("");
 const bookingStatus = ref("");
 const expenseStatus = ref("");
 const invoiceStatus = ref("");
 const customerPaymentStatus = ref("");
 const showFilter = ref(false);
+const searchTime = ref("");
+const searchModel = ref(false);
 
 const clearFilter = () => {
   search.value = "";
-  changeDate.value = "";
-  oldCrmId.value = "";
-  dateRange.value = "";
+  searchId.value = "";
+  customerName.value = "";
   sale_daterange.value = "";
-  booking_daterange.value = "";
   bookingStatus.value = "";
   expenseStatus.value = "";
   invoiceStatus.value = "";
   customerPaymentStatus.value = "";
-  searchId.value = "";
-  customerName.value = "";
-  hotel_name.value = "";
-  limit.value = 10;
-  searchA.value = "";
-  userFilter.value = "";
-  attraction_name.value = "";
-  // user_id.value =
-  //   authStore.isSuperAdmin || authStore.isReservation ? "" : authStore.user.id;
-  searchReservation.value = "";
+  userFilter.value =
+    authStore.isSuperAdmin || authStore.isReservation || authStore.isAuditor
+      ? ""
+      : user?.value.id;
   searchTime.value = "";
-  booking_date.value = "";
-  showFilter.value = false;
   customer_name.value = "service_date";
-  sorting.value = "";
-
+  sorting.value = "asc";
   filterShow.value = false;
+  showFilter.value = false;
+  limit.value = 10;
 };
 
 const userName = computed(() => {
-  const filteredUser = adminLists?.value.find(
-    (user) => user.id === userFilter.value,
-  );
-  return filteredUser ? filteredUser.name : undefined;
+  const found = adminLists?.value.find((u) => u.id === userFilter.value);
+  return found ? found.name : undefined;
 });
-
-const searchModel = ref(false);
-const accountingGenerate = ref(false);
-const accountingVariation = ref(false);
 
 const changePage = async (url) => {
   await amendStore.getChangePage(url, watchSystem.value);
 };
 
-// format action
 const formatDate = (datePut) => {
   const date = new Date(datePut);
-
-  // Get the year, month, and day
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Month starts from 0
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
-
-  // Form the formatted date string
-  let formattedDate = `${year}-${month}-${day}`;
-  return formattedDate;
+  return `${year}-${month}-${day}`;
 };
 
 const setStartAndEndDate = () => {
-  const now = new Date(); // Today's date
-  const startDate = new Date(now); // Start date is today
-
-  // Add 90 days to the start date to get the end date
-  // const endDate = new Date(now);
-
-  searchTime.value = startDate;
+  const now = new Date();
+  searchTime.value = now;
 };
 
+// ✅ Fixed: user_id logic no longer overwrites userFilter
 const watchSystem = computed(() => {
   const result = {};
 
-  if (limit.value != "" && limit.value != undefined) {
-    result.limit = limit.value;
-  }
+  if (limit.value) result.limit = limit.value;
 
-  if (
-    authStore.isSuperAdmin ||
-    authStore.isReservation ||
-    authStore.isAuditor
-  ) {
-    result.user_id = "";
-  } else {
-    result.user_id = authStore.user.id;
-  }
-
-  result.product_type = "App\\Models\\PrivateVanTour";
-
-  if (searchId.value != "" && searchId.value != undefined) {
-    result.crm_id = searchId.value;
-  }
-  if (customerName.value != "" && customerName.value != undefined) {
-    result.customer_name = customerName.value;
-  }
-  if (bookingStatus.value != "" && bookingStatus.value != undefined) {
-    result.booking_status = bookingStatus.value;
-  }
-  if (expenseStatus.value != "" && expenseStatus.value != undefined) {
-    result.expense_status = expenseStatus.value;
-  }
-  if (invoiceStatus.value != "" && invoiceStatus.value != undefined) {
-    result.invoice_status = invoiceStatus.value;
-  }
-  if (hotel_name.value != "" && hotel_name.value != undefined) {
-    result.hotel_name = hotel_name.value;
-  }
-  if (attraction_name.value != "" && attraction_name.value != undefined) {
-    result.hotel_name = attraction_name.value;
-  }
-  if (
-    customerPaymentStatus.value != "" &&
-    customerPaymentStatus.value != undefined
-  ) {
-    result.customer_payment_status = customerPaymentStatus.value;
-  }
-  if (searchA.value != "" && searchA.value != undefined) {
-    result.filter = searchA.value;
-  }
-  if (searchReservation.value != "" && searchReservation.value != undefined) {
-    result.reservation_status = searchReservation.value;
-  }
-  if (empty_unit_cost.value != "" && empty_unit_cost.value != false) {
-    result.empty_unit_cost = empty_unit_cost.value;
-  }
-  if (
-    booking_date.value != "" &&
-    booking_date.value != undefined &&
-    dateOnlyToggle.value
-  ) {
-    result.booking_date = formatDate(booking_date.value);
-  }
-  if (sale_daterange.value != undefined) {
-    result.booking_daterange = sale_daterange.value;
-  }
-  if (userFilter.value != undefined) {
+  if (userFilter.value) {
     result.user_id = userFilter.value;
+  } else if (
+    !authStore.isSuperAdmin &&
+    !authStore.isReservation &&
+    !authStore.isAuditor
+  ) {
+    result.user_id = user?.value.id;
+  } else {
+    result.user_id = "";
   }
 
-  if (customer_name.value != "" && customer_name.value != null) {
-    result.order_by = customer_name.value;
-  } else {
-    result.order_by = "";
-  }
-  if (sorting.value != "") {
-    result.order_direction = sorting.value;
-  } else {
-    result.order_direction = "asc";
-  }
+  if (sale_daterange.value) result.daterange = sale_daterange.value;
+
+  result.order_by = "created_at";
+  result.order_direction = sorting.value || "asc";
 
   console.log(result);
   return result;
 });
 
 const detailId = ref("");
-const product_id = ref("");
+
 const getDetailAction = async (id) => {
   detailId.value = id.id;
   if (detailId.value) {
@@ -237,82 +147,53 @@ const adminLists = ref([]);
 
 const changeDate = ref("");
 const changeServiceDate = async (data) => {
-  console.log(data);
   changeDate.value = data;
   if (data == "today") {
-    let startDate = formatDate(new Date());
-    searchTime.value = startDate;
+    searchTime.value = formatDate(new Date());
   } else if (data == "tomorrow") {
-    let tomorrowDate = new Date();
-    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-    let startDate = formatDate(tomorrowDate);
-    searchTime.value = startDate;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    searchTime.value = formatDate(tomorrow);
   } else if (data == "7day") {
-    let startDate = formatDate(new Date());
-    let endDate = formatDate(
+    searchTime.value = formatDate(
       new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
     );
-    searchTime.value = endDate;
   } else if (data == "30day") {
-    let startDate = formatDate(new Date());
-    let endDate = formatDate(
+    searchTime.value = formatDate(
       new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
     );
-    searchTime.value = endDate;
   }
-
   await searchAction();
 };
 
 const getListUser = async () => {
   try {
     const res = await adminStore.getSimpleListAction();
-    console.log(res, "this is admin list");
-
     adminLists.value = res.result.data
       .filter((item) => item.role === "admin")
-      .map((item) => {
-        // Return desired structure or transformation here
-        return {
-          id: item.id,
-          name: item.name,
-        };
-      });
+      .map((item) => ({ id: item.id, name: item.name }));
   } catch (error) {
-    console.log("====================================");
     console.log(error);
-    console.log("====================================");
   }
 };
 
 const showFormat = (dateStr) => {
-  // Regular expression for matching a single date (YYYY-MM-DD)
   const singleDatePattern = /^\d{4}-\d{2}-\d{2}$/;
-
-  // Regular expression for multiple comma-separated dates (YYYY-MM-DD,YYYY-MM-DD,...)
   const multipleDatesPattern = /^(\d{4}-\d{2}-\d{2})(,\d{4}-\d{2}-\d{2})*$/;
 
   if (singleDatePattern.test(dateStr)) {
     return format(new Date(dateStr), "MMM, dd");
   } else if (multipleDatesPattern.test(dateStr)) {
-    const dateArray = dateStr.split(",");
-
-    // Format each date and join them with " to "
-    const formattedDates = dateArray.map((date) => {
-      return format(new Date(date), "MMM, dd");
-    });
-
-    return formattedDates.join(" to ");
-  } else {
-    return "Invalid format";
+    return dateStr
+      .split(",")
+      .map((date) => format(new Date(date), "MMM, dd"))
+      .join(" to ");
   }
+  return "Invalid format";
 };
 
 onMounted(async () => {
-  if (route.query.id) {
-    detailId.value = route.query.id;
-  }
-  console.log(amends.value, "this is amends of vantour");
+  if (route.query.id) detailId.value = route.query.id;
   setStartAndEndDate();
   await getListUser();
   await supplierStore.getSimpleListAction();
@@ -320,49 +201,18 @@ onMounted(async () => {
 
 const searchCount = computed(() => {
   let count = 0;
-  if (search.value) {
-    count = count + 1;
-  }
-  if (searchTime.value) {
-    count = count + 1;
-  }
-  if (userFilter.value) {
-    count = count + 1;
-  }
-  if (hotel_name.value) {
-    count = count + 1;
-  }
-  if (attraction_name.value) {
-    count = count + 1;
-  }
-
+  if (search.value) count++;
+  if (searchTime.value) count++;
+  if (userFilter.value) count++;
   return count;
 });
 
-const adminAction = ref(false);
-const hotelAction = ref(false);
-const entranceAction = ref(false);
-
-watch([adminAction], async ([newValue]) => {
-  if (newValue == true) {
-    if (admin.value == null) {
-      await adminStore.getSimpleListAction();
-    }
-  }
-});
-
 const getReservationListAction = async () => {
-  const res = await amendStore.getListAction(watchSystem.value);
-  console.log(res, "this is reservation list");
-  // if (detailId.value == "") {
-  //   await getDetailAction(res.result?.data[0]?.id);
-  // }
+  await amendStore.getListAction(watchSystem.value);
 };
 
 const detailGetAction = (id) => {
-  // detailId.value = id;
   getDetailAction(id);
-  console.log(detailId.value);
 };
 
 const searchAction = async () => {
@@ -372,95 +222,39 @@ const searchAction = async () => {
 
 const getDateRangeCategory = (dateRange) => {
   if (!dateRange) return "other";
-
   const [startDateStr, endDateStr] = dateRange.split(",");
   const startDate = new Date(startDateStr);
   const endDate = new Date(endDateStr);
-
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const isToday =
+  if (
     formatDate(startDate) === formatDate(today) &&
-    formatDate(endDate) === formatDate(today);
-
-  const isTomorrow =
+    formatDate(endDate) === formatDate(today)
+  )
+    return "today";
+  if (
     formatDate(startDate) === formatDate(tomorrow) &&
-    formatDate(endDate) === formatDate(tomorrow);
-
-  const isNext7Days =
-    formatDate(startDate) === formatDate(today) &&
-    endDate.getTime() ===
-      new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).getTime();
-
-  const isNext30Days =
-    formatDate(startDate) === formatDate(today) &&
-    endDate.getTime() ===
-      new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).getTime();
-
-  if (isToday) return "today";
-  if (isTomorrow) return "tomorrow";
-  if (isNext7Days) return "7day";
-  if (isNext30Days) return "30day";
-
+    formatDate(endDate) === formatDate(tomorrow)
+  )
+    return "tomorrow";
   return "other";
 };
 
 watch(sale_daterange, (newValue) => {
   const category = getDateRangeCategory(newValue);
-
-  switch (category) {
-    case "today":
-      console.log("The date range is today.");
-      // Perform actions for today
-      break;
-    case "tomorrow":
-      console.log("The date range is tomorrow.");
-      // Perform actions for tomorrow
-      break;
-    case "7day":
-      console.log("The date range is the next 7 days.");
-      // Perform actions for the next 7 days
-      break;
-    case "30day":
-      console.log("The date range is the next 30 days.");
-      // Perform actions for the next 30 days
-      break;
-    default:
-      changeDate.value = "";
-      // Perform actions for other cases
-      break;
-  }
+  if (category === "other") changeDate.value = "";
 });
 
-const generateDate = ref("");
-const supplier_id = ref("");
-const getGenerateResult = ref(null);
-
-const getAction = async () => {
-  console.log("====================================");
-  console.log(generateDate.value, supplier_id.value, "this is generate date");
-  console.log("====================================");
-  const res = await reservationStore.getListAction({
-    service_date: formattedDate(generateDate.value),
-    supplier_id: supplier_id.value,
-    limit: 100,
-  });
-
-  console.log(res.result.data, "this is generate date");
-  if (res.result.data) {
-    getGenerateResult.value = res.result.data;
-    accountingGenerate.value = false;
-    accountingVariation.value = true;
-  }
-};
+// ✅ Auto search when userFilter changes
+watch(userFilter, () => {
+  searchAction();
+});
 
 watch(
   searchTime,
   (newValue) => {
-    console.log(searchTime.value, "this is date");
-
     if (!newValue || newValue === "") {
       sale_daterange.value = "";
       getReservationListAction();
@@ -468,28 +262,17 @@ watch(
       return;
     }
 
-    // Ensure newValue is a Date object
     const date = new Date(newValue);
-    if (isNaN(date.getTime())) {
-      console.error("Invalid date provided");
-      return;
-    }
+    if (isNaN(date.getTime())) return;
 
-    // Custom function to format date as dd-MM-yyyy
-    const formatDateAsDDMMYYYY = (date) => {
-      const dd = String(date.getDate()).padStart(2, "0");
-      const mm = String(date.getMonth() + 1).padStart(2, "0");
-      const yyyy = date.getFullYear();
-      return `${yyyy}-${mm}-${dd}`; // Changed to match comment
+    const formatDateAsDDMMYYYY = (d) => {
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yyyy = d.getFullYear();
+      return `${yyyy}-${mm}-${dd}`;
     };
 
-    // Format the date
-    const formattedDate = formatDateAsDDMMYYYY(date);
-
-    // For single date, use the same date for start and end
-    sale_daterange.value = `${formattedDate}`;
-
-    console.log(sale_daterange.value, "this is daterange");
+    sale_daterange.value = formatDateAsDDMMYYYY(date);
     getReservationListAction();
     searchModel.value = false;
   },
@@ -509,6 +292,7 @@ watch(
         <span class="pl-2">{{ route.query.crm_id }}</span>
       </p>
     </div>
+
     <div class="grid gap-4 relative grid-cols-3">
       <transition name="slide">
         <div
@@ -519,7 +303,9 @@ watch(
             'col-span-2': showSide == 3,
           }"
         >
+          <!-- Filter Bar -->
           <div class="pb-4 flex justify-start items-center gap-x-3 relative">
+            <!-- Filter Button -->
             <div
               @click="
                 () => {
@@ -533,6 +319,8 @@ watch(
               <p>Filter</p>
               <p>{{ searchCount }}</p>
             </div>
+
+            <!-- Filter Dropdown -->
             <transition name="slide">
               <div
                 v-if="filterShow"
@@ -542,14 +330,12 @@ watch(
                   class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
                 >
                   <p class="text-xs font-medium">Filter</p>
-                  <!-- <XCircleIcon
-                    class="w-6 h-6 text-[#FF613c] cursor-pointer"
-                    @click="filterShow = !filterShow"
-                  /> -->
                   <p class="text-[10px] cursor-pointer" @click="clearFilter">
                     clear
                   </p>
                 </div>
+
+                <!-- Date Filter -->
                 <p class="text-[10px]">Service Date</p>
                 <Modal :isOpen="searchModel" @closeModal="searchModel = false">
                   <DialogPanel
@@ -561,50 +347,36 @@ watch(
                     >
                       Select Date filter for booking date
                     </DialogTitle>
-                    <div v-if="!dateOnlyToggle">
-                      <VueDatePicker
-                        v-model="searchTime"
-                        multi-calendars
-                        :format="'yyyy-MM-dd'"
-                        placeholder="Service Date"
-                        text-input
-                      />
-                    </div>
-                    <div v-if="dateOnlyToggle">
-                      <VueDatePicker
-                        v-model="dateRange"
-                        range
-                        multi-calendars
-                        :format="'yyyy-MM-dd'"
-                        placeholder="Service Date range"
-                        text-input
-                      />
-                    </div>
+                    <VueDatePicker
+                      v-model="searchTime"
+                      multi-calendars
+                      :format="'yyyy-MM-dd'"
+                      placeholder="Service Date"
+                      text-input
+                    />
                   </DialogPanel>
                 </Modal>
                 <p
                   @click="searchModel = !searchModel"
                   class="text-[10px] text-gray-500 cursor-pointer px-4 py-2 border border-gray-300 rounded-lg"
                 >
-                  <!-- Select Date -->
                   <span v-if="searchTime">{{
-                    searchTime ? showFormat(formatDate(searchTime)) : ""
+                    showFormat(formatDate(searchTime))
                   }}</span>
-                  <span v-if="!searchTime">{{
-                    sale_daterange ? showFormat(sale_daterange) : ""
+                  <span v-else-if="sale_daterange">{{
+                    showFormat(sale_daterange)
                   }}</span>
-                  <span v-if="!searchTime && !sale_daterange">Select Date</span>
+                  <span v-else>Select Date</span>
                 </p>
 
+                <!-- Customer Name -->
                 <div class="relative w-full">
                   <p class="text-[10px] pb-2">Customer Name</p>
                   <input
                     type="search"
-                    name=""
                     v-model="customerName"
                     placeholder="Search Customer name"
                     class="text-[10px] text-gray-500 focus:outline-none hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-2 w-full"
-                    id=""
                   />
                   <div
                     @click="searchAction"
@@ -614,65 +386,66 @@ watch(
                   </div>
                 </div>
 
+                <!-- ✅ NEW: Agent / User Filter -->
                 <div>
-                  <p class="text-[10px] pb-2">Customer Payment Status</p>
-                  <!-- customer payment status -->
+                  <p class="text-[10px] pb-2">Agent / User</p>
                   <select
-                    name=""
-                    v-model="customerPaymentStatus"
-                    id=""
+                    v-model="userFilter"
                     class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
                   >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="fully_paid">
-                      Fully paid
-                    </option>
-                    <option class="text-[10px]" value="partially_paid">
-                      Partially paid
-                    </option>
-                    <option class="text-[10px]" value="not_paid">
-                      Not paid
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <p class="text-[10px] pb-2">Expense Status</p>
-                  <!-- expense status -->
-                  <select
-                    v-model="expenseStatus"
-                    name=""
-                    id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="fully_paid">
-                      Fully paid
-                    </option>
-                    <option class="text-[10px]" value="partially_paid">
-                      Partially paid
-                    </option>
-                    <option class="text-[10px]" value="not_paid">
-                      Not paid
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <p class="text-[10px] pb-2">Invoice Status</p>
-                  <!-- expense status -->
-                  <select
-                    v-model="invoiceStatus"
-                    name=""
-                    id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="receive">Receive</option>
-                    <option class="text-[10px]" value="not_receive">
-                      Not Receive
+                    <option value="">All Users</option>
+                    <option
+                      v-for="admin in adminLists"
+                      :key="admin.id"
+                      :value="admin.id"
+                    >
+                      {{ admin.name }}
                     </option>
                   </select>
                 </div>
 
+                <!-- Customer Payment Status -->
+                <div>
+                  <p class="text-[10px] pb-2">Customer Payment Status</p>
+                  <select
+                    v-model="customerPaymentStatus"
+                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option value=""></option>
+                    <option value="fully_paid">Fully paid</option>
+                    <option value="partially_paid">Partially paid</option>
+                    <option value="not_paid">Not paid</option>
+                  </select>
+                </div>
+
+                <!-- Expense Status -->
+                <div>
+                  <p class="text-[10px] pb-2">Expense Status</p>
+                  <select
+                    v-model="expenseStatus"
+                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option value=""></option>
+                    <option value="fully_paid">Fully paid</option>
+                    <option value="partially_paid">Partially paid</option>
+                    <option value="not_paid">Not paid</option>
+                  </select>
+                </div>
+
+                <!-- Invoice Status -->
+                <div>
+                  <p class="text-[10px] pb-2">Invoice Status</p>
+                  <select
+                    v-model="invoiceStatus"
+                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option value=""></option>
+                    <option value="receive">Receive</option>
+                    <option value="not_receive">Not Receive</option>
+                  </select>
+                </div>
+
+                <!-- Search Button -->
                 <div
                   class="sticky bottom-0 w-full pb-4 pt-2 border-t border-gray-200 bg-white"
                 >
@@ -685,6 +458,8 @@ watch(
                 </div>
               </div>
             </transition>
+
+            <!-- Sort Button -->
             <div
               class="bg-white shadow rounded-full border border-gray-100 p-2"
               @click="
@@ -696,6 +471,8 @@ watch(
             >
               <ArrowsUpDownIcon class="w-3 h-3" />
             </div>
+
+            <!-- Sort Dropdown -->
             <transition name="slide">
               <div
                 v-if="softShow"
@@ -709,8 +486,7 @@ watch(
                     class="text-[10px] cursor-pointer"
                     @click="
                       () => {
-                        softShow = !softShow;
-                        filterShow = false;
+                        softShow = false;
                       }
                     "
                   >
@@ -721,17 +497,11 @@ watch(
                   <div class="flex justify-between items-center">
                     <p class="text-[10px]">Sort By</p>
                     <select
-                      name=""
-                      id=""
                       v-model="sorting"
                       class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-[50%] py-2 text-[10px] rounded-lg"
                     >
-                      <option class="text-[10px]" value="desc">
-                        Last to First
-                      </option>
-                      <option class="text-[10px]" value="asc">
-                        First to Last
-                      </option>
+                      <option value="desc">Last to First</option>
+                      <option value="asc">First to Last</option>
                     </select>
                   </div>
                   <div
@@ -742,7 +512,6 @@ watch(
                       <input
                         type="checkbox"
                         name="sort-by"
-                        id="id"
                         :checked="customer_name == 'service_date'"
                       />
                       <p class="text-xs py-2 px-4">Service Date</p>
@@ -755,7 +524,6 @@ watch(
                     <input
                       type="checkbox"
                       name="sort-by"
-                      id="id"
                       :checked="customer_name == 'expense_status'"
                     />
                     <p class="text-xs py-2 px-4">Expense Status</p>
@@ -767,7 +535,6 @@ watch(
                     <input
                       type="checkbox"
                       name="sort-by"
-                      id="id"
                       :checked="customer_name == 'payment_status'"
                     />
                     <p class="text-xs py-2 px-4">C. Payment Status</p>
@@ -777,8 +544,7 @@ watch(
                   @click="
                     () => {
                       searchAction();
-                      softShow = !softShow;
-                      filterShow = false;
+                      softShow = false;
                     }
                   "
                   class="bg-[#FF613c] text-white px-1.5 cursor-pointer inline-block rounded-lg text-sm w-full py-1.5 text-center"
@@ -787,14 +553,14 @@ watch(
                 </div>
               </div>
             </transition>
+
+            <!-- Search CRM ID -->
             <div class="relative w-full">
               <input
                 type="search"
-                name=""
                 v-model="searchId"
                 placeholder="Search CRM ID"
                 class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                id=""
               />
               <div
                 @click="searchAction"
@@ -804,6 +570,8 @@ watch(
               </div>
             </div>
           </div>
+
+          <!-- Active Filter Tags -->
           <div
             class="flex justify-start items-center overflow-x-scroll no-sidebar-container pt-0.5 space-x-3 pb-2"
           >
@@ -814,32 +582,8 @@ watch(
               clear
             </p>
             <p
-              v-if="search == 'App\\Models\\PrivateVanTour'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
-            >
-              Van Tour
-            </p>
-            <p
-              v-if="search == 'App\\Models\\Hotel'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
-            >
-              Hotel
-            </p>
-            <p
-              v-if="search == 'App\\Models\\EntranceTicket'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
-            >
-              Attraction
-            </p>
-            <p
-              v-if="search == 'App\\Models\\Airline'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
-            >
-              Airline
-            </p>
-            <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
               v-if="searchId != ''"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
             >
               <XCircleIcon
                 class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
@@ -853,8 +597,8 @@ watch(
               {{ searchId }}
             </p>
             <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
               v-if="customerName != ''"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
             >
               <XCircleIcon
                 class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
@@ -868,8 +612,8 @@ watch(
               {{ customerName }}
             </p>
             <p
+              v-if="userName"
               class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
-              v-if="userName != '' && userName != undefined"
             >
               <XCircleIcon
                 class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
@@ -883,23 +627,8 @@ watch(
               {{ userName }}
             </p>
             <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
-              v-if="!searchTime && !sale_daterange == ''"
-            >
-              <XCircleIcon
-                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
-                @click="
-                  () => {
-                    sale_daterange = '';
-                    searchAction();
-                  }
-                "
-              />
-              {{ showFormat(sale_daterange) }}
-            </p>
-            <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
               v-if="searchTime"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
             >
               <XCircleIcon
                 class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
@@ -913,18 +642,29 @@ watch(
               {{ showFormat(formatDate(searchTime)) }}
             </p>
             <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
+              v-else-if="sale_daterange"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    sale_daterange = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ showFormat(sale_daterange) }}
+            </p>
+            <p
               v-if="customer_name"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
             >
               sort: {{ customer_name }}
             </p>
-            <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
-              v-if="attraction_name"
-            >
-              {{ attraction_name }}
-            </p>
           </div>
+
+          <!-- Date Quick Filters + Count -->
           <div class="flex justify-between items-center pb-2">
             <div class="col-span-2">
               <div
@@ -934,40 +674,40 @@ watch(
                   @click="changeServiceDate('today')"
                   class="flex gap-2 justify-start items-center cursor-pointer"
                   :class="
-                    changeDate == 'today' ? ' text-[#FF5B00]' : 'text-black'
+                    changeDate == 'today' ? 'text-[#FF5B00]' : 'text-black'
                   "
                 >
                   <span
-                    class="w-2 h-2 rounded-full bg-[#FF5B00]"
                     v-if="changeDate == 'today'"
-                  ></span
-                  >Today
+                    class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                  ></span>
+                  Today
                 </p>
                 <p
                   @click="changeServiceDate('tomorrow')"
                   class="flex gap-2 justify-start items-center cursor-pointer"
                   :class="
-                    changeDate == 'tomorrow' ? ' text-[#FF5B00]' : 'text-black'
+                    changeDate == 'tomorrow' ? 'text-[#FF5B00]' : 'text-black'
                   "
                 >
                   <span
-                    class="w-2 h-2 rounded-full bg-[#FF5B00]"
                     v-if="changeDate == 'tomorrow'"
-                  ></span
-                  >Tomorrow
+                    class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                  ></span>
+                  Tomorrow
                 </p>
                 <p
                   @click="changeServiceDate('7day')"
                   class="flex gap-2 justify-start items-center cursor-pointer"
                   :class="
-                    changeDate == '7day' ? ' text-[#FF5B00]' : 'text-black'
+                    changeDate == '7day' ? 'text-[#FF5B00]' : 'text-black'
                   "
                 >
                   <span
-                    class="w-2 h-2 rounded-full whitespace-nowrap bg-[#FF5B00]"
                     v-if="changeDate == '7day'"
-                  ></span
-                  >Next 7 Days
+                    class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                  ></span>
+                  Next 7 Days
                 </p>
               </div>
             </div>
@@ -977,6 +717,8 @@ watch(
               {{ amends?.meta?.total }} reser
             </div>
           </div>
+
+          <!-- List -->
           <div
             v-if="!loading"
             class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[62vh] overflow-y-scroll"
@@ -989,6 +731,8 @@ watch(
               />
             </div>
           </div>
+
+          <!-- Pagination -->
           <div class="overflow-x-scroll no-sidebar-container py-2">
             <Pagination
               v-if="!loading"
@@ -996,17 +740,20 @@ watch(
               @change-page="changePage"
             />
           </div>
+
+          <!-- Loading Skeleton -->
           <div
             v-if="loading"
             class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[75vh] overflow-y-scroll"
           >
-            <div class="" v-for="i in 10 ?? []" :key="i">
+            <div v-for="i in 10" :key="i">
               <ReservationCartLoadingVue />
             </div>
           </div>
         </div>
       </transition>
 
+      <!-- Detail Panel -->
       <transition name="slide">
         <div
           @click="
@@ -1024,29 +771,28 @@ watch(
         >
           <div class="absolute -top-4 -left-0 z-20">
             <ChevronLeftIcon
+              v-if="showSide == 1"
               class="w-6 cursor-pointer h-6 bg-white shadow-md border border-gray-200 p-1.5 rounded-full"
               @click="showSide = 2"
-              v-if="showSide == 1"
             />
             <ChevronRightIcon
+              v-if="showSide == 2"
               class="w-6 cursor-pointer h-6 bg-white shadow-md border border-gray-200 p-1.5 rounded-full"
               @click="showSide = 1"
-              v-if="showSide == 2"
             />
           </div>
           <div class="absolute -top-4 -left-10 z-20">
             <ChevronRightIcon
+              v-if="showSide == 1"
               class="w-6 cursor-pointer h-6 bg-white shadow-md border border-gray-200 p-1.5 rounded-full"
               @click="showSide = 3"
-              v-if="showSide == 1"
             />
             <ChevronLeftIcon
+              v-if="showSide == 3"
               class="w-6 cursor-pointer h-6 bg-white shadow-md border border-gray-200 p-1.5 rounded-full"
               @click="showSide = 1"
-              v-if="showSide == 3"
             />
           </div>
-
           <div
             class="rounded-lg h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
           >
@@ -1059,15 +805,12 @@ watch(
 </template>
 
 <style scoped>
-/* Slide-in and slide-out animations */
 .slide-enter-active {
   animation: slideIn 0.3s ease-out;
 }
-
 .slide-leave-active {
   animation: slideOut 0.3s ease-in;
 }
-
 @keyframes slideIn {
   from {
     transform: translateX(-100%);
@@ -1078,7 +821,6 @@ watch(
     opacity: 1;
   }
 }
-
 @keyframes slideOut {
   from {
     transform: translateX(0);

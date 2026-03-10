@@ -12,6 +12,7 @@
       >
         <!-- Section header -->
         <div
+          @click="seeVariation = !seeVariation"
           class="flex items-center justify-between bg-blue-50 px-4 py-2.5 border-b border-blue-200"
         >
           <p
@@ -20,15 +21,20 @@
             <ArrowPathIcon class="w-3.5 h-3.5" />
             {{ variationLabel }} Change
           </p>
-          <span
-            class="text-[10px] text-blue-500 bg-blue-100 px-2 py-0.5 rounded-full"
-          >
-            {{ amendData.car_list?.length ?? 0 }} options
-          </span>
+          <div class="space-x-2">
+            <span
+              class="text-[10px] text-blue-500 bg-blue-100 px-2 py-0.5 rounded-full"
+            >
+              {{ amendData.car_list?.length ?? 0 }} options
+            </span>
+            <span class="text-[12px] text-black px-2 rounded-full">
+              Click to See Variation
+            </span>
+          </div>
         </div>
 
         <!-- Current variation display -->
-        <div class="px-4 pt-3 pb-1">
+        <div class="px-4 pt-3" :class="seeVariation ? 'pb-1' : 'pb-3'">
           <p
             class="text-[10px] text-gray-400 mb-1.5 uppercase tracking-wide font-medium"
           >
@@ -79,7 +85,7 @@
         </div>
 
         <!-- Arrow -->
-        <div class="flex justify-center py-1">
+        <div class="flex justify-center py-1" v-if="seeVariation">
           <div class="flex flex-col items-center gap-0.5">
             <ArrowDownCircleIcon
               class="w-5 h-5"
@@ -91,7 +97,7 @@
         </div>
 
         <!-- New variation selector -->
-        <div class="px-4 pb-3">
+        <div class="px-4 pb-3" v-if="seeVariation">
           <p
             class="text-[10px] text-gray-400 mb-1.5 uppercase tracking-wide font-medium"
           >
@@ -264,7 +270,8 @@
           <label
             class="text-[12px] text-[#FF613c] font-semibold flex items-center"
           >
-            <CalendarIcon class="w-4 h-4 mr-2" /> Service date
+            <CalendarIcon class="w-4 h-4 mr-2" />
+            {{ isHotel ? "Checkin Date" : "Service Date" }}
           </label>
           <p class="font-medium text-sm">{{ amendData.service_date }}</p>
         </div>
@@ -282,7 +289,8 @@
           <label
             class="text-[12px] text-[#FF613c] font-semibold flex items-center"
           >
-            <CalendarIcon class="w-4 h-4 mr-2" /> Service date
+            <CalendarIcon class="w-4 h-4 mr-2" />
+            {{ isHotel ? "Checkin Date" : "Service Date" }}
           </label>
           <input
             type="date"
@@ -324,6 +332,7 @@
           <input
             type="date"
             v-model="form.checkout_date"
+            :min="minCheckoutDate"
             @change="onHotelDateChange"
             class="border border-blue-600 w-[150px] px-2 py-2 rounded-lg text-xs focus:outline-none"
           />
@@ -546,9 +555,9 @@
       </button>
       <button
         @click="amendRequestDelete"
-        class="bg-red-600 text-white px-4 py-2.5 rounded-lg text-xs"
+        class="bg-yellow-600 text-white px-4 py-2.5 rounded-lg text-xs"
       >
-        Amend Delete Request
+        Amend Cancel Request
       </button>
       <button
         @click="submitAmend"
@@ -589,6 +598,8 @@ const hotelStore = useHotelStore();
 const toast = useToast();
 
 const isLoadingPrice = ref(false);
+
+const seeVariation = ref(false);
 
 const form = ref({
   service_date: null,
@@ -631,6 +642,16 @@ const childInfo = computed(() => {
     }
   }
   return Array.isArray(raw) ? raw : [];
+});
+
+const minCheckoutDate = computed(() => {
+  if (!form.value.service_date) return "";
+
+  // Add 1 day to service_date so checkout must be AFTER service date
+  const serviceDate = new Date(form.value.service_date);
+  serviceDate.setDate(serviceDate.getDate() + 1);
+
+  return serviceDate.toISOString().split("T")[0]; // returns "YYYY-MM-DD"
 });
 
 const hasChildInfo = computed(

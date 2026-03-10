@@ -61,6 +61,7 @@
             </div>
 
             <!-- Sales Overview Chart -->
+            <!-- <p>Hello</p> -->
             <div
               class="col-span-2"
               v-if="displaySalesData.length > 0 && targetValue"
@@ -638,14 +639,36 @@ const getInitials = (name) => {
 
 const isInitializing = ref(false);
 
+// const initializeDashboard = async () => {
+//   isInitializing.value = true; // ← set flag
+//   loading.value = true;
+//   try {
+//     const currentMonth = getCurrentMonth();
+//     selectMonth.value = currentMonth;
+
+//     // await fetchDailySalesData(currentMonth);
+//     await fetchCommissionData();
+//     await fetchUnpaidBookings();
+//     await fetchChannelSource();
+//     await fetchReceivables();
+//     await fetchSummary();
+//     await loadAgentsList();
+//   } catch (error) {
+//     console.error(error);
+//   } finally {
+//     loading.value = false;
+//     isInitializing.value = false; // ← clear flag
+//   }
+// };
+
 const initializeDashboard = async () => {
-  isInitializing.value = true; // ← set flag
+  isInitializing.value = true;
   loading.value = true;
   try {
     const currentMonth = getCurrentMonth();
     selectMonth.value = currentMonth;
 
-    // await fetchDailySalesData(currentMonth);
+    await fetchDailySalesData(currentMonth); // ← ADD THIS BACK
     await fetchCommissionData();
     await fetchUnpaidBookings();
     await fetchChannelSource();
@@ -656,7 +679,7 @@ const initializeDashboard = async () => {
     console.error(error);
   } finally {
     loading.value = false;
-    isInitializing.value = false; // ← clear flag
+    isInitializing.value = false;
   }
 };
 

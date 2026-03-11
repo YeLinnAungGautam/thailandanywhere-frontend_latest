@@ -2241,7 +2241,7 @@ onMounted(async () => {
                               Contract Outdated
                             </option>
                             <option value="contract_pending">
-                              Contract Pending
+                              Contract Pending d
                             </option>
                             <option value="on_demand">On Demand</option>
                           </select>

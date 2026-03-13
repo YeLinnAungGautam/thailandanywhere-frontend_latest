@@ -20,7 +20,7 @@ const handleClick = () => {
 </script>
 
 <template>
-  <div class="relative px-2 py-2 bg-white shadow-md" @click="handleClick">
+  <div class="relative px-2 py-2 shadow-md" @click="handleClick">
     <div
       class="absolute top-[35px] left-3 rounded-full w-2 h-2"
       :class="{

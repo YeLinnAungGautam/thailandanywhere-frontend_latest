@@ -116,6 +116,7 @@ import FunnelReport from "../views/FunnelReport.vue";
 import EntranceCreateVersion2 from "../views/EntranceCreateVersion2.vue";
 import GenerateInclusive from "../views/GenerateInclusive.vue";
 import InclusiveGraph from "../views/DashboardPageSplit/InclusiveGraph.vue";
+import ExpenseGraph from "../views/ExpenseGraph.vue";
 
 const routes = [
   {
@@ -140,6 +141,11 @@ const routes = [
     path: "/home/inclusive-graph",
     name: "inclusive-graph",
     component: InclusiveGraph,
+  },
+  {
+    path: "/home/expense-graph",
+    name: "expense-graph",
+    component: ExpenseGraph,
   },
   {
     path: "/home/sale-analysics",

@@ -622,12 +622,13 @@ onMounted(async () => {
           <!-- ── List ── -->
           <div
             v-if="!loading"
-            class="bg-white rounded-xl divide-y divide-gray-100 max-h-[60vh] overflow-y-auto border border-gray-100"
+            class="bg-white rounded-xl divide-y divide-gray-100 border border-gray-100 max-h-[60vh] overflow-y-auto"
           >
             <div
               v-for="i in amends?.data ?? []"
               :key="i.id"
               class="hover:bg-orange-50/40 transition-colors"
+              :class="detailId == i.id ? 'bg-orange-800/10' : ''"
             >
               <ListReservation
                 :data="i"

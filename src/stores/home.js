@@ -262,5 +262,30 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
+    async getExpenseGraphList(year, month, params) {
+      try {
+        const response = await axios.get(
+          "/expense-graph/" + year + "/" + month,
+          {
+            params: params,
+          },
+        );
+        return response;
+      } catch (error) {
+        return error;
+      }
+    },
+    async getExpenseGroupList(params) {
+      // return axios.get("/api/admin/expense-graph/group-list", { params });
+      try {
+        const response = await axios.get(
+          "/api/admin/expense-graph/group-list",
+          { params },
+        );
+        return response;
+      } catch (error) {
+        return error;
+      }
+    },
   },
 });

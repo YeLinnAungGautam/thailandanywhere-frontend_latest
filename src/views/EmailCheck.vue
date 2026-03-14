@@ -1405,7 +1405,7 @@
 
     <Modal :isOpen="showCopyModal">
       <DialogPanel
-        class="w-full max-w-xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -1428,65 +1428,19 @@
             <span>Copy Line or Email</span>
           </div>
           <button
-            @click="closeDetailEdit"
+            @click="closeCopyModal"
             class="p-1 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <XCircleIcon class="w-5 h-5 text-gray-500" />
           </button>
         </DialogTitle>
 
-        <div v-if="detail && detail.id">
-          <div class="p-6 flex justify-between space-x-4 items-center">
-            <div
-              v-if="product_type == 'attraction'"
-              @click="
-                () => {
-                  showLineCopyModal = true;
-                  showCopyModal = false;
-                }
-              "
-              class="flex items-center w-full bg-orange-200 shadow-inner p-4 rounded-xl gap-2"
-            >
-              <svg
-                class="w-6 h-6 text-[#FF613c]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <span>Copy Line</span>
-            </div>
-            <div
-              @click="
-                () => {
-                  showDetail = true;
-                  showCopyModal = false;
-                }
-              "
-              class="flex items-center w-full bg-green-200 shadow-inner p-4 rounded-xl gap-2"
-            >
-              <svg
-                class="w-6 h-6 text-[#FF613c]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <span>Copy Email</span>
-            </div>
-          </div>
+        <div v-if="detail && detail.id" class="p-6">
+          <BookingEmailWizard
+            :detail="detail"
+            :activeTag="activeTag"
+            :showLine="openShowLineModal"
+          />
         </div>
         <div class="h-[200px] flex justify-center items-center" v-else>
           <div class="flex flex-col items-center gap-3">
@@ -1677,6 +1631,7 @@ import BookingCopyModel from "./GroupComponent/BookingCopyModel.vue";
 import RouteModal from "./GroupComponent/ExpensePart/RouteModal.vue";
 import AssignDriverModal from "./GroupComponent/ExpensePart/AssignDriverModal.vue";
 import ScoreCard from "./GroupComponent/ExpensePart/CartScale.vue";
+import BookingEmailWizard from "./GroupComponent/Bookingemailwizard.vue";
 
 const toast = useToast();
 const sidebarStore = useSidebarStore();
@@ -2211,6 +2166,11 @@ const filterByType = (type) => {
   searchAction();
 };
 
+const openShowLineModal = () => {
+  showLineCopyModal.value = true;
+  showCopyModal.value = false;
+};
+
 const clearDateFilter = () => {
   searchKey.value.startDate = "";
   searchKey.value.endDate = "";
@@ -2227,6 +2187,7 @@ const selectItem = async (item) => {
 const showCopyModal = ref(false);
 
 const copyModalAction = async (item) => {
+  detail.value = {}; // ← reset first so wizard shows loader
   showCopyModal.value = true;
   selectedItem.value = item;
   const res = await groupStore.detailAction(item.id);
@@ -2283,9 +2244,15 @@ const selectItemEdit = async (item) => {
 
 const closeDetail = () => {
   showDetail.value = false;
+  // detail.value = {};
+  // selectedItem.value = null;
+  showLineCopyModal.value = false;
+};
+
+const closeCopyModal = () => {
+  showCopyModal.value = false;
   detail.value = {};
   selectedItem.value = null;
-  showLineCopyModal.value = false;
 };
 
 const closeDetailEdit = () => {

@@ -606,8 +606,9 @@ import Layout from "./Layout.vue";
 import { useHomeStore } from "../stores/home";
 import { useGroupStore } from "../stores/group";
 import { useAuthStore } from "../stores/auth";
+import annotationPlugin from "chartjs-plugin-annotation";
 
-Chart.register(...registerables);
+Chart.register(...registerables, annotationPlugin);
 
 const homeStore = useHomeStore();
 const groupStore = useGroupStore();
@@ -734,6 +735,8 @@ const chartData = computed(() => {
   return { labels, datasets };
 });
 
+const threshold = ref(65000);
+
 const chartOptions = computed(() => {
   const isMoney = mode.value !== "groups";
   return {
@@ -776,8 +779,34 @@ const chartOptions = computed(() => {
         },
       },
     },
+    // plugins: {
+    //   legend: { display: false },
+
+    // },
     plugins: {
       legend: { display: false },
+      annotation: {
+        annotations: {
+          thresholdLine: {
+            type: "line",
+            yMin: threshold.value,
+            yMax: threshold.value,
+            borderColor: "rgba(220, 38, 38, 0.8)", // red
+            borderWidth: 2,
+            borderDash: [6, 4], // dotted
+            label: {
+              display: true,
+              content: `${formatNumber(threshold.value)} THB`,
+              position: "end",
+              backgroundColor: "rgba(220,38,38,0.85)",
+              color: "#fff",
+              font: { size: 10 },
+              padding: { x: 6, y: 3 },
+              borderRadius: 4,
+            },
+          },
+        },
+      },
       tooltip: {
         callbacks: {
           title: (ctx) => days.value[ctx[0].dataIndex]?.day_label ?? "",
@@ -793,7 +822,7 @@ const chartOptions = computed(() => {
             ];
           },
         },
-      },
+      }, // keep existing
     },
   };
 });

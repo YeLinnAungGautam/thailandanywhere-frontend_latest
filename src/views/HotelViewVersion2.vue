@@ -176,7 +176,82 @@
                   </button>
                 </div>
               </div>
-
+              <!-- Booking Options -->
+              <div class="mb-5 border-b pb-4">
+                <p class="text-xs font-semibold text-gray-600">
+                  Contract Options
+                </p>
+                <!-- {
+                  'bg-green-500 text-white':
+                    hotel?.data_status === 'contract_active',
+                  'bg-red-500 text-white':
+                    hotel?.data_status === 'contract_outdated',
+                  'bg-orange-600 text-white':
+                    hotel?.data_status === 'contract_pending',
+                  'bg-yellow-800 text-white':
+                    hotel?.data_status === 'on_demand',
+                }, -->
+                <div
+                  class="pt-5 flex justify-start items-center gap-2 flex-wrap"
+                >
+                  <p
+                    @click="dataStatusChoose('contract_active')"
+                    class="text-xs flex justify-center items-center space-x-2 pl-1.5 pr-2 py-1.5 border rounded-full whitespace-nowrap text-center"
+                    :class="
+                      dataStatus == 'contract_active'
+                        ? 'border-orange-600 text-orange-600'
+                        : 'border-black/10 '
+                    "
+                  >
+                    <span
+                      class="'text-[10px] flex justify-center shadow-custom-filter-results gap-1 items-center rounded-full w-5 shadow-xl h-5 border-4 border-white bg-green-500 ',"
+                    ></span>
+                    Active
+                  </p>
+                  <p
+                    @click="dataStatusChoose('contract_outdated')"
+                    class="text-xs flex justify-center items-center space-x-2 pl-1.5 pr-2 py-1.5 border border-black/10 rounded-full whitespace-nowrap text-black text-center"
+                    :class="
+                      dataStatus == 'contract_outdated'
+                        ? 'border-orange-600 text-orange-600'
+                        : 'border-black/10 '
+                    "
+                  >
+                    <span
+                      class="'text-[10px] flex justify-center shadow-custom-filter-results gap-1 items-center rounded-full w-5 shadow-xl h-5 border-4 border-white bg-red-500 ',"
+                    ></span>
+                    Outdated
+                  </p>
+                  <p
+                    @click="dataStatusChoose('contract_pending')"
+                    class="text-xs flex justify-center items-center space-x-2 pl-1.5 pr-2 py-1.5 border border-black/10 rounded-full whitespace-nowrap text-black text-center"
+                    :class="
+                      dataStatus == 'contract_pending'
+                        ? 'border-orange-600 text-orange-600'
+                        : 'border-black/10 '
+                    "
+                  >
+                    <span
+                      class="'text-[10px] flex justify-center shadow-custom-filter-results gap-1 items-center rounded-full w-5 shadow-xl h-5 border-4 border-white bg-orange-600 ',"
+                    ></span>
+                    Pending
+                  </p>
+                  <p
+                    @click="dataStatusChoose('on_demand')"
+                    class="text-xs flex justify-center items-center space-x-2 pl-1.5 pr-2 py-1.5 border border-black/10 rounded-full whitespace-nowrap text-black text-center"
+                    :class="
+                      dataStatus == 'on_demand'
+                        ? 'border-orange-600 text-orange-600'
+                        : 'border-black/10 '
+                    "
+                  >
+                    <span
+                      class="'text-[10px] flex justify-center shadow-custom-filter-results gap-1 items-center rounded-full w-5 shadow-xl h-5 border-4 border-white bg-yellow-800 ',"
+                    ></span>
+                    On Demand
+                  </p>
+                </div>
+              </div>
               <div class="mb-5 border-b pb-4">
                 <div class="flex justify-between items-center mb-2">
                   <h5 class="text-xs font-semibold text-gray-600">
@@ -451,7 +526,7 @@
                 </div>
               </div>
 
-              <div>
+              <div class="">
                 <div class="flex justify-between items-center mb-3">
                   <h5 class="text-xs font-semibold text-gray-600">Amenities</h5>
                   <button
@@ -623,7 +698,7 @@
               class="bg-white rounded-lg shadow"
             >
               <div class="mb-5 overflow-auto rounded-lg shadow">
-                <div class="grid grid-cols-6 gap-2 bg-gray-100">
+                <div class="grid grid-cols-7 gap-2 bg-gray-100">
                   <div
                     class="py-3 text-xs font-medium tracking-wide text-center"
                   >
@@ -639,7 +714,12 @@
                   <div
                     class="py-3 text-xs font-medium tracking-wide text-center"
                   >
-                    Rating
+                    C.Due Date
+                  </div>
+                  <div
+                    class="py-3 text-xs font-medium tracking-wide text-center"
+                  >
+                    C.Status
                   </div>
                   <div
                     class="py-3 text-xs font-medium tracking-wide text-center"
@@ -658,7 +738,7 @@
                       @click="toggleExpandedHotel(hotel.id)"
                       class="w-full hover:bg-gray-50 cursor-pointer"
                     >
-                      <div class="grid grid-cols-6 gap-2 bg-white py-3">
+                      <div class="grid grid-cols-7 gap-2 bg-white py-3">
                         <div
                           class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap"
                         >
@@ -684,7 +764,7 @@
                         <div
                           class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap"
                         >
-                          <div class="flex items-center gap-1">
+                          <!-- <div class="flex items-center gap-1">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="14"
@@ -698,7 +778,27 @@
                               />
                             </svg>
                             <span>{{ hotel.rating || 5 }}</span>
+                          </div> -->
+                          <div class="">
+                            {{ hotel.contract_due?.replace("00:00:00", "") }}
                           </div>
+                        </div>
+                        <div class="flex justify-center items-center">
+                          <p
+                            :class="[
+                              'text-[10px] flex justify-center shadow-custom-filter-results gap-1 items-center  rounded-full  w-5 shadow-xl h-5 border-4 border-white',
+                              {
+                                'bg-green-500 text-white':
+                                  hotel?.data_status === 'contract_active',
+                                'bg-red-500 text-white':
+                                  hotel?.data_status === 'contract_outdated',
+                                'bg-orange-600 text-white':
+                                  hotel?.data_status === 'contract_pending',
+                                'bg-yellow-800 text-white':
+                                  hotel?.data_status === 'on_demand',
+                              },
+                            ]"
+                          ></p>
                         </div>
                         <div
                           class="flex items-center justify-center space-x-2 text-xs text-gray-700 whitespace-nowrap"
@@ -1049,6 +1149,7 @@ const showArea = ref(true);
 
 const selectedCity = ref("");
 const selectedArea = ref("");
+const dataStatus = ref("");
 const selectedAmenities = ref([]);
 const selectedPriceCategory = ref("all");
 const customMinPrice = ref(0);
@@ -1144,6 +1245,7 @@ const filterCount = computed(() => {
   if (selectedCity.value) count++;
   if (selectedPriceCategory.value !== "all") count++;
   if (selectedArea.value) count++;
+  if (dataStatus.value) count++;
   if (selectedAmenities.value.length > 0) count++;
   if (selectedFilter.value) count++;
   return count;
@@ -1323,6 +1425,12 @@ const selectArea = (area) => {
   fetchHotels();
 };
 
+const dataStatusChoose = (data) => {
+  dataStatus.value = data;
+  currentPage.value = 1;
+  fetchHotels();
+};
+
 const toggleAmenity = (amenityId) => {
   const index = selectedAmenities.value.indexOf(amenityId);
   if (index > -1) {
@@ -1356,6 +1464,7 @@ const clearAllFilters = () => {
   selectedCity.value = "";
   selectedPriceCategory.value = "all";
   selectedArea.value = "";
+  dataStatus.value = "";
   selectedAmenities.value = [];
   customMinPrice.value = 0;
   customMaxPrice.value = 50000;
@@ -1394,6 +1503,9 @@ const fetchHotels = async () => {
 
   if (selectedArea.value) {
     params.place = selectedArea.value;
+  }
+  if (dataStatus.value) {
+    params.data_status = dataStatus.value;
   }
 
   if (selectedAmenities.value.length > 0) {

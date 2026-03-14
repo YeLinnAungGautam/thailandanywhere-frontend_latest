@@ -196,6 +196,8 @@ const closeAction = () => {
   selected.value = null;
   Isselected.value = false;
   userName.value = null;
+  isNext.value = false; // ← add this
+  passportLists.value = []; // ← add this
   props.closeModal();
 };
 
@@ -235,6 +237,8 @@ Thank You ❤️
 };
 
 onMounted(() => {
+  console.log("hi");
+
   console.log(props.bookingItem, "this is booking item from booking ");
   if (props.bookingItem) {
     getListAction();

@@ -621,7 +621,7 @@ const selectedMonth = ref(new Date().getMonth() + 1);
 const productType = ref("all");
 const mode = ref("amount");
 const expenseStatus = ref("not_paid"); // null | 'not_paid'
-const customerPaymentStatus = ref(null); // null | 'fully_paid' | 'not_paid'
+const customerPaymentStatus = ref("fully_paid"); // null | 'fully_paid' | 'not_paid'
 const loadingGraph = ref(false);
 const days = ref([]);
 const summary = ref({ grand_total_amount: 0, grand_total_cost_price: 0 });
@@ -786,26 +786,29 @@ const chartOptions = computed(() => {
     plugins: {
       legend: { display: false },
       annotation: {
-        annotations: {
-          thresholdLine: {
-            type: "line",
-            yMin: threshold.value,
-            yMax: threshold.value,
-            borderColor: "rgba(220, 38, 38, 0.8)", // red
-            borderWidth: 2,
-            borderDash: [6, 4], // dotted
-            label: {
-              display: true,
-              content: `${formatNumber(threshold.value)} THB`,
-              position: "end",
-              backgroundColor: "rgba(220,38,38,0.85)",
-              color: "#fff",
-              font: { size: 10 },
-              padding: { x: 6, y: 3 },
-              borderRadius: 4,
-            },
-          },
-        },
+        annotations:
+          mode.value === "groups"
+            ? {}
+            : {
+                thresholdLine: {
+                  type: "line",
+                  yMin: threshold.value,
+                  yMax: threshold.value,
+                  borderColor: "rgba(220, 38, 38, 0.8)",
+                  borderWidth: 2,
+                  borderDash: [6, 4],
+                  label: {
+                    display: true,
+                    content: `${formatNumber(threshold.value)} THB`,
+                    position: "end",
+                    backgroundColor: "rgba(220,38,38,0.85)",
+                    color: "#fff",
+                    font: { size: 10 },
+                    padding: { x: 6, y: 3 },
+                    borderRadius: 4,
+                  },
+                },
+              },
       },
       tooltip: {
         callbacks: {
@@ -948,7 +951,8 @@ async function changeTicketPage(page) {
 
 function goToGroup(id, type) {
   const name = type === "hotel" ? "group-hotel" : "group-attraction";
-  router.push({ name, query: { id } });
+  const route = router.resolve({ name, query: { id } });
+  window.open(route.href, "_blank");
 }
 
 onMounted(fetchData);

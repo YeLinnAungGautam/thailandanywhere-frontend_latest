@@ -1,50 +1,62 @@
 <!-- ItemSummaryTable.vue -->
 <template>
-  <div class="text-sm">
+  <div class="text-sm select-none">
     <div class="bg-white rounded-lg border-2 border-slate-200 overflow-hidden">
       <table class="w-full">
         <thead>
           <tr class="bg-[#FF613c] text-white">
+            <!-- Drag handle col -->
             <th
-              class="px-3 py-3 text-left font-semibold border-r border-slate-300 w-6"
+              class="px-3 py-3 text-left font-semibold border-r border-white/20 w-8"
             ></th>
+            <!-- Service -->
             <th
-              class="px-4 py-3 text-left font-semibold border-r border-slate-300"
+              class="px-4 py-3 text-left font-semibold border-r border-white/20 w-28"
             >
               SERVICE
             </th>
+            <!-- Description -->
             <th
-              class="px-4 py-3 text-left font-semibold border-r border-slate-300"
+              class="px-4 py-3 text-left font-semibold border-r border-white/20"
             >
               DESCRIPTION
             </th>
+            <!-- QTY -->
             <th
-              class="px-4 py-3 text-center font-semibold border-r border-slate-300 w-20"
+              class="px-4 py-3 text-center font-semibold border-r border-white/20 w-16"
             >
               QTY
             </th>
-            <th class="px-4 py-3 text-center font-semibold w-36">AMOUNT</th>
+            <!-- COST -->
+            <th
+              class="px-4 py-3 text-right font-semibold border-r border-white/20 w-36"
+            >
+              COST
+            </th>
+            <!-- SELLING -->
+            <th class="px-4 py-3 text-right font-semibold w-36">SELLING</th>
           </tr>
         </thead>
+
         <tbody>
           <template v-for="(group, date) in groupedByDate" :key="date">
-            <!-- Date header -->
+            <!-- Date header row -->
             <tr class="bg-slate-50 border-t-2 border-slate-300">
-              <td colspan="5" class="px-4 py-2">
-                <span class="font-bold text-black">
+              <td colspan="6" class="px-4 py-2">
+                <span class="font-bold text-black text-xs">
                   📅 {{ formatDate(date) }}
                 </span>
               </td>
             </tr>
 
-            <!-- Items -->
+            <!-- Items for this date -->
             <template v-for="(item, idx) in group" :key="item._uid">
-              <!-- Drop indicator line -->
+              <!-- Drop indicator line (before item) -->
               <tr
                 v-if="dragging && dropKey === date && dropIndex === idx"
                 class="pointer-events-none"
               >
-                <td colspan="5" class="h-0.5 p-0 bg-[#ff613c]" />
+                <td colspan="6" class="h-0.5 p-0 bg-[#ff613c]" />
               </tr>
 
               <tr
@@ -61,14 +73,14 @@
                 "
               >
                 <!-- Drag handle -->
-                <td class="px-2 py-2 border-r border-slate-200 text-center">
+                <td class="px-2 py-3 border-r border-slate-200 text-center">
                   <span class="text-slate-300 text-lg leading-none select-none"
                     >⠿</span
                   >
                 </td>
 
-                <!-- SERVICE label -->
-                <td class="px-4 py-2 border-r border-slate-200 align-top">
+                <!-- SERVICE badge -->
+                <td class="px-4 py-3 border-r border-slate-200 align-top">
                   <span
                     class="font-medium text-xs px-2 py-0.5 rounded-full"
                     :class="serviceClass(item._type)"
@@ -78,7 +90,7 @@
                 </td>
 
                 <!-- DESCRIPTION -->
-                <td class="px-4 py-2 border-r border-slate-200">
+                <td class="px-4 py-3 border-r border-slate-200 align-top">
                   <template v-if="item._type === 'van'">
                     <div class="font-medium">{{ item.vanTourName }}</div>
                     <div class="text-xs text-slate-400">{{ item.carName }}</div>
@@ -86,11 +98,10 @@
                   <template v-else-if="item._type === 'attraction'">
                     <div class="font-medium">{{ item.name }}</div>
                     <div class="text-xs text-slate-400">
-                      {{ item.item_name }}
                       <span v-if="item.children > 0"
-                        >· {{ item.adults }}A + {{ item.children }}C</span
+                        >{{ item.adults }}A + {{ item.children }}C</span
                       >
-                      <span v-else>· {{ item.adults }} pax</span>
+                      <span v-else>{{ item.adults }} pax</span>
                     </div>
                   </template>
                   <template v-else-if="item._type === 'hotel'">
@@ -111,7 +122,7 @@
 
                 <!-- QTY -->
                 <td
-                  class="px-4 py-2 text-center border-r border-slate-200 align-top"
+                  class="px-4 py-3 text-center border-r border-slate-200 align-top font-medium"
                 >
                   <template v-if="item._type === 'van'">{{
                     item.cars
@@ -124,39 +135,78 @@
                   }}</template>
                 </td>
 
-                <!-- AMOUNT: sell stacked over cost -->
-                <td class="px-4 py-2 text-right align-top">
+                <!-- COST column: total on top, unit below -->
+                <td
+                  class="px-4 py-3 border-r border-slate-200 align-top text-right"
+                >
+                  <div class="font-medium text-slate-600 text-sm">
+                    {{ Number(item.costPrice || 0).toLocaleString() }} ฿
+                  </div>
+                  <div
+                    class="text-xs text-slate-400 mt-1 pt-1 border-t border-slate-200"
+                  >
+                    {{ unitCost(item).toLocaleString() }} ฿ /
+                    {{ unitLabel(item) }}
+                  </div>
+                </td>
+
+                <!-- SELLING column: total on top, unit below -->
+                <td class="px-4 py-3 align-top text-right">
                   <div class="font-bold text-orange-600 text-sm">
                     {{ Number(item.sellingPrice || 0).toLocaleString() }} ฿
                   </div>
                   <div
-                    class="text-xs text-slate-400 mt-0.5 border-t border-slate-200 pt-0.5"
+                    class="text-xs text-slate-400 mt-1 pt-1 border-t border-slate-200"
                   >
-                    {{ Number(item.costPrice || 0).toLocaleString() }} ฿
+                    {{ unitSell(item).toLocaleString() }} ฿ /
+                    {{ unitLabel(item) }}
                   </div>
                 </td>
               </tr>
             </template>
 
-            <!-- Drop indicator at end of day -->
+            <!-- Drop indicator at end of group -->
             <tr
               v-if="dragging && dropKey === date && dropIndex >= group.length"
               class="pointer-events-none"
             >
-              <td colspan="5" class="h-0.5 p-0 bg-[#ff613c]" />
+              <td colspan="6" class="h-0.5 p-0 bg-[#ff613c]" />
             </tr>
 
-            <!-- Empty drop zone at end of each day's list -->
+            <!-- Empty drop zone at bottom of each date group -->
             <tr
               @dragover.prevent="onDragOverEnd(date)"
               @drop.prevent="onDropEnd(date)"
               class="h-2"
             >
-              <td colspan="5" />
+              <td colspan="6" />
             </tr>
           </template>
         </tbody>
       </table>
+
+      <!-- ── Totals Footer ── -->
+      <div class="bg-slate-50 border-t-2 border-slate-300 px-6 py-4">
+        <div class="flex justify-end gap-6">
+          <!-- Total Cost -->
+          <div class="text-right">
+            <div class="text-xs text-slate-400 mb-0.5">Total Cost</div>
+            <div class="font-semibold text-slate-600 text-base">
+              {{ grandTotalCost.toLocaleString() }} ฿
+            </div>
+          </div>
+
+          <div class="w-px bg-slate-300 self-stretch"></div>
+
+          <!-- Total Selling -->
+          <div class="text-right">
+            <div class="text-xs text-slate-400 mb-0.5">Total Selling</div>
+            <div class="font-bold text-orange-600 text-base">
+              {{ grandTotalSelling.toLocaleString() }} ฿
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -234,10 +284,41 @@ const groupedByDate = computed(() => {
   );
 });
 
+// ── Grand totals ──
+const grandTotalSelling = computed(() =>
+  mappedItems.value.reduce((s, i) => s + Number(i.sellingPrice || 0), 0),
+);
+const grandTotalCost = computed(() =>
+  mappedItems.value.reduce((s, i) => s + Number(i.costPrice || 0), 0),
+);
+
+// ── Unit helpers ──
+const qtyOf = (item) => {
+  if (item._type === "van") return item.cars || 1;
+  if (item._type === "hotel") return item.nights || 1;
+  return (item.adults || 0) * 1 + (item.children || 0) * 1 || 1;
+};
+
+const unitLabel = (item) => {
+  if (item._type === "van") return "car";
+  if (item._type === "hotel") return "night";
+  return "pax";
+};
+
+const unitCost = (item) => {
+  const q = qtyOf(item);
+  return Math.round(Number(item.costPrice || 0) / q);
+};
+
+const unitSell = (item) => {
+  const q = qtyOf(item);
+  return Math.round(Number(item.sellingPrice || 0) / q);
+};
+
 // ── Drag state ──
 const dragging = ref(false);
-const draggingKey = ref(null); // date string of dragged item
-const draggingIndex = ref(null); // index within that date group
+const draggingKey = ref(null);
+const draggingIndex = ref(null);
 const dropKey = ref(null);
 const dropIndex = ref(null);
 
@@ -257,7 +338,6 @@ const onDragEnd = () => {
 };
 
 const onDragOver = (event, date, idx) => {
-  // Block cross-day drag
   if (draggingKey.value !== date) {
     event.dataTransfer.dropEffect = "none";
     return;
@@ -297,43 +377,31 @@ const reorder = (date) => {
     return;
   }
 
-  // Work on a flat copy, isolate the date group
   const all = [...mappedItems.value];
   const group = all.filter((i) => i.serviceDate === date);
   const others = all.filter((i) => i.serviceDate !== date);
 
-  // Move within group
   const [moved] = group.splice(fromIdx, 1);
   if (toIdx > fromIdx) toIdx--;
   group.splice(toIdx, 0, moved);
-
-  // Rebuild _order
   group.forEach((item, i) => {
     item._order = i;
   });
 
-  // Merge back — keep original date ordering for other groups
+  const dateKeys = Object.keys(groupedByDate.value);
+  const dateIdx = dateKeys.indexOf(date);
+
   mappedItems.value = [
-    ...others.filter((i) => {
-      const d = i.serviceDate;
-      return Object.keys(groupedByDate.value).indexOf(d);
-      Object.keys(groupedByDate.value).indexOf(date);
-    }),
+    ...others.filter((i) => dateKeys.indexOf(i.serviceDate) < dateIdx),
     ...group,
-    ...others.filter((i) => {
-      const d = i.serviceDate;
-      return (
-        Object.keys(groupedByDate.value).indexOf(d) >
-        Object.keys(groupedByDate.value).indexOf(date)
-      );
-    }),
+    ...others.filter((i) => dateKeys.indexOf(i.serviceDate) > dateIdx),
   ];
 
   emit("update:items", mappedItems.value);
   onDragEnd();
 };
 
-// ── Helpers ──
+// ── Date format ──
 const formatDate = (dateStr) => {
   if (!dateStr || dateStr === "No Date") return "No Date";
   const d = new Date(dateStr);
@@ -346,11 +414,7 @@ const formatDate = (dateStr) => {
 };
 
 const serviceLabel = (type) =>
-  ({
-    van: "🚐 Van Tour",
-    hotel: "🏨 Hotel",
-    attraction: "🎫 Attraction",
-  }[type] ?? type);
+  ({ van: "Van Tour", hotel: "Hotel", attraction: "Attraction" }[type] ?? type);
 
 const serviceClass = (type) =>
   ({

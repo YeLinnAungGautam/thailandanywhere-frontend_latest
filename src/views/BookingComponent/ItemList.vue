@@ -669,6 +669,7 @@ onMounted(() => {
         {{ data?.is_inclusive ? itemList.length - 1 : itemList.length }} items
       </p>
       <button
+        v-if="data?.is_inclusive"
         @click="tableModal = true"
         class="bg-[#ff613c] text-white px-2 py-1 rounded-lg text-[10px] flex items-center gap-1"
       >

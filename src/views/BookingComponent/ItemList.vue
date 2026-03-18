@@ -8,6 +8,7 @@ import {
   ClockIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  TableCellsIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, defineProps, ref, defineEmits, watch } from "vue";
 import Modal from "../../components/Modal.vue";
@@ -23,6 +24,7 @@ import { daysBetween } from "../help/DateBetween";
 import AmendCreate from "./AmendCreate.vue";
 import AmendIcon from "../../assets/refresh-button.png";
 import { useToast } from "vue-toastification";
+import ItemSummaryTable from "./ItemSummaryTable.vue";
 
 const props = defineProps({
   data: Object,
@@ -158,6 +160,8 @@ const changeLabel = (key) => {
   };
   return map[key] ?? key;
 };
+
+const tableModal = ref(false);
 
 // keys we want to display in the diff table (excluding internal previous_* fields)
 const diffKeys = (changes) =>
@@ -541,6 +545,115 @@ const calculatePrice = computed(() => {
     }, 0);
 });
 
+// Map itemList → ItineraryTable orderedItems format
+const mappedItemsForTable = computed(() => {
+  return itemList.value
+    .filter((i) => i?.product_type !== undefined)
+    .map((i, idx) => {
+      // ── Detect which shape we have ──
+      // "rich" shape = has sellingPrice (already mapped, e.g. from package builder)
+      // "raw" shape  = has total_amount (from reservation itemList)
+      const isRich = i.sellingPrice !== undefined;
+
+      const type =
+        i.product_type == 1 || i._type === "van"
+          ? "van"
+          : i.product_type == 6 || i._type === "hotel"
+          ? "hotel"
+          : "attraction";
+
+      const base = {
+        _uid: i._uid ?? `item-${idx}`,
+        _order: i._order ?? idx,
+        _type: type,
+        dayNumber: i.dayNumber ?? 1,
+        serviceDate: i.serviceDate ?? i.service_date ?? "",
+        // ── Selling / cost: prefer rich fields, fall back to raw ──
+        sellingPrice: isRich
+          ? Number(i.sellingPrice) || 0
+          : Number(i.total_amount) || 0,
+        costPrice: isRich
+          ? Number(i.costPrice) || 0
+          : Number(i.total_cost_price) || 0,
+      };
+
+      // ── VAN ──
+      if (type === "van") {
+        return {
+          ...base,
+          vanTourName: i.vanTourName ?? i.product_name,
+          carName: i.carName ?? i.item_name,
+          city: i.city ?? "",
+          cars: i.cars ?? i.quantity ?? 1,
+        };
+      }
+
+      // ── HOTEL ──
+      if (type === "hotel") {
+        return {
+          ...base,
+          name: i.name ?? i.product_name,
+          roomName: i.roomName ?? i.item_name,
+          nights: i.nights ?? i.days ?? 1,
+          rooms: i.rooms ?? i.quantity ?? 1,
+          checkIn: i.checkIn ?? i.checkin_date ?? i.service_date ?? "",
+          checkOut: i.checkOut ?? i.checkout_date ?? "",
+          checkInDay: i.checkInDay ?? i.dayNumber ?? 1,
+        };
+      }
+
+      // ── ATTRACTION ──
+      const adults = isRich ? i.adults ?? i.quantity ?? 1 : i.quantity ?? 1;
+      const children = isRich
+        ? i.children ?? i.individual_pricing?.child?.quantity ?? 0
+        : i.individual_pricing?.child?.quantity ?? 0;
+
+      // unit prices — rich shape already has them; raw shape uses selling_price
+      const adultPrice = isRich
+        ? Number(i.adultPrice) || 0
+        : Number(i.selling_price) || 0;
+      const adultCostPrice = isRich
+        ? Number(i.adultCostPrice) || 0
+        : Number(i.cost_price) || 0;
+      const childPrice = isRich
+        ? i.childPrice
+        : i.individual_pricing?.child?.selling_price ?? "null";
+      const childCostPrice = isRich
+        ? i.childCostPrice
+        : i.individual_pricing?.child?.selling_price
+        ? String(i.individual_pricing.child.selling_price)
+        : "null";
+
+      return {
+        ...base,
+        name: i.name ?? i.product_name,
+        adults,
+        children,
+        adultPrice,
+        adultCostPrice,
+        childPrice,
+        childCostPrice,
+        unitSellingPrice: adultPrice,
+        city: i.city ?? "",
+        productType: i.productType ?? "entrance_ticket",
+        variation: i.variation ?? i.item_name ?? "",
+      };
+    });
+});
+
+const earliestServiceDate = computed(() => {
+  const dates = itemList.value
+    .map((i) => i.service_date || i.checkin_date)
+    .filter(Boolean)
+    .sort();
+  return dates[0] ?? new Date().toISOString().split("T")[0];
+});
+
+const totalUniqueDays = computed(() => {
+  const days = new Set(mappedItemsForTable.value.map((i) => i.dayNumber));
+  return Math.max(...days, 1);
+});
+
 onMounted(() => {
   if (props.data) itemList.value = props.data.items;
 });
@@ -555,7 +668,35 @@ onMounted(() => {
       <p>
         {{ data?.is_inclusive ? itemList.length - 1 : itemList.length }} items
       </p>
+      <button
+        @click="tableModal = true"
+        class="bg-[#ff613c] text-white px-2 py-1 rounded-lg text-[10px] flex items-center gap-1"
+      >
+        <TableCellsIcon class="w-3 h-3" />
+        Table View
+      </button>
     </div>
+
+    <!-- ── Itinerary Table Modal ── -->
+    <Modal :isOpen="tableModal" @closeModal="tableModal = false">
+      <DialogPanel
+        class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <!-- Header -->
+        <div class="flex justify-between items-center bg-[#ff613c] px-4 py-2.5">
+          <p class="text-white font-medium text-sm">Itinerary Table View</p>
+          <XCircleIcon
+            class="w-5 h-5 text-white cursor-pointer"
+            @click="tableModal = false"
+          />
+        </div>
+
+        <!-- Table content -->
+        <div class="p-4 max-h-[80vh] overflow-y-auto">
+          <ItemSummaryTable :items="itemList" />
+        </div>
+      </DialogPanel>
+    </Modal>
 
     <div
       class="space-y-3 divide-y-2 pb-3 divide-gray-200"

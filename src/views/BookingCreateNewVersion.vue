@@ -1256,7 +1256,7 @@ const fillFromInclusivePackage = (pkg) => {
         item_name: pkgItem.item_name ?? "",
         car_id: pkgItem.car_id,
         car_list: pkgItem.car_list ?? [],
-        service_date: pkgItem.service_date ?? "",
+        service_date: pkgItem.serviceDate ?? "",
         quantity: pkgItem.quantity ?? 1,
         selling_price: pkgItem.selling_price,
         cost_price: pkgItem.cost_price,
@@ -1316,6 +1316,8 @@ const fillFromInclusivePackage = (pkg) => {
       formData.value.items.push(bookingItem);
     }
   });
+
+  console.log("formItem from inclusive", formData.value.items);
 
   currentSubTag.value = "items";
 };

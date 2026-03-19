@@ -1616,6 +1616,8 @@ const getDetail = async () => {
       inclusive_end_date: data.inclusive_end_date,
       inclusive_description: data.inclusive_description,
       comment: data.comment,
+      payment_status: data.payment_status,
+      group_id: data.group_id,
     };
 
     // Process receipts using map

@@ -35,6 +35,9 @@
             </th>
             <!-- SELLING -->
             <th class="px-4 py-3 text-right font-semibold w-36">SELLING</th>
+            <th class="px-4 py-3 text-right font-semibold w-36">EXPENSE</th>
+
+            <th class="px-4 py-3 text-right font-semibold w-36">GENERATE</th>
           </tr>
         </thead>
 
@@ -80,7 +83,7 @@
                 </td>
 
                 <!-- SERVICE badge -->
-                <td class="px-4 py-3 border-r border-slate-200 align-top">
+                <td class="px-4 py-3 border-r border-slate-200 align-center">
                   <span
                     class="font-medium text-xs px-2 py-0.5 rounded-full"
                     :class="serviceClass(item._type)"
@@ -122,7 +125,7 @@
 
                 <!-- QTY -->
                 <td
-                  class="px-4 py-3 text-center border-r border-slate-200 align-top font-medium"
+                  class="px-4 py-3 text-center border-r border-slate-200 align-center font-medium"
                 >
                   <template v-if="item._type === 'van'">{{
                     item.cars
@@ -161,6 +164,28 @@
                     {{ unitSell(item).toLocaleString() }} ฿ /
                     {{ unitLabel(item) }}
                   </div>
+                </td>
+
+                <!-- EXPENSE column -->
+                <td
+                  class="px-4 py-3 border-x border-slate-200 text-center align-center"
+                >
+                  <span
+                    class="font-medium text-xs px-2 py-0.5 rounded-full"
+                    :class="paymentClass(item.payment_status)"
+                  >
+                    {{ paymentLabel(item.payment_status) }}
+                  </span>
+                </td>
+                <td
+                  v-if="
+                    (item._type == 'hotel' || item._type == 'attraction') &&
+                    item.group_id
+                  "
+                  @click="goToPage(item)"
+                  class="px-4 py-3 border-x border-slate-200 text-center align-center underline cursor-pointer"
+                >
+                  Generate
                 </td>
               </tr>
             </template>
@@ -212,7 +237,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const props = defineProps({
   items: { type: Array, default: () => [] },
@@ -240,6 +265,8 @@ const mappedItems = ref(
         sellingPrice: Number(i.total_amount) || 0,
         costPrice: Number(i.total_cost_price) || 0,
         item_name: i.item_name ?? "",
+        payment_status: i.payment_status ? i.payment_status : "not paid",
+        group_id: i.group_id ? i.group_id : "",
       };
 
       if (type === "van")
@@ -271,7 +298,8 @@ const mappedItems = ref(
     }),
 );
 
-// ── Group by date, sorted ascending ──
+const TYPE_ORDER = { attraction: 0, van: 1, hotel: 2 };
+
 const groupedByDate = computed(() => {
   const groups = {};
   mappedItems.value.forEach((item) => {
@@ -279,6 +307,14 @@ const groupedByDate = computed(() => {
     if (!groups[key]) groups[key] = [];
     groups[key].push(item);
   });
+
+  // Sort each group: hotel first, attraction second, van third
+  for (const key in groups) {
+    groups[key].sort(
+      (a, b) => (TYPE_ORDER[a._type] ?? 99) - (TYPE_ORDER[b._type] ?? 99),
+    );
+  }
+
   return Object.fromEntries(
     Object.entries(groups).sort(([a], [b]) => a.localeCompare(b)),
   );
@@ -401,6 +437,16 @@ const reorder = (date) => {
   onDragEnd();
 };
 
+const goToPage = (item) => {
+  console.log(item, "this is page");
+  if (item._type == "hotel") {
+    window.open(`/group-hotel?id=${item.group_id}`, "_blank");
+  }
+  if (item._type == "attraction") {
+    window.open(`/group-attraction?id=${item.group_id}`, "_blank");
+  }
+};
+
 // ── Date format ──
 const formatDate = (dateStr) => {
   if (!dateStr || dateStr === "No Date") return "No Date";
@@ -422,4 +468,19 @@ const serviceClass = (type) =>
     hotel: "bg-purple-100 text-purple-700",
     attraction: "bg-amber-100 text-amber-700",
   }[type] ?? "bg-gray-100 text-gray-600");
+
+const paymentLabel = (type) =>
+  ({ paid: "fully_paid", not: "not_paid", partially: "partially_paid" }[type] ??
+  type);
+
+const paymentClass = (type) =>
+  ({
+    fully_paid: "bg-green-100 text-green-700",
+    not_paid: "bg-red-100 text-red-700",
+    partially_paid: "bg-amber-100 text-amber-700",
+  }[type] ?? "bg-gray-100 text-gray-600");
+
+onMounted(() => {
+  console.log(props.items, "this is props");
+});
 </script>

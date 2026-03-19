@@ -28,6 +28,7 @@ import ItemSummaryTable from "./ItemSummaryTable.vue";
 
 const props = defineProps({
   data: Object,
+  grand: Number || String,
 });
 const emit = defineEmits(["remove"]);
 const route = useRoute();
@@ -694,7 +695,7 @@ onMounted(() => {
 
         <!-- Table content -->
         <div class="p-4 max-h-[80vh] overflow-y-auto">
-          <ItemSummaryTable :items="itemList" />
+          <ItemSummaryTable :items="itemList" :grand="grand" />
         </div>
       </DialogPanel>
     </Modal>

@@ -1465,7 +1465,11 @@ onMounted(async () => {
           v-if="currentSubTag == 'items'"
           class="min-h-[10vh] max-h-[50vh] relative bg-white rounded-lg overflow-y-scroll no-sidebar-container px-3"
         >
-          <ItemList :data="formData" @remove="removeItemList" />
+          <ItemList
+            :data="formData"
+            @remove="removeItemList"
+            :grand="grand_total"
+          />
         </div>
 
         <div v-if="currentSubTag == 'info'" class="">

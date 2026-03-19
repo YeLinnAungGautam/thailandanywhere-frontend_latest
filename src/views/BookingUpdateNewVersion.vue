@@ -1616,8 +1616,8 @@ const getDetail = async () => {
       inclusive_end_date: data.inclusive_end_date,
       inclusive_description: data.inclusive_description,
       comment: data.comment,
-      payment_status: data.payment_status,
-      group_id: data.group_id,
+      // payment_status: data.payment_status,
+      // group_id: data.group_id,
     };
 
     // Process receipts using map
@@ -2070,7 +2070,11 @@ onMounted(async () => {
           v-if="currentSubTag == 'items'"
           class="min-h-[10vh] max-h-[50vh] bg-white rounded-lg overflow-y-scroll no-sidebar-container px-3"
         >
-          <ItemList :data="formData" @remove="removeItemList" />
+          <ItemList
+            :data="formData"
+            @remove="removeItemList"
+            :grand="grand_total"
+          />
         </div>
 
         <div v-if="currentSubTag == 'info'" class="">

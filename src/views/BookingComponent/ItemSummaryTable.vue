@@ -45,7 +45,7 @@
           <template v-for="(group, date) in groupedByDate" :key="date">
             <!-- Date header row -->
             <tr class="bg-slate-50 border-t-2 border-slate-300">
-              <td colspan="6" class="px-4 py-2">
+              <td colspan="8" class="px-4 py-2">
                 <span class="font-bold text-black text-xs">
                   📅 {{ formatDate(date) }}
                 </span>
@@ -77,7 +77,13 @@
               >
                 <!-- Drag handle -->
                 <td class="px-2 py-3 border-r border-slate-200 text-center">
-                  <span class="text-slate-300 text-lg leading-none select-none"
+                  <span
+                    class="text-lg leading-none select-none"
+                    :class="
+                      item._type === 'hotel'
+                        ? 'text-slate-100 cursor-default'
+                        : 'text-slate-300'
+                    "
                     >⠿</span
                   >
                 </td>
@@ -109,17 +115,44 @@
                   </template>
                   <template v-else-if="item._type === 'hotel'">
                     <div class="font-medium">{{ item.name }}</div>
-                    <div class="text-xs text-slate-400">
-                      {{ item.roomName }} · {{ item.nights }} night{{
-                        item.nights > 1 ? "s" : ""
-                      }}
-                      · {{ item.rooms ?? 1 }} room{{
-                        (item.rooms ?? 1) > 1 ? "s" : ""
-                      }}
-                    </div>
-                    <div class="text-xs text-slate-400">
+
+                    <!-- ✅ Room types တွေကို sub-rows အနေဖြင့် ပြပါ -->
+                    <template
+                      v-if="item._isHotelGroup && item._roomTypes.length > 1"
+                    >
+                      <div
+                        v-for="(room, rIdx) in item._roomTypes"
+                        :key="rIdx"
+                        class="mt-1 pt-1 border-t border-slate-100 text-xs text-slate-500"
+                      >
+                        <span class="font-medium text-slate-600">{{
+                          room.roomName
+                        }}</span>
+                        · {{ room.rooms ?? 1 }} room{{
+                          (room.rooms ?? 1) > 1 ? "s" : ""
+                        }}
+                        <span class="text-slate-400 ml-1">{{
+                          room.crm_id
+                        }}</span>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="text-xs text-slate-400">
+                        {{ item.roomName }} · {{ item.nights }} night{{
+                          item.nights > 1 ? "s" : ""
+                        }}
+                        · {{ item.rooms ?? 1 }} room{{
+                          (item.rooms ?? 1) > 1 ? "s" : ""
+                        }}
+                      </div>
+                    </template>
+
+                    <div class="text-xs text-slate-400 mt-0.5">
                       {{ item.checkIn }} → {{ item.checkOut }}
                     </div>
+                  </template>
+                  <template v-if="item.crm_id">
+                    <span class="text-xs">{{ item.crm_id }}</span>
                   </template>
                 </td>
 
@@ -140,7 +173,7 @@
 
                 <!-- COST column: total on top, unit below -->
                 <td
-                  class="px-4 py-3 border-r border-slate-200 align-top text-right"
+                  class="px-4 py-3 border-r border-slate-200 align-center text-right"
                 >
                   <div class="font-medium text-slate-600 text-sm">
                     {{ Number(item.costPrice || 0).toLocaleString() }} ฿
@@ -154,7 +187,7 @@
                 </td>
 
                 <!-- SELLING column: total on top, unit below -->
-                <td class="px-4 py-3 align-top text-right">
+                <td class="px-4 py-3 align-center text-right">
                   <div class="font-bold text-orange-600 text-sm">
                     {{ Number(item.sellingPrice || 0).toLocaleString() }} ฿
                   </div>
@@ -231,6 +264,15 @@
             </div>
           </div>
         </div>
+        <div class="flex justify-end gap-6">
+          <!-- Total Cost -->
+          <div class="text-right">
+            <div class="text-xs text-slate-400 mb-0.5">Grand Total In Sale</div>
+            <div class="font-semibold text-slate-600 text-base">
+              {{ grand.toLocaleString() }} ฿
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -241,6 +283,7 @@ import { computed, onMounted, ref } from "vue";
 
 const props = defineProps({
   items: { type: Array, default: () => [] },
+  grand: { type: String || Number, default: 0 },
 });
 
 const emit = defineEmits(["update:items"]);
@@ -267,6 +310,7 @@ const mappedItems = ref(
         item_name: i.item_name ?? "",
         payment_status: i.payment_status ? i.payment_status : "not paid",
         group_id: i.group_id ? i.group_id : "",
+        crm_id: i.crm_id ? i.crm_id : "",
       };
 
       if (type === "van")
@@ -298,17 +342,50 @@ const mappedItems = ref(
     }),
 );
 
-const TYPE_ORDER = { attraction: 0, van: 1, hotel: 2 };
+const TYPE_ORDER = { hotel: 0, attraction: 1, van: 2 };
 
 const groupedByDate = computed(() => {
   const groups = {};
+
   mappedItems.value.forEach((item) => {
-    const key = item.serviceDate || "No Date";
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
+    if (item._type === "hotel" && item.checkIn && item.checkOut) {
+      const start = new Date(item.checkIn);
+      const end = new Date(item.checkOut);
+
+      for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+        const key = d.toISOString().split("T")[0];
+        if (!groups[key]) groups[key] = [];
+
+        const groupKey =
+          item.group_id || `${item.name}|${item.checkIn}|${item.checkOut}`;
+
+        // ✅ တူညီသော hotel group ရှိပြီးသားလား စစ်ပါ
+        const existingGroup = groups[key].find(
+          (g) => g._isHotelGroup && g._groupKey === groupKey,
+        );
+
+        if (existingGroup) {
+          // ✅ ရှိပြီးသားဆိုရင် roomTypes ထဲ ထည့်ပါ
+          existingGroup._roomTypes.push(item);
+          existingGroup.costPrice += item.costPrice;
+          existingGroup.sellingPrice += item.sellingPrice;
+        } else {
+          // ✅ မရှိသေးဆိုရင် hotel group အသစ် ဖန်တီးပါ
+          groups[key].push({
+            ...item,
+            _isHotelGroup: true,
+            _groupKey: groupKey,
+            _roomTypes: [item], // room types အားလုံး ဒီမှာ သိမ်းပါ
+          });
+        }
+      }
+    } else {
+      const key = item.serviceDate || "No Date";
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    }
   });
 
-  // Sort each group: hotel first, attraction second, van third
   for (const key in groups) {
     groups[key].sort(
       (a, b) => (TYPE_ORDER[a._type] ?? 99) - (TYPE_ORDER[b._type] ?? 99),

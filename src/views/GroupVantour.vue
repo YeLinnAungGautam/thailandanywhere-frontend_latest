@@ -793,6 +793,7 @@ const getAction = async () => {
   const res = await reservationStore.getListAction({
     service_date: formattedDate(generateDate.value),
     supplier_id: supplier_id.value,
+    product_type: "App\\Models\\PrivateVanTour",
     limit: 100,
   });
 

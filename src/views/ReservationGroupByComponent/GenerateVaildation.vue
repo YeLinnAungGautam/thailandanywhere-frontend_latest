@@ -47,8 +47,13 @@
             class="mb-4 border-b pb-3"
           >
             <div class="flex justify-between items-center">
-              <div class="font-medium">
-                Booking #{{ index + 1 }}: {{ item.crm_id || "Unknown" }}
+              <div class="font-medium pb-3">
+                <span
+                  @click="goToVantour(item)"
+                  class="px-2 py-1.5 bg-black text-white rounded-lg text-xs cursor-pointer hover:bg-gray-800"
+                  >{{ item.crm_id || "Unknown" }}</span
+                >
+                Booking #{{ index + 1 }}:
               </div>
               <div
                 v-if="validationStatus.items[index]"
@@ -559,6 +564,10 @@ const archiveUpdate = () => {
   showTextCopy.value = true;
 };
 
+const goToVantour = (item) => {
+  window.open(`/group-vantour?id=${item.group_id}`, "_blink");
+};
+
 // Start validation process when modal opens
 watch(
   () => props.openModalArchive,
@@ -566,7 +575,7 @@ watch(
     if (isOpen) {
       runValidation();
     }
-  }
+  },
 );
 
 // Watch for booking items changes
@@ -577,7 +586,7 @@ watch(
       runValidation();
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // Initialize on component mount

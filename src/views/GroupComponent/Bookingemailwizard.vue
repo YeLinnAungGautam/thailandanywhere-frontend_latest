@@ -365,6 +365,25 @@
       </div>
     </template>
 
+    <div
+      v-if="pricingLoading"
+      class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2 flex items-center gap-2"
+    >
+      <svg class="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-dasharray="32"
+          stroke-dashoffset="12"
+        />
+      </svg>
+      Fetching partner discount data...
+    </div>
+
     <!-- ══════════════════════════════════════════════════════════
          STEP 5 (Hotel) / STEP 2 (Attraction) — Email Preview
     ═══════════════════════════════════════════════════════════════ -->
@@ -450,16 +469,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { format } from "date-fns";
+import { useHotelStore } from "../../stores/hotel";
+
+const hotelStore = useHotelStore();
+const itemPricingData = ref<Record<string, any>>({});
+const pricingLoading = ref(false);
 
 const props = defineProps<{
   detail: Record<string, any>;
   activeTag: string;
   showLine: Function;
 }>();
-
-onMounted(() => {
-  console.log(props.detail, "this is detail");
-});
 
 // ─── Hotel vs Attraction ──────────────────────────────────────────────────────
 const isHotel = computed(() => {
@@ -524,6 +544,31 @@ const rooms = ref<WizardRoom[]>(
     };
   }),
 );
+
+function buildPartnerDiscountNote(item: WizardRoom): string {
+  const pricing = itemPricingData.value[item.id];
+  if (!pricing?.daily_pricing) return "";
+
+  const discountDays = pricing.daily_pricing.filter(
+    (d: any) => d.partner_discount > 0,
+  );
+
+  if (discountDays.length === 0) {
+    return "";
+  }
+
+  const totalDiscount = discountDays.reduce((sum: number, d: any) => {
+    return sum + Math.round(d.partner_discount) * item.quantity;
+  }, 0);
+
+  const dates = discountDays.map((d: any) => d.date).join(", ");
+
+  return [
+    `Partner Discount    : ฿${totalDiscount.toLocaleString()} THB included`,
+    `Discount Dates      : ${dates}`,
+    `Note                : Price includes discount via partner website`,
+  ].join("\n");
+}
 
 // ─── Step 1 toggle handlers ───────────────────────────────────────────────────
 function toggleMain(id: number) {
@@ -655,6 +700,7 @@ const emailBody = computed((): string => {
     const roomBlocks = mainRooms.value
       .map((item, idx) => {
         const nights = daysBetween(item.checkin_date, item.checkout_date);
+        const discountNote = buildPartnerDiscountNote(item); // ← add
         return [
           idx > 0 ? "─".repeat(32) : "",
           `Room Type         : ${item.room?.name ?? "N/A"}`,
@@ -667,6 +713,7 @@ const emailBody = computed((): string => {
           `Reservation Code  : ${item.crm_id}`,
           `Extra Bed         : ${item.extraBed}`,
           `Child Breakfast   : ${item.childBfast}`,
+          discountNote || null, // ← add
         ]
           .filter(Boolean)
           .join("\n");
@@ -824,6 +871,38 @@ function fallbackCopy(text: string) {
   }
   document.body.removeChild(ta);
 }
+
+onMounted(async () => {
+  console.log(props.detail, "this is detail");
+
+  // Fetch daily pricing for all hotel items
+  if (isHotel.value) {
+    pricingLoading.value = true;
+    try {
+      const fetchPromises = (props.detail?.items ?? []).map(
+        async (item: any) => {
+          if (item.room?.id && item.checkin_date && item.checkout_date) {
+            try {
+              const res = await hotelStore.getRoomPrice(
+                {
+                  checkin_date: item.checkin_date,
+                  checkout_date: item.checkout_date,
+                },
+                item.room.id,
+              );
+              itemPricingData.value[item.id] = res.data;
+            } catch (e) {
+              console.error(`Failed to fetch pricing for item ${item.id}`, e);
+            }
+          }
+        },
+      );
+      await Promise.all(fetchPromises);
+    } finally {
+      pricingLoading.value = false;
+    }
+  }
+});
 </script>
 
 <style scoped>

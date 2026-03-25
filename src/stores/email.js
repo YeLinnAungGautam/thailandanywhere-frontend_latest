@@ -21,7 +21,7 @@ export const useEmailStore = defineStore("email", {
     async checkConnectionStatus() {
       try {
         const response = await axios.get("/gmail/auth/status");
-        this.connectionStatus = response.data.data;
+        this.connectionStatus = response.data.result;
         return response.data;
       } catch (error) {
         this.connectionStatus = { connected: false };
@@ -79,8 +79,8 @@ export const useEmailStore = defineStore("email", {
           },
         });
 
-        this.emails = response.data.data.emails;
-        this.stats = response.data.data.stats;
+        this.emails = response.data.result.emails;
+        this.stats = response.data.result.stats;
         this.loading = false;
         return response.data;
       } catch (error) {

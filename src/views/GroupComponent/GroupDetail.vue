@@ -282,7 +282,7 @@
                           item?.product_type != "App\\Models\\EntranceTicket"
                             ? `x ${daysBetween(
                                 item.checkin_date,
-                                item.checkout_date
+                                item.checkout_date,
                               )}`
                             : `, ${
                                 item.individual_pricing != "null" &&
@@ -326,6 +326,30 @@
                       >
                         {{ item.discount }}
                       </td>
+                      <td
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        <span
+                          v-if="item?.product_type == 'App\\Models\\Hotel'"
+                          @click="openPricingModal(item)"
+                          class="cursor-pointer inline-flex items-center gap-1 text-[10px] text-blue-600 hover:text-blue-800"
+                        >
+                          <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            />
+                          </svg>
+                          Rates
+                        </span>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -333,6 +357,7 @@
             </div>
           </div>
         </div>
+
         <div>
           <div class="pt-2 relative flex justify-between items-center">
             <!-- line -->
@@ -814,6 +839,160 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <!-- Pricing breakdown modal -->
+    <Modal :isOpen="pricingModal" @closeModal="pricingModal = false">
+      <DialogPanel
+        class="w-full max-w-lg transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center px-4 py-3"
+        >
+          <p>Daily Rate Breakdown — {{ selectedPricingItem?.room?.name }}</p>
+          <XCircleIcon
+            class="w-5 h-5 cursor-pointer"
+            @click="pricingModal = false"
+          />
+        </DialogTitle>
+
+        <div class="p-4">
+          <!-- loading -->
+          <div
+            v-if="pricingLoading"
+            class="flex justify-center items-center py-8 gap-x-2 text-xs text-gray-400"
+          >
+            <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-dasharray="32"
+                stroke-dashoffset="12"
+              />
+            </svg>
+            Loading rates...
+          </div>
+
+          <!-- data -->
+          <div v-else-if="pricingData" class="space-y-3">
+            <!-- meta info -->
+            <div
+              class="flex justify-between items-center text-[10px] text-gray-500"
+            >
+              <span
+                >{{ selectedPricingItem?.checkin_date }} →
+                {{ selectedPricingItem?.checkout_date }}</span
+              >
+              <span
+                v-if="pricingData.is_incomplete_allotment"
+                class="text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full"
+              >
+                ⚠ Incomplete allotment
+              </span>
+            </div>
+
+            <!-- daily pricing table -->
+            <table
+              class="w-full text-[11px] border-collapse border border-gray-100 rounded-lg overflow-hidden"
+            >
+              <thead>
+                <tr class="bg-gray-50">
+                  <th
+                    class="text-left px-3 py-2 font-medium text-gray-500 border-b border-gray-100"
+                  >
+                    Date
+                  </th>
+                  <th
+                    class="text-left px-3 py-2 font-medium text-gray-500 border-b border-gray-100"
+                  >
+                    Period
+                  </th>
+                  <th
+                    class="text-right px-3 py-2 font-medium text-gray-500 border-b border-gray-100"
+                  >
+                    Sale
+                  </th>
+                  <th
+                    class="text-right px-3 py-2 font-medium text-gray-500 border-b border-gray-100"
+                  >
+                    Cost
+                  </th>
+                  <th
+                    class="text-right px-3 py-2 font-medium text-gray-500 border-b border-gray-100"
+                  >
+                    Partner disc.
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="row in pricingData.daily_pricing"
+                  :key="row.date"
+                  class="border-b border-gray-50 hover:bg-gray-50"
+                >
+                  <td class="px-3 py-1.5 text-gray-500 whitespace-nowrap">
+                    {{ row.date }}
+                  </td>
+                  <td class="px-3 py-1.5">
+                    <span
+                      class="px-1.5 py-0.5 rounded text-[9px]"
+                      :class="periodClass(row.period_name)"
+                    >
+                      {{ row.period_name }}
+                    </span>
+                  </td>
+                  <td class="px-3 py-1.5 text-right font-medium text-gray-800">
+                    ฿{{ row.sale_price.toLocaleString() }}
+                  </td>
+                  <td class="px-3 py-1.5 text-right text-gray-500">
+                    ฿{{ row.cost_price.toLocaleString() }}
+                  </td>
+                  <td class="px-3 py-1.5 text-right">
+                    <span
+                      v-if="row.partner_discount > 0"
+                      class="text-green-600 font-medium"
+                    >
+                      -{{ row.partner_discount }}%
+                    </span>
+                    <span v-else class="text-gray-300">—</span>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="bg-gray-50 border-t-2 border-gray-200">
+                  <td
+                    colspan="2"
+                    class="px-3 py-2 font-medium text-gray-600 text-[11px]"
+                  >
+                    Total
+                  </td>
+                  <td class="px-3 py-2 text-right font-medium text-[#FF613c]">
+                    ฿{{ pricingData.total_sale_price.toLocaleString() }}
+                  </td>
+                  <td class="px-3 py-2 text-right font-medium text-gray-600">
+                    ฿{{ pricingData.total_cost_price.toLocaleString() }}
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="flex justify-end px-4 pb-4">
+          <button
+            @click="pricingModal = false"
+            class="text-[11px] border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50"
+          >
+            Close
+          </button>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -842,6 +1021,8 @@ import { useToast } from "vue-toastification";
 import logo from "../../assets/web-logo.png";
 import { forEach } from "lodash";
 import Swal from "sweetalert2";
+import { useHotelStore } from "../../stores/hotel";
+import { reactive } from "vue";
 
 const props = defineProps({
   show: Number,
@@ -850,10 +1031,36 @@ const toast = useToast();
 const route = useRoute();
 const router = useRouter();
 const groupStore = useGroupStore();
+
 const detail = ref(null);
 const loading = ref(false);
 const hasRouteId = ref(false);
 const authStore = useAuthStore();
+const hotelStore = useHotelStore();
+const expandedPricing = reactive({});
+
+const pricingModal = ref(false);
+const pricingLoading = ref(false);
+const pricingData = ref(null);
+const selectedPricingItem = ref(null);
+
+const openPricingModal = async (item) => {
+  selectedPricingItem.value = item;
+  pricingData.value = null;
+  pricingModal.value = true;
+  pricingLoading.value = true;
+  try {
+    const res = await hotelStore.getRoomPrice(
+      { checkin_date: item.checkin_date, checkout_date: item.checkout_date },
+      item.room?.id,
+    );
+    pricingData.value = res.data;
+  } catch (e) {
+    console.error(e);
+  } finally {
+    pricingLoading.value = false;
+  }
+};
 
 const part = ref("general");
 const state = ref({
@@ -882,7 +1089,7 @@ const getComponent = (part) => {
 
 const goToPrint = () => {
   router.push(
-    `/reservation/confirmations/entrance/${reservation_ids.value.id}?variation_name=${reservation_ids.value.name}&invoice_code=${reservation_ids.value.invoice_code}`
+    `/reservation/confirmations/entrance/${reservation_ids.value.id}?variation_name=${reservation_ids.value.name}&invoice_code=${reservation_ids.value.invoice_code}`,
   );
 };
 
@@ -992,7 +1199,7 @@ const copyReservation = () => {
       } else {
         // DD-MM-YYYY format
         serviceDate = new Date(
-          `${serviceDateParts[2]}-${serviceDateParts[1]}-${serviceDateParts[0]}`
+          `${serviceDateParts[2]}-${serviceDateParts[1]}-${serviceDateParts[0]}`,
         );
       }
 
@@ -1116,7 +1323,7 @@ const copyReservation = () => {
 
 const goToHotelConfirmation = () => {
   router.push(
-    `/reservation/confirmations/group/hotel/new/png?id=${route.query.id}`
+    `/reservation/confirmations/group/hotel/new/png?id=${route.query.id}`,
   );
 };
 const showFailModal = ref(false);
@@ -1139,6 +1346,35 @@ const goToFill = () => {
   showFailModal.value = false;
 };
 
+// const togglePricing = async (item) => {
+//   if (!expandedPricing[item.id]) {
+//     expandedPricing[item.id] = { open: false, loading: false, data: null };
+//   }
+//   const state = expandedPricing[item.id];
+//   state.open = !state.open;
+//   if (state.open && !state.data) {
+//     state.loading = true;
+//     try {
+//       const res = await hotelStore.getRoomPrice(
+//         { checkin_date: item.checkin_date, checkout_date: item.checkout_date },
+//         item.room?.id,
+//       );
+//       state.data = res.data;
+//     } catch (e) {
+//       console.error(e);
+//     } finally {
+//       state.loading = false;
+//     }
+//   }
+// };
+
+const periodClass = (name) => {
+  const n = (name || "").toLowerCase();
+  if (n.includes("high")) return "bg-red-50 text-red-700";
+  if (n.includes("peak")) return "bg-amber-50 text-amber-700";
+  return "bg-gray-100 text-gray-500";
+};
+
 watch(
   () => route.query.id,
   () => {
@@ -1148,7 +1384,7 @@ watch(
       hasRouteId.value = true;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 onMounted(() => {

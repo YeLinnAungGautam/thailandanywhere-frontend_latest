@@ -29,6 +29,7 @@ const detailModal = ref(false);
 const details = ref(null);
 const details_images = ref([]);
 const addOnList = ref([]);
+const roomRates = ref({});
 
 const changeAddOnList = (message) => {
   console.log(message, "this is message");
@@ -340,8 +341,30 @@ const getRoomPeriod = async () => {
     priceArray.value = res.data.daily_pricing;
     formitem.value.selling_price = res.data.total_sale_price;
     formitem.value.cost_price = res.data.total_cost_price;
+    roomRates.value = res.data.room_rates || {};
   }
 };
+
+// The selected room object from car_list
+const selectedRoom = computed(
+  () =>
+    formitem.value.car_list.find((r) => r.id === formitem.value.car_id) ?? null,
+);
+
+// null = no restriction (non-partner or is_extra room)
+const minAvailableStock = computed(() => {
+  if (selectedRoom.value?.is_extra == 1) return null;
+  if (!roomRates.value || Object.keys(roomRates.value).length === 0)
+    return null;
+  const values = Object.values(roomRates.value);
+  if (values.length === 0) return null;
+  return Math.min(...values.map((r) => r.available_rooms));
+});
+
+const isOutOfStock = computed(() => {
+  if (minAvailableStock.value === null) return false;
+  return Number(formitem.value.quantity) > minAvailableStock.value;
+});
 
 const watchSystem = computed(() => {
   let result = {};
@@ -675,37 +698,68 @@ onMounted(async () => {
               />
             </div>
             <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Total Rooms <span class="text-red-800">*</span></label
-              >
+              <label for="" class="text-[12px] text-gray-500">
+                Total Rooms <span class="text-red-800">*</span>
+              </label>
               <div class="relative">
                 <input
                   type="number"
                   v-model="formitem.quantity"
                   name=""
-                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  :class="
+                    isOutOfStock
+                      ? 'border-red-500 text-red-600'
+                      : 'border-gray-300'
+                  "
                   id=""
                 />
                 <p
-                  @click="formitem.quantity++"
-                  class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-1 right-8"
+                  @click="
+                    !isOutOfStock ||
+                    Number(formitem.quantity) < minAvailableStock
+                      ? formitem.quantity++
+                      : null
+                  "
+                  class="cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-1 right-8"
+                  :class="
+                    minAvailableStock !== null &&
+                    Number(formitem.quantity) >= minAvailableStock
+                      ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                      : 'bg-[#ff613c]/10 text-[#ff613c]'
+                  "
                 >
                   +
                 </p>
                 <p
-                  @click="formitem.quantity--"
-                  v-if="formitem.quantity > 1"
-                  class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-1 right-1"
-                >
-                  -
-                </p>
-                <p
-                  v-if="formitem.quantity == 1"
-                  class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-1 right-1"
+                  @click="formitem.quantity > 1 ? formitem.quantity-- : null"
+                  class="cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-1 right-1"
+                  :class="
+                    formitem.quantity <= 1
+                      ? 'bg-[#ff613c]/10 text-[#ff613c] opacity-30 cursor-not-allowed'
+                      : 'bg-[#ff613c]/10 text-[#ff613c]'
+                  "
                 >
                   -
                 </p>
               </div>
+
+              <!-- Stock status line -->
+              <p
+                v-if="minAvailableStock !== null"
+                class="text-[10px] font-medium"
+                :class="isOutOfStock ? 'text-red-500' : 'text-gray-400'"
+              >
+                {{
+                  isOutOfStock
+                    ? `⚠ Only ${minAvailableStock} room${
+                        minAvailableStock !== 1 ? "s" : ""
+                      } available`
+                    : `${minAvailableStock} room${
+                        minAvailableStock !== 1 ? "s" : ""
+                      } available`
+                }}
+              </p>
             </div>
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
@@ -807,7 +861,7 @@ onMounted(async () => {
             ></textarea>
           </div>
         </div>
-        <div class="flex justify-end items-center gap-x-2 pt-2">
+        <!-- <div class="flex justify-end items-center gap-x-2 pt-2">
           <button
             @click="clearAction"
             class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
@@ -829,6 +883,30 @@ onMounted(async () => {
             :class="todayVali ? 'bg-[#ff613c]' : 'bg-gray-300'"
           >
             Add Item
+          </button>
+        </div> -->
+        <div class="flex justify-end items-center gap-x-2 pt-2">
+          <button
+            @click="clearAction"
+            class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+          >
+            Cancel
+          </button>
+          <button
+            @click="!isOutOfStock && getFunction()"
+            :disabled="isOutOfStock || !todayVali"
+            class="px-3 py-2.5 rounded-lg text-xs text-white transition-colors"
+            :class="
+              isOutOfStock || !todayVali
+                ? 'bg-gray-300 cursor-not-allowed'
+                : 'bg-[#ff613c]'
+            "
+          >
+            {{
+              isOutOfStock
+                ? `Out of Stock (max ${minAvailableStock})`
+                : "Add Item"
+            }}
           </button>
         </div>
       </DialogPanel>

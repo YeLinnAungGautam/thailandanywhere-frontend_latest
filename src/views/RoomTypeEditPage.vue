@@ -510,9 +510,30 @@
             >
               <div class="flex items-start justify-between">
                 <div class="flex-1">
-                  <h5 class="font-semibold text-gray-900 mb-2">
-                    {{ period.period_name }}
-                  </h5>
+                  <div class="flex justify-between items-center">
+                    <h5 class="font-semibold text-gray-900 mb-2">
+                      {{ period.period_name }}
+                    </h5>
+                    <div class="flex items-center justify-between mt-2">
+                      <label class="text-sm font-medium pr-4 text-gray-700">
+                        Priority period
+                      </label>
+                      <Switch
+                        v-model="period.is_main"
+                        :class="
+                          period.is_main ? 'bg-orange-600' : 'bg-gray-300'
+                        "
+                        class="relative inline-flex h-6 w-11 items-center rounded-full"
+                      >
+                        <span
+                          :class="
+                            period.is_main ? 'translate-x-6' : 'translate-x-1'
+                          "
+                          class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                        />
+                      </Switch>
+                    </div>
+                  </div>
                   <div class="grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <span class="text-gray-600">Duration:</span>
@@ -752,6 +773,7 @@ const openPeriodModal = (index = null) => {
       sale_price: null,
       cost_price: null,
       agent_price: null,
+      is_main: false,
     };
   }
   showPeriodModal.value = true;
@@ -867,6 +889,11 @@ const selectRoom = async (room) => {
           sale_price: period.sale_price,
           cost_price: period.cost_price,
           agent_price: period.agent_price,
+          is_main: period.is_main
+            ? period.is_main == 1
+              ? true
+              : false
+            : false,
         })) || [],
     };
 
@@ -1054,6 +1081,10 @@ const saveRoom = async () => {
       frmData.append(
         `periods[${x}][agent_price]`,
         formData.value.period[x].agent_price,
+      );
+      frmData.append(
+        `periods[${x}][is_main]`,
+        formData.value.period[x].is_main ? 1 : 0,
       );
     }
   } else {

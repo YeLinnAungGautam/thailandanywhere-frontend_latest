@@ -1,36 +1,91 @@
 <template>
-  <div class="allowment-graph-container">
-    <!-- Header -->
-    <div class="mb-6">
-      <h2
-        class="text-xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent"
-      >
-        Room Availability Overview
-      </h2>
-      <p class="text-slate-600 text-xs mt-1">
-        Daily availability for selected room
-      </p>
-    </div>
-
-    <!-- Filters Row -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-      <div class="flex items-end gap-4 flex-wrap">
-        <!-- Hotel Search Button (triggers modal) -->
-        <div class="relative flex-1 min-w-[200px]">
-          <label class="text-xs font-medium text-gray-700 mb-1.5 block">
-            Hotel
-          </label>
-          <button
-            @click="openModal"
-            class="w-full text-sm px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-colors text-left flex items-center justify-between hover:bg-gray-50"
+  <div
+    class="flex h-full min-h-[600px] rounded-lg overflow-hidden shadow-xl bg-slate-100 font-sans"
+  >
+    <!-- ═══ LEFT PANEL ═══ -->
+    <div
+      class="w-1/4 min-w-[200px] bg-white flex flex-col overflow-hidden border-r border-slate-200"
+    >
+      <!-- Header -->
+      <div class="px-4 pt-5 pb-4 border-b border-slate-100 flex-shrink-0">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-base">🏨</span>
+          <h2 class="text-sm font-bold text-slate-700 tracking-wide flex-1">
+            Hotels
+          </h2>
+          <span
+            class="text-[10px] font-bold font-mono bg-orange-50 text-orange-500 border border-orange-200 px-2 py-0.5 rounded-full"
           >
+            {{ filteredHotelList.length }}
+          </span>
+        </div>
+        <div class="relative">
+          <svg
+            class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            v-model="hotelSearch"
+            type="text"
+            placeholder="Search hotels..."
+            class="w-full bg-slate-50 border border-slate-200 rounded-lg text-slate-700 placeholder-slate-400 text-xs py-2 pl-8 pr-3 outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-100 transition-all"
+          />
+        </div>
+      </div>
+
+      <!-- Hotel List -->
+      <div class="flex-1 overflow-y-auto p-2 space-y-0.5">
+        <div
+          v-if="loadingHotels"
+          class="flex flex-col items-center justify-center py-12 gap-3"
+        >
+          <div
+            class="w-5 h-5 border-2 border-slate-200 border-t-orange-500 rounded-full animate-spin"
+          ></div>
+          <span class="text-xs text-slate-400">Loading…</span>
+        </div>
+        <template v-else>
+          <div
+            v-for="hotel in filteredHotelList"
+            :key="hotel.id"
+            @click="selectHotel(hotel)"
+            class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-150 border"
+            :class="
+              selectedHotelId === hotel.id
+                ? 'bg-orange-50 border-orange-200 shadow-sm'
+                : 'border-transparent hover:bg-slate-50 hover:border-slate-200'
+            "
+          >
+            <div
+              class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+              :class="
+                selectedHotelId === hotel.id
+                  ? 'bg-orange-500'
+                  : 'bg-emerald-400'
+              "
+            ></div>
             <span
-              :class="selectedHotelName ? 'text-gray-900' : 'text-gray-400'"
+              class="text-xs font-semibold flex-1 truncate"
+              :class="
+                selectedHotelId === hotel.id
+                  ? 'text-orange-600'
+                  : 'text-slate-600'
+              "
             >
-              {{ selectedHotelName || "Search hotel..." }}
+              {{ hotel.name }}
             </span>
             <svg
-              class="w-4 h-4 text-gray-400"
+              v-if="selectedHotelId === hotel.id"
+              class="w-3 h-3 text-orange-400 flex-shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -38,783 +93,556 @@
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                stroke-width="2.5"
+                d="M9 5l7 7-7 7"
               />
             </svg>
-          </button>
-        </div>
+          </div>
+        </template>
+      </div>
+    </div>
 
-        <!-- Month Selector -->
-        <div class="min-w-[140px]">
-          <label class="text-xs font-medium text-gray-700 mb-1.5 block">
-            Month
-          </label>
-          <select
-            v-model="selectedMonth"
-            @change="onPeriodChange"
-            class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white font-medium text-slate-700"
-          >
-            <option
-              v-for="month in monthOptions"
-              :key="month.value"
-              :value="month.value"
-            >
-              {{ month.label }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Year Selector -->
-        <div class="min-w-[120px]">
-          <label class="text-xs font-medium text-gray-700 mb-1.5 block">
-            Year
-          </label>
-          <select
-            v-model="selectedYear"
-            @change="onPeriodChange"
-            class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white font-medium text-slate-700"
-          >
-            <option v-for="year in yearOptions" :key="year" :value="year">
-              {{ year }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Room Selector -->
-        <div class="flex-1 min-w-[200px]">
-          <label class="text-xs font-medium text-gray-700 mb-1.5 block">
-            Room Type
-          </label>
-          <select
-            v-model="selectedRoomId"
-            @change="onRoomChange"
-            :disabled="!selectedHotelId"
-            class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white font-medium text-slate-700 disabled:bg-gray-100 disabled:cursor-not-allowed"
-          >
-            <option v-for="room in rooms" :key="room.id" :value="room.id">
-              {{ room.name }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Stats Display -->
-        <div class="bg-orange-50 px-4 py-2 rounded-lg border border-orange-200">
-          <p class="text-xs text-orange-600 font-medium">
-            {{ dates.length }} days
-          </p>
-          <p class="text-xs text-orange-500">in period</p>
-        </div>
+    <!-- ═══ RIGHT PANEL ═══ -->
+    <div class="flex-1 flex flex-col overflow-hidden bg-slate-50">
+      <!-- No hotel selected -->
+      <div
+        v-if="!selectedHotelId"
+        class="flex-1 flex flex-col items-center justify-center gap-3 p-10"
+      >
+        <div class="text-5xl opacity-20">🏨</div>
+        <h3 class="text-base font-bold text-slate-400">Select a hotel</h3>
+        <p class="text-xs text-slate-400 text-center max-w-xs leading-relaxed">
+          Pick a hotel from the left panel to view room availability.
+        </p>
       </div>
 
-      <!-- Selected Hotel Info -->
-      <div
-        v-if="selectedHotelId && selectedHotelName"
-        class="mt-3 pt-3 border-t border-gray-100"
-      >
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-            <p class="text-xs text-gray-600">
-              Selected:
-              <span class="font-semibold text-gray-900">{{
-                selectedHotelName
-              }}</span>
+      <template v-else>
+        <!-- Right panel header -->
+        <div
+          class="px-6 py-4 border-b border-slate-200 bg-white flex-shrink-0 flex items-center justify-between flex-wrap gap-2"
+        >
+          <div>
+            <h2
+              class="text-lg font-extrabold bg-gradient-to-r from-orange-600 to-red-500 bg-clip-text text-transparent"
+            >
+              {{ selectedHotelName }}
+            </h2>
+            <p class="text-[11px] text-slate-400 mt-0.5">
+              {{
+                selectedRoomId
+                  ? selectedRoomName + " · Next 30 days"
+                  : "Select a room to view chart"
+              }}
             </p>
           </div>
+          <!-- Legend shown only when chart is visible -->
+          <div v-if="selectedRoomId" class="flex items-center gap-3 flex-wrap">
+            <div
+              v-for="l in legend"
+              :key="l.label"
+              class="flex items-center gap-1.5"
+            >
+              <div
+                class="w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                :style="`background:${l.color}`"
+              ></div>
+              <span class="text-[10px] font-semibold text-slate-500">{{
+                l.label
+              }}</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Chart Area -->
-    <div class="chart-wrapper" v-if="!loading && rooms.length > 0">
-      <canvas ref="chartCanvas"></canvas>
-    </div>
-
-    <!-- Loading State -->
-    <div v-else-if="loading" class="text-center py-12">
-      <div class="inline-block">
-        <div
-          class="w-10 h-10 border-3 border-orange-200 border-t-orange-600 rounded-full animate-spin"
-        ></div>
-      </div>
-      <p class="text-slate-600 mt-4 text-sm font-medium">
-        Loading chart data...
-      </p>
-    </div>
-
-    <!-- Empty State -->
-    <div v-else class="text-center py-12">
-      <svg
-        class="w-16 h-16 mx-auto text-slate-300 mb-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-        ></path>
-      </svg>
-      <p class="text-slate-600 font-medium">No room data available</p>
-      <p class="text-slate-400 text-sm mt-1">
-        Please select a hotel to see availability
-      </p>
-    </div>
-
-    <!-- Hotel Selection Modal -->
-    <Teleport to="body">
-      <div
-        v-if="isModalOpen"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        @click.self="closeModal"
-      >
-        <div
-          class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col"
-        >
-          <!-- Modal Header -->
-          <div
-            class="px-6 py-4 border-b border-gray-200 flex items-center justify-between"
-          >
-            <h3 class="text-lg font-bold text-gray-900">Select Hotel</h3>
-            <button
-              @click="closeModal"
-              class="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg
-                class="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Search Input -->
-          <div class="px-6 py-4 border-b border-gray-200">
-            <div class="relative">
-              <input
-                ref="modalSearchInput"
-                class="w-full text-sm px-4 py-3 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-colors"
-                type="search"
-                placeholder="Search hotel by name..."
-                v-model="modalSearch"
-                @input="onModalSearchInput"
-              />
-              <svg
-                class="w-5 h-5 text-gray-400 absolute left-3 top-3.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+        <!-- Body -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+          <!-- ── Room strip with scroll arrows ── -->
+          <div class="flex-shrink-0 border-b border-slate-200 bg-white">
+            <div v-if="loadingRooms" class="flex items-center gap-2 px-6 py-4">
+              <div
+                class="w-4 h-4 border-2 border-slate-200 border-t-orange-500 rounded-full animate-spin"
+              ></div>
+              <span class="text-xs text-slate-400">Loading rooms…</span>
             </div>
-          </div>
+            <div v-else-if="visibleRooms.length === 0" class="px-6 py-4">
+              <p class="text-xs text-slate-400">
+                No rooms available for this hotel.
+              </p>
+            </div>
+            <!-- Scroll container with arrow buttons -->
+            <div v-else class="relative flex items-center">
+              <!-- Left arrow -->
+              <button
+                v-if="canScrollLeft"
+                @click="scrollRooms('left')"
+                class="absolute left-0 z-10 h-full px-2 bg-gradient-to-r from-white via-white to-transparent flex items-center text-slate-400 hover:text-orange-500 transition-colors"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
 
-          <!-- Hotel List -->
-          <div class="flex-1 overflow-y-auto p-6">
-            <div
-              v-if="isSearchingHotels && hotelLists.length === 0"
-              class="text-center py-8"
-            >
-              <div class="inline-block">
+              <!-- Scrollable room list -->
+              <div
+                ref="roomScrollRef"
+                class="flex gap-2 px-4 py-3 overflow-x-auto scroll-smooth"
+                style="scrollbar-width: none; -ms-overflow-style: none"
+                @scroll="updateScrollState"
+              >
                 <div
-                  class="w-8 h-8 border-3 border-orange-200 border-t-orange-600 rounded-full animate-spin"
-                ></div>
+                  v-for="room in visibleRooms"
+                  :key="room.id"
+                  @click="selectRoom(room)"
+                  class="flex-shrink-0 rounded-xl border px-3 py-2.5 cursor-pointer transition-all duration-150 w-[230px]"
+                  :class="
+                    selectedRoomId === room.id
+                      ? 'bg-orange-50 border-orange-300 shadow-sm'
+                      : 'bg-white border-slate-200 hover:border-orange-200 hover:bg-orange-50/50'
+                  "
+                >
+                  <p
+                    class="text-[14px] font-bold mb-2 truncate"
+                    :class="
+                      selectedRoomId === room.id
+                        ? 'text-orange-600'
+                        : 'text-slate-700'
+                    "
+                  >
+                    {{ room.name }}
+                  </p>
+                  <div class="flex gap-1 flex-wrap">
+                    <span
+                      v-if="getRoomCount(room, 'green') > 0"
+                      class="text-[12px] pr-2 font-bold font-mono text-emerald-700"
+                    >
+                      🟢 {{ getRoomCount(room, "green") }}
+                    </span>
+                    <span
+                      v-if="getRoomCount(room, 'yellow') > 0"
+                      class="text-[12px] pr-2 font-bold font-mono text-amber-700"
+                    >
+                      🟡 {{ getRoomCount(room, "yellow") }}
+                    </span>
+                    <span
+                      v-if="getRoomCount(room, 'red') > 0"
+                      class="text-[12px] pr-2 font-bold font-mono text-red-700"
+                    >
+                      🔴 {{ getRoomCount(room, "red") }}
+                    </span>
+                    <span
+                      v-if="getRoomCount(room, 'overbooked') > 0"
+                      class="text-[12px] pr-2 font-bold font-mono text-red-800"
+                    >
+                      ⛔ {{ getRoomCount(room, "overbooked") }}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <p class="text-sm text-gray-600 mt-3">Loading hotels...</p>
-            </div>
 
-            <div
-              v-else-if="filteredHotels.length === 0"
-              class="text-center py-8"
-            >
-              <svg
-                class="w-16 h-16 mx-auto text-gray-300 mb-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <!-- Right arrow -->
+              <button
+                v-if="canScrollRight"
+                @click="scrollRooms('right')"
+                class="absolute right-0 z-10 h-full px-2 bg-gradient-to-l from-white via-white to-transparent flex items-center text-slate-400 hover:text-orange-500 transition-colors"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                />
-              </svg>
-              <p class="text-sm font-medium text-gray-700">No hotels found</p>
-              <p class="text-xs text-gray-500 mt-1">
-                Try a different search term
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Chart area ── -->
+          <div class="flex-1 flex flex-col p-5 gap-4 overflow-hidden">
+            <!-- No room selected -->
+            <div
+              v-if="!selectedRoomId"
+              class="flex-1 flex flex-col items-center justify-center gap-2"
+            >
+              <div class="text-3xl opacity-20">📊</div>
+              <p class="text-xs text-slate-400">
+                Click a room above to view the availability chart
               </p>
             </div>
 
-            <div v-else class="space-y-2">
-              <div
-                v-for="hotel in filteredHotels"
-                :key="hotel.id"
-                @click="selectHotel(hotel)"
-                :class="[
-                  'p-4 rounded-lg border-2 cursor-pointer transition-all',
-                  tempSelectedHotelId === hotel.id
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50',
-                ]"
-              >
-                <div class="flex items-center justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center gap-2">
-                      <p class="text-sm font-bold text-gray-900">
-                        {{ hotel.name }}
-                      </p>
-                      <span
-                        v-if="tempSelectedHotelId === hotel.id"
-                        class="px-2 py-0.5 text-xs font-semibold bg-orange-500 text-white rounded-full"
-                      >
-                        Selected
-                      </span>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">
-                      {{ hotel.rooms?.length || 0 }} room type{{
-                        hotel.rooms?.length !== 1 ? "s" : ""
-                      }}
-                      available
-                    </p>
-                  </div>
-                  <svg
-                    v-if="tempSelectedHotelId === hotel.id"
-                    class="w-6 h-6 text-orange-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
+            <template v-else>
+              <!-- Summary cards -->
+              <div class="grid grid-cols-4 gap-3 flex-shrink-0">
+                <div
+                  v-for="card in summaryCards"
+                  :key="card.label"
+                  class="bg-white rounded-xl border-t-4 border border-slate-100 px-4 py-3 text-center shadow-sm"
+                  :class="card.topBorder"
+                >
+                  <p
+                    class="text-2xl font-black font-mono"
+                    :class="card.textColor"
                   >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
+                    {{ card.value }}
+                  </p>
+                  <p
+                    class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-0.5"
+                  >
+                    {{ card.label }}
+                  </p>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <!-- Modal Footer -->
-          <div
-            class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3"
-          >
-            <button
-              @click="closeModal"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              @click="confirmSelection"
-              :disabled="!tempSelectedHotelId"
-              :class="[
-                'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors',
-                tempSelectedHotelId
-                  ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700'
-                  : 'bg-gray-300 cursor-not-allowed',
-              ]"
-            >
-              Confirm Selection
-            </button>
+              <!-- Chart -->
+              <div
+                class="flex-1 bg-white rounded-xl border border-slate-200 p-4 shadow-sm overflow-hidden"
+              >
+                <canvas ref="chartCanvas"></canvas>
+              </div>
+            </template>
           </div>
         </div>
-      </div>
-    </Teleport>
+      </template>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed, nextTick } from "vue";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
 import { Chart, registerables } from "chart.js";
 import { useRoomStore } from "../../stores/room";
 import { useHotelStore } from "../../stores/hotel";
-import debounce from "lodash/debounce";
 
 Chart.register(...registerables);
 
 const roomStore = useRoomStore();
 const hotelStore = useHotelStore();
 
-const chartCanvas = ref(null);
-let chartInstance = null;
-const rooms = ref([]);
-const loading = ref(false);
-const selectedRoomId = ref(null);
-const selectedMonth = ref(new Date().getMonth() + 1);
-const selectedYear = ref(new Date().getFullYear());
-
-// Hotel selection state
-const selectedHotelId = ref(47);
-const selectedHotelName = ref("");
-const isModalOpen = ref(false);
-const modalSearch = ref("");
-const modalSearchInput = ref(null);
-const isSearchingHotels = ref(false);
-const hotelLists = ref([]);
+// ── State ──────────────────────────────────────────────────────────────────────
 const allHotels = ref([]);
-const tempSelectedHotelId = ref(null);
-const tempSelectedHotelName = ref("");
+const hotelSearch = ref("");
+const loadingHotels = ref(false);
+const selectedHotelId = ref(null);
+const selectedHotelName = ref("");
+const hotelRooms = ref([]);
+const loadingRooms = ref(false);
+const selectedRoomId = ref(null);
+const selectedRoomName = ref("");
+const chartCanvas = ref(null);
+const roomScrollRef = ref(null);
+const canScrollLeft = ref(false);
+const canScrollRight = ref(false);
+let chartInstance = null;
 
-const monthOptions = [
-  { value: 1, label: "January" },
-  { value: 2, label: "February" },
-  { value: 3, label: "March" },
-  { value: 4, label: "April" },
-  { value: 5, label: "May" },
-  { value: 6, label: "June" },
-  { value: 7, label: "July" },
-  { value: 8, label: "August" },
-  { value: 9, label: "September" },
-  { value: 10, label: "October" },
-  { value: 11, label: "November" },
-  { value: 12, label: "December" },
-];
-
-const yearOptions = computed(() => {
-  const currentYear = new Date().getFullYear();
-  return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
-});
-
-const filteredHotels = computed(() => {
-  if (!modalSearch.value.trim()) {
-    return allHotels.value.filter((item) => item.allowment == 1);
-  }
-  return hotelLists.value.filter((item) => item.allowment == 1);
-});
-
+// ── Dates: next 30 days ────────────────────────────────────────────────────────
 const dates = computed(() => {
-  if (rooms.value.length === 0) return [];
-
-  const currentYear = selectedYear.value;
-  const currentMonth = selectedMonth.value - 1;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
-  const isCurrentMonth =
-    currentYear === today.getFullYear() && currentMonth === today.getMonth();
-
-  const dateKeysSet = new Set();
-
-  rooms.value.forEach((room) => {
-    if (room.room_rates && typeof room.room_rates === "object") {
-      Object.keys(room.room_rates).forEach((dateKey) => {
-        try {
-          const dateObj = new Date(dateKey + "T00:00:00");
-          const isValidDate =
-            dateObj.getFullYear() === currentYear &&
-            dateObj.getMonth() === currentMonth &&
-            (!isCurrentMonth || dateObj >= today);
-
-          if (isValidDate) {
-            dateKeysSet.add(dateKey);
-          }
-        } catch (error) {
-          console.warn("Invalid date key:", dateKey);
-        }
-      });
-    }
+  return Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    return d;
   });
-
-  if (dateKeysSet.size === 0) {
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const startDay = isCurrentMonth ? today.getDate() : 1;
-
-    for (let day = startDay; day <= daysInMonth; day++) {
-      const date = new Date(currentYear, currentMonth, day);
-      dateKeysSet.add(formatDateKey(date));
-    }
-  }
-
-  return Array.from(dateKeysSet)
-    .sort()
-    .map((dateKey) => new Date(dateKey + "T00:00:00"));
 });
 
-const formatDateKey = (date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+const legend = [
+  { label: "Available", color: "#22c55e" },
+  { label: "Booked", color: "rgba(100,116,139,0.4)" },
+];
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+const fmtKey = (d) => {
+  const y = d.getFullYear();
+  const mon = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${mon}-${day}`;
 };
 
-const getRoomStock = (room, date) => {
-  const dateKey = formatDateKey(date);
-  if (room.room_rates && room.room_rates[dateKey]) {
-    const rateData = room.room_rates[dateKey];
-    if (rateData.stock !== undefined && rateData.stock !== null) {
-      return rateData.stock;
-    }
-  }
-  if (room.meta && room.meta.stock !== undefined && room.meta.stock !== null) {
-    return room.meta.stock;
-  }
-  return 0;
+const getStock = (room, d) =>
+  room?.room_rates?.[fmtKey(d)]?.stock ?? room?.meta?.stock ?? 0;
+const getBooked = (room, d) => room?.room_rates?.[fmtKey(d)]?.booked_count ?? 0;
+
+const classifyDay = (stock, booked) => {
+  if (booked > stock) return "overbooked";
+  const avail = stock - booked;
+  if (avail <= Math.ceil(stock * 0.2)) return "red";
+  if (avail <= Math.ceil(stock * 0.4)) return "yellow";
+  return "green";
 };
 
-const getBookedCount = (room, date) => {
-  const dateKey = formatDateKey(date);
-  if (room.room_rates && room.room_rates[dateKey]) {
-    return room.room_rates[dateKey].booked_count || 0;
-  }
-  return 0;
-};
+const getRoomCount = (room, status) =>
+  dates.value.filter(
+    (d) => classifyDay(getStock(room, d), getBooked(room, d)) === status,
+  ).length;
 
-const chartData = computed(() => {
-  const selectedRoom = rooms.value.find((r) => r.id === selectedRoomId.value);
-  if (!selectedRoom)
-    return {
-      labels: [],
-      availableData: [],
-      bookedData: [],
-      overflowData: [],
-    };
+// ── FIX 1: Filter rooms by meta.is_show_on === "1" ────────────────────────────
+const visibleRooms = computed(() =>
+  hotelRooms.value.filter(
+    (r) => r.meta?.is_show_on === "1" || r.meta?.is_show_on === 1,
+  ),
+);
 
-  const labels = dates.value.map((date) => formatDateShort(date));
-  const availableData = [];
-  const bookedData = [];
-  const overflowData = [];
-
-  dates.value.forEach((date) => {
-    const stock = getRoomStock(selectedRoom, date);
-    const booked = getBookedCount(selectedRoom, date);
-
-    if (booked <= stock) {
-      availableData.push(stock - booked);
-      bookedData.push(booked);
-      overflowData.push(0);
-    } else {
-      availableData.push(0);
-      bookedData.push(stock);
-      overflowData.push(booked - stock);
-    }
-  });
-
-  return {
-    labels,
-    availableData,
-    bookedData,
-    overflowData,
-  };
+// ── Filtered hotel list ────────────────────────────────────────────────────────
+const filteredHotelList = computed(() => {
+  const q = hotelSearch.value.trim().toLowerCase();
+  const list = allHotels.value.filter((h) => h.allowment == 1);
+  return q ? list.filter((h) => h.name.toLowerCase().includes(q)) : list;
 });
 
-const formatDateShort = (date) => {
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
+// ── Summary cards ──────────────────────────────────────────────────────────────
+const summaryCards = computed(() => {
+  const room = hotelRooms.value.find((r) => r.id === selectedRoomId.value);
+  if (!room) return [];
+  const c = { green: 0, yellow: 0, red: 0, overbooked: 0 };
+  dates.value.forEach((d) => {
+    c[classifyDay(getStock(room, d), getBooked(room, d))]++;
   });
+  return [
+    {
+      label: "Green Days",
+      value: c.green,
+      textColor: "text-emerald-600",
+      topBorder: "border-t-emerald-400",
+    },
+    {
+      label: "Yellow Days",
+      value: c.yellow,
+      textColor: "text-amber-500",
+      topBorder: "border-t-amber-400",
+    },
+    {
+      label: "Red Days",
+      value: c.red,
+      textColor: "text-red-500",
+      topBorder: "border-t-red-400",
+    },
+    {
+      label: "Overbooked",
+      value: c.overbooked,
+      textColor: "text-red-800",
+      topBorder: "border-t-red-800",
+    },
+  ];
+});
+
+// ── FIX 2: Scroll arrow state ──────────────────────────────────────────────────
+const updateScrollState = () => {
+  const el = roomScrollRef.value;
+  if (!el) return;
+  canScrollLeft.value = el.scrollLeft > 0;
+  canScrollRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
 };
 
-// Hotel Modal Functions
-const openModal = () => {
-  isModalOpen.value = true;
-  tempSelectedHotelId.value = selectedHotelId.value;
-  tempSelectedHotelName.value = selectedHotelName.value;
-  modalSearch.value = "";
-
-  nextTick(() => {
-    modalSearchInput.value?.focus();
-  });
+const scrollRooms = (dir) => {
+  const el = roomScrollRef.value;
+  if (!el) return;
+  el.scrollBy({ left: dir === "right" ? 200 : -200, behavior: "smooth" });
 };
 
-const closeModal = () => {
-  isModalOpen.value = false;
-  modalSearch.value = "";
-};
+// ── FIX 3 & 4 & 5: Chart — 2 colors + counts on top + empty bar placeholder ──
+const buildChart = async () => {
+  await nextTick();
+  const canvas = chartCanvas.value;
+  if (!canvas) return;
 
-const loadAllHotels = async () => {
-  isSearchingHotels.value = true;
-
-  let data = {
-    allowment: 1,
-  };
-
-  try {
-    const res = await hotelStore.getListAction(data);
-    allHotels.value = res.result.data || [];
-    hotelLists.value = allHotels.value;
-
-    // Set initial hotel name if ID is 47
-    if (selectedHotelId.value === 47 && allHotels.value.length > 0) {
-      const defaultHotel = allHotels.value.find((h) => h.id === 47);
-      if (defaultHotel) {
-        selectedHotelName.value = defaultHotel.name;
-      }
-    }
-  } catch (error) {
-    console.error("Error loading hotels:", error);
-    allHotels.value = [];
-    hotelLists.value = [];
-  } finally {
-    isSearchingHotels.value = false;
-  }
-};
-
-const hotelSearch = async () => {
-  if (!modalSearch.value.trim()) {
-    hotelLists.value = allHotels.value;
-    return;
-  }
-
-  isSearchingHotels.value = true;
-
-  let data = {
-    search: modalSearch.value,
-    allowment: 1,
-  };
-
-  try {
-    const res = await hotelStore.getListAction(data);
-    hotelLists.value = res.result.data || [];
-  } catch (error) {
-    console.error("Error searching hotels:", error);
-    hotelLists.value = allHotels.value;
-  } finally {
-    isSearchingHotels.value = false;
-  }
-};
-
-const onModalSearchInput = debounce(() => {
-  hotelSearch();
-}, 500);
-
-const selectHotel = (hotel) => {
-  tempSelectedHotelId.value = hotel.id;
-  tempSelectedHotelName.value = hotel.name;
-};
-
-const confirmSelection = async () => {
-  if (tempSelectedHotelId.value) {
-    selectedHotelId.value = tempSelectedHotelId.value;
-    selectedHotelName.value = tempSelectedHotelName.value;
-    closeModal();
-
-    // Reload room data for the new hotel
-    await loadRoomData();
-    createChart();
-  }
-};
-
-const createChart = () => {
-  if (!chartCanvas.value) return;
-
-  const ctx = chartCanvas.value.getContext("2d");
+  const room = hotelRooms.value.find((r) => r.id === selectedRoomId.value);
+  if (!room) return;
 
   if (chartInstance) {
     chartInstance.destroy();
+    chartInstance = null;
   }
 
-  const selectedRoom = rooms.value.find((r) => r.id === selectedRoomId.value);
-  let maxValue = 0;
+  const labels = [];
+  const availData = [];
+  const bookedData = [];
 
-  dates.value.forEach((date) => {
-    const stock = getRoomStock(selectedRoom, date);
-    const booked = getBookedCount(selectedRoom, date);
-    maxValue = Math.max(maxValue, stock, booked);
+  dates.value.forEach((d) => {
+    labels.push(
+      d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    );
+    const stock = getStock(room, d);
+    const booked = getBooked(room, d);
+    const avail = Math.max(0, stock - booked);
+    // FIX 5: if no data at all, push a tiny placeholder (0.15) so bar is visible
+    availData.push(stock === 0 && booked === 0 ? 0 : avail);
+    bookedData.push(Math.min(booked, stock));
   });
 
-  const yAxisMax = Math.ceil(maxValue * 1.15) + 2;
+  const maxVal = Math.max(...availData.map((a, i) => a + bookedData[i]));
+  const yMax = Math.max(Math.ceil(maxVal * 1.35), 5); // extra top room for labels
 
-  chartInstance = new Chart(ctx, {
+  chartInstance = new Chart(canvas, {
     type: "bar",
     data: {
-      labels: chartData.value.labels,
+      labels,
       datasets: [
         {
+          // Green available segment
           label: "Available",
-          data: chartData.value.availableData,
-          backgroundColor: "#22c55e",
+          data: availData,
+          backgroundColor: dates.value.map((d) => {
+            const stock = getStock(room, d);
+            const booked = getBooked(room, d);
+            if (stock === 0 && booked === 0) return "rgba(203,213,225,0.3)"; // empty placeholder
+            const status = classifyDay(stock, booked);
+            return status === "overbooked"
+              ? "#dc2626"
+              : status === "red"
+              ? "#ef4444"
+              : status === "yellow"
+              ? "#22c55e"
+              : "#22c55e";
+          }),
           borderWidth: 0,
-          barThickness: 30,
+          barThickness: 25,
+          stack: "s",
+          // FIX 3: show count label on top of bar
+          datalabels: undefined, // handled via custom plugin below
         },
         {
+          // Gray booked segment
           label: "Booked",
-          data: chartData.value.bookedData,
-          backgroundColor: "#ff6347",
+          data: bookedData,
+          backgroundColor: "rgba(100,116,139,0.35)",
           borderWidth: 0,
-          barThickness: 30,
-        },
-        {
-          label: "Overbooked",
-          data: chartData.value.overflowData,
-          backgroundColor: "#dc2626",
-          borderWidth: 0,
-          barThickness: 30,
+          barThickness: 25,
+          stack: "s",
         },
       ],
     },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 3.5,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      layout: { padding: { top: 24 } }, // space for count labels above bars
       scales: {
         x: {
           stacked: true,
-          grid: {
-            display: false,
-            drawBorder: false,
-          },
+          grid: { display: false },
           ticks: {
-            font: {
-              size: 9,
-              weight: "600",
-            },
-            color: "#334155",
+            font: { size: 9, weight: "600" },
+            color: "#64748b",
             maxRotation: 45,
             minRotation: 45,
-            padding: 8,
+            autoSkip: true,
+            maxTicksLimit: 15,
           },
+          border: { display: false },
         },
         y: {
           stacked: true,
           beginAtZero: true,
-          max: yAxisMax > 0 ? yAxisMax : 10,
-          grid: {
-            color: "rgba(148, 163, 184, 0.1)",
-            drawBorder: false,
-          },
+          max: yMax,
+          grid: { color: "rgba(148,163,184,0.1)" },
+          border: { display: false },
           ticks: {
-            callback: function (value) {
-              return Math.round(value);
-            },
-            font: {
-              size: 10,
-              weight: "500",
-            },
-            color: "#64748b",
-            stepSize: Math.max(1, Math.ceil(yAxisMax / 8)),
+            stepSize: 1,
+            callback: (v) => (Number.isInteger(v) ? v : null),
+            font: { size: 10 },
+            color: "#94a3b8",
           },
           title: {
             display: true,
-            text: "Number of Rooms",
-            font: {
-              size: 11,
-              weight: "500",
-            },
-            color: "#64748b",
+            text: "Rooms",
+            font: { size: 10 },
+            color: "#94a3b8",
           },
         },
       },
       plugins: {
-        legend: {
-          position: "bottom",
-          labels: {
-            boxWidth: 12,
-            boxHeight: 12,
-            padding: 15,
-            font: {
-              size: 11,
-              weight: "600",
-            },
-            color: "#334155",
-            usePointStyle: false,
-          },
-        },
+        legend: { display: false },
         tooltip: {
-          backgroundColor: "rgba(15, 23, 42, 0.95)",
-          titleColor: "#ffffff",
-          bodyColor: "#ffffff",
-          borderColor: "rgba(148, 163, 184, 0.2)",
-          borderWidth: 1,
+          backgroundColor: "rgba(15,23,42,0.95)",
+          titleColor: "#f1f5f9",
+          bodyColor: "#cbd5e1",
+          footerColor: "#94a3b8",
           cornerRadius: 8,
           padding: 12,
-          displayColors: true,
-          bodyFont: {
-            size: 12,
-          },
-          titleFont: {
-            size: 13,
-            weight: "bold",
-          },
+          borderWidth: 1,
+          borderColor: "rgba(148,163,184,0.15)",
           callbacks: {
-            title: function (context) {
-              const dateIndex = context[0].dataIndex;
-              const date = dates.value[dateIndex];
-              return date.toLocaleDateString("en-US", {
+            title: (ctx) => {
+              const d = dates.value[ctx[0].dataIndex];
+              return d.toLocaleDateString("en-US", {
                 weekday: "short",
                 month: "short",
                 day: "numeric",
               });
             },
-            footer: function (tooltipItems) {
-              const index = tooltipItems[0].dataIndex;
-              const selectedRoom = rooms.value.find(
-                (r) => r.id === selectedRoomId.value
-              );
-              const date = dates.value[index];
-              const stock = getRoomStock(selectedRoom, date);
-              const booked = getBookedCount(selectedRoom, date);
-
+            footer: (items) => {
+              const d = dates.value[items[0].dataIndex];
+              const stock = getStock(room, d);
+              const booked = getBooked(room, d);
+              const avail = Math.max(0, stock - booked);
+              const emoji = {
+                green: "🟢",
+                yellow: "🟡",
+                red: "🔴",
+                overbooked: "⛔",
+              }[classifyDay(stock, booked)];
               return [
-                `\nTotal Stock: ${stock}`,
-                `Total Booked: ${booked}`,
-                `Available: ${Math.max(0, stock - booked)}`,
+                `Stock: ${stock}  |  Booked: ${booked}  |  Avail: ${avail}  ${emoji}`,
               ];
             },
           },
         },
       },
     },
+    // FIX 3: inline plugin to draw available count above each bar
     plugins: [
       {
-        id: "customLabels",
-        afterDatasetsDraw: function (chart) {
+        id: "topLabels",
+        afterDatasetsDraw(chart) {
           const ctx = chart.ctx;
+          const meta0 = chart.getDatasetMeta(0); // available dataset
+          const meta1 = chart.getDatasetMeta(1); // booked dataset
+
           ctx.save();
+          ctx.font = "600 9px system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "bottom";
 
-          chart.data.labels.forEach((label, index) => {
-            const selectedRoom = rooms.value.find(
-              (r) => r.id === selectedRoomId.value
-            );
-            const date = dates.value[index];
-            const stock = getRoomStock(selectedRoom, date);
-            const booked = getBookedCount(selectedRoom, date);
-            const displayValue = Math.max(stock, booked);
+          meta0.data.forEach((bar, i) => {
+            const avail = availData[i];
+            const booked = bookedData[i];
+            const total = avail + booked;
+            if (total === 0) return; // skip truly empty
 
-            if (displayValue === 0) return;
+            // top of stacked bar = bottom of available bar's top edge
+            const bar1 = meta1.data[i];
+            const topY = bar1 ? Math.min(bar.y, bar1.y) : bar.y;
+            const label = String(avail);
 
-            const availableMeta = chart.getDatasetMeta(0);
-            const bookedMeta = chart.getDatasetMeta(1);
-            const overflowMeta = chart.getDatasetMeta(2);
+            // color matching the available bar
+            const d = dates.value[i];
+            const stock = getStock(room, d);
+            const bk = getBooked(room, d);
+            const status = classifyDay(stock, bk);
+            ctx.fillStyle =
+              status === "overbooked"
+                ? "#dc2626"
+                : status === "red"
+                ? "#ef4444"
+                : status === "yellow"
+                ? "#d97706"
+                : "#16a34a";
 
-            const topBar =
-              overflowMeta.data[index] &&
-              chartData.value.overflowData[index] > 0
-                ? overflowMeta.data[index]
-                : bookedMeta.data[index] &&
-                  chartData.value.bookedData[index] > 0
-                ? bookedMeta.data[index]
-                : availableMeta.data[index];
-
-            if (topBar) {
-              const x = topBar.x;
-              const y = topBar.y - 8;
-
-              ctx.fillStyle = "#1e293b";
-              ctx.font = `bold 10px sans-serif`;
-              ctx.textAlign = "center";
-              ctx.textBaseline = "bottom";
-              ctx.fillText(displayValue, x, y);
-            }
+            ctx.fillText(label, bar.x, topY - 3);
           });
-
           ctx.restore();
         },
       },
@@ -822,98 +650,96 @@ const createChart = () => {
   });
 };
 
-const onRoomChange = () => {
-  createChart();
-};
-
-const onPeriodChange = async () => {
-  await loadRoomData();
-  createChart();
-};
-
-const loadRoomData = async () => {
-  if (!selectedHotelId.value) return;
-
-  loading.value = true;
+// ── Data loading ───────────────────────────────────────────────────────────────
+const loadHotels = async () => {
+  loadingHotels.value = true;
   try {
-    const res = await roomStore.getListAction({
-      hotel_id: selectedHotelId.value,
-      include_rates: true,
-      year: selectedYear.value,
-      month: selectedMonth.value,
-    });
-
-    if (res.status === 1) {
-      rooms.value = res.result.data.filter((room) => room.is_extra === 0);
-
-      if (rooms.value.length > 0) {
-        selectedRoomId.value = rooms.value[0].id;
-      } else {
-        selectedRoomId.value = null;
-      }
-    }
-  } catch (error) {
-    console.error("Error loading room data:", error);
-    rooms.value = [];
-    selectedRoomId.value = null;
+    const res = await hotelStore.getListAction({ allowment: 1 });
+    allHotels.value = res.result.data || [];
+  } catch (e) {
+    console.error(e);
   } finally {
-    loading.value = false;
+    loadingHotels.value = false;
   }
 };
 
-onMounted(async () => {
-  await loadAllHotels();
-  await loadRoomData();
-  createChart();
-});
+const loadRoomsForHotel = async (hotelId) => {
+  loadingRooms.value = true;
+  hotelRooms.value = [];
+  selectedRoomId.value = null;
+  selectedRoomName.value = "";
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
 
-watch(
-  () => [rooms.value, dates.value],
-  () => {
-    if (rooms.value.length > 0) {
-      createChart();
-    }
-  },
-  { deep: true }
-);
+  try {
+    const today = new Date();
+    const next = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+    const [r1, r2] = await Promise.all([
+      roomStore.getListAction({
+        hotel_id: hotelId,
+        include_rates: true,
+        year: today.getFullYear(),
+        month: today.getMonth() + 1,
+      }),
+      roomStore.getListAction({
+        hotel_id: hotelId,
+        include_rates: true,
+        year: next.getFullYear(),
+        month: next.getMonth() + 1,
+      }),
+    ]);
+
+    const rooms1 =
+      r1.status === 1 ? r1.result.data.filter((r) => r.is_extra === 0) : [];
+    const rooms2 =
+      r2.status === 1 ? r2.result.data.filter((r) => r.is_extra === 0) : [];
+
+    hotelRooms.value = rooms1.map((base) => {
+      const extra = rooms2.find((x) => x.id === base.id);
+      return {
+        ...base,
+        room_rates: {
+          ...(base.room_rates || {}),
+          ...(extra?.room_rates || {}),
+        },
+      };
+    });
+
+    // Update scroll state after rooms load
+    await nextTick();
+    updateScrollState();
+  } catch (e) {
+    console.error(e);
+    hotelRooms.value = [];
+  } finally {
+    loadingRooms.value = false;
+  }
+};
+
+// ── Interactions ───────────────────────────────────────────────────────────────
+const selectHotel = async (hotel) => {
+  if (selectedHotelId.value === hotel.id) return;
+  selectedHotelId.value = hotel.id;
+  selectedHotelName.value = hotel.name;
+  await loadRoomsForHotel(hotel.id);
+};
+
+const selectRoom = async (room) => {
+  selectedRoomId.value = room.id;
+  selectedRoomName.value = room.name;
+  await nextTick();
+  await buildChart();
+};
+
+onMounted(loadHotels);
 </script>
 
 <style scoped>
-.allowment-graph-container {
-  width: 100%;
-}
-
-.chart-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 100%;
-  background: linear-gradient(135deg, #f8fafc 0%, #fff5f0 100%);
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid #e2e8f0;
-}
-
-canvas {
-  max-width: 100%;
-  height: auto !important;
-}
-
-/* Custom scrollbar for modal */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 3px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+/* Hide scrollbar on room strip */
+div[ref="roomScrollRef"]::-webkit-scrollbar {
+  display: none;
 }
 </style>

@@ -1,9 +1,10 @@
 <template>
   <div class="relative">
-    <Transition name="fade">
+    <!-- Loading overlay -->
+    <!-- <Transition name="fade">
       <div
-        v-if="isLoading"
-        class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-white/10 z-10"
+        v-if="isLoadingInit"
+        class="absolute inset-0 flex items-center justify-center bg-white/10 z-10"
       >
         <img
           :src="animation"
@@ -11,23 +12,16 @@
           class="w-full h-full object-cover"
         />
       </div>
-    </Transition>
+    </Transition> -->
 
     <div class="bg-white rounded-lg shadow-sm p-8">
-      <!-- <p class="text-gray-500 text-sm font-medium mb-2">AVERAGE</p> -->
-      <!-- <div class="flex items-end gap-4 mb-2">
-        <span class="text-lg font-bold text-gray-900">{{
-          commissionAmount.toFixed(2)
-        }}</span>
-      </div> -->
-
-      <!-- Add this below the average display -->
+      <!-- Next target info -->
       <div v-if="nextTargetInfo" class="mt-2">
         <p class="text-xs text-gray-400">
           Next:
-          <span class="font-semibold text-lg text-gray-600">{{
-            nextTargetInfo.target.toLocaleString()
-          }}</span>
+          <span class="font-semibold text-lg text-gray-600">
+            {{ nextTargetInfo.target.toLocaleString() }}
+          </span>
           avg
           <span class="text-gray-400">({{ nextTargetInfo.tierLabel }})</span>
         </p>
@@ -41,18 +35,18 @@
           <span class="text-gray-400">
             average needed in {{ nextTargetInfo.daysLeft }} day{{
               nextTargetInfo.daysLeft !== 1 ? "s" : ""
-            }}</span
-          >
+            }}
+          </span>
         </p>
       </div>
       <div v-else-if="commissionAmount > 0" class="mt-2">
         <p class="text-xs text-green-500 font-semibold">🎉 Max tier reached!</p>
       </div>
 
+      <!-- Commission display -->
       <div class="mt-4 pt-4 border-t border-gray-200">
         <div class="flex items-center gap-2 mb-2">
           <p class="text-gray-500 text-sm font-medium">COMMISSION</p>
-          <!-- Info Icon -->
           <button
             @click="showPopup = true"
             class="w-5 h-5 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 text-xs font-bold flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400"
@@ -67,7 +61,7 @@
       </div>
     </div>
 
-    <!-- Info Popup Overlay -->
+    <!-- ── Tiers Popup ── -->
     <Transition name="fade">
       <div
         v-if="showPopup"
@@ -75,7 +69,7 @@
         @click.self="showPopup = false"
       >
         <div
-          class="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 overflow-hidden"
+          class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 overflow-hidden"
         >
           <!-- Header -->
           <div
@@ -84,17 +78,32 @@
             <h3 class="text-base font-semibold text-gray-800">
               Commission Tiers
             </h3>
-            <button
-              @click="showPopup = false"
-              class="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none"
-            >
-              &times;
-            </button>
+            <div class="flex items-center gap-2" v-if="authStore.isSuperAdmin">
+              <button
+                @click="openCreateModal"
+                class="text-xs px-3 py-1.5 bg-[#FF613c] text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+              >
+                + Add Tier
+              </button>
+              <button
+                @click="showPopup = false"
+                class="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none"
+              >
+                &times;
+              </button>
+            </div>
           </div>
 
-          <!-- Tier Table -->
+          <!-- Error banner -->
+          <div v-if="tierStore.error" class="px-5 pt-3">
+            <p class="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">
+              {{ tierStore.error }}
+            </p>
+          </div>
+
+          <!-- Tier list -->
           <div class="px-5 py-4 space-y-2 max-h-96 overflow-y-auto">
-            <!-- Warning Row -->
+            <!-- Warning row -->
             <div
               class="flex items-center justify-between py-2 px-3 rounded-lg bg-red-50"
             >
@@ -105,35 +114,89 @@
               <span class="text-sm font-semibold text-red-500">Warning</span>
             </div>
 
-            <!-- Tier Rows -->
+            <!-- Loading skeleton -->
+            <template v-if="tierStore.isLoading">
+              <div
+                v-for="n in 5"
+                :key="n"
+                class="h-10 bg-gray-100 rounded-lg animate-pulse"
+              />
+            </template>
+
+            <!-- Tier rows -->
             <div
-              v-for="tier in commissionTiers"
-              :key="tier.label"
-              class="flex items-center justify-between py-2 px-3 rounded-lg transition-colors"
-              :class="[
+              v-for="tier in tierStore.tiers"
+              :key="tier.id"
+              class="flex items-center justify-between py-2 px-3 rounded-lg transition-colors group"
+              :class="
                 commissionAmount >= tier.minSalary
                   ? 'bg-green-50 border border-green-200'
-                  : 'bg-gray-50',
-              ]"
+                  : 'bg-gray-50'
+              "
             >
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
                 <span
-                  class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                  class="text-xs font-semibold px-2 py-0.5 rounded-full shrink-0"
                   :class="tier.badgeClass"
                 >
                   {{ tier.label }}
                 </span>
-                <span class="text-sm text-gray-600">
-                  Average {{ tier.avgDaily.toLocaleString() }}
+                <span class="text-sm text-gray-600 truncate">
+                  Average {{ tier.minSalary.toLocaleString() }}
                 </span>
               </div>
-              <span class="text-sm font-bold text-gray-800">
-                {{ tier.rate }} lakh
-              </span>
+              <div class="flex items-center gap-3 ml-2">
+                <span class="text-sm font-bold text-gray-800"
+                  >{{ tier.rate }} lakh</span
+                >
+                <!-- Edit / Delete — visible on hover -->
+                <div
+                  class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <button
+                    @click="openEditModal(tier)"
+                    class="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+                    title="Edit"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    @click="confirmDelete(tier)"
+                    class="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                    title="Delete"
+                  >
+                    <svg
+                      class="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Footer note -->
+          <!-- Footer -->
           <div class="px-5 py-3 bg-gray-50 border-t border-gray-100">
             <p class="text-xs text-gray-400 text-center">
               Base Salary &gt; 7 lakh required to qualify
@@ -142,166 +205,248 @@
         </div>
       </div>
     </Transition>
+
+    <!-- ── Create / Edit Modal ── -->
+    <Transition name="fade">
+      <div
+        v-if="showFormModal"
+        class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50"
+        @click.self="closeFormModal"
+      >
+        <div
+          class="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden"
+        >
+          <div
+            class="flex items-center justify-between px-5 py-4 border-b border-gray-100"
+          >
+            <h3 class="text-base font-semibold text-gray-800">
+              {{ editingTier ? "Edit Tier" : "Add New Tier" }}
+            </h3>
+            <button
+              @click="closeFormModal"
+              class="text-gray-400 hover:text-gray-600 text-xl leading-none"
+            >
+              &times;
+            </button>
+          </div>
+
+          <form @submit.prevent="submitForm" class="px-5 py-4 space-y-4">
+            <!-- Label -->
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1"
+                >Label</label
+              >
+              <input
+                v-model="form.label"
+                type="text"
+                placeholder="e.g. Tier 18"
+                required
+                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF613c]/40 focus:border-[#FF613c]"
+              />
+            </div>
+
+            <!-- Min Salary & Avg Daily -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1"
+                  >Avg</label
+                >
+                <input
+                  v-model.number="form.min_salary"
+                  type="number"
+                  min="0"
+                  required
+                  class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF613c]/40 focus:border-[#FF613c]"
+                />
+              </div>
+              <!-- <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1"
+                  >Avg Daily</label
+                >
+                <input
+                  v-model.number="form.avg_daily"
+                  type="number"
+                  min="0"
+                  required
+                  class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF613c]/40 focus:border-[#FF613c]"
+                />
+              </div> -->
+            </div>
+
+            <!-- Rate & Sort Order -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1"
+                  >Rate (lakh MMK)</label
+                >
+                <input
+                  v-model.number="form.rate"
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  required
+                  class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF613c]/40 focus:border-[#FF613c]"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1"
+                  >Sort Order</label
+                >
+                <input
+                  v-model.number="form.sort_order"
+                  type="number"
+                  min="0"
+                  class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF613c]/40 focus:border-[#FF613c]"
+                />
+              </div>
+            </div>
+
+            <!-- Is Active -->
+            <div class="flex items-center gap-2">
+              <input
+                id="is_active"
+                v-model="form.is_active"
+                type="checkbox"
+                class="w-4 h-4 accent-[#FF613c]"
+              />
+              <label for="is_active" class="text-sm text-gray-600"
+                >Active</label
+              >
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2 pt-1">
+              <button
+                type="button"
+                @click="closeFormModal"
+                class="flex-1 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                :disabled="tierStore.isLoading"
+                class="flex-1 py-2 text-sm bg-[#FF613c] text-white rounded-lg hover:bg-orange-600 transition-colors font-medium disabled:opacity-50"
+              >
+                {{
+                  tierStore.isLoading
+                    ? "Saving..."
+                    : editingTier
+                    ? "Update"
+                    : "Create"
+                }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ── Delete Confirm Modal ── -->
+    <Transition name="fade">
+      <div
+        v-if="showDeleteModal"
+        class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50"
+        @click.self="showDeleteModal = false"
+      >
+        <div
+          class="bg-white rounded-xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center"
+        >
+          <div
+            class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3"
+          >
+            <svg
+              class="w-6 h-6 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </div>
+          <h3 class="text-base font-semibold text-gray-800 mb-1">
+            Delete Tier
+          </h3>
+          <p class="text-sm text-gray-500 mb-4">
+            Are you sure you want to delete
+            <strong>{{ deletingTier?.label }}</strong
+            >? This cannot be undone.
+          </p>
+          <div class="flex gap-2">
+            <button
+              @click="showDeleteModal = false"
+              class="flex-1 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="executeDelete"
+              :disabled="tierStore.isLoading"
+              class="flex-1 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium disabled:opacity-50"
+            >
+              {{ tierStore.isLoading ? "Deleting..." : "Delete" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, defineProps, computed } from "vue";
-import animation from "../../assets/congratulations-7600_256.gif";
-import { useAuthStore } from "../../stores/auth";
+import { ref, computed, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
+import { useAuthStore } from "../../stores/auth";
+import { useCommissionTierStore } from "../../stores/commissionTier";
+import animation from "../../assets/congratulations-7600_256.gif";
 
+// ── Stores ────────────────────────────────────────────
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 
+const tierStore = useCommissionTierStore();
+
+// ── Props ─────────────────────────────────────────────
 const props = defineProps({
-  salesReps: {
-    type: Array,
-    required: true,
-  },
+  salesReps: { type: Array, required: true },
 });
 
-const isLoading = ref(true);
+// ── State ─────────────────────────────────────────────
+const isLoadingInit = ref(true);
 const commissionAmount = ref(0);
 const showPopup = ref(false);
 
-const commissionTiers = [
-  {
-    minSalary: 20000,
-    avgDaily: 20000,
-    rate: 7,
-    label: "Tier 1",
-    badgeClass: "bg-blue-100 text-blue-600",
-  },
-  {
-    minSalary: 25000,
-    avgDaily: 25000,
-    rate: 7.5,
-    label: "Tier 2",
-    badgeClass: "bg-cyan-100 text-cyan-700",
-  },
-  {
-    minSalary: 30000,
-    avgDaily: 30000,
-    rate: 8,
-    label: "Tier 3",
-    badgeClass: "bg-teal-100 text-teal-700",
-  },
-  {
-    minSalary: 35000,
-    avgDaily: 35000,
-    rate: 9,
-    label: "Tier 4",
-    badgeClass: "bg-green-100 text-green-700",
-  },
-  {
-    minSalary: 40000,
-    avgDaily: 40000,
-    rate: 10,
-    label: "Tier 5",
-    badgeClass: "bg-lime-100 text-lime-700",
-  },
-  {
-    minSalary: 45000,
-    avgDaily: 45000,
-    rate: 11,
-    label: "Tier 6",
-    badgeClass: "bg-yellow-100 text-yellow-700",
-  },
-  {
-    minSalary: 50000,
-    avgDaily: 50000,
-    rate: 12,
-    label: "Tier 7",
-    badgeClass: "bg-amber-100 text-amber-700",
-  },
-  {
-    minSalary: 55000,
-    avgDaily: 55000,
-    rate: 13.5,
-    label: "Tier 8",
-    badgeClass: "bg-orange-100 text-orange-600",
-  },
-  {
-    minSalary: 60000,
-    avgDaily: 60000,
-    rate: 15,
-    label: "Tier 9",
-    badgeClass: "bg-red-100 text-red-600",
-  },
-  {
-    minSalary: 65000,
-    avgDaily: 65000,
-    rate: 16.5,
-    label: "Tier 10",
-    badgeClass: "bg-rose-100 text-rose-600",
-  },
-  {
-    minSalary: 70000,
-    avgDaily: 70000,
-    rate: 18,
-    label: "Tier 11",
-    badgeClass: "bg-pink-100 text-pink-600",
-  },
-  {
-    minSalary: 75000,
-    avgDaily: 75000,
-    rate: 19,
-    label: "Tier 12",
-    badgeClass: "bg-fuchsia-100 text-fuchsia-600",
-  },
-  {
-    minSalary: 80000,
-    avgDaily: 80000,
-    rate: 20,
-    label: "Tier 13",
-    badgeClass: "bg-purple-100 text-purple-600",
-  },
-  {
-    minSalary: 85000,
-    avgDaily: 85000,
-    rate: 21,
-    label: "Tier 14",
-    badgeClass: "bg-violet-100 text-violet-600",
-  },
-  {
-    minSalary: 90000,
-    avgDaily: 90000,
-    rate: 22,
-    label: "Tier 15",
-    badgeClass: "bg-indigo-100 text-indigo-600",
-  },
-  {
-    minSalary: 95000,
-    avgDaily: 95000,
-    rate: 23.5,
-    label: "Tier 16",
-    badgeClass: "bg-sky-100 text-sky-600",
-  },
-  {
-    minSalary: 100000,
-    avgDaily: 100000,
-    rate: 25,
-    label: "Tier 17",
-    badgeClass: "bg-blue-100 text-blue-700",
-  },
-];
+// Form modal
+const showFormModal = ref(false);
+const editingTier = ref(null);
+const form = ref(emptyForm());
 
+// Delete modal
+const showDeleteModal = ref(false);
+const deletingTier = ref(null);
+
+function emptyForm() {
+  return {
+    label: "",
+    min_salary: 0,
+    avg_daily: 0,
+    rate: 0,
+    sort_order: 0,
+    is_active: true,
+  };
+}
+
+// ── Commission logic ──────────────────────────────────
 const calculateCommission = () => {
-  const tier = [...commissionTiers]
+  const tier = [...tierStore.tiers]
     .reverse()
-    .find((tier) => commissionAmount.value >= tier.minSalary);
+    .find((t) => commissionAmount.value >= t.minSalary);
   return tier ? `${tier.rate} lakh MMK` : "0";
-};
-
-// Helper to sync commission from salesReps
-const syncCommission = (reps) => {
-  if (reps && reps.length > 0) {
-    const currentUserRep = reps.find((rep) => rep.id === user.value.id);
-    if (currentUserRep) {
-      commissionAmount.value = currentUserRep.amount;
-    }
-  }
 };
 
 const nextTargetInfo = computed(() => {
@@ -312,17 +457,15 @@ const nextTargetInfo = computed(() => {
     today.getMonth() + 1,
     0,
   ).getDate();
-  const daysLeft = daysInMonth - currentDay + 1; // ✅ include today
+  const daysLeft = daysInMonth - currentDay + 1;
 
   const currentMonthSales = commissionAmount.value * currentDay;
-  const nextTier = commissionTiers.find(
-    (tier) => tier.minSalary > commissionAmount.value,
+  const nextTier = tierStore.tiers.find(
+    (t) => t.minSalary > commissionAmount.value,
   );
-
   if (!nextTier) return null;
 
   const needed = nextTier.minSalary * daysInMonth - currentMonthSales;
-
   return {
     target: nextTier.minSalary,
     tierLabel: nextTier.label,
@@ -331,27 +474,79 @@ const nextTargetInfo = computed(() => {
   };
 });
 
-// Watch salesReps prop for changes (e.g. when parent fetches data async)
+const syncCommission = (reps) => {
+  if (reps?.length) {
+    const rep = reps.find((r) => r.id === user.value.id);
+    if (rep) commissionAmount.value = rep.amount;
+  }
+};
+
+// ── CRUD helpers ──────────────────────────────────────
+const openCreateModal = () => {
+  editingTier.value = null;
+  form.value = emptyForm();
+  showFormModal.value = true;
+};
+
+const openEditModal = (tier) => {
+  editingTier.value = tier;
+  form.value = {
+    label: tier.label,
+    min_salary: tier.minSalary,
+    avg_daily: tier.avgDaily,
+    rate: tier.rate,
+    sort_order: tier.sortOrder,
+    is_active: tier.isActive,
+  };
+  showFormModal.value = true;
+};
+
+const closeFormModal = () => {
+  showFormModal.value = false;
+  editingTier.value = null;
+  form.value = emptyForm();
+};
+
+const submitForm = async () => {
+  try {
+    if (editingTier.value) {
+      await tierStore.updateTier(editingTier.value.id, form.value);
+    } else {
+      await tierStore.createTier(form.value);
+    }
+    closeFormModal();
+  } catch {
+    // error shown via store.error
+  }
+};
+
+const confirmDelete = (tier) => {
+  deletingTier.value = tier;
+  showDeleteModal.value = true;
+};
+
+const executeDelete = async () => {
+  try {
+    await tierStore.deleteTier(deletingTier.value.id);
+    showDeleteModal.value = false;
+    deletingTier.value = null;
+  } catch {
+    // error shown via store.error
+  }
+};
+
+// ── Lifecycle ─────────────────────────────────────────
 watch(
   () => props.salesReps,
-  (newReps) => {
-    console.log("salesReps updated:", newReps);
-    syncCommission(newReps);
-  },
-  { deep: true, immediate: false },
+  (reps) => syncCommission(reps),
+  { deep: true },
 );
 
-onMounted(() => {
-  console.log("====================================");
-  console.log(props.salesReps, user.value.id);
-  console.log("====================================");
-
+onMounted(async () => {
   syncCommission(props.salesReps);
-
-  console.log(commissionAmount.value, "this is amount");
-
+  await tierStore.fetchTiers();
   setTimeout(() => {
-    isLoading.value = false;
+    isLoadingInit.value = false;
   }, 6000);
 });
 </script>
@@ -359,9 +554,8 @@ onMounted(() => {
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.3s ease;
 }
-
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;

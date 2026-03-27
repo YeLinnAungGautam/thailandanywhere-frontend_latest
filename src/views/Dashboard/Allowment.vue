@@ -1,15 +1,15 @@
 <template>
   <div class="grid grid-cols-3 gap-4">
-    <div class="col-span-2">
+    <div class="col-span-3">
       <AllowmentGraph />
     </div>
-    <div class="col-span-1">
+    <!-- <div class="col-span-1">
       <AllowmentSearch />
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script setup>
 import AllowmentGraph from "./AllowmentGraph.vue";
-import AllowmentSearch from "./AllowmentSearch.vue";
+// import AllowmentSearch from "./AllowmentSearch.vue";
 </script>

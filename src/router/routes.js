@@ -117,6 +117,10 @@ import EntranceCreateVersion2 from "../views/EntranceCreateVersion2.vue";
 import GenerateInclusive from "../views/GenerateInclusive.vue";
 import InclusiveGraph from "../views/DashboardPageSplit/InclusiveGraph.vue";
 import ExpenseGraph from "../views/ExpenseGraph.vue";
+import AvailabiltyHome from "../views/AvailabiltyHome.vue";
+import Availability from "../views/Availability.vue";
+import AvailabilityAnalytics from "../views/AvailabilityAnalytics.vue";
+import AllowmentChecker from "../views/AllowmentChecker.vue";
 
 const routes = [
   {
@@ -554,7 +558,22 @@ const routes = [
   {
     path: "/availabilities/",
     name: "availabilities",
-    component: AvailabilityView,
+    component: AvailabiltyHome,
+  },
+  {
+    path: "/availabilities/checker",
+    name: "availabilities-checker",
+    component: Availability,
+  },
+  {
+    path: "/availabilities/analytics",
+    name: "availabilities-analytics",
+    component: AvailabilityAnalytics,
+  },
+  {
+    path: "/allowment/checker",
+    name: "allowment-checker",
+    component: AllowmentChecker,
   },
   {
     path: "/users",

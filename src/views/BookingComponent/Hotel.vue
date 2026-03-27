@@ -3,6 +3,7 @@ import { ref, onMounted, watch, computed, defineEmits } from "vue";
 import {
   MagnifyingGlassIcon,
   BarsArrowDownIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
 } from "@heroicons/vue/24/outline";
 // import { useVantourStore } from "../../stores/vantour";
 import { useHotelStore } from "../../stores/hotel";
@@ -383,6 +384,11 @@ const watchSystem = computed(() => {
   return result;
 });
 
+const goToAllowment = (h) => {
+  console.log(h, "this is hotel");
+  window.open(`/allowment/checker?id=${h.id}`, "_blank");
+};
+
 watch(hotels, async (newValue) => {
   if (newValue) {
     destsList.value = [...destsList.value, ...newValue?.data];
@@ -447,7 +453,7 @@ onMounted(async () => {
                 : 'bg-white text-black'
             "
           >
-            Allowment
+            Instand Booking
           </p>
           <p
             class="text-xs px-2 py-0.5 rounded-xl cursor-pointer"
@@ -552,14 +558,24 @@ onMounted(async () => {
             <p class="text-[10px]">{{ i?.type }}</p>
           </div>
         </div>
+
         <div class="flex justify-between items-center">
           <p class="font-medium">{{ i?.lowest_room_price }} ฿</p>
-          <button
-            @click="openAddItemModal(i)"
-            class="bg-blue-500 text-white px-2 py-1 rounded-full text-[10px]"
-          >
-            + Add item
-          </button>
+          <div class="flex justify-end items-center gap-x-2">
+            <p
+              v-if="i?.allowment"
+              class="p-1 bg-blue-500 rounded-xl"
+              @click="goToAllowment(i)"
+            >
+              <ChatBubbleOvalLeftEllipsisIcon class="w-4 h-4 text-white" />
+            </p>
+            <button
+              @click="openAddItemModal(i)"
+              class="bg-orange-500 text-white px-2 py-1 rounded-full text-[10px]"
+            >
+              + Add item
+            </button>
+          </div>
         </div>
       </div>
       <div v-if="loading" class="text-xs p-6 text-center">
@@ -798,20 +814,6 @@ onMounted(async () => {
               id=""
             />
           </div>
-
-          <!-- <div>
-            <label for="" class="text-[12px] text-gray-500"
-              >Add on <span class="text-red-800">*</span></label
-            >
-            <div>
-              <AddonListOnBooking
-                :id="formitem.product_id"
-                :type="'hotel'"
-                :addOnList="addOnList"
-                @cleanAddOnList="changeAddOnList"
-              />
-            </div>
-          </div> -->
 
           <div class="space-y-2">
             <!-- <p class="text-xs text-start px-2 pt-2">

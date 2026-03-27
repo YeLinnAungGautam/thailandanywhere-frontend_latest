@@ -40,7 +40,7 @@ import { useInclusivePackageStore } from "../stores/inclusivePackage";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
-const currentTag = ref("Van Tours");
+const currentTag = ref("Hotels");
 const currentSubTag = ref("items");
 const addItemModal = ref(false);
 const bookingStore = useBookingStore();
@@ -55,18 +55,18 @@ const { user } = storeToRefs(authStore);
 const productArray = [
   {
     id: 1,
+    name: "Hotels",
+    image: HotelImage,
+  },
+  {
+    id: 2,
     name: "Van Tours",
     image: VantourImage,
   },
   {
-    id: 2,
+    id: 3,
     name: "Attractions",
     image: AttractionImage,
-  },
-  {
-    id: 3,
-    name: "Hotels",
-    image: HotelImage,
   },
   {
     id: 4,

@@ -590,9 +590,15 @@ function toggleBfast(id: number) {
 }
 
 // ─── Counts derived from Step 1 checkboxes ───────────────────────────────────
-const mainCount = computed(() => rooms.value.filter((r) => r.isMain).length);
-const extraCount = computed(() => rooms.value.filter((r) => r.isExtra).length);
-const bfastCount = computed(() => rooms.value.filter((r) => r.isBfast).length);
+const mainCount = computed(() =>
+  rooms.value.filter((r) => r.isMain).reduce((sum, r) => sum + r.quantity, 0),
+);
+const extraCount = computed(() =>
+  rooms.value.filter((r) => r.isExtra).reduce((sum, r) => sum + r.quantity, 0),
+);
+const bfastCount = computed(() =>
+  rooms.value.filter((r) => r.isBfast).reduce((sum, r) => sum + r.quantity, 0),
+);
 const mainRooms = computed(() => rooms.value.filter((r) => r.isMain));
 
 // ─── Step 2: extra bed ────────────────────────────────────────────────────────

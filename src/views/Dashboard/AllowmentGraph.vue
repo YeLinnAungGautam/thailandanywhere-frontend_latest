@@ -130,13 +130,13 @@
             <p class="text-[11px] text-slate-400 mt-0.5">
               {{
                 selectedRoomId
-                  ? selectedRoomName + " · Next 30 days"
+                  ? selectedRoomName + " · " + checkin + "-" + checkout
                   : "Select a room to view chart"
               }}
             </p>
           </div>
           <!-- Legend shown only when chart is visible -->
-          <div v-if="selectedRoomId" class="flex items-center gap-3 flex-wrap">
+          <!-- <div v-if="selectedRoomId" class="flex items-center gap-3 flex-wrap">
             <div
               v-for="l in legend"
               :key="l.label"
@@ -149,6 +149,73 @@
               <span class="text-[10px] font-semibold text-slate-500">{{
                 l.label
               }}</span>
+            </div>
+          </div> -->
+          <!-- Date range picker -->
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <div
+              class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5"
+            >
+              <svg
+                class="w-3.5 h-3.5 text-slate-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <input
+                type="date"
+                v-model="checkin"
+                class="text-xs text-slate-600 bg-transparent outline-none cursor-pointer"
+                @change="selectedRoomId && buildChart()"
+              />
+            </div>
+            <span class="text-slate-400 text-xs">→</span>
+            <div
+              class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5"
+            >
+              <svg
+                class="w-3.5 h-3.5 text-slate-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <input
+                type="date"
+                v-model="checkout"
+                :min="checkin"
+                class="text-xs text-slate-600 bg-transparent outline-none cursor-pointer"
+                @change="selectedRoomId && buildChart()"
+              />
+            </div>
+            <!-- Quick presets -->
+            <div class="flex gap-1">
+              <button
+                v-for="preset in datePresets"
+                :key="preset.label"
+                @click="applyPreset(preset.days)"
+                class="text-[12px] px-2 py-1.5 rounded-full border transition-colors"
+                :class="
+                  activeDays === preset.days
+                    ? 'bg-orange-500 text-white border-orange-500'
+                    : 'bg-white text-slate-500 border-slate-200 hover:border-orange-300 hover:text-orange-500'
+                "
+              >
+                {{ preset.label }}
+              </button>
             </div>
           </div>
         </div>
@@ -345,18 +412,37 @@ const chartCanvas = ref(null);
 const roomScrollRef = ref(null);
 const canScrollLeft = ref(false);
 const canScrollRight = ref(false);
+const checkin = ref("");
+const checkout = ref("");
 let chartInstance = null;
 
 // ── Dates: next 30 days ────────────────────────────────────────────────────────
+// const dates = computed(() => {
+//   const today = new Date();
+//   today.setHours(0, 0, 0, 0);
+//   return Array.from({ length: 30 }, (_, i) => {
+//     const d = new Date(today);
+//     d.setDate(today.getDate() + i);
+//     return d;
+//   });
+// });
 const dates = computed(() => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return Array.from({ length: 30 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    return d;
-  });
+  if (!checkin.value || !checkout.value) return [];
+  const start = new Date(checkin.value);
+  const end = new Date(checkout.value);
+  const result = [];
+  const cur = new Date(start);
+  while (cur <= end) {
+    result.push(new Date(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return result;
 });
+
+// const first = visibleRooms.value[0];
+// if (first) {
+//   await selectRoom(first);
+// }
 
 const legend = [
   { label: "Available", color: "#22c55e" },
@@ -711,12 +797,42 @@ const loadRoomsForHotel = async (hotelId) => {
     // Update scroll state after rooms load
     await nextTick();
     updateScrollState();
+    await nextTick();
+    updateScrollState();
+    const first = visibleRooms.value[0];
+    if (first) {
+      await selectRoom(first);
+    }
   } catch (e) {
     console.error(e);
     hotelRooms.value = [];
   } finally {
     loadingRooms.value = false;
   }
+};
+
+const datePresets = [
+  { label: "14d", days: 14 },
+  { label: "30d", days: 30 },
+  { label: "60d", days: 60 },
+  { label: "90d", days: 90 },
+];
+
+const activeDays = computed(() => {
+  if (!checkin.value || !checkout.value) return null;
+  const diff = Math.round(
+    (new Date(checkout.value) - new Date(checkin.value)) / 86400000,
+  );
+  return diff;
+});
+
+const applyPreset = (days) => {
+  const today = new Date();
+  const end = new Date(today);
+  end.setDate(today.getDate() + days);
+  checkin.value = fmtKey(today);
+  checkout.value = fmtKey(end);
+  if (selectedRoomId.value) buildChart();
 };
 
 // ── Interactions ───────────────────────────────────────────────────────────────
@@ -734,7 +850,31 @@ const selectRoom = async (room) => {
   await buildChart();
 };
 
-onMounted(loadHotels);
+// onMounted(loadHotels);
+onMounted(() => {
+  // Set default range: today → today+30
+  const today = new Date();
+  const end = new Date(today);
+  end.setDate(today.getDate() + 30);
+  checkin.value = fmtKey(today);
+  checkout.value = fmtKey(end);
+
+  loadHotels().then(() => {
+    // Auto-select hotel from ?id= query param
+    const urlParams = new URLSearchParams(window.location.search);
+    const hotelId = Number(urlParams.get("id"));
+    if (hotelId) {
+      const hotel = allHotels.value.find((h) => h.id === hotelId);
+      if (hotel) selectHotel(hotel);
+    }
+  });
+});
+
+watch([checkin, checkout], async () => {
+  if (selectedHotelId.value) {
+    await loadRoomsForHotel(selectedHotelId.value);
+  }
+});
 </script>
 
 <style scoped>

@@ -450,7 +450,7 @@
                 :activePaths="['storage']"
               />
               <SidebarItem
-                v-if="authStore.isSuperAdmin"
+                v-if="authStore.isSuperAdmin || authStore.isReservation"
                 name="Partners"
                 :icon="UserGroupIcon"
                 to="/partner"

@@ -600,8 +600,13 @@ const totalExtraUsed = computed(() =>
   mainRooms.value.reduce((s, r) => s + r.extraBed, 0),
 );
 
+// function canAddExtra(room: WizardRoom): boolean {
+//   return totalExtraUsed.value < extraCount.value && room.extraBed < 1;
+// }
+
 function canAddExtra(room: WizardRoom): boolean {
-  return totalExtraUsed.value < extraCount.value && room.extraBed < 1;
+  return totalExtraUsed.value < extraCount.value;
+  // removed: && room.extraBed < 1
 }
 
 function changeExtra(id: number, delta: number) {

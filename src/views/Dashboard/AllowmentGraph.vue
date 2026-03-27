@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-full min-h-[600px] rounded-lg overflow-hidden shadow-xl bg-slate-100 font-sans"
+    class="flex h-full min-h-[690px] rounded-lg overflow-hidden shadow-xl bg-slate-100 font-sans"
   >
     <!-- ═══ LEFT PANEL ═══ -->
     <div
@@ -10,7 +10,7 @@
       <div class="px-4 pt-5 pb-4 border-b border-slate-100 flex-shrink-0">
         <div class="flex items-center gap-2 mb-3">
           <span class="text-base">🏨</span>
-          <h2 class="text-sm font-bold text-slate-700 tracking-wide flex-1">
+          <h2 class="text-lg font-bold text-slate-700 tracking-wide flex-1">
             Hotels
           </h2>
           <span

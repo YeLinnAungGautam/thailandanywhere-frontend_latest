@@ -373,7 +373,11 @@ const watchSystem = computed(() => {
   }
   result.limit = 20;
   if (type.value != null) {
-    result.type = type.value;
+    if (type.value != "allowment") {
+      result.type = type.value;
+    } else {
+      result.allowment = 1;
+    }
   }
 
   return result;
@@ -434,6 +438,17 @@ onMounted(async () => {
         <div
           class="border border-gray-200 bg-white flex justify-start items-center gap-x-1 rounded-full p-1"
         >
+          <p
+            class="text-xs px-2 py-0.5 rounded-xl cursor-pointer"
+            @click="type = 'allowment'"
+            :class="
+              type == 'allowment'
+                ? 'bg-[#ff613c] text-white'
+                : 'bg-white text-black'
+            "
+          >
+            Allowment
+          </p>
           <p
             class="text-xs px-2 py-0.5 rounded-xl cursor-pointer"
             @click="type = 'direct_booking'"

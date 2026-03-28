@@ -224,8 +224,22 @@ const todayCheck = () => {
 //   }
 // };
 
+const bookingStep = ref(1);
+
+// add this computed
+const canGoNext = computed(() => {
+  return (
+    formitem.value.service_date !== "" &&
+    formitem.value.checkout_date !== "" &&
+    formitem.value.days > 0 &&
+    todayVali.value &&
+    !isOutOfStock.value
+  );
+});
+
 // cear item
 const clearAction = () => {
+  bookingStep.value = 1;
   formitem.value = {
     reservation_id: null,
     product_type: 6,
@@ -679,7 +693,7 @@ onMounted(async () => {
       </DialogPanel>
     </Modal>
     <!-- choose info booking modal -->
-    <Modal :isOpen="addInfoModal" @closeModal="addInfoModal = false">
+    <!-- <Modal :isOpen="addInfoModal" @closeModal="addInfoModal = false">
       <DialogPanel
         class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
@@ -775,7 +789,7 @@ onMounted(async () => {
                 </p>
               </div>
 
-              <!-- Stock status line -->
+              
               <p
                 v-if="minAvailableStock !== null"
                 class="text-[10px] font-medium"
@@ -816,16 +830,7 @@ onMounted(async () => {
           </div>
 
           <div class="space-y-2">
-            <!-- <p class="text-xs text-start px-2 pt-2">
-              selling price :
-              <span class="font-medium text-[#ff613c]"
-                >{{
-                  formitem.selling_price * formitem.quantity * formitem.days -
-                  formitem.discount
-                }}
-                ฿</span
-              >
-            </p> -->
+            
             <div>
               <div
                 v-for="i in priceArray"
@@ -878,30 +883,7 @@ onMounted(async () => {
             ></textarea>
           </div>
         </div>
-        <!-- <div class="flex justify-end items-center gap-x-2 pt-2">
-          <button
-            @click="clearAction"
-            class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
-          >
-            Cancel
-          </button>
-          <button
-            v-if="formitem.product_id && todayVali"
-            @click="getFunction"
-            class="bg-[#ff613c] text-white px-3 py-2.5 rounded-lg text-xs"
-            :class="todayVali ? 'bg-[#ff613c]' : 'bg-gray-300'"
-          >
-            Add Item
-          </button>
-          <button
-            v-if="!formitem.product_id || !todayVali"
-            @click="getFunction"
-            class="bg-[#ff613c] text-white px-3 py-2.5 rounded-lg text-xs"
-            :class="todayVali ? 'bg-[#ff613c]' : 'bg-gray-300'"
-          >
-            Add Item
-          </button>
-        </div> -->
+        
         <div class="flex justify-end items-center gap-x-2 pt-2">
           <button
             @click="clearAction"
@@ -925,6 +907,356 @@ onMounted(async () => {
                 : "Add Item"
             }}
           </button>
+        </div>
+      </DialogPanel>
+    </Modal> -->
+
+    <!-- addInfoModal — Step 1: Stay details -->
+    <Modal :isOpen="addInfoModal" @closeModal="addInfoModal = false">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <!-- STEP 1 -->
+        <div v-if="bookingStep === 1">
+          <DialogTitle
+            as="h3"
+            class="text-lg font-medium leading-6 text-gray-900 mb-1"
+          >
+            Stay details
+          </DialogTitle>
+          <div class="pb-3 border-b border-gray-200 mb-3">
+            <p class="text-xs text-gray-500">
+              Step 1 of 2 — Fill in dates and rooms.
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Dates -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="text-[11px] text-gray-500"
+                  >Check-in <span class="text-red-600">*</span></label
+                >
+                <input
+                  type="date"
+                  v-model="formitem.service_date"
+                  @change="todayCheck"
+                  class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  :class="
+                    todayVali
+                      ? 'border-gray-300'
+                      : 'border-red-500 text-red-600'
+                  "
+                />
+                <p
+                  v-if="!todayVali && formitem.service_date"
+                  class="text-[10px] text-red-500"
+                >
+                  Date must be today or later
+                </p>
+              </div>
+              <div class="space-y-1">
+                <label class="text-[11px] text-gray-500"
+                  >Check-out <span class="text-red-600">*</span></label
+                >
+                <input
+                  type="date"
+                  v-model="formitem.checkout_date"
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <!-- Nights pill -->
+            <div
+              v-if="formitem.days > 0"
+              class="bg-orange-50 rounded-lg px-3 py-2 flex justify-start items-center gap-x-2"
+            >
+              <p class="text-xs font-medium text-orange-700">
+                {{ formitem.days }} night{{ formitem.days !== 1 ? "s" : "" }}
+                selected
+              </p>
+              <p class="w-1 h-1 bg-black rounded-full"></p>
+              <p
+                class="text-xs font-medium text-green-700"
+                v-if="minAvailableStock !== null"
+              >
+                {{ minAvailableStock }} rooms available on this date
+              </p>
+            </div>
+
+            <!-- Rooms + summary -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="text-[11px] text-gray-500"
+                  >Total rooms <span class="text-red-600">*</span></label
+                >
+                <div class="flex items-center gap-2">
+                  <button
+                    @click="formitem.quantity > 1 ? formitem.quantity-- : null"
+                    class="w-8 h-8 flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 text-lg leading-none"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    v-model="formitem.quantity"
+                    class="w-full text-center text-sm font-medium border rounded-lg py-1.5 focus:outline-none"
+                    :class="
+                      isOutOfStock
+                        ? 'border-red-500 text-red-600'
+                        : 'border-gray-300'
+                    "
+                  />
+                  <button
+                    @click="!isOutOfStock ? formitem.quantity++ : null"
+                    class="w-8 h-8 flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 text-orange-500 text-lg leading-none"
+                    :class="isOutOfStock ? 'opacity-30 cursor-not-allowed' : ''"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div class="space-y-1">
+                <label class="text-[11px] text-gray-500">Summary</label>
+                <div
+                  class="bg-gray-100 rounded-lg px-2 py-2 border border-gray-200 h-[34px] flex items-center"
+                >
+                  <p class="text-xs text-gray-700">
+                    {{ formitem.days || "—" }} nights ×
+                    {{ formitem.quantity }} rooms
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Availability bar -->
+            <!-- <div
+              v-if="minAvailableStock !== null"
+              class="bg-gray-50 rounded-lg p-3 border border-gray-200"
+            >
+              <div class="flex justify-between items-center mb-1.5">
+                <span class="text-[11px] text-gray-500">Availability</span>
+                <span
+                  class="text-[11px] font-medium"
+                  :class="
+                    isOutOfStock
+                      ? 'text-red-600'
+                      : Number(formitem.quantity) >= minAvailableStock * 0.7
+                      ? 'text-amber-600'
+                      : 'text-green-700'
+                  "
+                >
+                  {{
+                    isOutOfStock
+                      ? `Only ${minAvailableStock} available`
+                      : `${minAvailableStock} rooms available`
+                  }}
+                </span>
+              </div>
+              <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all duration-300"
+                  :style="{
+                    width:
+                      Math.min(
+                        (formitem.quantity / minAvailableStock) * 100,
+                        100,
+                      ) + '%',
+                  }"
+                  :class="
+                    isOutOfStock
+                      ? 'bg-red-500'
+                      : Number(formitem.quantity) >= minAvailableStock * 0.7
+                      ? 'bg-amber-400'
+                      : 'bg-green-500'
+                  "
+                ></div>
+              </div>
+            </div> -->
+          </div>
+
+          <!-- Footer -->
+          <div class="flex justify-between items-center pt-4">
+            <button
+              @click="clearAction"
+              class="bg-white border border-gray-300 px-3 py-2 rounded-lg text-xs text-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              @click="bookingStep = 2"
+              :disabled="!canGoNext"
+              class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs text-white transition-colors"
+              :class="
+                canGoNext
+                  ? 'bg-orange-500 cursor-pointer'
+                  : 'bg-gray-300 cursor-not-allowed'
+              "
+            >
+              Next — Price & notes
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div v-if="bookingStep === 2">
+          <div class="flex items-center gap-2 mb-3">
+            <button
+              @click="bookingStep = 1"
+              class="flex items-center gap-1 text-xs text-gray-500 border border-gray-200 px-2 py-1.5 rounded-lg"
+            >
+              <svg
+                class="w-3 h-3"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+            <p
+              class="text-xs font-medium text-gray-500 uppercase tracking-wide"
+            >
+              Step 2 of 2 — Price & notes
+            </p>
+          </div>
+
+          <!-- Recap pill -->
+          <div
+            class="bg-gray-50 rounded-lg px-3 py-2 mb-3 border border-gray-200"
+          >
+            <p class="text-[11px] text-gray-400 mb-0.5">Selected</p>
+            <p class="text-xs font-medium text-gray-700">
+              {{ formitem.service_date }} → {{ formitem.checkout_date }} ·
+              {{ formitem.days }} nights · {{ formitem.quantity }} rooms
+            </p>
+          </div>
+
+          <div class="h-[400px] overflow-y-scroll pr-1 space-y-3">
+            <!-- Daily breakdown -->
+            <div v-if="priceArray.length">
+              <label class="text-[11px] text-gray-500 block mb-1.5"
+                >Daily rate breakdown</label
+              >
+              <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <div
+                  class="grid grid-cols-3 text-[11px] px-3 py-1.5 bg-gray-50 text-gray-400"
+                >
+                  <span>Date</span><span class="text-right">Sale (฿)</span
+                  ><span class="text-right">Cost (฿)</span>
+                </div>
+                <div
+                  v-for="(row, i) in priceArray"
+                  :key="i"
+                  class="grid grid-cols-3 text-xs px-3 py-2 border-t border-gray-100"
+                  :class="i % 2 === 0 ? 'bg-white' : 'bg-gray-50'"
+                >
+                  <span class="text-gray-600">{{ row.date }}</span>
+                  <span class="text-right text-orange-500 font-medium">{{
+                    row.sale_price
+                  }}</span>
+                  <span class="text-right text-gray-400">{{
+                    row.cost_price
+                  }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Discount + total -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="text-[11px] text-gray-500 block"
+                  >Discount (฿)</label
+                >
+                <input
+                  type="number"
+                  v-model="formitem.discount"
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                />
+              </div>
+              <div class="space-y-1">
+                <label class="text-[11px] text-gray-500 block"
+                  >Total price</label
+                >
+                <div
+                  class="border border-gray-200 rounded-lg px-2 py-2 h-[34px] flex items-center"
+                >
+                  <span class="text-sm font-medium text-orange-500">
+                    ฿
+                    {{
+                      (
+                        formitem.selling_price * formitem.quantity -
+                        formitem.discount
+                      ).toLocaleString()
+                    }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Special request -->
+            <div class="space-y-1">
+              <label class="text-[11px] text-gray-500 block"
+                >Special request</label
+              >
+              <textarea
+                v-model="formitem.special_request"
+                rows="2"
+                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none resize-none"
+                placeholder="e.g. high floor, extra pillow…"
+              ></textarea>
+            </div>
+
+            <!-- Comment -->
+            <div class="space-y-1">
+              <label class="text-[11px] text-gray-500 block"
+                >Description / comment</label
+              >
+              <textarea
+                v-model="formitem.comment"
+                rows="2"
+                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none resize-none"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex justify-between items-center pt-3">
+            <button
+              @click="clearAction"
+              class="bg-white border border-gray-300 px-3 py-2 rounded-lg text-xs text-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              @click="!isOutOfStock && getFunction()"
+              :disabled="isOutOfStock"
+              class="px-4 py-2 rounded-lg text-xs text-white transition-colors"
+              :class="
+                isOutOfStock
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-orange-500'
+              "
+            >
+              {{
+                isOutOfStock
+                  ? `Out of stock (max ${minAvailableStock})`
+                  : "Add item"
+              }}
+            </button>
+          </div>
         </div>
       </DialogPanel>
     </Modal>

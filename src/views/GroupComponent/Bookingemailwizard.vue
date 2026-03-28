@@ -470,10 +470,15 @@
 import { ref, computed, onMounted } from "vue";
 import { format } from "date-fns";
 import { useHotelStore } from "../../stores/hotel";
+import { useGroupStore } from "../../stores/group";
 
 const hotelStore = useHotelStore();
 const itemPricingData = ref<Record<string, any>>({});
 const pricingLoading = ref(false);
+
+const groupStore = useGroupStore();
+const passportLoading = ref(false);
+const fetchedPassportNames = ref<string[]>([]);
 
 const props = defineProps<{
   detail: Record<string, any>;
@@ -649,6 +654,8 @@ const allPassports = computed((): string[] => {
   (props.detail?.questionnaire?.passport_names ?? []).forEach((n: string) =>
     names.add(n),
   );
+  // ✅ Add fetched passport names from CustomerDocument
+  fetchedPassportNames.value.forEach((n) => names.add(n));
   return Array.from(names);
 });
 
@@ -707,11 +714,17 @@ const emailBody = computed((): string => {
 
   if (isHotel.value) {
     const productName = detail.items[0].product?.name ?? "Hotel";
+    // ✅ Add this
+    const allowment = props.detail?.items?.[0]?.product?.allowment;
+    const partnerLink = allowment
+      ? `Partner Web Link  : https://partners.thanywhere.com/bookings?id=${props.detail?.id}`
+      : null;
 
     const roomBlocks = mainRooms.value
       .map((item, idx) => {
         const nights = daysBetween(item.checkin_date, item.checkout_date);
         const discountNote = buildPartnerDiscountNote(item); // ← add
+
         return [
           idx > 0 ? "─".repeat(32) : "",
           `Room Type         : ${item.room?.name ?? "N/A"}`,
@@ -740,6 +753,8 @@ We would like to book the accommodation as per the following details. Please not
 ${SEP}
 BOOKING DETAILS
 ${SEP}
+${partnerLink != null ? "Partner Link: " + partnerLink : ""}
+
 
 ${roomBlocks}
 
@@ -747,6 +762,7 @@ ${SEP}
 
 Booking Code: ${detail.booking_crm_id}
 Name : ${passportName.value}
+
 
 Passports for the bookings are attached to this email. Please arrange for the customer accordingly.
 
@@ -883,8 +899,33 @@ function fallbackCopy(text: string) {
   document.body.removeChild(ta);
 }
 
+const fetchPassports = async () => {
+  const groupId = props.detail?.items[0]?.group_id; // BookingItemGroup id
+  if (!groupId) return;
+
+  try {
+    passportLoading.value = true;
+    const response = await groupStore.groupDocumentList(groupId, {
+      document_type: "passport",
+    });
+
+    if (response?.result) {
+      // extract name from meta
+      fetchedPassportNames.value = response.result
+        .map((doc: any) => doc.meta?.name ?? doc.meta?.passport_name ?? "")
+        .filter(Boolean);
+    }
+  } catch (error) {
+    console.error("Error fetching passports:", error);
+  } finally {
+    passportLoading.value = false;
+  }
+};
+
 onMounted(async () => {
   console.log(props.detail, "this is detail");
+
+  await fetchPassports();
 
   // Fetch daily pricing for all hotel items
   if (isHotel.value) {

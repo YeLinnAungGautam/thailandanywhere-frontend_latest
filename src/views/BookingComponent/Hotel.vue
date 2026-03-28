@@ -121,14 +121,15 @@ const formitem = ref({
   checkout_date: "",
   customer_attachment: "",
   addons: [],
+  passports: [],
 });
+
+const allowment = ref(false);
 
 // add item function
 const openAddItemModal = (item) => {
   closeDetail();
-  console.log("====================================");
-  console.log(item, "this is item");
-  console.log("====================================");
+
   // formitem.value.comment = item.description ? item.description : "";
   formitem.value.product_id = item.id;
   formitem.value.product_name = item.name;
@@ -139,6 +140,8 @@ const openAddItemModal = (item) => {
     formitem.value.car_list = item?.rooms;
   }
   addItemModal.value = true;
+  allowment.value = item.allowment;
+  console.log(allowment.value, item, "this is allowment test");
 };
 const closeItemModal = () => {
   addItemModal.value = false;
@@ -163,6 +166,9 @@ const goInfoModal = () => {
   if (formitem.value.car_id != "") {
     addItemModal.value = false;
     addInfoModal.value = true;
+    if (allowment.value && formitem.value.passports.length === 0) {
+      formitem.value.passports.push({ name: "", passport: "" });
+    }
   }
 };
 
@@ -274,9 +280,22 @@ const clearAction = () => {
     checkout_date: "",
     customer_attachment: "",
     addons: [],
+    passports: [],
   };
   todayVali.value = false;
   addInfoModal.value = false;
+  allowment.value = false;
+};
+
+const addPassport = () => {
+  formitem.value.passports.push({
+    name: "",
+    passport: "",
+  });
+};
+
+const removePassport = (index) => {
+  formitem.value.passports.splice(index, 1);
 };
 
 // send item
@@ -334,6 +353,14 @@ watch(bottomOfWindow, (newVal) => {
       }
     }
   }
+});
+
+const hasDuplicatePassportNames = computed(() => {
+  if (!allowment.value) return false; // ← was wrong before
+  const names = formitem.value.passports
+    .map((p) => p.name.trim().toLowerCase())
+    .filter((n) => n !== "");
+  return new Set(names).size !== names.length;
 });
 
 const priceArray = ref([]);
@@ -914,7 +941,8 @@ onMounted(async () => {
     <!-- addInfoModal — Step 1: Stay details -->
     <Modal :isOpen="addInfoModal" @closeModal="addInfoModal = false">
       <DialogPanel
-        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        class="w-full transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        :class="allowment ? 'max-w-4xl' : 'max-w-md'"
       >
         <!-- STEP 1 -->
         <div v-if="bookingStep === 1">
@@ -930,150 +958,270 @@ onMounted(async () => {
             </p>
           </div>
 
-          <div class="space-y-3">
-            <!-- Dates -->
-            <div class="grid grid-cols-2 gap-2">
-              <div class="space-y-1">
-                <label class="text-[11px] text-gray-500"
-                  >Check-in <span class="text-red-600">*</span></label
-                >
-                <input
-                  type="date"
-                  v-model="formitem.service_date"
-                  @change="todayCheck"
-                  class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                  :class="
-                    todayVali
-                      ? 'border-gray-300'
-                      : 'border-red-500 text-red-600'
-                  "
-                />
-                <p
-                  v-if="!todayVali && formitem.service_date"
-                  class="text-[10px] text-red-500"
-                >
-                  Date must be today or later
-                </p>
-              </div>
-              <div class="space-y-1">
-                <label class="text-[11px] text-gray-500"
-                  >Check-out <span class="text-red-600">*</span></label
-                >
-                <input
-                  type="date"
-                  v-model="formitem.checkout_date"
-                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                />
-              </div>
-            </div>
+          <div :class="allowment ? 'grid grid-cols-2 gap-x-2' : ''">
+            <div class="space-y-3">
+              <!-- passport -->
 
-            <!-- Nights pill -->
-            <div
-              v-if="formitem.days > 0"
-              class="bg-orange-50 rounded-lg px-3 py-2 flex justify-start items-center gap-x-2"
-            >
-              <p class="text-xs font-medium text-orange-700">
-                {{ formitem.days }} night{{ formitem.days !== 1 ? "s" : "" }}
-                selected
-              </p>
-              <p class="w-1 h-1 bg-black rounded-full"></p>
-              <p
-                class="text-xs font-medium text-green-700"
-                v-if="minAvailableStock !== null"
-              >
-                {{ minAvailableStock }} rooms available on this date
-              </p>
-            </div>
-
-            <!-- Rooms + summary -->
-            <div class="grid grid-cols-2 gap-2">
-              <div class="space-y-1">
-                <label class="text-[11px] text-gray-500"
-                  >Total rooms <span class="text-red-600">*</span></label
-                >
-                <div class="flex items-center gap-2">
-                  <button
-                    @click="formitem.quantity > 1 ? formitem.quantity-- : null"
-                    class="w-8 h-8 flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 text-lg leading-none"
+              <!-- Dates -->
+              <div class="grid grid-cols-2 gap-2">
+                <div class="space-y-1">
+                  <label class="text-[11px] text-gray-500"
+                    >Check-in <span class="text-red-600">*</span></label
                   >
-                    −
-                  </button>
                   <input
-                    type="number"
-                    v-model="formitem.quantity"
-                    class="w-full text-center text-sm font-medium border rounded-lg py-1.5 focus:outline-none"
+                    type="date"
+                    v-model="formitem.service_date"
+                    @change="todayCheck"
+                    class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                     :class="
-                      isOutOfStock
-                        ? 'border-red-500 text-red-600'
-                        : 'border-gray-300'
+                      todayVali
+                        ? 'border-gray-300'
+                        : 'border-red-500 text-red-600'
                     "
                   />
-                  <button
-                    @click="!isOutOfStock ? formitem.quantity++ : null"
-                    class="w-8 h-8 flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 text-orange-500 text-lg leading-none"
-                    :class="isOutOfStock ? 'opacity-30 cursor-not-allowed' : ''"
+                  <p
+                    v-if="!todayVali && formitem.service_date"
+                    class="text-[10px] text-red-500"
                   >
-                    +
-                  </button>
-                </div>
-              </div>
-              <div class="space-y-1">
-                <label class="text-[11px] text-gray-500">Summary</label>
-                <div
-                  class="bg-gray-100 rounded-lg px-2 py-2 border border-gray-200 h-[34px] flex items-center"
-                >
-                  <p class="text-xs text-gray-700">
-                    {{ formitem.days || "—" }} nights ×
-                    {{ formitem.quantity }} rooms
+                    Date must be today or later
                   </p>
                 </div>
+                <div class="space-y-1">
+                  <label class="text-[11px] text-gray-500"
+                    >Check-out <span class="text-red-600">*</span></label
+                  >
+                  <input
+                    type="date"
+                    v-model="formitem.checkout_date"
+                    class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  />
+                </div>
               </div>
-            </div>
 
-            <!-- Availability bar -->
-            <!-- <div
-              v-if="minAvailableStock !== null"
-              class="bg-gray-50 rounded-lg p-3 border border-gray-200"
-            >
-              <div class="flex justify-between items-center mb-1.5">
-                <span class="text-[11px] text-gray-500">Availability</span>
-                <span
-                  class="text-[11px] font-medium"
-                  :class="
-                    isOutOfStock
-                      ? 'text-red-600'
-                      : Number(formitem.quantity) >= minAvailableStock * 0.7
-                      ? 'text-amber-600'
-                      : 'text-green-700'
-                  "
+              <!-- Nights pill -->
+              <div
+                v-if="formitem.days > 0"
+                class="bg-orange-50 rounded-lg px-3 py-2 flex justify-start items-center gap-x-2"
+              >
+                <p class="text-xs font-medium text-orange-700">
+                  {{ formitem.days }} night{{ formitem.days !== 1 ? "s" : "" }}
+                  selected
+                </p>
+                <p class="w-1 h-1 bg-black rounded-full"></p>
+                <p
+                  class="text-xs font-medium text-green-700"
+                  v-if="minAvailableStock !== null"
                 >
-                  {{
-                    isOutOfStock
-                      ? `Only ${minAvailableStock} available`
-                      : `${minAvailableStock} rooms available`
-                  }}
-                </span>
+                  {{ minAvailableStock }} rooms available on this date
+                </p>
               </div>
-              <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  class="h-full rounded-full transition-all duration-300"
-                  :style="{
-                    width:
-                      Math.min(
-                        (formitem.quantity / minAvailableStock) * 100,
-                        100,
-                      ) + '%',
-                  }"
-                  :class="
-                    isOutOfStock
-                      ? 'bg-red-500'
-                      : Number(formitem.quantity) >= minAvailableStock * 0.7
-                      ? 'bg-amber-400'
-                      : 'bg-green-500'
-                  "
-                ></div>
+
+              <!-- Rooms + summary -->
+              <div class="grid grid-cols-2 gap-2">
+                <div class="space-y-1">
+                  <label class="text-[11px] text-gray-500"
+                    >Total rooms <span class="text-red-600">*</span></label
+                  >
+                  <div class="flex items-center gap-2">
+                    <button
+                      @click="
+                        formitem.quantity > 1 ? formitem.quantity-- : null
+                      "
+                      class="w-8 h-8 flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 text-lg leading-none"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      v-model="formitem.quantity"
+                      class="w-full text-center text-sm font-medium border rounded-lg py-1.5 focus:outline-none"
+                      :class="
+                        isOutOfStock
+                          ? 'border-red-500 text-red-600'
+                          : 'border-gray-300'
+                      "
+                    />
+                    <button
+                      @click="!isOutOfStock ? formitem.quantity++ : null"
+                      class="w-8 h-8 flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 text-orange-500 text-lg leading-none"
+                      :class="
+                        isOutOfStock ? 'opacity-30 cursor-not-allowed' : ''
+                      "
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                <div class="space-y-1">
+                  <label class="text-[11px] text-gray-500">Summary</label>
+                  <div
+                    class="bg-gray-100 rounded-lg px-2 py-2 border border-gray-200 h-[34px] flex items-center"
+                  >
+                    <p class="text-xs text-gray-700">
+                      {{ formitem.days || "—" }} nights ×
+                      {{ formitem.quantity }} rooms
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div> -->
+
+              <!-- Availability bar -->
+              <!-- <div
+                v-if="minAvailableStock !== null"
+                class="bg-gray-50 rounded-lg p-3 border border-gray-200"
+              >
+                <div class="flex justify-between items-center mb-1.5">
+                  <span class="text-[11px] text-gray-500">Availability</span>
+                  <span
+                    class="text-[11px] font-medium"
+                    :class="
+                      isOutOfStock
+                        ? 'text-red-600'
+                        : Number(formitem.quantity) >= minAvailableStock * 0.7
+                        ? 'text-amber-600'
+                        : 'text-green-700'
+                    "
+                  >
+                    {{
+                      isOutOfStock
+                        ? `Only ${minAvailableStock} available`
+                        : `${minAvailableStock} rooms available`
+                    }}
+                  </span>
+                </div>
+                <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    class="h-full rounded-full transition-all duration-300"
+                    :style="{
+                      width:
+                        Math.min(
+                          (formitem.quantity / minAvailableStock) * 100,
+                          100,
+                        ) + '%',
+                    }"
+                    :class="
+                      isOutOfStock
+                        ? 'bg-red-500'
+                        : Number(formitem.quantity) >= minAvailableStock * 0.7
+                        ? 'bg-amber-400'
+                        : 'bg-green-500'
+                    "
+                  ></div>
+                </div>
+              </div> -->
+            </div>
+            <div v-if="allowment" class="space-y-2">
+              <!-- section header -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 flex-1">
+                  <div class="h-px flex-1 bg-gray-200"></div>
+                  <span
+                    class="text-[11px] font-medium text-orange-500 uppercase tracking-wide px-1"
+                  >
+                    Traveller Passports
+                  </span>
+                  <div class="h-px flex-1 bg-gray-200"></div>
+                </div>
+                <button
+                  @click="addPassport"
+                  class="ml-2 flex items-center gap-1 text-[11px] text-white bg-orange-500 hover:bg-orange-600 px-2 py-1 rounded-lg transition-colors flex-shrink-0"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-3 h-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Add
+                </button>
+              </div>
+
+              <!-- empty state -->
+              <div
+                v-if="formitem.passports.length === 0"
+                class="text-center py-4 border-2 border-dashed border-gray-200 rounded-lg"
+              >
+                <p class="text-[11px] text-gray-400">
+                  No travellers added yet. Click Add to begin.
+                </p>
+              </div>
+
+              <!-- one card per traveller -->
+              <div
+                v-for="(pax, index) in formitem.passports"
+                :key="index"
+                class="border border-gray-200 rounded-lg p-3 space-y-2 bg-gray-50"
+              >
+                <!-- badge + delete row -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <div
+                      class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0"
+                    >
+                      <span class="text-[10px] font-bold text-orange-500">{{
+                        index + 1
+                      }}</span>
+                    </div>
+                    <span class="text-[11px] font-medium text-gray-600"
+                      >Traveller {{ index + 1 }}</span
+                    >
+                  </div>
+                  <button
+                    @click="removePassport(index)"
+                    class="w-5 h-5 rounded-full bg-red-100 hover:bg-red-500 text-red-500 hover:text-white flex items-center justify-center transition-colors text-[11px] leading-none"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <!-- fields -->
+                <div class="gap-x-2 flex justify-between items-center">
+                  <div class="space-y-1 w-[90%]">
+                    <label class="text-[10px] text-gray-500">
+                      Guest Name <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      v-model="pax.name"
+                      placeholder="Full name as in passport"
+                      class="border w-full px-2 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-orange-400"
+                      :class="
+                        pax.name.trim() === ''
+                          ? 'border-red-200'
+                          : 'border-gray-300'
+                      "
+                    />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] text-gray-500"
+                      >Passport No. (optional)</label
+                    >
+                    <input
+                      type="text"
+                      v-model="pax.passport"
+                      placeholder="e.g. AA1234567"
+                      class="border border-gray-300 w-full px-2 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-orange-400"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- duplicate warning -->
+              <p
+                v-if="hasDuplicatePassportNames"
+                class="text-[11px] text-red-500 flex items-center gap-1"
+              >
+                ⚠ Duplicate guest names — please use unique names.
+              </p>
+            </div>
           </div>
 
           <!-- Footer -->

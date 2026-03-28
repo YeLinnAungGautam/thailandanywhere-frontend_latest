@@ -1126,6 +1126,23 @@ const processSubmission = async () => {
           formData.value.items[x].special_request,
         );
       }
+      if (
+        formData.value.items[x].passports &&
+        formData.value.items[x].passports.length > 0
+      ) {
+        formData.value.items[x].passports.forEach((passport, pi) => {
+          if (passport.name) {
+            frmData.append(
+              `items[${x}][passports][${pi}][name]`,
+              passport.name,
+            );
+            frmData.append(
+              `items[${x}][passports][${pi}][passport]`,
+              passport.passport ?? "",
+            );
+          }
+        });
+      }
       formData.value.items[x].selling_price &&
         frmData.append(
           "items[" + x + "][selling_price]",

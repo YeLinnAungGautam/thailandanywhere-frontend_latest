@@ -196,6 +196,22 @@
                 </p>
               </div>
             </div>
+            <div
+              class="text-xs px-3 py-2 rounded-full"
+              v-if="product_type == 'hotel'"
+              @click="
+                instand_booking == 1
+                  ? (instand_booking = 0)
+                  : (instand_booking = 1)
+              "
+              :class="
+                instand_booking == 1
+                  ? 'bg-[#FF613c] text-white'
+                  : 'border border-[#FF613c]'
+              "
+            >
+              Instand Booking
+            </div>
           </div>
 
           <div class="flex items-center gap-2">
@@ -1649,6 +1665,7 @@ const currentPage = ref(1);
 const imagesInput = ref(null);
 const imagesPreview = ref([]);
 const product_type = ref("hotel");
+const instand_booking = ref(0);
 const showImageViewer = ref(false);
 const currentViewImage = ref("");
 const currentImageIndex = ref(0);
@@ -2112,6 +2129,10 @@ const watchSystem = computed(() => {
     result.product_type = product_type.value;
   }
 
+  if (product_type.value == "hotel" && instand_booking.value == 1) {
+    result.is_allowment_have = true;
+  }
+
   // Status filters based on active tag
   if (!searchKey.value.searchId) {
     if (activeTag.value === "prove_booking") {
@@ -2362,6 +2383,11 @@ watch(currentPage, () => {
 });
 
 watch(product_type, () => {
+  cachedData.value = {}; // Clear cache when product type changes
+  expandedRowId.value = null;
+  groupStore.getListAction(watchSystem.value);
+});
+watch(instand_booking, () => {
   cachedData.value = {}; // Clear cache when product type changes
   expandedRowId.value = null;
   groupStore.getListAction(watchSystem.value);

@@ -32,12 +32,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_2_days,
-            groups?.meta?.passport_have_2_days
+            groups?.meta?.passport_have_2_days,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_2_days,
-              groups?.meta?.passport_have_2_days
+              groups?.meta?.passport_have_2_days,
             )
           "
           @click="activeSelectAction('passport')"
@@ -58,12 +58,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_2_days,
-            groups?.meta?.filled_next_2_days
+            groups?.meta?.filled_next_2_days,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_2_days,
-              groups?.meta?.filled_next_2_days
+              groups?.meta?.filled_next_2_days,
             )
           "
           @click="activeSelectAction('trip')"
@@ -84,12 +84,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_2_days,
-            groups?.meta?.customer_fully_paid
+            groups?.meta?.customer_fully_paid,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_2_days,
-              groups?.meta?.customer_fully_paid
+              groups?.meta?.customer_fully_paid,
             )
           "
           @click="activeSelectAction('customer')"
@@ -110,12 +110,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_2_days,
-            groups?.meta?.fill_status_not_pending_2_days
+            groups?.meta?.fill_status_not_pending_2_days,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_2_days,
-              groups?.meta?.fill_status_not_pending_2_days
+              groups?.meta?.fill_status_not_pending_2_days,
             )
           "
           @click="activeSelectAction('comment')"

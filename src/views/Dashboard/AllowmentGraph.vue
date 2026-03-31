@@ -152,7 +152,9 @@
             </div>
           </div> -->
           <!-- Date range picker -->
+          <!-- Date range picker - replace existing -->
           <div class="flex items-center gap-2 flex-shrink-0">
+            <!-- Month Picker -->
             <div
               class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5"
             >
@@ -170,46 +172,22 @@
                 />
               </svg>
               <input
-                type="date"
-                v-model="checkin"
+                type="month"
+                v-model="selectedMonth"
                 class="text-xs text-slate-600 bg-transparent outline-none cursor-pointer"
-                @change="selectedRoomId && buildChart()"
+                :min="minMonth"
               />
             </div>
-            <span class="text-slate-400 text-xs">→</span>
-            <div
-              class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5"
-            >
-              <svg
-                class="w-3.5 h-3.5 text-slate-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              <input
-                type="date"
-                v-model="checkout"
-                :min="checkin"
-                class="text-xs text-slate-600 bg-transparent outline-none cursor-pointer"
-                @change="selectedRoomId && buildChart()"
-              />
-            </div>
-            <!-- Quick presets -->
+
+            <!-- Quick month presets -->
             <div class="flex gap-1">
               <button
-                v-for="preset in datePresets"
+                v-for="preset in monthPresets"
                 :key="preset.label"
-                @click="applyPreset(preset.days)"
+                @click="applyMonthPreset(preset.offset)"
                 class="text-[12px] px-2 py-1.5 rounded-full border transition-colors"
                 :class="
-                  activeDays === preset.days
+                  activeMonthOffset === preset.offset
                     ? 'bg-orange-500 text-white border-orange-500'
                     : 'bg-white text-slate-500 border-slate-200 hover:border-orange-300 hover:text-orange-500'
                 "
@@ -426,6 +404,41 @@ let chartInstance = null;
 //     return d;
 //   });
 // });
+
+const selectedMonth = ref("");
+
+const minMonth = computed(() => {
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
+    2,
+    "0",
+  )}`;
+});
+
+const monthPresets = [
+  { label: "This Month", offset: 0 },
+  { label: "Next Month", offset: 1 },
+  { label: "+2 Months", offset: 2 },
+  { label: "+3 Months", offset: 3 },
+];
+
+const activeMonthOffset = computed(() => {
+  if (!selectedMonth.value) return null;
+  const [y, m] = selectedMonth.value.split("-").map(Number);
+  const today = new Date();
+  const diffMonths =
+    (y - today.getFullYear()) * 12 + (m - (today.getMonth() + 1));
+  return monthPresets.find((p) => p.offset === diffMonths)?.offset ?? null;
+});
+
+const applyMonthPreset = (offset) => {
+  const today = new Date();
+  const target = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+  selectedMonth.value = `${target.getFullYear()}-${String(
+    target.getMonth() + 1,
+  ).padStart(2, "0")}`;
+};
+
 const dates = computed(() => {
   if (!checkin.value || !checkout.value) return [];
   const start = new Date(checkin.value);
@@ -854,15 +867,14 @@ const selectRoom = async (room) => {
 
 // onMounted(loadHotels);
 onMounted(() => {
-  // Set default range: today → today+30
+  // Set default: current month
   const today = new Date();
-  const end = new Date(today);
-  end.setDate(today.getDate() + 30);
-  checkin.value = fmtKey(today);
-  checkout.value = fmtKey(end);
+  selectedMonth.value = `${today.getFullYear()}-${String(
+    today.getMonth() + 1,
+  ).padStart(2, "0")}`;
+  // checkin/checkout will be set by the watch above
 
   loadHotels().then(() => {
-    // Auto-select hotel from ?id= query param
     const urlParams = new URLSearchParams(window.location.search);
     const hotelId = Number(urlParams.get("id"));
     if (hotelId) {
@@ -872,10 +884,19 @@ onMounted(() => {
   });
 });
 
-watch([checkin, checkout], async () => {
+watch(selectedMonth, async () => {
   if (selectedHotelId.value) {
     await loadRoomsForHotel(selectedHotelId.value);
   }
+});
+
+watch(selectedMonth, (val) => {
+  if (!val) return;
+  const [y, m] = val.split("-").map(Number);
+  const start = new Date(y, m - 1, 1);
+  const end = new Date(y, m, 0); // last day of month
+  checkin.value = fmtKey(start);
+  checkout.value = fmtKey(end);
 });
 </script>
 

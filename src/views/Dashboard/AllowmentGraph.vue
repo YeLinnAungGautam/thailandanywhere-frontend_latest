@@ -769,12 +769,14 @@ const loadRoomsForHotel = async (hotelId) => {
         include_rates: true,
         year: today.getFullYear(),
         month: today.getMonth() + 1,
+        limit: 100,
       }),
       roomStore.getListAction({
         hotel_id: hotelId,
         include_rates: true,
         year: next.getFullYear(),
         month: next.getMonth() + 1,
+        limit: 100,
       }),
     ]);
 

@@ -13,11 +13,41 @@
           <h2 class="text-lg font-bold text-slate-700 tracking-wide flex-1">
             Hotels
           </h2>
-          <span
-            class="text-[10px] font-bold font-mono bg-orange-50 text-orange-500 border border-orange-200 px-2 py-0.5 rounded-full"
-          >
-            {{ filteredHotelList.length }}
-          </span>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <!-- Chart mode toggle -->
+            <div
+              class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg p-1"
+            >
+              <button
+                @click="
+                  chartMode = 'availability';
+                  buildChart();
+                "
+                class="text-[11px] font-semibold px-2.5 py-1 rounded-md transition-all"
+                :class="
+                  chartMode === 'availability'
+                    ? 'bg-white text-slate-700 shadow-sm border border-slate-200'
+                    : 'text-slate-400 hover:text-slate-600'
+                "
+              >
+                📊 Availability
+              </button>
+              <button
+                @click="
+                  chartMode = 'discount';
+                  buildChart();
+                "
+                class="text-[11px] font-semibold px-2.5 py-1 rounded-md transition-all"
+                :class="
+                  chartMode === 'discount'
+                    ? 'bg-white text-orange-600 shadow-sm border border-orange-200'
+                    : 'text-slate-400 hover:text-slate-600'
+                "
+              >
+                🏷️ Discount
+              </button>
+            </div>
+          </div>
         </div>
         <div class="relative">
           <svg
@@ -121,39 +151,41 @@
         <div
           class="px-6 py-4 border-b border-slate-200 bg-white flex-shrink-0 flex items-center justify-between flex-wrap gap-2"
         >
-          <div>
-            <h2
-              class="text-lg font-extrabold bg-gradient-to-r from-orange-600 to-red-500 bg-clip-text text-transparent"
-            >
-              {{ selectedHotelName }}
-            </h2>
-            <p class="text-[11px] text-slate-400 mt-0.5">
-              {{
-                selectedRoomId
-                  ? selectedRoomName + " · " + checkin + "-" + checkout
-                  : "Select a room to view chart"
-              }}
-            </p>
-          </div>
-          <!-- Legend shown only when chart is visible -->
-          <!-- <div v-if="selectedRoomId" class="flex items-center gap-3 flex-wrap">
-            <div
-              v-for="l in legend"
-              :key="l.label"
-              class="flex items-center gap-1.5"
-            >
-              <div
-                class="w-2.5 h-2.5 rounded-sm flex-shrink-0"
-                :style="`background:${l.color}`"
-              ></div>
-              <span class="text-[10px] font-semibold text-slate-500">{{
-                l.label
-              }}</span>
+          <div class="">
+            <div>
+              <h2
+                class="text-lg font-extrabold bg-gradient-to-r from-orange-600 to-red-500 bg-clip-text text-transparent"
+              >
+                {{ selectedHotelName }}
+              </h2>
+              <p class="text-[11px] text-slate-400 mt-0.5">
+                {{
+                  selectedRoomId
+                    ? selectedRoomName + " · " + checkin + "-" + checkout
+                    : "Select a room to view chart"
+                }}
+              </p>
             </div>
-          </div> -->
-          <!-- Date range picker -->
-          <!-- Date range picker - replace existing -->
-          <div class="flex items-center gap-2 flex-shrink-0">
+            <!-- Legend shown only when chart is visible -->
+            <!-- <div v-if="selectedRoomId" class="flex items-center gap-3 flex-wrap">
+              <div
+                v-for="l in legend"
+                :key="l.label"
+                class="flex items-center gap-1.5"
+              >
+                <div
+                  class="w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                  :style="`background:${l.color}`"
+                ></div>
+                <span class="text-[10px] font-semibold text-slate-500">{{
+                  l.label
+                }}</span>
+              </div>
+            </div> -->
+            <!-- Date range picker -->
+            <!-- Date range picker - replace existing -->
+          </div>
+          <div class="flex justify-end items-center gap-x-1">
             <!-- Month Picker -->
             <div
               class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5"
@@ -393,6 +425,7 @@ const canScrollRight = ref(false);
 const checkin = ref("");
 const checkout = ref("");
 let chartInstance = null;
+const chartMode = ref("availability");
 
 // ── Dates: next 30 days ────────────────────────────────────────────────────────
 // const dates = computed(() => {
@@ -418,8 +451,6 @@ const minMonth = computed(() => {
 const monthPresets = [
   { label: "This Month", offset: 0 },
   { label: "Next Month", offset: 1 },
-  { label: "+2 Months", offset: 2 },
-  { label: "+3 Months", offset: 3 },
 ];
 
 const activeMonthOffset = computed(() => {
@@ -566,6 +597,136 @@ const buildChart = async () => {
   }
 
   const labels = [];
+
+  // ── DISCOUNT MODE ──────────────────────────────────────────────
+  if (chartMode.value === "discount") {
+    const discountData = [];
+
+    dates.value.forEach((d) => {
+      labels.push(
+        d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      );
+      const rate = room?.room_rates?.[fmtKey(d)];
+      discountData.push(rate?.discount ?? 0);
+    });
+
+    const maxDiscount = Math.max(...discountData, 1);
+    const yMax = Math.ceil(maxDiscount * 1.35);
+
+    chartInstance = new Chart(canvas, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Discount",
+            data: discountData,
+            backgroundColor: discountData.map((v) =>
+              v > 0 ? "rgba(249,115,22,0.75)" : "rgba(203,213,225,0.35)",
+            ),
+            borderWidth: 0,
+            barThickness: 25,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 28 } },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9, weight: "600" },
+              color: "#64748b",
+              maxRotation: 45,
+              minRotation: 45,
+              autoSkip: true,
+              maxTicksLimit: 15,
+            },
+            border: { display: false },
+          },
+          y: {
+            beginAtZero: true,
+            max: yMax,
+            grid: { color: "rgba(148,163,184,0.1)" },
+            border: { display: false },
+            ticks: {
+              stepSize: 5,
+              callback: (v) => (v % 5 === 0 ? `${v}฿` : null),
+              font: { size: 10 },
+              color: "#94a3b8",
+            },
+            title: {
+              display: true,
+              text: "Discount (฿)",
+              font: { size: 10 },
+              color: "#94a3b8",
+            },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(15,23,42,0.95)",
+            titleColor: "#f1f5f9",
+            bodyColor: "#cbd5e1",
+            cornerRadius: 8,
+            padding: 12,
+            borderWidth: 1,
+            borderColor: "rgba(148,163,184,0.15)",
+            callbacks: {
+              title: (ctx) => {
+                const d = dates.value[ctx[0].dataIndex];
+                return d.toLocaleDateString("en-US", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                });
+              },
+              label: (ctx) => {
+                const d = dates.value[ctx.dataIndex];
+                const rate = room?.room_rates?.[fmtKey(d)];
+                const discount = rate?.discount ?? 0;
+                const roomPrice = rate?.room_price ?? 0;
+                const currentPrice = rate?.current_price ?? 0;
+                return [
+                  `Discount: ฿${discount}`,
+                  roomPrice ? `Original: ฿${roomPrice.toLocaleString()}` : null,
+                  currentPrice
+                    ? `After discount: ฿${currentPrice.toLocaleString()}`
+                    : null,
+                ].filter(Boolean);
+              },
+            },
+          },
+        },
+      },
+      plugins: [
+        {
+          id: "discountLabels",
+          afterDatasetsDraw(chart) {
+            const ctx = chart.ctx;
+            const meta = chart.getDatasetMeta(0);
+            ctx.save();
+            ctx.font = "600 9px system-ui, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            meta.data.forEach((bar, i) => {
+              const val = discountData[i];
+              if (!val) return;
+              ctx.fillStyle = "#ea580c";
+              ctx.fillText(`${val}฿`, bar.x, bar.y - 3);
+            });
+            ctx.restore();
+          },
+        },
+      ],
+    });
+    return;
+  }
+
+  // ── AVAILABILITY MODE (original logic) ────────────────────────
   const availData = [];
   const bookedData = [];
 
@@ -576,13 +737,12 @@ const buildChart = async () => {
     const stock = getStock(room, d);
     const booked = getBooked(room, d);
     const avail = Math.max(0, stock - booked);
-    // FIX 5: if no data at all, push a tiny placeholder (0.15) so bar is visible
     availData.push(stock === 0 && booked === 0 ? 0 : avail);
     bookedData.push(Math.min(booked, stock));
   });
 
   const maxVal = Math.max(...availData.map((a, i) => a + bookedData[i]));
-  const yMax = Math.max(Math.ceil(maxVal * 1.35), 5); // extra top room for labels
+  const yMax = Math.max(Math.ceil(maxVal * 1.35), 5);
 
   chartInstance = new Chart(canvas, {
     type: "bar",
@@ -590,30 +750,24 @@ const buildChart = async () => {
       labels,
       datasets: [
         {
-          // Green available segment
           label: "Available",
           data: availData,
           backgroundColor: dates.value.map((d) => {
             const stock = getStock(room, d);
             const booked = getBooked(room, d);
-            if (stock === 0 && booked === 0) return "rgba(203,213,225,0.3)"; // empty placeholder
+            if (stock === 0 && booked === 0) return "rgba(203,213,225,0.3)";
             const status = classifyDay(stock, booked);
             return status === "overbooked"
               ? "#dc2626"
               : status === "red"
               ? "#ef4444"
-              : status === "yellow"
-              ? "#22c55e"
               : "#22c55e";
           }),
           borderWidth: 0,
           barThickness: 25,
           stack: "s",
-          // FIX 3: show count label on top of bar
-          datalabels: undefined, // handled via custom plugin below
         },
         {
-          // Gray booked segment
           label: "Booked",
           data: bookedData,
           backgroundColor: "rgba(100,116,139,0.35)",
@@ -627,7 +781,7 @@ const buildChart = async () => {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
-      layout: { padding: { top: 24 } }, // space for count labels above bars
+      layout: { padding: { top: 24 } },
       scales: {
         x: {
           stacked: true,
@@ -701,32 +855,24 @@ const buildChart = async () => {
         },
       },
     },
-    // FIX 3: inline plugin to draw available count above each bar
     plugins: [
       {
         id: "topLabels",
         afterDatasetsDraw(chart) {
           const ctx = chart.ctx;
-          const meta0 = chart.getDatasetMeta(0); // available dataset
-          const meta1 = chart.getDatasetMeta(1); // booked dataset
-
+          const meta0 = chart.getDatasetMeta(0);
+          const meta1 = chart.getDatasetMeta(1);
           ctx.save();
           ctx.font = "600 9px system-ui, sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "bottom";
-
           meta0.data.forEach((bar, i) => {
             const avail = availData[i];
             const booked = bookedData[i];
             const total = avail + booked;
-            if (total === 0) return; // skip truly empty
-
-            // top of stacked bar = bottom of available bar's top edge
+            if (total === 0) return;
             const bar1 = meta1.data[i];
             const topY = bar1 ? Math.min(bar.y, bar1.y) : bar.y;
-            const label = String(avail);
-
-            // color matching the available bar
             const d = dates.value[i];
             const stock = getStock(room, d);
             const bk = getBooked(room, d);
@@ -739,8 +885,7 @@ const buildChart = async () => {
                 : status === "yellow"
                 ? "#d97706"
                 : "#16a34a";
-
-            ctx.fillText(label, bar.x, topY - 3);
+            ctx.fillText(String(avail), bar.x, topY - 3);
           });
           ctx.restore();
         },
@@ -766,6 +911,7 @@ const loadRoomsForHotel = async (hotelId) => {
   loadingRooms.value = true;
   hotelRooms.value = [];
   selectedRoomId.value = null;
+  // chartMode.value = "availability";
   selectedRoomName.value = "";
   if (chartInstance) {
     chartInstance.destroy();

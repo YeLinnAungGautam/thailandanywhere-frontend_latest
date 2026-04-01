@@ -114,6 +114,17 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
+    async logoutAllPartner() {
+      try {
+        console.log("🚪 Logging out all users...");
+        const response = await axios.post("/logout/all-partner");
+        return response.data;
+      } catch (error) {
+        console.error("❌ Logout all failed:", error);
+        throw error;
+      }
+    },
+
     loadFromStorage() {
       try {
         console.log("📦 Loading auth from storage...");

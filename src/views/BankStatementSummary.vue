@@ -53,8 +53,9 @@
           >
             Export CSV
           </p>
+          <!-- printPDF -->
           <p
-            @click="printPDF"
+            @click="openOptionModal"
             class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white cursor-pointer"
             :class="{ 'opacity-50 cursor-not-allowed': !pdfStore.canGenerate }"
           >
@@ -231,7 +232,7 @@
                 <td class="px-2 py-2 text-xs text-end">
                   {{
                     formattedNumber(
-                      calculateVat(item.total_sales, item.commission)
+                      calculateVat(item.total_sales, item.commission),
                     )
                   }}
                 </td>
@@ -334,6 +335,36 @@
         </DialogTitle>
         <div class="p-4">
           <ReceiptEdit :updateData="updateData" @update="onChangeUpdate" />
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <Modal :isOpen="optionModal" @closeModal="closeOptionModal">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white/95 backdrop-blur-md text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
+        >
+          <p>Choose Tax PDF</p>
+          <p @click="closeOptionModal">X</p>
+        </DialogTitle>
+        <div class="p-4 space-y-4 cursor-pointer">
+          <div
+            @click="printPDF('thai')"
+            class="text-center py-4 border border-[#FF613c] rounded-xl hover:bg-[#FF613c] hover:text-white duration-150 transistion-all flex justify-center items-center gap-x-3"
+          >
+            <p class="text-3xl">🇹🇭</p>
+            For Thailand
+          </div>
+          <div
+            @click="printPDF('myanmar')"
+            class="text-center py-4 border border-[#FF613c] rounded-xl hover:bg-[#FF613c] hover:text-white duration-150 transistion-all flex justify-center items-center gap-x-3"
+          >
+            <p class="text-3xl">🇲🇲</p>
+            For Myanmar
+          </div>
         </div>
       </DialogPanel>
     </Modal>
@@ -606,6 +637,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const showPdfModal = ref(false);
+const optionModal = ref(false);
 const pdfResponse = ref(null);
 const batchStatuses = ref([]);
 
@@ -685,6 +717,9 @@ const formatDateForTime = (dateString) => {
   return `${day} ${month} ${year}, ${hour}:${minute}`;
 };
 
+const openOptionModal = () => (optionModal.value = true);
+const closeOptionModal = () => (optionModal.value = false);
+
 const formatDate = (dateString) => {
   if (!dateString) return "";
 
@@ -738,7 +773,7 @@ const setMonthDateRange = (month, yearValue) => {
 const openCredit = (id) => {
   window.open(
     import.meta.env.VITE_API_URL + "/bookings/" + id + "/credit",
-    "_blank"
+    "_blank",
   );
 };
 
@@ -789,6 +824,8 @@ const getImage = async (id) => {
   }
 };
 
+const selectedLocation = ref("thai");
+
 const searchParams = computed(() => {
   let params = {};
 
@@ -812,6 +849,7 @@ const searchParams = computed(() => {
   params.interact_bank = "company";
   params.relatable_type = "App\\Models\\Booking";
   params.limit = per_page.value ? per_page.value : 100;
+  params.location = selectedLocation.value;
 
   return params;
 });
@@ -857,7 +895,7 @@ const exportCSV = async () => {
   }
 };
 
-const printPDF = async () => {
+const printPDF = async (location) => {
   if (!pdfStore.canGenerate) {
     toast.warning("PDF generation လုပ်နေဆဲပါ၊ ခဏစောင့်ပါ...");
     return;
@@ -865,6 +903,7 @@ const printPDF = async () => {
 
   try {
     showPdfModal.value = true;
+    selectedLocation.value = location ?? "thai";
     const response = await pdfStore.generatePdf(searchParams.value);
 
     // Store the response data
@@ -881,7 +920,7 @@ const printPDF = async () => {
       }
 
       toast.success(
-        `PDF generation စတင်ပြီးပါပြီ! ${response.total_items} items`
+        `PDF generation စတင်ပြီးပါပြီ! ${response.total_items} items`,
       );
     }
   } catch (error) {
@@ -979,7 +1018,7 @@ watch(
       //   }
       // }, 1000);
     }
-  }
+  },
 );
 
 // Watch for PDF errors
@@ -989,7 +1028,7 @@ watch(
     if (newVal) {
       toast.error("PDF generation မှာ အမှားဖြစ်ပါတယ် ❌");
     }
-  }
+  },
 );
 
 // Watch for download URL changes
@@ -999,7 +1038,7 @@ watch(
     if (newVal) {
       console.log("Download URL available:", newVal);
     }
-  }
+  },
 );
 
 // Cleanup on component unmount
@@ -1020,6 +1059,6 @@ watch(
   [date_range, crmSearch, customerSearch, per_page, sort_order],
   debounce(async () => {
     await getAction();
-  }, 500)
+  }, 500),
 );
 </script>

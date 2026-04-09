@@ -165,6 +165,13 @@
               <PlusIcon class="w-4 h-4" />
             </button>
           </div>
+          <select
+            v-model="mail_sender"
+            class="text-[10px] border border-gray-200 px-2 py-1 rounded-lg"
+          >
+            <option value="hotel">From: negyi.partnership@</option>
+            <option value="default">From: noreply.system@</option>
+          </select>
 
           <!-- Email Subject -->
           <input
@@ -379,6 +386,7 @@ const emailLoading = ref(false);
 const passportList = ref([]);
 const mail_name = ref("");
 const previewFile = ref([]);
+const mail_sender = ref("hotel");
 
 const formData = ref({
   images: [],
@@ -444,7 +452,7 @@ const removeImageUpdateImage = async (imageID) => {
   try {
     const res = await groupStore.groupDocumentDeleteAction(
       route.query.id,
-      imageID
+      imageID,
     );
     if (res.status == 1) {
       toast.success("Image successfully deleted");
@@ -498,6 +506,7 @@ const sendEmailFunction = async () => {
         frmData.append("mail_subject", emailData.value.mail_subject);
         frmData.append("mail_body", emailData.value.mail_body);
         frmData.append("email_type", "booking");
+        frmData.append("mail_sender", mail_sender.value);
 
         if (emailData.value.attachments.length > 0) {
           for (let i = 0; i < emailData.value.attachments.length; i++) {
@@ -507,7 +516,7 @@ const sendEmailFunction = async () => {
 
         const res = await reservationStore.emailSendReservation(
           route.query.id,
-          frmData
+          frmData,
         );
 
         if (res?.status === 1) {
@@ -545,7 +554,7 @@ const updateReservationAction = async () => {
 
       const fileRes = await groupStore.groupDocumentCreateAction(
         secData,
-        route.query.id
+        route.query.id,
       );
       responses.push(fileRes);
     }
@@ -604,7 +613,7 @@ const daysBetween = (a, b) => {
     const startDateTimestamp = new Date(a).getTime();
     const endDateTimestamp = new Date(b).getTime();
     return Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay),
     );
   }
   return 0;
@@ -620,7 +629,7 @@ const mailBodyChange = () => {
   const detail = props?.detail;
 
   emailData.value.mail_subject = `Booking for ${showFormat(
-    props?.detail?.items[0].service_date
+    props?.detail?.items[0].service_date,
   )}: ${detail?.crm_id}`;
   is_booking_request.value = props?.detail?.sent_booking_request === 1;
 
@@ -640,7 +649,7 @@ const mailBodyChange = () => {
               item.individual_pricing?.child?.quantity || 0
             } Child</p>
           <p><strong>Special request:</strong> ${item.special_request}</p>
-        `
+        `,
           )
           .join("<hr>")}
       </p>
@@ -681,10 +690,10 @@ const mailBodyChange = () => {
           <p><strong>Check Out Date:</strong> ${item.checkout_date}</p>
           <p><strong>Room Count:</strong> ${item.quantity} Rooms, ${daysBetween(
               item.checkin_date,
-              item.checkout_date
+              item.checkout_date,
             )} Nights</p>
           <p><strong>Special request:</strong> ${item.special_request}</p>
-        `
+        `,
           )
           .join("<hr>")}
       </p>
@@ -695,7 +704,7 @@ const mailBodyChange = () => {
           passportList.value
             ?.map(
               (passport) =>
-                `<p>${passport?.meta?.name}(${passport?.meta?.passport_number})</p>`
+                `<p>${passport?.meta?.name}(${passport?.meta?.passport_number})</p>`,
             )
             .join("") || ""
         }

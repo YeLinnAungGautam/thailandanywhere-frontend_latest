@@ -1,518 +1,831 @@
 <template>
   <Layout>
-    <div class="w-full mx-auto">
+    <div
+      class="h-[calc(100vh-120px)] w-[calc(100vw-120px)] flex flex-col overflow-x-hidden bg-white"
+    >
       <!-- Loading Overlay -->
       <div
         v-if="emailStore.loading"
         class="fixed inset-0 bg-black/20 flex items-center justify-center z-50"
       >
-        <div
-          class="bg-white rounded-lg p-6 shadow-xl flex flex-col items-center"
-        >
+        <div class="bg-white rounded-xl p-6 flex flex-col items-center gap-3">
           <div
-            class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF613c] mb-3"
+            class="w-9 h-9 border-3 border-gray-300 border-t-blue-600 rounded-full animate-spin"
           ></div>
-          <p class="text-gray-600">Loading...</p>
+          <p>Loading...</p>
         </div>
       </div>
 
-      <!-- Search and Filters -->
-      <div class="bg-white rounded-xl shadow-sm p-4 mb-5">
-        <div class="flex gap-3 flex-wrap">
-          <input
-            v-model="filters.search"
-            @input="debounceSearch"
-            type="text"
-            placeholder="Search emails..."
-            class="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#FF613c]"
-          />
-          <select
-            v-model="filters.status"
-            @change="fetchEmails"
-            class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#FF613c]"
-          >
-            <option value="">All Status</option>
-            <option value="open">Open</option>
-            <option value="closed">Closed</option>
-            <option value="archived">Archived</option>
-          </select>
-          <button
-            @click="showCompose = true"
-            class="bg-[#FF613c] hover:bg-[#e55534] text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-          >
-            + New Email
-          </button>
-        </div>
-
-        <!-- Stats -->
-        <div v-if="emailStore.stats" class="flex gap-4 mt-4 text-sm flex-wrap">
-          <div class="text-gray-600">
-            Total Threads:
-            <span class="font-semibold">{{
-              emailStore.stats.total_threads
-            }}</span>
-          </div>
-          <div class="text-[#FF613c]">
-            Open:
-            <span class="font-semibold">{{ emailStore.stats.open_count }}</span>
-          </div>
-          <div class="text-green-600">
-            Closed:
-            <span class="font-semibold">{{
-              emailStore.stats.closed_count
-            }}</span>
-          </div>
-          <div class="text-blue-600">
-            Messages:
-            <span class="font-semibold">{{
-              emailStore.stats.total_messages
-            }}</span>
-          </div>
-          <div class="text-gray-600">
-            Today:
-            <span class="font-semibold">{{
-              emailStore.stats.today_count
-            }}</span>
-          </div>
-          <div class="text-gray-600">
-            This Week:
-            <span class="font-semibold">{{
-              emailStore.stats.this_week_count
-            }}</span>
-          </div>
-        </div>
-      </div>
-
+      <!-- Top Header Bar -->
       <div
-        class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-5 h-[calc(100vh-240px)]"
+        class="h-16 w-full flex items-center justify-center px-4 flex-shrink-0"
       >
-        <!-- Mail List Sidebar -->
-        <div
-          class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col"
-        >
-          <div
-            class="px-5 py-4 border-b border-gray-100 flex justify-between items-center"
-          >
-            <h2 class="text-lg font-semibold text-gray-900">Inbox</h2>
-            <div class="flex items-center gap-2">
-              <span
-                class="bg-gray-100 text-gray-600 px-3 py-1 rounded-xl text-sm font-medium"
+        <!-- Left: Menu + Logo + Search -->
+        <div class="gap-4 flex-1 w-full flex justify-center items-center">
+          <!-- Search Bar -->
+          <div class="flex-1 max-w-2xl">
+            <div class="relative">
+              <div
+                class="absolute inset-y-0 left-4 flex items-center pointer-events-none"
               >
-                {{ emailStore.emails?.length || 0 }}
-              </span>
+                <svg
+                  class="w-5 h-5 text-gray-400"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                  />
+                </svg>
+              </div>
+              <input
+                v-model="filters.search"
+                @input="debounceSearch"
+                type="text"
+                placeholder="Search mail"
+                class="w-full h-12 pl-14 pr-12 bg-gray-200 rounded-full focus:outline-none transition-colors"
+              />
               <button
-                @click="syncEmails"
-                class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-medium transition-all"
-                title="Sync from Gmail"
+                class="absolute inset-y-0 right-2 flex items-center px-2 hover:bg-white/10 rounded"
               >
-                🔄
+                <svg
+                  class="w-6 h-6 text-gray-400"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                </svg>
               </button>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div class="overflow-y-auto flex-1">
+      <!-- Main Content Area -->
+      <div class="flex flex-1 overflow-hidden">
+        <!-- Left Sidebar -->
+        <aside
+          v-if="!selectedEmail"
+          class="w-64 bg-white border-r border-gray-200 flex-shrink-0"
+        >
+          <div class="p-2">
+            <button
+              @click="showCompose = true"
+              class="w-full flex items-center gap-4 px-6 py-4 bg-[#c2e7ff] hover:shadow-lg rounded-2xl transition-shadow"
+            >
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                />
+              </svg>
+              <span class="text-sm font-medium">Compose</span>
+            </button>
+          </div>
+
+          <nav class="mt-2">
             <div
-              v-for="email in emailStore.emails"
-              :key="email.id"
-              @click="selectEmail(email)"
+              @click="activeNav = 'inbox'"
               :class="[
-                'px-5 py-4 border-b border-gray-50 cursor-pointer transition-all duration-200',
-                selectedEmail?.id === email.id
-                  ? 'bg-[#fff5f2] border-l-4 border-l-[#FF613c]'
-                  : 'hover:bg-gray-50',
+                'flex items-center gap-4 px-6 py-2 mx-2 rounded-r-full cursor-pointer transition-colors',
+                activeNav === 'inbox'
+                  ? 'bg-[#d3e3fd] font-bold text-[#0b57d0]'
+                  : 'hover:bg-gray-100',
               ]"
             >
-              <div class="flex justify-between items-start mb-1">
-                <span
-                  class="text-sm font-medium text-gray-800 truncate flex-1 mr-2"
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-7-1h2V7h-2v11z"
+                />
+              </svg>
+              <span class="text-sm flex-1">Inbox</span>
+              <span class="text-xs font-semibold">{{
+                emailStore.stats?.open_count || 0
+              }}</span>
+            </div>
+
+            <div
+              @click="activeNav = 'starred'"
+              :class="[
+                'flex items-center gap-4 px-6 py-2 mx-2 rounded-r-full cursor-pointer transition-colors',
+                activeNav === 'starred'
+                  ? 'bg-[#d3e3fd] font-bold text-[#0b57d0]'
+                  : 'hover:bg-gray-100',
+              ]"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+                />
+              </svg>
+              <span class="text-sm">Starred</span>
+            </div>
+
+            <div
+              @click="activeNav = 'sent'"
+              :class="[
+                'flex items-center gap-4 px-6 py-2 mx-2 rounded-r-full cursor-pointer transition-colors',
+                activeNav === 'sent'
+                  ? 'bg-[#d3e3fd] font-bold text-[#0b57d0]'
+                  : 'hover:bg-gray-100',
+              ]"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+              </svg>
+              <span class="text-sm">Sent</span>
+            </div>
+
+            <div
+              @click="activeNav = 'archived'"
+              :class="[
+                'flex items-center gap-4 px-6 py-2 mx-2 rounded-r-full cursor-pointer transition-colors',
+                activeNav === 'archived'
+                  ? 'bg-[#d3e3fd] font-bold text-[#0b57d0]'
+                  : 'hover:bg-gray-100',
+              ]"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"
+                />
+              </svg>
+              <span class="text-sm">Archived</span>
+            </div>
+          </nav>
+
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="flex items-center gap-4 px-6 py-2 mx-2">
+              <svg
+                class="w-5 h-5 text-gray-600"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
+                />
+              </svg>
+              <span class="text-sm text-gray-700">Total</span>
+              <span class="ml-auto text-xs font-semibold text-gray-600">{{
+                emailStore.stats?.total_messages || 0
+              }}</span>
+            </div>
+
+            <div class="flex items-center gap-4 px-6 py-2 mx-2">
+              <svg
+                class="w-5 h-5 text-gray-600"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"
+                />
+              </svg>
+              <span class="text-sm text-gray-700">Today</span>
+              <span class="ml-auto text-xs font-semibold text-gray-600">{{
+                emailStore.stats?.today_count || 0
+              }}</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Email List (Full width when no email selected) -->
+        <div v-if="!selectedEmail" class="flex-1 flex flex-col bg-white">
+          <!-- Tabs: Primary, Promotions, Social -->
+          <div class="flex border-b border-gray-200">
+            <button
+              @click="activeTab = 'primary'"
+              :class="[
+                'flex items-center gap-2 px-6 py-3 border-b-2 transition-colors',
+                activeTab === 'primary'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:bg-gray-50',
+              ]"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-7-1h2V7h-2v11z"
+                />
+              </svg>
+              <span class="text-sm font-medium">Primary</span>
+            </button>
+
+            <button
+              @click="activeTab = 'promotions'"
+              :class="[
+                'flex items-center gap-2 px-6 py-3 border-b-2 transition-colors',
+                activeTab === 'promotions'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:bg-gray-50',
+              ]"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"
+                />
+              </svg>
+              <span class="text-sm font-medium">Promotions</span>
+            </button>
+
+            <button
+              @click="activeTab = 'social'"
+              :class="[
+                'flex items-center gap-2 px-6 py-3 border-b-2 transition-colors',
+                activeTab === 'social'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:bg-gray-50',
+              ]"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+                />
+              </svg>
+              <span class="text-sm font-medium">Social</span>
+            </button>
+            <button
+              @click="activeTab = 'updates'"
+              :class="[
+                'flex items-center gap-2 px-6 py-3 border-b-2 transition-colors',
+                activeTab === 'updates'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:bg-gray-50',
+              ]"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+                />
+              </svg>
+              <span class="text-sm font-medium">Updates</span>
+            </button>
+          </div>
+
+          <!-- Email List Toolbar -->
+          <div
+            class="flex items-center justify-start px-4 py-2 border-b border-gray-200"
+          >
+            <div class="flex items-center gap-2">
+              <input type="checkbox" class="w-4 h-4 rounded border-gray-300" />
+              <button
+                class="p-2 hover:bg-gray-100 rounded"
+                @click="syncEmails"
+                title="Refresh"
+              >
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {{ formatSender(email.is_incoming ? email.from : email.to) }}
-                </span>
-                <span class="text-xs text-gray-400 whitespace-nowrap">{{
-                  formatTime(email.last_message_at)
-                }}</span>
-              </div>
-              <div class="text-sm text-gray-700 truncate mb-1">
-                {{ email.subject }}
-              </div>
-              <div class="text-xs text-gray-400 truncate mb-2">
-                {{ stripHtml(email.preview) }}
-              </div>
-              <div class="flex gap-2 flex-wrap">
-                <span
-                  :class="[
-                    'text-xs px-2 py-0.5 rounded-full',
-                    email.is_incoming
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-green-100 text-green-700',
-                  ]"
+                  <path
+                    d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                  />
+                </svg>
+              </button>
+              <button class="p-2 hover:bg-gray-100 rounded">
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {{ email.is_incoming ? "Received" : "Sent" }}
-                </span>
-                <span
-                  :class="[
-                    'text-xs px-2 py-0.5 rounded-full',
-                    getStatusClass(email.status),
-                  ]"
+                  <path
+                    d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <span class="text-sm text-gray-600">
+                {{ filters.page }}-{{ filteredEmails.length }} of
+                {{ emailStore.stats?.total_messages || 0 }}
+              </span>
+              <div class="flex gap-1">
+                <button
+                  @click="previousPage"
+                  :disabled="filters.page === 1"
+                  class="p-2 hover:bg-gray-100 rounded disabled:opacity-50"
                 >
-                  {{ email.status }}
-                </span>
-                <span
-                  v-if="email.message_count > 1"
-                  class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600"
+                  <svg
+                    class="w-5 h-5 text-gray-600"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                  </svg>
+                </button>
+                <button
+                  @click="nextPage"
+                  :disabled="!paginationData?.has_more"
+                  class="p-2 hover:bg-gray-100 rounded disabled:opacity-50"
                 >
-                  {{ email.message_count }} msgs
-                </span>
+                  <svg
+                    class="w-5 h-5 text-gray-600"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- Pagination -->
+          <!-- Filter Chips -->
           <div
-            v-if="paginationData"
-            class="px-5 py-3 border-t border-gray-100 flex justify-between items-center"
+            class="flex gap-2 px-4 py-3 border-b border-gray-200 overflow-x-auto"
           >
             <button
-              @click="previousPage"
-              :disabled="paginationData.current_page === 1"
+              @click="activeChip = 'all'"
               :class="[
-                'px-3 py-1 rounded text-sm transition-all',
-                paginationData.current_page === 1
-                  ? 'text-gray-300 cursor-not-allowed'
-                  : 'text-[#FF613c] hover:bg-[#fff5f2]',
+                'px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap',
+                activeChip === 'all'
+                  ? 'bg-[#d3e3fd] text-[#0b57d0] border border-[#a8c7fa]'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
               ]"
             >
-              ← Previous
+              All
             </button>
-            <span class="text-sm text-gray-600"
-              >Page {{ paginationData.current_page }} of
-              {{ paginationData.last_page }}</span
-            >
             <button
-              @click="nextPage"
-              :disabled="!paginationData.has_more"
+              @click="activeChip = 'unread'"
               :class="[
-                'px-3 py-1 rounded text-sm transition-all',
-                !paginationData.has_more
-                  ? 'text-gray-300 cursor-not-allowed'
-                  : 'text-[#FF613c] hover:bg-[#fff5f2]',
+                'px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap',
+                activeChip === 'unread'
+                  ? 'bg-[#d3e3fd] text-[#0b57d0] border border-[#a8c7fa]'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
               ]"
             >
-              Next →
+              Unread
+            </button>
+            <button
+              @click="activeChip = 'open'"
+              :class="[
+                'px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap',
+                activeChip === 'open'
+                  ? 'bg-[#d3e3fd] text-[#0b57d0] border border-[#a8c7fa]'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
+              ]"
+            >
+              Open
+            </button>
+            <button
+              @click="activeChip = 'closed'"
+              :class="[
+                'px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap',
+                activeChip === 'closed'
+                  ? 'bg-[#d3e3fd] text-[#0b57d0] border border-[#a8c7fa]'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
+              ]"
+            >
+              Closed
             </button>
           </div>
 
-          <div
-            v-if="!emailStore.emails?.length && !emailStore.loading"
-            class="flex flex-col items-center justify-center py-16 text-gray-400"
-          >
-            <div class="text-5xl mb-3">📭</div>
-            <p>No messages found</p>
-          </div>
-        </div>
+          <!-- Email Rows -->
+          <div class="flex-1 overflow-y-auto">
+            <div
+              v-for="email in filteredEmails"
+              :key="email.id"
+              @click="selectEmail(email)"
+              class="flex items-start gap-4 px-4 py-3 border-b border-gray-100 hover:shadow-[inset_1px_0_0_#dadce0,inset_-1px_0_0_#dadce0,0_0_0_1px_#dadce0] cursor-pointer transition-all"
+            >
+              <input
+                type="checkbox"
+                class="mt-1 w-4 h-4 rounded border-gray-300"
+                @click.stop
+              />
+              <button class="mt-1" @click.stop>
+                <svg
+                  class="w-5 h-5 text-gray-400 hover:text-yellow-400"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+                  />
+                </svg>
+              </button>
 
-        <!-- Mail Viewer -->
-        <div
-          class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col"
-        >
-          <div
-            v-if="!selectedEmail"
-            class="flex-1 flex flex-col items-center justify-center text-gray-400"
-          >
-            <div class="text-6xl mb-4">✉️</div>
-            <p>Select a message to read</p>
-          </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-sm text-gray-900 truncate">
+                    {{
+                      formatSender(email.is_incoming ? email.from : email.to)
+                    }}
+                  </span>
+                  <span
+                    v-if="email.message_count > 1"
+                    class="text-xs text-gray-500"
+                    >({{ email.message_count }})</span
+                  >
+                  <span class="ml-auto text-xs text-gray-500 whitespace-nowrap">
+                    {{ formatTime(email.last_message_at) }}
+                  </span>
+                </div>
 
-          <template v-else>
-            <!-- Header (fixed) -->
-            <div class="px-6 py-4 border-b border-gray-100 flex-shrink-0">
-              <div class="flex justify-between items-start gap-4">
-                <h2 class="text-xl font-semibold text-gray-900 flex-1 min-w-0">
-                  {{ selectedEmail.subject }}
-                </h2>
-                <div class="flex gap-2 flex-shrink-0 flex-wrap justify-end">
-                  <button
-                    v-if="selectedEmail.status === 'open'"
-                    @click="closeTicket(selectedEmail.id)"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 transition-all"
+                <div class="flex items-center gap-2">
+                  <span
+                    class="font-medium text-sm text-gray-900 truncate flex-1"
                   >
-                    ✓ Close
-                  </button>
-                  <button
-                    v-else-if="selectedEmail.status === 'closed'"
-                    @click="reopenTicket(selectedEmail.id)"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium border border-green-300 text-green-600 hover:bg-green-50 transition-all"
-                  >
-                    ↺ Reopen
-                  </button>
-                  <button
-                    @click="archiveEmail"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 transition-all"
-                  >
-                    📦 Archive
-                  </button>
-                  <button
-                    @click="deleteEmail"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium border border-red-300 text-red-600 hover:bg-red-50 transition-all"
-                  >
-                    🗑️ Delete
-                  </button>
-                  <button
-                    @click="startReply"
-                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border-2 border-[#FF613c] text-[#FF613c] hover:bg-[#FF613c] hover:text-white transition-all"
-                  >
-                    <ArrowUturnLeftIcon class="w-4 h-4" /> Reply
-                  </button>
+                    {{ email.subject }}
+                  </span>
                 </div>
-              </div>
-              <div class="mt-3 space-y-1 text-sm">
-                <div class="flex gap-2">
-                  <span class="text-gray-500 w-16 flex-shrink-0">From:</span>
-                  <span class="text-[#FF613c] font-medium break-all">{{
-                    selectedEmail.from
-                  }}</span>
-                </div>
-                <div class="flex gap-2">
-                  <span class="text-gray-500 w-16 flex-shrink-0">To:</span>
-                  <span class="text-gray-700 break-all">{{
-                    selectedEmail.to
-                  }}</span>
-                </div>
-                <div class="flex gap-2">
-                  <span class="text-gray-500 w-16 flex-shrink-0">Date:</span>
-                  <span class="text-gray-700">{{
-                    formatFullTime(selectedEmail.last_message_at)
-                  }}</span>
-                </div>
-                <div class="flex gap-2 items-center">
-                  <span class="text-gray-500 w-16 flex-shrink-0">Status:</span>
+
+                <p class="text-sm text-gray-600 truncate mt-0.5">
+                  {{ stripHtml(email.preview) }}
+                </p>
+
+                <div class="flex gap-1.5 mt-2">
                   <span
                     :class="[
-                      'px-2 py-0.5 rounded text-xs font-medium',
-                      getStatusClass(selectedEmail.status),
+                      'text-xs px-2 py-0.5 rounded font-medium',
+                      email.is_incoming
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'bg-green-50 text-green-700',
                     ]"
                   >
-                    {{ selectedEmail.status }}
+                    {{ email.is_incoming ? "Received" : "Sent" }}
+                  </span>
+                  <span
+                    :class="[
+                      'text-xs px-2 py-0.5 rounded font-medium',
+                      statusBadgeClass(email.status),
+                    ]"
+                  >
+                    {{ email.status }}
                   </span>
                 </div>
               </div>
             </div>
 
-            <!-- Thread Messages (scrollable) -->
-            <div class="flex-1 overflow-y-auto px-6 py-4">
-              <!-- Loading spinner -->
-              <div
-                v-if="threadLoading"
-                class="flex items-center justify-center py-12 text-gray-400"
-              >
-                <div
-                  class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF613c] mr-3"
-                ></div>
-                <span class="text-sm">Loading messages...</span>
-              </div>
+            <div
+              v-if="!filteredEmails.length && !emailStore.loading"
+              class="flex flex-col items-center justify-center py-20 text-gray-400"
+            >
+              <div class="text-6xl mb-4 opacity-30">📭</div>
+              <p>No messages found</p>
+            </div>
+          </div>
+        </div>
 
-              <!-- Messages -->
-              <div v-else-if="threadMessages.length" class="space-y-4">
-                <div
-                  v-for="msg in threadMessages"
-                  :key="msg.id"
-                  :class="[
-                    'rounded-xl border overflow-hidden',
-                    msg.is_incoming ? 'border-gray-200' : 'border-[#ffd5c8]',
-                  ]"
+        <!-- Email Detail View (Full width when email selected) -->
+        <div v-else class="flex-1 flex flex-col bg-white">
+          <!-- Back button + Toolbar -->
+          <div
+            class="flex items-center gap-4 px-4 py-3 border-b border-gray-200"
+          >
+            <button
+              @click="selectedEmail = null"
+              class="p-2 hover:bg-gray-100 rounded-full"
+            >
+              <svg
+                class="w-5 h-5 text-gray-700"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+                />
+              </svg>
+            </button>
+
+            <div class="flex items-center gap-2 flex-1">
+              <button
+                @click="archiveEmail"
+                class="p-2 hover:bg-gray-100 rounded"
+                title="Archive"
+              >
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <!-- Message header bar -->
-                  <div
-                    :class="[
-                      'px-4 py-2.5 flex justify-between items-center border-b text-xs',
-                      msg.is_incoming
-                        ? 'bg-gray-50 border-gray-200 text-gray-600'
-                        : 'bg-[#fff5f2] border-[#ffd5c8] text-[#c94a26]',
-                    ]"
-                  >
-                    <div class="flex flex-col gap-0.5 min-w-0 flex-1 mr-4">
-                      <span class="font-medium truncate">
-                        {{
-                          msg.is_incoming
-                            ? "📨 " + msg.from
-                            : "📤 To: " + msg.to
-                        }}
-                      </span>
-                      <span class="opacity-70">{{
-                        formatFullTime(msg.created_at)
-                      }}</span>
-                    </div>
-                    <span
+                  <path
+                    d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"
+                  />
+                </svg>
+              </button>
+              <button
+                @click="deleteEmail"
+                class="p-2 hover:bg-gray-100 rounded"
+                title="Delete"
+              >
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span
+                :class="[
+                  'px-3 py-1 text-xs font-semibold rounded-full',
+                  selectedEmail.status === 'open'
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'bg-green-50 text-green-700',
+                ]"
+              >
+                {{ selectedEmail.status }}
+              </span>
+              <button
+                v-if="selectedEmail.status === 'open'"
+                @click="closeTicket(selectedEmail.id)"
+                class="px-4 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50"
+              >
+                ✓ Close
+              </button>
+              <button
+                v-else
+                @click="reopenTicket(selectedEmail.id)"
+                class="px-4 py-1.5 text-sm font-medium text-green-700 border border-green-600 rounded-full hover:bg-green-50"
+              >
+                ↺ Reopen
+              </button>
+            </div>
+          </div>
+
+          <!-- Subject -->
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-normal text-gray-900">
+              {{ selectedEmail.subject }}
+            </h1>
+          </div>
+
+          <!-- Thread Messages -->
+          <div ref="viewerBody" class="flex-1 overflow-y-auto px-6 py-4">
+            <div
+              v-if="threadLoading"
+              class="flex items-center justify-center py-12 text-gray-500"
+            >
+              <div
+                class="w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mr-3"
+              ></div>
+              Loading messages...
+            </div>
+
+            <div v-else class="space-y-3">
+              <div
+                v-for="(msg, index) in threadMessages"
+                :key="msg.id"
+                class="border border-gray-200 rounded-lg overflow-hidden"
+              >
+                <!-- Message Header -->
+                <div
+                  @click="toggleMsg(index)"
+                  class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
                       :class="[
-                        'px-2 py-0.5 rounded-full flex-shrink-0 font-medium',
-                        msg.is_incoming
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-green-100 text-green-700',
+                        'w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold',
+                        msg.is_incoming ? 'bg-purple-500' : 'bg-red-500',
                       ]"
                     >
-                      {{ msg.is_incoming ? "Received" : "Sent" }}
-                    </span>
-                  </div>
-
-                  <!-- Full message body -->
-                  <div class="px-4 py-4 bg-white">
-                    <div
-                      v-html="formatBody(msg.body)"
-                      class="email-body text-sm text-gray-700 leading-relaxed"
-                    ></div>
-
-                    <!-- Attachments -->
-                    <div
-                      v-if="msg.attachments && msg.attachments.length"
-                      class="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-2"
-                    >
-                      <div
-                        v-for="(att, idx) in msg.attachments"
-                        :key="idx"
-                        class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600 hover:bg-gray-100 cursor-pointer"
-                      >
-                        📎 {{ att }}
+                      {{ msg.is_incoming ? initials(msg.from) : "Me" }}
+                    </div>
+                    <div>
+                      <div class="font-semibold text-sm text-gray-900">
+                        {{ formatSender(msg.from) }}
                       </div>
+                      <div
+                        v-if="!expandedMsgs.has(index)"
+                        class="text-sm text-gray-500 truncate max-w-xl"
+                      >
+                        {{ stripHtml(msg.body).slice(0, 80) }}...
+                      </div>
+                      <div v-else class="text-xs text-gray-500">
+                        to {{ msg.to }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-sm text-gray-500">
+                    {{ formatFullTime(msg.created_at) }}
+                  </div>
+                </div>
+
+                <!-- Message Body (Expanded) -->
+                <div
+                  v-if="expandedMsgs.has(index)"
+                  class="px-4 pb-4 border-t border-gray-100"
+                >
+                  <div
+                    class="mt-3 text-sm text-gray-900 leading-relaxed"
+                    v-html="formatBody(msg.body)"
+                  ></div>
+
+                  <!-- Attachments -->
+                  <div
+                    v-if="
+                      msg.attachments &&
+                      parseAttachments(msg.attachments).length
+                    "
+                    class="flex gap-2 mt-4 flex-wrap"
+                  >
+                    <div
+                      v-for="(att, i) in parseAttachments(msg.attachments)"
+                      :key="i"
+                      class="flex items-center gap-2 px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-blue-50 cursor-pointer"
+                    >
+                      📎 {{ att }}
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
+          <!-- Reply Area -->
+          <div class="px-6 py-4 border-t border-gray-200">
+            <div
+              v-if="!showReply"
+              @click="expandReply"
+              class="flex items-center gap-3 px-4 py-3 border border-gray-300 rounded-full cursor-text hover:shadow-md transition-shadow"
+            >
               <div
-                v-else
-                class="flex flex-col items-center justify-center py-12 text-gray-400"
+                class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-semibold"
               >
-                <div class="text-4xl mb-2">📭</div>
-                <p class="text-sm">No messages found</p>
+                Me
               </div>
+              <span class="text-sm text-gray-500 flex-1"
+                >Reply to
+                {{ formatSender(selectedEmail.customer_email) }}...</span
+              >
+              <button
+                @click.stop="startReply('I will get back to you shortly.')"
+                class="px-4 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-full hover:bg-gray-50"
+              >
+                Quick reply
+              </button>
             </div>
 
-            <!-- Reply Form (fixed at bottom) -->
             <div
-              v-if="showReply"
-              class="border-t-2 border-gray-100 px-6 py-4 bg-gray-50 flex-shrink-0"
+              v-else
+              class="border border-gray-300 rounded-xl overflow-hidden shadow-lg"
             >
-              <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-semibold text-gray-900">
-                  Reply to {{ formatSender(selectedEmail.from) }}
-                </h3>
+              <div
+                class="flex items-center justify-between px-4 py-3 border-b border-gray-200"
+              >
+                <span class="text-sm"
+                  >Reply to
+                  <strong>{{
+                    formatSender(selectedEmail.customer_email)
+                  }}</strong></span
+                >
                 <button
                   @click="showReply = false"
-                  class="w-7 h-7 flex items-center justify-center text-gray-400 hover:bg-gray-200 rounded-md"
+                  class="p-1 hover:bg-gray-100 rounded"
                 >
-                  ✕
+                  <svg
+                    class="w-5 h-5 text-gray-600"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                    />
+                  </svg>
                 </button>
               </div>
+
               <input
                 v-model="replySubject"
-                type="text"
+                class="w-full px-4 py-2 border-b border-gray-200 text-sm focus:outline-none"
                 placeholder="Subject"
-                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-3 focus:outline-none focus:border-[#FF613c]"
               />
+
               <textarea
+                ref="replyTextarea"
                 v-model="replyMessage"
+                rows="6"
+                class="w-full px-4 py-3 text-sm resize-none focus:outline-none"
                 placeholder="Type your reply..."
-                rows="4"
-                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm resize-y mb-3 focus:outline-none focus:border-[#FF613c]"
               ></textarea>
-              <div class="flex gap-3">
+
+              <div
+                class="flex items-center justify-between px-4 py-3 border-t border-gray-200"
+              >
                 <button
                   @click="sendReply"
                   :disabled="!replyMessage.trim()"
-                  class="bg-[#FF613c] hover:bg-[#e55534] text-white px-5 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Send Reply
+                  Send
                 </button>
                 <button
                   @click="showReply = false"
-                  class="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 px-5 py-2 rounded-lg text-sm font-medium transition-all"
+                  class="p-2 hover:bg-gray-100 rounded"
                 >
-                  Cancel
+                  <svg
+                    class="w-5 h-5 text-gray-600"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                    />
+                  </svg>
                 </button>
               </div>
             </div>
-          </template>
+          </div>
         </div>
       </div>
 
-      <!-- Compose Modal -->
-      <div
-        v-if="showCompose"
-        @click.self="showCompose = false"
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      >
+      <!-- Compose Modal (bottom-right Gmail style) -->
+      <Transition name="slide-up">
         <div
-          class="bg-white rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl"
+          v-if="showCompose"
+          class="fixed bottom-0 right-6 w-[500px] bg-white rounded-t-xl shadow-2xl z-50"
         >
           <div
-            class="px-6 py-5 border-b border-gray-100 flex justify-between items-center"
+            class="bg-gray-800 text-white px-4 py-3 rounded-t-xl flex items-center justify-between"
           >
-            <h2 class="text-xl font-semibold text-gray-900">New Message</h2>
+            <span class="text-sm font-medium">New Message</span>
             <button
               @click="showCompose = false"
-              class="w-8 h-8 flex items-center justify-center text-2xl text-gray-400 hover:bg-gray-100 rounded-md"
+              class="text-white hover:bg-gray-700 rounded p-1"
             >
-              ✕
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
+              </svg>
             </button>
           </div>
-          <div class="px-6 py-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+
+          <div class="border-b border-gray-200">
             <input
               v-model="composeMail.to"
               type="email"
-              placeholder="To: recipient@example.com"
-              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm mb-3 focus:outline-none focus:border-[#FF613c]"
+              placeholder="To"
+              class="w-full px-4 py-2 text-sm border-b border-gray-200 focus:outline-none"
             />
             <input
               v-model="ccInput"
-              type="text"
-              placeholder="CC: (comma separated)"
-              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm mb-3 focus:outline-none focus:border-[#FF613c]"
+              placeholder="Cc"
+              class="w-full px-4 py-2 text-sm border-b border-gray-200 focus:outline-none"
             />
             <input
               v-model="composeMail.subject"
-              type="text"
               placeholder="Subject"
-              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm mb-3 focus:outline-none focus:border-[#FF613c]"
+              class="w-full px-4 py-2 text-sm focus:outline-none"
             />
-            <textarea
-              v-model="composeMail.body"
-              placeholder="Type your message..."
-              rows="10"
-              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm resize-y mb-4 focus:outline-none focus:border-[#FF613c]"
-            ></textarea>
-            <div class="flex gap-3">
-              <button
-                @click="sendNewEmail"
-                :disabled="
-                  !composeMail.to || !composeMail.subject || !composeMail.body
-                "
-                class="bg-[#FF613c] hover:bg-[#e55534] text-white px-6 py-3 rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          </div>
+
+          <textarea
+            v-model="composeMail.body"
+            rows="12"
+            class="w-full px-4 py-3 text-sm resize-none focus:outline-none"
+            placeholder="Write your message..."
+          ></textarea>
+
+          <div
+            class="flex items-center gap-3 px-4 py-3 border-t border-gray-200"
+          >
+            <button
+              @click="sendNewEmail"
+              :disabled="
+                !composeMail.to || !composeMail.subject || !composeMail.body
+              "
+              class="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Send
+            </button>
+            <button
+              @click="showCompose = false"
+              class="p-2 hover:bg-gray-100 rounded"
+            >
+              <svg
+                class="w-5 h-5 text-gray-600"
+                fill="currentColor"
+                viewBox="0 0 24 24"
               >
-                Send Message
-              </button>
-              <button
-                @click="showCompose = false"
-                class="bg-white hover:bg-gray-100 text-gray-600 border border-gray-300 px-6 py-3 rounded-lg text-sm font-medium transition-all"
-              >
-                Cancel
-              </button>
-            </div>
+                <path
+                  d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                />
+              </svg>
+            </button>
           </div>
         </div>
-      </div>
+      </Transition>
     </div>
   </Layout>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted, nextTick, watch } from "vue";
 import Layout from "./Layout.vue";
-import { ArrowUturnLeftIcon } from "@heroicons/vue/24/outline";
 import { useEmailStore } from "../stores/email";
 import axios from "axios";
 
 const emailStore = useEmailStore();
 
+// State
 const selectedEmail = ref(null);
 const threadMessages = ref([]);
 const threadLoading = ref(false);
@@ -523,259 +836,267 @@ const replySubject = ref("");
 const paginationData = ref(null);
 const composeMail = ref({ to: "", subject: "", body: "" });
 const ccInput = ref("");
+const activeChip = ref("all");
+const activeTab = ref("primary");
+const activeNav = ref("inbox");
 const filters = ref({ search: "", status: "", per_page: 20, page: 1 });
+const viewerBody = ref(null);
+const replyTextarea = ref(null);
+const expandedMsgs = ref(new Set());
 let searchTimeout = null;
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// Computed
+// const filteredEmails = computed(() => {
+//   const list = emailStore.emails || [];
+//   if (activeChip.value === "all") return list;
+//   if (activeChip.value === "open")
+//     return list.filter((e) => e.status === "open");
+//   if (activeChip.value === "closed")
+//     return list.filter((e) => e.status === "closed");
+//   return list;
+// });
 
-const formatSender = (raw) => {
-  if (!raw) return "";
-  const match = raw.match(/^(.*?)\s*<(.+?)>$/);
-  return match ? match[1].trim() || match[2] : raw;
+// Helpers
+const AVATAR_COLORS = [
+  "#1a73e8",
+  "#ea4335",
+  "#34a853",
+  "#fa7b17",
+  "#8430ce",
+  "#00bcd4",
+  "#e91e63",
+  "#607d8b",
+];
+
+const avatarColor = (str = "") => {
+  let h = 0;
+  for (const c of str) h = (h * 31 + c.charCodeAt(0)) & 0xffffffff;
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
 };
 
-const stripHtml = (html) => {
-  if (!html) return "";
-  return html
+const initials = (raw = "") => {
+  const name = raw.replace(/<.*?>/, "").trim();
+  const parts = name.split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+};
+
+const formatSender = (raw = "") => {
+  const m = raw.match(/^(.*?)\s*<(.+?)>$/);
+  return m ? m[1].trim() || m[2] : raw;
+};
+
+const stripHtml = (html = "") =>
+  html
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-};
 
-const formatTime = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  const now = new Date();
-  const hours = Math.floor((now - date) / (1000 * 60 * 60));
-  if (hours < 1) return "Just now";
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
+const formatTime = (d) => {
+  if (!d) return "";
+  const date = new Date(d),
+    now = new Date();
+  const h = Math.floor((now - date) / 3600000);
+  if (h < 1) return "Just now";
+  if (h < 24) return `${h}h ago`;
+  const days = Math.floor(h / 24);
   if (days < 7) return `${days}d ago`;
   return date.toLocaleDateString();
 };
 
-const formatFullTime = (dateString) => {
-  if (!dateString) return "";
-  return new Date(dateString).toLocaleString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+const formatFullTime = (d) =>
+  d
+    ? new Date(d).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
+
+const statusBadgeClass = (s) =>
+  ({
+    open: "bg-blue-50 text-blue-700",
+    closed: "bg-green-50 text-green-700",
+    archived: "bg-gray-100 text-gray-600",
+  }[s] || "bg-gray-100 text-gray-600");
+
+const parseAttachments = (att) => {
+  if (!att) return [];
+  if (Array.isArray(att)) return att;
+  try {
+    return JSON.parse(att);
+  } catch {
+    return [];
+  }
 };
 
-/**
- * Gmail-style email body formatter.
- * - Real HTML → render as-is with quoted section collapsed (like Gmail's "..." button)
- * - Plain text → proper paragraph breaks, quoted replies collapsed
- */
-const formatBody = (body) => {
+const formatBody = (body = "") => {
   if (!body) return "";
+  const hasHtml = /<(div|table|p|ul|ol|li|h[1-6]|section|span\s)[^>]*>/i.test(
+    body,
+  );
+  if (hasHtml) return wrapGmailQuote(body);
 
-  const hasRealHtml =
-    /<(div|table|p|ul|ol|li|h[1-6]|section|article|span\s)[^>]*>/i.test(body);
-
-  if (hasRealHtml) {
-    // Wrap Gmail's .gmail_quote in a collapsible block
-    return wrapGmailQuote(body);
-  }
-
-  // Plain text processing
   let text = body
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<[^>]+>/g, "");
 
   const lines = text.split("\n");
-
-  // Separate main body from quoted section
-  // Find first "On ... wrote:" line that's followed by > lines
-  let splitIndex = -1;
+  let split = -1;
   for (let i = 0; i < lines.length; i++) {
     if (
       /^On .+wrote:$/i.test(lines[i].trim()) ||
       /^-{3,}Original Message-{3,}/i.test(lines[i].trim())
     ) {
-      splitIndex = i;
+      split = i;
       break;
-    }
-    // Or if line starts with > and previous non-empty line was "On...wrote:"
-    if (lines[i].trim().startsWith(">") && i > 0) {
-      const prev = lines[i - 1].trim();
-      if (/^On .+wrote:$/i.test(prev) || prev === "") {
-        splitIndex = i - 1 > 0 ? i - 1 : i;
-        break;
-      }
     }
   }
 
-  const mainLines = splitIndex >= 0 ? lines.slice(0, splitIndex) : lines;
-  const quotedLines = splitIndex >= 0 ? lines.slice(splitIndex) : [];
+  const main = split >= 0 ? lines.slice(0, split) : lines;
+  const quoted = split >= 0 ? lines.slice(split) : [];
 
-  const renderLines = (lineArr) =>
-    lineArr
-      .map((line) => {
-        const trimmed = line.trim();
-        if (!trimmed) return `<div style="height:6px"></div>`;
-        if (/^[-_]{3,}$/.test(trimmed))
-          return `<hr style="border:none;border-top:1px solid #e5e7eb;margin:10px 0;">`;
-        // Strip leading > for quoted lines inside the collapsed section
-        const clean = trimmed.replace(/^>+\s?/, "");
-        return `<div style="margin:0;padding:1px 0;line-height:1.6;">${linkify(
-          escapeHtml(clean || line),
+  const renderLines = (ls) =>
+    ls
+      .map((l) => {
+        const t = l.trim();
+        if (!t) return `<div style="height:5px"></div>`;
+        return `<div style="line-height:1.65;">${linkify(
+          escHtml(t.replace(/^>+\s?/, "")),
         )}</div>`;
       })
       .join("");
 
-  let html = `<div style="font-size:14px;color:#1f2937;">${renderLines(
-    mainLines,
-  )}</div>`;
-
-  if (quotedLines.length) {
-    const quotedId = `q_${Math.random().toString(36).slice(2, 7)}`;
-    const quotedHtml = renderLines(quotedLines);
+  let html = `<div>${renderLines(main)}</div>`;
+  if (quoted.length) {
+    const qid = `q${Math.random().toString(36).slice(2, 7)}`;
     html += `
-      <div style="margin-top:12px;">
-        <button
-          onclick="var el=document.getElementById('${quotedId}');var btn=this;if(el.style.display==='none'){el.style.display='block';btn.innerHTML='▲ Hide quoted text';}else{el.style.display='none';btn.innerHTML='• • •'}"
-          style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:4px;padding:2px 10px;font-size:13px;color:#6b7280;cursor:pointer;letter-spacing:2px;line-height:1.8;"
-        >• • •</button>
-        <div id="${quotedId}" style="display:none;margin-top:8px;padding:12px 16px;border-left:3px solid #e5e7eb;background:#f9fafb;border-radius:0 6px 6px 0;font-size:14px;color:#374151;line-height:1.6;">
-          ${quotedHtml}
-        </div>
-      </div>`;
+    <div style="margin-top:10px;">
+      <button onclick="var e=document.getElementById('${qid}');var b=this;if(e.style.display==='none'){e.style.display='block';b.innerHTML='▲ Hide';}else{e.style.display='none';b.innerHTML='▼ Show quoted text';}"
+        style="font-size:12px;color:#444746;background:#f1f3f4;border:1px solid #dadce0;border-radius:4px;padding:2px 10px;cursor:pointer;">
+        ▼ Show quoted text
+      </button>
+      <div id="${qid}" style="display:none;margin-top:8px;padding:10px 14px;border-left:3px solid #dadce0;background:#f9fafb;border-radius:0 6px 6px 0;font-size:13px;color:#374151;line-height:1.65;">
+        ${renderLines(quoted)}
+      </div>
+    </div>`;
   }
-
   return html;
 };
 
-/**
- * For real HTML emails: wrap .gmail_quote / blockquote in a collapsible toggle
- */
 const wrapGmailQuote = (html) => {
-  // Replace Gmail's quote div with collapsible version
-  const id = `q_${Math.random().toString(36).slice(2, 7)}`;
-
-  // Handle .gmail_quote class
+  const id = `q${Math.random().toString(36).slice(2, 7)}`;
+  const btn = `<button onclick="var e=document.getElementById('${id}');var b=this;e.style.display=e.style.display==='none'?'block':'none';b.textContent=e.style.display==='none'?'• • •':'▲ Hide'" style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:4px;padding:2px 10px;font-size:12px;color:#6b7280;cursor:pointer;letter-spacing:2px;">• • •</button>`;
   let result = html.replace(
-    /(<div[^>]+class="[^"]*gmail_quote[^"]*"[^>]*>)([\s\S]*?)(<\/div>)(?=\s*$|\s*<div)/,
-    (_, open, content, close) => `
-      <div style="margin-top:12px;">
-        <button
-          onclick="var el=document.getElementById('${id}');var btn=this;if(el.style.display==='none'){el.style.display='block';btn.innerHTML='▲ Hide quoted text';}else{el.style.display='none';btn.innerHTML='• • •'}"
-          style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:4px;padding:2px 10px;font-size:13px;color:#6b7280;cursor:pointer;letter-spacing:2px;line-height:1.8;"
-        >• • •</button>
-        <div id="${id}" style="display:none;margin-top:8px;">
-          ${open}${content}${close}
-        </div>
-      </div>`,
+    /(<div[^>]+class="[^"]*gmail_quote[^"]*"[^>]*>)([\s\S]*?)(<\/div>)(?=\s*$)/,
+    (_, o, c, cl) =>
+      `<div style="margin-top:10px;">${btn}<div id="${id}" style="display:none;margin-top:6px;">${o}${c}${cl}</div></div>`,
   );
-
-  // Handle bare blockquotes if no .gmail_quote found
-  if (result === html) {
-    result = html.replace(
-      /(<blockquote[^>]*>)([\s\S]*?)(<\/blockquote>)/g,
-      (_, open, content, close) => {
-        const bid = `q_${Math.random().toString(36).slice(2, 7)}`;
-        return `
-          <div style="margin-top:12px;">
-            <button
-              onclick="var el=document.getElementById('${bid}');var btn=this;if(el.style.display==='none'){el.style.display='block';btn.innerHTML='▲ Hide quoted text';}else{el.style.display='none';btn.innerHTML='• • •'}"
-              style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:4px;padding:2px 10px;font-size:13px;color:#6b7280;cursor:pointer;letter-spacing:2px;line-height:1.8;"
-            >• • •</button>
-            <div id="${bid}" style="display:none;margin-top:8px;padding:10px 16px;border-left:3px solid #e5e7eb;background:#f9fafb;border-radius:0 6px 6px 0;">
-              ${open}${content}${close}
-            </div>
-          </div>`;
-      },
-    );
-  }
-
   return result;
 };
 
-const escapeHtml = (str) =>
-  str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const escHtml = (s) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-const linkify = (str) =>
-  str.replace(
+const linkify = (s) =>
+  s.replace(
     /(https?:\/\/[^\s<>"]+)/g,
-    '<a href="$1" target="_blank" rel="noopener" style="color:#FF613c;word-break:break-all;">$1</a>',
+    '<a href="$1" target="_blank" rel="noopener" style="color:#1a73e8;word-break:break-all;">$1</a>',
   );
 
-const getStatusClass = (status) =>
-  ({
-    open: "bg-blue-100 text-blue-700",
-    closed: "bg-green-100 text-green-700",
-    archived: "bg-gray-100 text-gray-600",
-  }[status] || "bg-gray-100 text-gray-700");
-
-// ─── Fetch inbox ─────────────────────────────────────────────────────────────
-
-const fetchEmails = async () => {
-  try {
-    const response = await emailStore.getInbox(filters.value);
-    // HttpResponses trait → response.result (not response.data)
-    paginationData.value = response.result?.pagination || null;
-  } catch (error) {
-    console.error("Error fetching emails:", error);
-    alert("Failed to load emails");
-  }
+const toggleMsg = (index) => {
+  const s = new Set(expandedMsgs.value);
+  s.has(index) ? s.delete(index) : s.add(index);
+  expandedMsgs.value = s;
 };
 
-// ─── Select email → auto-load thread ────────────────────────────────────────
+const filteredEmails = computed(() => {
+  return emailStore.emails || [];
+});
+
+// Data fetching
+const fetchEmails = async () => {
+  try {
+    const categoryMap = {
+      primary: "Primary",
+      promotions: "Promotions",
+      social: "Social",
+      updates: "Updates",
+    };
+
+    const params = {
+      ...filters.value,
+      category: categoryMap[activeTab.value] || undefined,
+      status:
+        activeChip.value !== "all" && activeChip.value !== "unread"
+          ? activeChip.value
+          : undefined,
+    };
+
+    const res = await emailStore.getInbox(params);
+    paginationData.value = res.result?.pagination || null;
+  } catch (e) {
+    console.error(e);
+  }
+};
 
 const selectEmail = async (email) => {
   selectedEmail.value = email;
   threadMessages.value = [];
   showReply.value = false;
-  // Auto-load thread immediately on click
   await loadThread(email.thread_id || email.id);
 };
 
-/**
- * GET /gmail/threads/{threadId}
- * Backend returns: { result: { emails: [...] } }
- */
 const loadThread = async (threadId) => {
   if (!threadId) return;
   threadLoading.value = true;
   try {
-    const response = await axios.get(`/gmail/threads/${threadId}`);
-    // Support result or data key
-    const payload = response.data.result || response.data.data || response.data;
+    const res = await axios.get(`/gmail/threads/${threadId}`);
+    const payload = res.data.result || res.data.data || res.data;
     threadMessages.value = payload?.emails || [];
-  } catch (error) {
-    console.error("Error loading thread:", error);
+    if (threadMessages.value.length) {
+      expandedMsgs.value = new Set([threadMessages.value.length - 1]);
+    }
+    await nextTick();
+    if (viewerBody.value)
+      viewerBody.value.scrollTop = viewerBody.value.scrollHeight;
+  } catch (e) {
+    console.error(e);
     threadMessages.value = [];
   } finally {
     threadLoading.value = false;
   }
 };
 
-// ─── Actions ─────────────────────────────────────────────────────────────────
-
+// Actions
 const syncEmails = async () => {
   if (!confirm("Sync recent emails from Gmail?")) return;
   try {
-    const response = await emailStore.syncFromGmail(50);
-    const synced =
-      response.result?.synced_count ?? response.data?.synced_count ?? 0;
-    alert(`Synced ${synced} new email(s)`);
+    const res = await emailStore.syncFromGmail(50);
+    const n = res.result?.synced_count ?? res.data?.synced_count ?? 0;
+    alert(`Synced ${n} new email(s)`);
     await fetchEmails();
-  } catch (error) {
+  } catch {
     alert("Failed to sync emails");
   }
 };
 
-const startReply = () => {
+const expandReply = async () => {
   showReply.value = true;
-  replyMessage.value = "";
+  replySubject.value = `Re: ${selectedEmail.value.subject}`;
+  await nextTick();
+  replyTextarea.value?.focus();
+};
+
+const startReply = (text = "") => {
+  showReply.value = true;
+  replyMessage.value = text;
   replySubject.value = `Re: ${selectedEmail.value.subject}`;
 };
 
@@ -786,14 +1107,12 @@ const sendReply = async () => {
       body: replyMessage.value,
       subject: replySubject.value,
     });
-    alert("Reply sent successfully!");
     showReply.value = false;
     replyMessage.value = "";
-    // Reload thread to show the new reply
     await loadThread(selectedEmail.value.thread_id || selectedEmail.value.id);
     await fetchEmails();
-  } catch (error) {
-    alert(error.response?.data?.message || "Failed to send reply");
+  } catch (e) {
+    alert(e.response?.data?.message || "Failed to send reply");
   }
 };
 
@@ -802,25 +1121,22 @@ const sendNewEmail = async () => {
     !composeMail.value.to ||
     !composeMail.value.subject ||
     !composeMail.value.body
-  ) {
+  )
     return alert("Please fill in all required fields");
-  }
   try {
-    const emailData = { ...composeMail.value };
-    if (ccInput.value.trim()) {
-      emailData.cc = ccInput.value
+    const data = { ...composeMail.value };
+    if (ccInput.value.trim())
+      data.cc = ccInput.value
         .split(",")
         .map((e) => e.trim())
         .filter(Boolean);
-    }
-    await emailStore.composeEmail(emailData);
-    alert("Message sent successfully!");
+    await emailStore.composeEmail(data);
     showCompose.value = false;
     composeMail.value = { to: "", subject: "", body: "" };
     ccInput.value = "";
     await fetchEmails();
-  } catch (error) {
-    alert(error.response?.data?.message || "Failed to send message");
+  } catch (e) {
+    alert(e.response?.data?.message || "Failed to send message");
   }
 };
 
@@ -852,7 +1168,7 @@ const archiveEmail = async () => {
     threadMessages.value = [];
     await fetchEmails();
   } catch {
-    alert("Failed to archive email");
+    alert("Failed to archive");
   }
 };
 
@@ -864,11 +1180,9 @@ const deleteEmail = async () => {
     threadMessages.value = [];
     await fetchEmails();
   } catch {
-    alert("Failed to delete email");
+    alert("Failed to delete");
   }
 };
-
-// ─── Pagination & Search ─────────────────────────────────────────────────────
 
 const debounceSearch = () => {
   clearTimeout(searchTimeout);
@@ -877,12 +1191,14 @@ const debounceSearch = () => {
     fetchEmails();
   }, 500);
 };
+
 const nextPage = () => {
   if (paginationData.value?.has_more) {
     filters.value.page++;
     fetchEmails();
   }
 };
+
 const previousPage = () => {
   if (filters.value.page > 1) {
     filters.value.page--;
@@ -890,8 +1206,18 @@ const previousPage = () => {
   }
 };
 
-// ─── Mount ───────────────────────────────────────────────────────────────────
+watch(activeTab, () => {
+  filters.value.page = 1;
+  fetchEmails();
+});
 
+// Watch chip change → re-filter
+watch(activeChip, () => {
+  filters.value.page = 1;
+  fetchEmails();
+});
+
+// Mount
 onMounted(async () => {
   const code = new URLSearchParams(window.location.search).get("code");
   if (code) {
@@ -909,51 +1235,13 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.email-body {
-  max-width: 100%;
-  overflow-x: auto;
-  word-break: break-word;
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
-.email-body :deep(table) {
-  max-width: 100%;
-  border-collapse: collapse;
-}
-.email-body :deep(img) {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-.email-body :deep(a) {
-  color: #ff613c;
-  word-break: break-all;
-}
-.email-body :deep(p) {
-  margin-bottom: 0.6rem;
-}
-.email-body :deep(blockquote) {
-  border-left: 3px solid #e5e7eb;
-  padding-left: 1rem;
-  color: #6b7280;
-  margin: 0.5rem 0;
-}
-.email-body :deep(pre) {
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-family: inherit;
-}
-.email-body :deep(div) {
-  max-width: 100%;
-}
-/* Gmail quoted text toggle */
-.email-body :deep(.gmail_quote) {
-  color: #6b7280;
-  border-left: 3px solid #e5e7eb;
-  padding-left: 10px;
-  margin: 8px 0;
-}
-.email-body :deep(.gmail_attr) {
-  color: #9ca3af;
-  font-size: 0.8em;
-  margin: 10px 0 4px;
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
 }
 </style>

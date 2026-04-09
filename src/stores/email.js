@@ -70,12 +70,13 @@ export const useEmailStore = defineStore("email", {
         const response = await axios.get("/gmail/inbox", {
           params: {
             per_page: params.per_page || 20,
+            page: params.page || 1,
             status: params.status,
             search: params.search,
+            category: params.category, // ← add this
             unread_only: params.unread_only,
             start_date: params.start_date,
             end_date: params.end_date,
-            booking_id: params.booking_id,
           },
         });
 

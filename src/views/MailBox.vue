@@ -405,7 +405,7 @@
                 </svg>
               </button>
 
-              <div class="flex-1 min-w-0">
+              <div class="flex-1 max-w-[72%]">
                 <div class="flex items-center gap-2 mb-1">
                   <span class="font-semibold text-sm text-gray-900 truncate">
                     {{
@@ -418,7 +418,7 @@
                     >({{ email.message_count }})</span
                   >
                   <span class="ml-auto text-xs text-gray-500 whitespace-nowrap">
-                    {{ formatTime(email.last_message_at) }}
+                    {{ email.last_message_at }}
                   </span>
                 </div>
 

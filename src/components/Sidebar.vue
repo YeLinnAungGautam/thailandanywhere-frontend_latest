@@ -187,7 +187,8 @@
                     authStore.isSuperAdmin ||
                     authStore.isCashier ||
                     authStore.isReservation ||
-                    authStore.isExternalAudit
+                    authStore.isExternalAudit ||
+                    authStore.isAuditor
                   "
                   :icon="CalculatorIcon"
                   to="/accounting"

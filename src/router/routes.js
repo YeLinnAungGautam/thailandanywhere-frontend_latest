@@ -54,7 +54,7 @@ import AuditorDashboardView from "../views/Auditor.vue";
 import ReservationEntranceConfirmationsSvgView from "../views/ReservationEntranceConfirmationSvg.vue";
 import ReservationSecondView from "../views/Reservation2.vue";
 import PngUsage from "../views/PngGenerate/PngUsage.vue";
-import Accounting from "../views/Accounting.vue";
+import Accounting from "../views/Accountance.vue";
 import ReservationHotelView from "../views/Reservationhotel.vue";
 import ReservationHotelGroupConfirmationsView from "../views/PngGenerate/HotelGroupConfirmationPng.vue";
 import ReservationHotelGroupNewConfirmationsView from "../views/PngGenerate/HotelConfirmationGroupNew.vue";
@@ -121,6 +121,7 @@ import AvailabiltyHome from "../views/AvailabiltyHome.vue";
 import Availability from "../views/Availability.vue";
 import AvailabilityAnalytics from "../views/AvailabilityAnalytics.vue";
 import AllowmentChecker from "../views/AllowmentChecker.vue";
+import HotelReport from "../views/HotelReport.vue";
 
 const routes = [
   {
@@ -150,6 +151,11 @@ const routes = [
     path: "/home/expense-graph",
     name: "expense-graph",
     component: ExpenseGraph,
+  },
+  {
+    path: "/home/hotel-report",
+    name: "hotel-report",
+    component: HotelReport,
   },
   {
     path: "/home/sale-analysics",

@@ -4,8 +4,15 @@ import { storeToRefs } from "pinia";
 import Layout from "./Layout.vue";
 import { useCashImageStore } from "../stores/cashImage";
 import debounce from "lodash/debounce";
-import { BookOpenIcon, EyeIcon } from "@heroicons/vue/24/outline";
+import {
+  BookOpenIcon,
+  EyeIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  InboxStackIcon,
+} from "@heroicons/vue/24/outline";
 import router from "../router";
+import { ChevronUpIcon, ChevronDownIcon } from "@heroicons/vue/24/outline";
 
 const cashImageStore = useCashImageStore();
 const { loading } = storeToRefs(cashImageStore);
@@ -23,7 +30,11 @@ const selectedMonth = ref(currentDate.getMonth() + 1);
 const product_type = ref("App\\Models\\Hotel");
 
 // Active tab for categorization
-const activeTab = ref("income");
+const activeTab = ref("all");
+
+// Sorting state
+const sortField = ref(null);
+const sortOrder = ref(null); // 'asc' or 'desc'
 
 // Year options (last 5 years + current + next year)
 const yearOptions = computed(() => {
@@ -101,7 +112,7 @@ const expandedData = computed(() => {
         const category = categorizeBookingItem(
           item.b_payment_status,
           item.payment_status,
-          item.balance_due
+          item.balance_due,
         );
 
         expanded.push({
@@ -126,78 +137,147 @@ const expandedData = computed(() => {
   return expanded;
 });
 
+// Filter data by active tab (including "all")
+const filteredByCategory = computed(() => {
+  if (activeTab.value === "all") {
+    return expandedData.value;
+  }
+  return expandedData.value.filter((item) => item.category === activeTab.value);
+});
+
+// Sort data
+const filteredData = computed(() => {
+  let data = [...filteredByCategory.value];
+
+  if (sortField.value && sortOrder.value) {
+    data.sort((a, b) => {
+      let aVal, bVal;
+
+      // Handle margin calculation
+      if (sortField.value === "margin") {
+        aVal = (parseFloat(a.profit || 0) / parseFloat(a.amount || 0)) * 100;
+        bVal = (parseFloat(b.profit || 0) / parseFloat(b.amount || 0)) * 100;
+
+        // Handle NaN cases (when amount is 0)
+        if (isNaN(aVal)) aVal = 0;
+        if (isNaN(bVal)) bVal = 0;
+      } else {
+        aVal = parseFloat(a[sortField.value]) || 0;
+        bVal = parseFloat(b[sortField.value]) || 0;
+      }
+
+      if (sortOrder.value === "asc") {
+        return aVal - bVal;
+      } else {
+        return bVal - aVal;
+      }
+    });
+  }
+
+  return data;
+});
+
+// Toggle sort function
+const toggleSort = (field) => {
+  if (sortField.value === field) {
+    // Toggle order
+    if (sortOrder.value === "asc") {
+      sortOrder.value = "desc";
+    } else if (sortOrder.value === "desc") {
+      sortOrder.value = null;
+      sortField.value = null;
+    } else {
+      sortOrder.value = "asc";
+    }
+  } else {
+    // New field
+    sortField.value = field;
+    sortOrder.value = "asc";
+  }
+};
+
+// Get sort icon class
+const getSortIcon = (field) => {
+  if (sortField.value !== field) return "opacity-0 group-hover:opacity-100";
+  if (sortOrder.value === "asc") return "text-blue-600";
+  if (sortOrder.value === "desc") return "text-blue-600";
+  return "opacity-0";
+};
+
 const amountTotal = computed(() => {
   return filteredData.value.reduce(
     (total, item) => total + parseFloat(item.amount || 0),
-    0
+    0,
   );
 });
 
 const costTotal = computed(() => {
   return filteredData.value.reduce(
     (total, item) => total + parseFloat(item.cost || 0),
-    0
+    0,
   );
 });
 
 const profitTotal = computed(() => {
   return filteredData.value.reduce(
     (total, item) => total + parseFloat(item.profit || 0),
-    0
+    0,
   );
 });
 
-// Filter data by active tab
-const filteredData = computed(() => {
-  console.log(
-    expandedData.value.filter((item) => item.category === activeTab.value)
-  );
-
-  return expandedData.value.filter((item) => item.category === activeTab.value);
+// Calculate margin
+const marginTotal = computed(() => {
+  if (amountTotal.value === 0) return 0;
+  return (profitTotal.value / amountTotal.value) * 100;
 });
 
 // Calculate summary for each category
 const categorySummary = computed(() => {
+  const all = expandedData.value;
   const income = expandedData.value.filter(
-    (item) => item.category === "income"
+    (item) => item.category === "income",
   );
   const payable = expandedData.value.filter(
-    (item) => item.category === "payable"
+    (item) => item.category === "payable",
   );
   const receivable = expandedData.value.filter(
-    (item) => item.category === "receivable"
+    (item) => item.category === "receivable",
   );
   const others = expandedData.value.filter(
-    (item) => item.category === "others"
+    (item) => item.category === "others",
   );
 
   return {
+    all: {
+      count: all.length,
+      total: all.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0),
+    },
     income: {
       count: income.length,
       total: income.reduce(
         (sum, item) => sum + parseFloat(item.amount || 0),
-        0
+        0,
       ),
     },
     payable: {
       count: payable.length,
       total: payable.reduce(
         (sum, item) => sum + parseFloat(item.amount || 0),
-        0
+        0,
       ),
     },
     receivable: {
       count: receivable.length,
       total: receivable.reduce(
         (sum, item) => sum + parseFloat(item.amount || 0),
-        0
+        0,
       ),
     },
     others: {
       count: others.length,
       total: others.reduce(
         (sum, item) => sum + parseFloat(item.amount || 0),
-        0
+        0,
       ),
     },
   };
@@ -276,13 +356,34 @@ const goToBooking = (bookingId) => {
   window.open(`/bookings/new-update/${bookingId}`, "_blank");
 };
 
+const goToProduct = (item) => {
+  console.log(item, "this is item");
+  // http://localhost:5173/products-v2/hotel/edit/4?quiteSwitch=11
+  if (item.room_id) {
+    window.open(
+      `/products-v2/hotel/edit/${item.product_id}?room_id=${item.room_id}&quiteSwitch=11`,
+    );
+  } else if (item.variation_id) {
+    window.open(`/products/7?id=${item.product_id}`);
+  }
+};
+
 // Watch for filter changes
 watch(
   [year, selectedMonth, product_type],
   debounce(async () => {
+    // Reset sorting when filters change
+    sortField.value = null;
+    sortOrder.value = null;
     await getAction();
-  }, 500)
+  }, 500),
 );
+
+// Reset sorting when tab changes
+watch(activeTab, () => {
+  sortField.value = null;
+  sortOrder.value = null;
+});
 
 // Initial load
 onMounted(async () => {
@@ -381,17 +482,27 @@ onMounted(async () => {
           </div>
           <div class="space-y-2">
             <p class="text-[10px] text-[#FF613c]">Margin</p>
-            <p class="text-sm">
-              {{ formatNumber((profitTotal / amountTotal).toFixed(2)) }}
-            </p>
+            <p class="text-sm">{{ formatNumber(marginTotal.toFixed(2)) }}%</p>
           </div>
         </div>
       </div>
 
-      <!-- Category Tabs (Income/Payable/Others) -->
+      <!-- Category Tabs (All/Income/Payable/Receivable/Others) -->
       <div
-        class="mb-4 bg-white rounded-lg shadow grid grid-cols-4 divide-x divide-gray-300 overflow-hidden"
+        class="mb-4 bg-white rounded-lg shadow grid grid-cols-5 divide-x divide-gray-300 overflow-hidden"
       >
+        <div
+          @click="activeTab = 'all'"
+          class="col-span-1 text-center flex justify-center items-center gap-x-2 cursor-pointer py-3 transition-colors"
+          :class="
+            activeTab === 'all'
+              ? 'bg-blue-500 text-white'
+              : 'text-gray-600 hover:bg-gray-50'
+          "
+        >
+          <div class="font-semibold text-xs uppercase">All</div>
+          <div class="text-xs mt-1">{{ categorySummary.all.count }} items</div>
+        </div>
         <div
           @click="activeTab = 'income'"
           class="col-span-1 text-center flex justify-center items-center gap-x-2 cursor-pointer py-3 transition-colors"
@@ -473,11 +584,7 @@ onMounted(async () => {
               >
                 CRM ID
               </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
-              >
-                B. Crm Id
-              </th>
+
               <th
                 class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
               >
@@ -486,7 +593,7 @@ onMounted(async () => {
               <th
                 class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
               >
-                Serivce Date
+                Service Date
               </th>
 
               <th
@@ -497,33 +604,125 @@ onMounted(async () => {
               <th
                 class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
               >
-                C. Payment Status
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
-              >
-                E. Payment Status
+                Status
               </th>
 
               <th
-                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+                @click="toggleSort('amount')"
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap cursor-pointer hover:bg-[#e55530] transition-colors group"
               >
-                Amount
+                <div class="flex items-center gap-2">
+                  Amount
+                  <div class="flex flex-col">
+                    <ChevronUpIcon
+                      :class="[
+                        'w-3 h-3',
+                        getSortIcon('amount'),
+                        sortField === 'amount' && sortOrder === 'asc'
+                          ? 'text-white'
+                          : '',
+                      ]"
+                    />
+                    <ChevronDownIcon
+                      :class="[
+                        'w-3 h-3',
+                        getSortIcon('amount'),
+                        sortField === 'amount' && sortOrder === 'desc'
+                          ? 'text-white'
+                          : '',
+                      ]"
+                    />
+                  </div>
+                </div>
               </th>
               <th
-                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+                @click="toggleSort('cost')"
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap cursor-pointer hover:bg-[#e55530] transition-colors group"
               >
-                Cost
+                <div class="flex items-center gap-2">
+                  Cost
+                  <div class="flex flex-col">
+                    <ChevronUpIcon
+                      :class="[
+                        'w-3 h-3',
+                        getSortIcon('cost'),
+                        sortField === 'cost' && sortOrder === 'asc'
+                          ? 'text-white'
+                          : '',
+                      ]"
+                    />
+                    <ChevronDownIcon
+                      :class="[
+                        'w-3 h-3',
+                        getSortIcon('cost'),
+                        sortField === 'cost' && sortOrder === 'desc'
+                          ? 'text-white'
+                          : '',
+                      ]"
+                    />
+                  </div>
+                </div>
               </th>
               <th
-                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+                @click="toggleSort('profit')"
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap cursor-pointer hover:bg-[#e55530] transition-colors group"
               >
-                Profit
+                <div class="flex items-center gap-2">
+                  Profit
+                  <div class="flex flex-col">
+                    <ChevronUpIcon
+                      :class="[
+                        'w-3 h-3',
+                        getSortIcon('profit'),
+                        sortField === 'profit' && sortOrder === 'asc'
+                          ? 'text-white'
+                          : '',
+                      ]"
+                    />
+                    <ChevronDownIcon
+                      :class="[
+                        'w-3 h-3',
+                        getSortIcon('profit'),
+                        sortField === 'profit' && sortOrder === 'desc'
+                          ? 'text-white'
+                          : '',
+                      ]"
+                    />
+                  </div>
+                </div>
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
               >
                 Balance Due
+              </th>
+              <th
+                @click="toggleSort('margin')"
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap cursor-pointer hover:bg-[#e55530] transition-colors group"
+              >
+                <div class="flex items-center gap-2">
+                  Margin
+                  <div class="flex flex-col">
+                    <ChevronUpIcon
+                      :class="[
+                        'w-3 h-3',
+                        getSortIcon('margin'),
+                        sortField === 'margin' && sortOrder === 'asc'
+                          ? 'text-white'
+                          : '',
+                      ]"
+                    />
+                    <ChevronDownIcon
+                      :class="[
+                        'w-3 h-3',
+                        getSortIcon('margin'),
+                        sortField === 'margin' && sortOrder === 'desc'
+                          ? 'text-white'
+                          : '',
+                      ]"
+                    />
+                  </div>
+                </div>
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap"
@@ -544,9 +743,9 @@ onMounted(async () => {
               <td class="px-4 py-3 text-xs border-r border-gray-300">
                 {{ item.crm_id || "-" }}
               </td>
-              <td class="px-4 py-3 text-xs border-r border-gray-300">
+              <!-- <td class="px-4 py-3 text-xs border-r border-gray-300">
                 {{ item.b_crm_id || "-" }}
-              </td>
+              </td> -->
               <td class="px-4 py-3 text-xs border-r border-gray-300">
                 {{ item.customer || "-" }}
               </td>
@@ -560,41 +759,58 @@ onMounted(async () => {
                 {{ item.product_name || "-" }}
               </td>
 
+              <td
+                class="px-4 py-3 text-xs border-r flex flex-col space-y-2 border-gray-300"
+              >
+                <p>
+                  <span
+                    class="px-2 py-0.5 whitespace-nowrap rounded-full text-xs font-medium"
+                    :class="
+                      item.b_payment_status === 'fully_paid'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    "
+                  >
+                    C: {{ item.b_payment_status || "-" }}
+                  </span>
+                </p>
+                <p>
+                  <span
+                    class="px-2 py-0.5 whitespace-nowrap rounded-full text-xs font-medium"
+                    :class="
+                      item.payment_status === 'fully_paid'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    "
+                  >
+                    E: {{ item.payment_status || "-" }}
+                  </span>
+                </p>
+              </td>
+
               <td class="px-4 py-3 text-xs border-r border-gray-300">
-                <span
-                  class="px-2 py-1 rounded-full text-xs font-medium"
-                  :class="
-                    item.b_payment_status === 'fully_paid'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                  "
-                >
-                  {{ item.b_payment_status || "-" }}
-                </span>
+                {{ formatNumber(parseFloat(item.amount || 0).toFixed(2)) }}
               </td>
               <td class="px-4 py-3 text-xs border-r border-gray-300">
-                <span
-                  class="px-2 py-1 rounded-full text-xs font-medium"
-                  :class="
-                    item.payment_status === 'fully_paid'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                  "
-                >
-                  {{ item.payment_status || "-" }}
-                </span>
+                {{ formatNumber(parseFloat(item.cost || 0).toFixed(2)) }}
               </td>
               <td class="px-4 py-3 text-xs border-r border-gray-300">
-                {{ item.amount }}
+                {{ formatNumber(parseFloat(item.profit || 0).toFixed(2)) }}
               </td>
               <td class="px-4 py-3 text-xs border-r border-gray-300">
-                {{ item.cost }}
+                {{ formatNumber(parseFloat(item.balance_due || 0).toFixed(2)) }}
               </td>
               <td class="px-4 py-3 text-xs border-r border-gray-300">
-                {{ item.profit }}
-              </td>
-              <td class="px-4 py-3 text-xs border-r border-gray-300">
-                {{ item.balance_due }}
+                {{
+                  formatNumber(
+                    (
+                      ((parseFloat(item.amount || 0) -
+                        parseFloat(item.cost || 0)) /
+                        parseFloat(item.amount || 0)) *
+                      100
+                    ).toFixed(2),
+                  )
+                }}%
               </td>
               <td
                 class="px-4 py-3 space-x-2 flex justify-center items-center text-xs text-center"
@@ -605,6 +821,10 @@ onMounted(async () => {
                 />
                 <BookOpenIcon
                   @click="goToBooking(item.booking_id)"
+                  class="w-5 h-5 cursor-pointer text-red-600 hover:text-blue-800 inline-block"
+                />
+                <InboxStackIcon
+                  @click="goToProduct(item)"
                   class="w-5 h-5 cursor-pointer text-red-600 hover:text-blue-800 inline-block"
                 />
               </td>

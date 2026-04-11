@@ -183,143 +183,15 @@
                 <p class="text-black font-semibold text-[8px]">Account</p>
                 <SidebarItem
                   name="Accounting"
-                  v-if="!authStore.isExternalAudit"
+                  v-if="
+                    authStore.isSuperAdmin ||
+                    authStore.isCashier ||
+                    authStore.isReservation ||
+                    authStore.isExternalAudit
+                  "
                   :icon="CalculatorIcon"
                   to="/accounting"
                   :activePaths="['accounting']"
-                />
-                <div
-                  v-if="!authStore.isExternalAudit"
-                  @click="sidebarStore.toggleAccount"
-                  class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] pr-[10px] pl-[5px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
-                >
-                  <FolderIcon class="w-4 h-4" />
-                  <p
-                    class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
-                    v-if="isShowSidebar"
-                  >
-                    Accountance
-                    <ChevronDownIcon
-                      class="w-4 h-4 transition-opacity duration-500 ease-in-out"
-                      :class="isShowAccount ? 'opacity-0' : 'opacity-100'"
-                      v-if="!isShowAccount"
-                    />
-                    <ChevronUpIcon
-                      class="w-4 h-4 transition-opacity duration-500 ease-in-out"
-                      :class="isShowAccount ? 'opacity-100' : 'opacity-0'"
-                      v-if="isShowAccount"
-                    />
-                  </p>
-                </div>
-                <div
-                  class="transition-all duration-150"
-                  :class="isShowAccount ? '' : ''"
-                  v-if="isShowAccount"
-                >
-                  <SidebarItem
-                    name="Accountance PDF"
-                    label="PDF"
-                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                    :icon="FolderIcon"
-                    to="/accountance-pdf"
-                  />
-                  <SidebarItem
-                    name="Chart of Accounts"
-                    label="COA"
-                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                    :icon="FolderIcon"
-                    to="/chart_of_account"
-                  />
-                  <SidebarItem
-                    name="Income Checker"
-                    label="ICheck"
-                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                    :icon="FolderIcon"
-                    to="/product_income_checker"
-                  />
-                  <SidebarItem
-                    name="Receiptable Checker"
-                    label="RCheck"
-                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                    :icon="FolderIcon"
-                    to="/receiptable_checker"
-                  />
-                  <SidebarItem
-                    name="Verify Invoices"
-                    label="VInvoice"
-                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                    :icon="FolderIcon"
-                    to="/data_verify"
-                  />
-                  <SidebarItem
-                    name="Cash Book"
-                    label="Cash Book"
-                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                    :icon="FolderIcon"
-                    to="/cash_book"
-                  />
-                  <!-- <SidebarItem
-                    name="Account Head"
-                    label="AHead"
-                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                    :icon="FolderIcon"
-                    to="/account_head"
-                  /> -->
-                  <SidebarItem
-                    name="Tax Receipts"
-                    label="Tax"
-                    :icon="FolderIcon"
-                    to="/tax_receipt"
-                  />
-
-                  <SidebarItem
-                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                    name="Bank Statement"
-                    label="Statement"
-                    :icon="FolderIcon"
-                    to="/bank_statement_list"
-                  />
-                  <SidebarItem
-                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                    name="Bank Statement"
-                    label="Statement"
-                    :icon="FolderIcon"
-                    to="/bank_statement_type"
-                  />
-                </div>
-
-                <SidebarItem
-                  v-if="authStore.isExternalAudit"
-                  name="Bank Statement"
-                  label="Statement"
-                  :icon="FolderIcon"
-                  to="/bank_statement_list"
-                />
-
-                <SidebarItem
-                  v-if="
-                    authStore.isExternalAudit ||
-                    authStore.isAuditor ||
-                    authStore.isSuperAdmin
-                  "
-                  name="external audit"
-                  label="External"
-                  :icon="FolderIcon"
-                  to="/invoice_audit"
-                />
-                <!-- <SidebarItem
-                  v-if="authStore.isSuperAdmin || authStore.isReservation"
-                  name="Bank Statement Filter"
-                  label="Statement"
-                  :icon="FolderIcon"
-                  to="/bank_statement_filter"
-                /> -->
-                <SidebarItem
-                  v-if="authStore.isSuperAdmin || authStore.isReservation"
-                  name="Bank Purchase"
-                  label="Purchase"
-                  :icon="FolderIcon"
-                  to="/bank_statement_purchese"
                 />
               </div>
               <SidebarItem

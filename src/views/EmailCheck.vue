@@ -819,18 +819,18 @@
                         </div>
                       </div>
 
-                      <!-- Hotel/Attraction Images (existing code) -->
+                      <!-- Hotel/Attraction Images section တွင် ပြောင်းပါ -->
                       <div v-else>
                         <div
                           v-if="activeTag != 'invoice_confirm'"
                           class="grid grid-cols-5 gap-3"
                         >
-                          <!-- Keep existing image display code -->
+                          <!-- ✅ File proof images -->
                           <div
-                            v-for="(image, index) in cachedData[item.id]
-                              ?.images || []"
-                            :key="'existing-' + index"
-                            v-show="imagesPreview.length === 0"
+                            v-for="(image, index) in getFileProofs(
+                              cachedData[item.id]?.images,
+                            )"
+                            :key="'file-' + index"
                             class="relative aspect-square h-[150px] w-full group"
                           >
                             <img
@@ -845,8 +845,75 @@
                               <EyeIcon class="w-6 h-6" />
                             </button>
                           </div>
+
+                          <!-- ✅ Email proof cards (meta.gmail_message_id ရှိသောကြောင့်) -->
                           <div
-                            v-if="activeTag != 'invoice_confirm'"
+                            v-for="(doc, index) in getEmailProofs(
+                              cachedData[item.id]?.images,
+                            )"
+                            :key="'email-' + index"
+                            class="relative aspect-square h-[150px] w-full group rounded-lg border border-blue-200 bg-blue-50 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-blue-400 transition-colors"
+                          >
+                            <!-- Email Icon -->
+                            <div
+                              class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"
+                            >
+                              <svg
+                                class="w-6 h-6 text-blue-600"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
+                                />
+                              </svg>
+                            </div>
+                            <p class="text-xs text-blue-700 font-medium">
+                              Email Proof
+                            </p>
+                            <p
+                              class="text-xs text-blue-400 font-mono truncate px-2 max-w-full"
+                            >
+                              {{ doc.meta.gmail_message_id?.slice(0, 12) }}...
+                            </p>
+
+                            <!-- Hover Actions -->
+                            <div
+                              class="absolute inset-0 bg-blue-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2"
+                            >
+                              <!-- Eye - email detail modal -->
+                              <button
+                                @click.stop="openEmailProofModal(doc)"
+                                class="p-2 bg-white rounded-full shadow-md hover:bg-blue-50 transition-colors"
+                                title="View Email"
+                              >
+                                <EyeIcon class="w-4 h-4 text-blue-600" />
+                              </button>
+                              <!-- Arrow - go to mailbox -->
+                              <button
+                                @click.stop="goToMailbox(doc)"
+                                class="p-2 bg-white rounded-full shadow-md hover:bg-green-50 transition-colors"
+                                title="Open in Mailbox"
+                              >
+                                <svg
+                                  class="w-4 h-4 text-green-600"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+
+                          <!-- Add New Image button -->
+                          <div
                             @click="selectItemEdit(item)"
                             class="w-full h-full min-h-[100px] cursor-pointer rounded-lg overflow-hidden border border-dashed border-[#FF613c] flex justify-center items-center"
                           >
@@ -855,108 +922,6 @@
                             >
                               <PlusCircleIcon class="w-6 h-6" />Add New Image
                             </p>
-                          </div>
-                        </div>
-                        <div
-                          v-if="activeTag == 'invoice_confirm'"
-                          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
-                        >
-                          <!-- Add New Invoice Card -->
-                          <div
-                            @click="openNewInvoiceModal(item)"
-                            class="bg-white rounded-lg min-h-[120px] cursor-pointer text-[#FF613c] text-sm flex justify-center items-center border border-[#FF613c] p-4 border-dashed hover:bg-[#FF613c]/5 transition-colors group"
-                          >
-                            <PlusCircleIcon class="w-5 h-5 mr-2" />
-                            Add New Invoice
-                          </div>
-
-                          <!-- Invoice Cards -->
-                          <div
-                            v-for="invoice in cachedData[item.id]?.invoices ||
-                            []"
-                            :key="invoice.id"
-                            @click="openEditInvoiceModal(invoice, item)"
-                            class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
-                          >
-                            <div class="flex items-start gap-3">
-                              <!-- Invoice Icon/Image -->
-                              <div
-                                class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center flex-shrink-0"
-                              >
-                                <DocumentDuplicateIcon
-                                  class="w-6 h-6 text-blue-600"
-                                />
-                              </div>
-
-                              <div class="flex-1 min-w-0">
-                                <!-- Invoice Number & Status -->
-                                <div
-                                  class="flex items-start justify-between gap-2 mb-2"
-                                >
-                                  <h4
-                                    class="text-sm font-semibold text-gray-900 truncate"
-                                  >
-                                    {{
-                                      invoice.meta?.invoice_number ||
-                                      "No Number"
-                                    }}
-                                  </h4>
-                                  <span
-                                    class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full whitespace-nowrap"
-                                  >
-                                    {{
-                                      invoice.meta?.product_type?.includes(
-                                        "Hotel",
-                                      )
-                                        ? "Hotel"
-                                        : "Ticket"
-                                    }}
-                                  </span>
-                                </div>
-
-                                <!-- Invoice Details -->
-                                <div class="space-y-1">
-                                  <div
-                                    class="flex items-center justify-between text-xs"
-                                  >
-                                    <span class="text-gray-500">Amount:</span>
-                                    <span class="font-medium text-gray-900">
-                                      {{
-                                        invoice.meta?.total_after_tax
-                                          ? formatCurrency(
-                                              invoice.meta.total_after_tax,
-                                            )
-                                          : "-"
-                                      }}
-                                    </span>
-                                  </div>
-                                  <div
-                                    class="flex items-center justify-between text-xs"
-                                  >
-                                    <span class="text-gray-500">Product:</span>
-                                    <span class="text-gray-700 truncate ml-2">{{
-                                      invoice.meta?.product_name || "-"
-                                    }}</span>
-                                  </div>
-                                  <div
-                                    class="flex items-center justify-between text-xs"
-                                  >
-                                    <span class="text-gray-500">Company:</span>
-                                    <span class="text-gray-700 truncate ml-2">{{
-                                      invoice.meta?.company_legal_name || "-"
-                                    }}</span>
-                                  </div>
-                                </div>
-
-                                <!-- View/Edit Indicator -->
-                                <div
-                                  class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
-                                >
-                                  <PencilSquareIcon class="w-4 h-4 mr-1" />
-                                  Click to edit
-                                </div>
-                              </div>
-                            </div>
                           </div>
                         </div>
                       </div>
@@ -1612,6 +1577,126 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <!-- Email Proof Detail Modal -->
+    <teleport to="body">
+      <div
+        v-if="showEmailProofModal"
+        class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40"
+        @click.self="showEmailProofModal = false"
+      >
+        <div
+          class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden"
+        >
+          <!-- Header -->
+          <div class="flex items-center justify-between p-4 border-b">
+            <div class="flex items-center gap-2">
+              <svg
+                class="w-5 h-5 text-blue-600"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
+                />
+              </svg>
+              <h3 class="font-semibold text-gray-800 text-sm">
+                Sent Email Detail
+              </h3>
+            </div>
+            <button
+              @click="showEmailProofModal = false"
+              class="p-1 hover:bg-gray-100 rounded-lg"
+            >
+              <XCircleIcon class="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
+
+          <!-- Loading -->
+          <div
+            v-if="emailProofLoading"
+            class="flex justify-center items-center py-16"
+          >
+            <div
+              class="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"
+            ></div>
+          </div>
+
+          <!-- Content -->
+          <div
+            v-else-if="emailProofDetail"
+            class="p-4 space-y-3 max-h-[60vh] overflow-y-auto"
+          >
+            <div class="bg-gray-50 rounded-lg p-3 space-y-2 text-xs">
+              <div class="flex gap-2">
+                <span class="text-gray-500 w-10 flex-shrink-0">From:</span>
+                <span class="text-gray-800 font-medium">{{
+                  emailProofDetail.from
+                }}</span>
+              </div>
+              <div class="flex gap-2">
+                <span class="text-gray-500 w-10 flex-shrink-0">To:</span>
+                <span class="text-gray-800">{{ emailProofDetail.to }}</span>
+              </div>
+              <div class="flex gap-2">
+                <span class="text-gray-500 w-10 flex-shrink-0">Date:</span>
+                <span class="text-gray-800">{{
+                  new Date(emailProofDetail.gmail_datetime).toLocaleString()
+                }}</span>
+              </div>
+            </div>
+
+            <div
+              class="text-sm text-gray-700 border border-gray-100 rounded-lg p-3 max-h-[300px] overflow-y-auto [&_pre]:leading-normal [&_pre]:text-sm"
+              v-html="emailProofDetail.body"
+            ></div>
+          </div>
+
+          <div
+            v-else
+            class="flex justify-center items-center py-12 text-gray-400 text-sm"
+          >
+            Email not found
+          </div>
+
+          <!-- Footer -->
+          <div class="flex justify-between items-center p-4 border-t">
+            <button
+              v-if="selectedEmailDoc?.meta?.email_ticket_message_id"
+              @click="
+                () => {
+                  showEmailProofModal = false;
+                  goToMailbox(selectedEmailDoc);
+                }
+              "
+              class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+              Open in Mailbox
+            </button>
+            <div v-else></div>
+            <button
+              @click="showEmailProofModal = false"
+              class="px-4 py-2 text-xs text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </teleport>
   </Layout>
 </template>
 
@@ -1640,7 +1725,7 @@ import { useToast } from "vue-toastification";
 import EmailPart from "./GroupComponent/EmailPart.vue";
 import Pagination from "../components/Pagination.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import InvoiceModal from "./GroupComponent/ExpensePart/InvoiceModal.vue";
 import ItemCostModal from "./GroupComponent/ExpensePart/ItemCostModal.vue";
 import BookingCopyModel from "./GroupComponent/BookingCopyModel.vue";
@@ -1648,8 +1733,12 @@ import RouteModal from "./GroupComponent/ExpensePart/RouteModal.vue";
 import AssignDriverModal from "./GroupComponent/ExpensePart/AssignDriverModal.vue";
 import ScoreCard from "./GroupComponent/ExpensePart/CartScale.vue";
 import BookingEmailWizard from "./GroupComponent/Bookingemailwizard.vue";
+import { useEmailStore } from "../stores/email";
+
+const emailStore = useEmailStore();
 
 const toast = useToast();
+const router = useRouter();
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 const groupStore = useGroupStore();
@@ -2373,6 +2462,60 @@ const fetchData = async () => {
   } catch (error) {
     console.error("Error fetching data:", error);
   }
+};
+
+// Email proof modal state
+const showEmailProofModal = ref(false);
+const emailProofLoading = ref(false);
+const emailProofDetail = ref(null);
+const selectedEmailDoc = ref(null);
+
+const getFileProofs = (images = []) => {
+  return images.filter((img) => img.file !== null);
+};
+
+// ✅ Email proof သာ ယူသည် (meta.gmail_message_id ရှိသည်)
+const getEmailProofs = (images = []) => {
+  return images.filter(
+    (img) => img.file === null && img.meta?.gmail_message_id,
+  );
+};
+
+// Eye button နှိပ်သောအခါ email detail modal ဖွင့်သည်
+const openEmailProofModal = async (doc) => {
+  selectedEmailDoc.value = doc;
+  showEmailProofModal.value = true;
+  emailProofLoading.value = true;
+  emailProofDetail.value = null;
+
+  try {
+    // const res = await axios.get(
+    //   `/gmail/messages/${doc.meta.email_ticket_message_id}`,
+    // );
+    const res = await emailStore.getMessageDetails(
+      doc.meta.email_ticket_message_id,
+    );
+    console.log(res, "this is response");
+
+    emailProofDetail.value = res.data.result || res.data.data;
+  } catch (e) {
+    console.error("Failed to load email detail", e);
+    toast.error("Failed to load email detail");
+  } finally {
+    emailProofLoading.value = false;
+  }
+};
+
+// Mailbox သို့ navigate လုပ်သည်
+const goToMailbox = (doc) => {
+  // router.push({
+  //   name: "mailBox", // သင့် mailbox route name ဖြင့် ပြောင်းပါ
+  //   query: { ticket_message_id: doc.meta.email_ticket_message_id },
+  // });
+  window.open(
+    `/mail-box?ticket_message_id=${doc.meta.email_ticket_message_id}`,
+    "_blink",
+  );
 };
 
 const getListAction = () => groupStore.getListAction(watchSystem.value);

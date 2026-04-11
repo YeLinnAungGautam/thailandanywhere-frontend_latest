@@ -143,7 +143,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           "/v2/booking-items/" + id + "/customer-information",
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -217,7 +217,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           "/reservations/" + id + "/send-notify-email",
-          data
+          data,
         );
         console.log(response);
         return response.data;
@@ -228,7 +228,7 @@ export const useReservationStore = defineStore("reservation", {
     async exportLink(data) {
       try {
         const response = await axios.get(
-          "/reservations/report/export?sale_daterange=" + data
+          "/reservations/report/export?sale_daterange=" + data,
         );
         console.log(response);
         return response.data;
@@ -251,7 +251,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           `/reservations/${id}/passports`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -262,7 +262,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           `/reservations/${id}/passports/${passport_id}`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -273,7 +273,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           `/reservations/${id}/booking-confirm-letters`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -284,7 +284,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           `/reservations/${id}/booking-confirm-letters/${confirm_id}`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -295,7 +295,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           `/reservations/${id}/paid-slips`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -306,7 +306,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           `/reservations/${id}/paid-slips/${slip_id}`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -317,7 +317,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           `/reservations/${id}/receipt-images`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -328,7 +328,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           `/reservations/${id}/receipt-images/${receipt_id}`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -340,7 +340,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           `/reservations/${id}/booking-request`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -350,7 +350,7 @@ export const useReservationStore = defineStore("reservation", {
     async ReservationBookingRequestDeleteAction(item_id, id) {
       try {
         const response = await axios.delete(
-          `/reservations/${item_id}/booking-request/${id}`
+          `/reservations/${item_id}/booking-request/${id}`,
         );
         return response.data;
       } catch (error) {
@@ -361,7 +361,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         const response = await axios.post(
           `/reservations/${id}/expense-mails`,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -371,7 +371,7 @@ export const useReservationStore = defineStore("reservation", {
     async ReservationExpenseMailDeleteAction(item_id, id) {
       try {
         const response = await axios.delete(
-          `/reservations/${item_id}/expense-mails/${id}`
+          `/reservations/${item_id}/expense-mails/${id}`,
         );
         return response.data;
       } catch (error) {

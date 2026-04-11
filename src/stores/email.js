@@ -125,6 +125,18 @@ export const useEmailStore = defineStore("email", {
       }
     },
 
+    async getMessageDetails(id) {
+      try {
+        this.loading = true;
+        const response = await axios.get(`/gmail/messages/${id}`);
+
+        return response;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+
     // Mark emails as read
     async markAsRead(emailIds) {
       try {

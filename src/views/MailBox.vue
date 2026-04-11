@@ -822,8 +822,10 @@ import { ref, computed, onMounted, nextTick, watch } from "vue";
 import Layout from "./Layout.vue";
 import { useEmailStore } from "../stores/email";
 import axios from "axios";
+import { useRoute } from "vue-router";
 
 const emailStore = useEmailStore();
+const route = useRoute();
 
 // State
 const selectedEmail = ref(null);
@@ -1218,6 +1220,21 @@ watch(activeChip, () => {
 });
 
 // Mount
+// onMounted(async () => {
+//   const code = new URLSearchParams(window.location.search).get("code");
+//   if (code) {
+//     try {
+//       await emailStore.handleCallback(code);
+//       window.history.replaceState({}, document.title, window.location.pathname);
+//       alert("Gmail connected successfully!");
+//     } catch {
+//       alert("Failed to connect Gmail");
+//     }
+//   }
+//   await emailStore.checkConnectionStatus();
+//   await fetchEmails();
+// });
+
 onMounted(async () => {
   const code = new URLSearchParams(window.location.search).get("code");
   if (code) {
@@ -1229,8 +1246,42 @@ onMounted(async () => {
       alert("Failed to connect Gmail");
     }
   }
+
   await emailStore.checkConnectionStatus();
   await fetchEmails();
+
+  // ✅ ticket_message_id query param ရှိလျှင် auto-open
+  const ticketMsgId = route.query.ticket_message_id;
+  if (ticketMsgId) {
+    try {
+      // message detail ရယူပြီး thread_id ဖြင့် email ရှာသည်
+      const res = await axios.get(`/gmail/messages/${ticketMsgId}`);
+      const msg = res.data.result;
+
+      if (msg?.ticket?.thread_id) {
+        // email list မှ thread_id ကိုက်ညီသော email ရှာသည်
+        const target = emailStore.emails?.find(
+          (e) => e.thread_id === msg.ticket.thread_id,
+        );
+
+        if (target) {
+          await selectEmail(target);
+        } else {
+          // list တွင် မပါလျှင် တိုက်ရိုက် thread load လုပ်သည်
+          selectedEmail.value = {
+            id: msg.ticket.id,
+            thread_id: msg.ticket.thread_id,
+            subject: msg.ticket.subject,
+            status: msg.ticket.status,
+            customer_email: msg.to,
+          };
+          await loadThread(msg.ticket.thread_id);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to auto-open email", e);
+    }
+  }
 });
 </script>
 

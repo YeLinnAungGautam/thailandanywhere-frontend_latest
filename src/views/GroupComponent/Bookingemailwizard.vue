@@ -728,7 +728,7 @@
             <line x1="22" y1="2" x2="11" y2="13" />
             <polygon points="22 2 15 22 11 13 2 9 22 2" />
           </svg>
-          {{ emailSending ? "Sending…" : "✉ Send Email" }}
+          {{ emailSending ? "Sending…" : "Send Email" }}
         </button>
       </div>
     </template>
@@ -1153,6 +1153,19 @@ watch(
   },
 );
 
+// function plainTextToHtml(text: string): string {
+//   return text
+//     .split("\n")
+//     .map((line) => {
+//       const escaped = line
+//         .replace(/&/g, "&amp;")
+//         .replace(/</g, "&lt;")
+//         .replace(/>/g, "&gt;");
+//       return `<p>${escaped === "" ? "&nbsp;" : escaped}</p>`;
+//     })
+//     .join("");
+// }
+
 function plainTextToHtml(text: string): string {
   return text
     .split("\n")
@@ -1161,7 +1174,7 @@ function plainTextToHtml(text: string): string {
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
-      return `<p>${escaped === "" ? "&nbsp;" : escaped}</p>`;
+      return `<p>${escaped === "" ? "" : escaped}</p>`;
     })
     .join("");
 }
@@ -1255,9 +1268,31 @@ async function copyText(text: string, key: "body" | "subj" | "mail") {
   }, 2500);
 }
 
+// async function copyBody() {
+//   // Copy the live editor plain text (reflects any user edits)
+//   const text = editorRef.value?.innerText ?? emailBody.value;
+//   await copyText(text, "body");
+// }
+
 async function copyBody() {
-  // Copy the live editor plain text (reflects any user edits)
-  const text = editorRef.value?.innerText ?? emailBody.value;
+  let text: string;
+
+  if (editorRef.value) {
+    // Extract each <p> as a single line, avoiding double-newlines from innerText
+    const paragraphs = editorRef.value.querySelectorAll("p");
+    if (paragraphs.length > 0) {
+      text = Array.from(paragraphs)
+        .map((p) =>
+          p.innerText === "\n" || p.innerText === "" ? "" : p.innerText,
+        )
+        .join("\n");
+    } else {
+      text = editorRef.value.innerText;
+    }
+  } else {
+    text = emailBody.value;
+  }
+
   await copyText(text, "body");
 }
 

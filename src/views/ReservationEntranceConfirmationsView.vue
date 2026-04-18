@@ -169,9 +169,8 @@ onMounted(async () => {
               <p class="text-sm">
                 {{
                   (details?.quantity || 0) +
-                  (details?.individual_pricing &&
-                  details?.individual_pricing.child
-                    ? Number(details?.individual_pricing.child.quantity) || 0
+                  (details?.child_quantity && details?.child_price
+                    ? Number(details?.child_quantity) || 0
                     : 0)
                 }}
               </p>
@@ -187,9 +186,8 @@ onMounted(async () => {
                 <p class="text-xs text-black/40">Child:</p>
                 <p class="text-sm">
                   {{
-                    details?.individual_pricing &&
-                    details?.individual_pricing.child
-                      ? details?.individual_pricing.child.quantity
+                    details?.child_quantity && details?.child_price
+                      ? details?.child_quantity
                       : "-"
                   }}
                 </p>

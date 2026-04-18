@@ -2490,9 +2490,7 @@ const copyReservation = async (item) => {
 📆 Service Date: ${urgencyPrefix}${item.service_date}
 #️⃣ Reservation Code: ${item.crm_id}: S: (${item.sale_price || item.amount})
 🧑‍🧑‍🧒 Quantity: ${item.quantity || 1}A${
-          item.individual_pricing?.child?.quantity
-            ? ` - ${item.individual_pricing.child.quantity}C`
-            : ""
+          item.child_quantity ? ` - ${item.child_quantity}C` : ""
         }
 ---------------------\n`;
       }

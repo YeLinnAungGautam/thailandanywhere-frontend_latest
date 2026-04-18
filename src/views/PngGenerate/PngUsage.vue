@@ -163,13 +163,11 @@ const getDetailAction = async () => {
 
       // Check if individual_pricing exists and if it has child data with both quantity and selling_price
       if (
-        response.result.items[i]?.individual_pricing &&
-        response.result.items[i]?.individual_pricing?.child &&
-        response.result.items[i]?.individual_pricing?.child?.quantity != "0" &&
-        response.result.items[i]?.individual_pricing?.child?.selling_price !=
-          "0"
+        response.result.items[i]?.child_quantity &&
+        response.result.items[i]?.child_price &&
+        response.result.items[i]?.child_quantity != "0"
       ) {
-        detailsText += ` / ${response.result.items[i]?.individual_pricing?.child?.quantity} Child x ${response.result.items[i]?.individual_pricing?.child?.selling_price}`;
+        detailsText += ` / ${response.result.items[i]?.child_quantity} Child x ${response.result.items[i]?.child_price}`;
       }
       invoice.value.items.push({
         image: response.result.items[i]?.product?.cover_image || defaultImage,

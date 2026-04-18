@@ -136,15 +136,10 @@
                   </div>
                   <div class="flex">
                     <span class="font-medium mr-1">Children:</span>
-                    <span>{{
-                      item.individual_pricing?.child?.quantity || "0"
-                    }}</span>
+                    <span>{{ item.child_quantity || "0" }}</span>
                   </div>
                   <div
-                    v-if="
-                      !item.quantity &&
-                      !item.individual_pricing?.child?.quantity
-                    "
+                    v-if="!item.quantity && !item.child_quantity"
                     class="col-span-2 text-red-500 text-xs"
                   >
                     <ExclamationCircleIcon class="w-4 h-4 inline mr-1" />
@@ -401,9 +396,8 @@ const validateItem = (item, index) => {
 
       // For Entrance Ticket, individual_pricing?.adult?.quantity or individual_pricing?.child?.quantity should exist and be valid
       if (
-        (!item.quantity && !item.individual_pricing?.child?.quantity) ||
-        (Number(item.quantity) == 0 &&
-          Number(item.individual_pricing?.child?.quantity) == 0)
+        (!item.quantity && !item.child_quantity) ||
+        (Number(item.quantity) == 0 && Number(item.child_quantity) == 0)
       ) {
         isValid = false;
       }
@@ -471,9 +465,8 @@ const getItemValidationErrors = (item) => {
       if (!item.car_id) errors.push("Car ID is required");
       if (!item.service_date) errors.push("Service date is required");
       if (
-        (!item.quantity && !item.individual_pricing?.child?.quantity) ||
-        (Number(item.quantity) == 0 &&
-          Number(item.individual_pricing?.child?.quantity) == 0)
+        (!item.quantity && !item.child_quantity) ||
+        (Number(item.quantity) == 0 && Number(item.child_quantity) == 0)
       ) {
         errors.push("At least one adult or child quantity is required");
       }
@@ -483,9 +476,8 @@ const getItemValidationErrors = (item) => {
       if (!item.car_id) errors.push("Variation is required");
       if (!item.service_date) errors.push("Service date is required");
       if (
-        (!item.quantity && !item.individual_pricing?.child?.quantity) ||
-        (Number(item.quantity) == 0 &&
-          Number(item.individual_pricing?.child?.quantity) == 0)
+        (!item.quantity && !item.child_quantity) ||
+        (Number(item.quantity) == 0 && Number(item.child_quantity) == 0)
       ) {
         errors.push("At least one adult or child quantity is required");
       }
@@ -547,7 +539,7 @@ const runValidation = () => {
   // Initialize items validation array if needed
   if (validationStatus.value.items.length !== props.formData.items.length) {
     validationStatus.value.items = Array(props.formData.items.length).fill(
-      false
+      false,
     );
   }
 
@@ -637,7 +629,7 @@ watch(
     if (isOpen) {
       runValidation();
     }
-  }
+  },
 );
 
 // Safely watch for item changes
@@ -656,7 +648,7 @@ watch(
       }
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // Run initial setup after component is mounted
@@ -664,7 +656,7 @@ onMounted(() => {
   // Initialize items array if data is available
   if (props.formData?.items?.length > 0) {
     validationStatus.value.items = Array(props.formData.items.length).fill(
-      false
+      false,
     );
   }
 });

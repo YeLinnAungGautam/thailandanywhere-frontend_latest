@@ -1065,7 +1065,7 @@ Thailand`;
     const productName = detail.items[0].product?.name ?? "Attraction";
     const ticketBlocks = detail.items
       .map((item: any, idx: number) => {
-        const childQty = item.individual_pricing?.child?.quantity ?? 0;
+        const childQty = item.child_quantity ?? 0;
         return [
           idx > 0 ? "─".repeat(32) : "",
           `Ticket Type       : ${item.variation?.name ?? "N/A"}`,

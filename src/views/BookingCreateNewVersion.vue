@@ -963,51 +963,118 @@ const processSubmission = async () => {
 
       if (
         formData.value.items[x].product_type == "4" &&
-        formData.value.items[x].individual_pricing?.adult &&
-        formData.value.items[x].individual_pricing?.child
+        formData.value.items[x].child_quantity
       ) {
-        frmData.append(
-          "items[" + x + "][individual_pricing][adult][quantity]",
-          formData.value.items[x].individual_pricing.adult.quantity,
-        );
-        frmData.append(
-          "items[" + x + "][individual_pricing][adult][selling_price]",
-          formData.value.items[x].individual_pricing.adult.selling_price,
-        );
-        frmData.append(
-          "items[" + x + "][individual_pricing][adult][cost_price]",
-          formData.value.items[x].individual_pricing.adult.cost_price,
-        );
-        frmData.append(
-          "items[" + x + "][individual_pricing][adult][total_cost_price]",
-          formData.value.items[x].individual_pricing.adult.total_cost_price,
-        );
-        frmData.append(
-          "items[" + x + "][individual_pricing][adult][amount]",
-          formData.value.items[x].individual_pricing.adult.amount,
-        );
-        frmData.append(
-          "items[" + x + "][individual_pricing][child][quantity]",
-          formData.value.items[x].individual_pricing.child.quantity,
-        );
-        frmData.append(
-          "items[" + x + "][individual_pricing][child][selling_price]",
-          formData.value.items[x].individual_pricing.child.selling_price,
-        );
-        frmData.append(
-          "items[" + x + "][individual_pricing][child][cost_price]",
-          formData.value.items[x].individual_pricing.child.cost_price,
-        );
-        frmData.append(
-          "items[" + x + "][individual_pricing][child][total_cost_price]",
-          formData.value.items[x].individual_pricing.child.total_cost_price,
-        );
-        frmData.append(
-          "items[" + x + "][individual_pricing][child][amount]",
-          formData.value.items[x].individual_pricing.child.amount,
-        );
-      } else {
-        frmData.append("items[" + x + "][individual_pricing]", null);
+        // frmData.append(
+        //   "items[" + x + "][individual_pricing][adult][quantity]",
+        //   formData.value.items[x].individual_pricing.adult.quantity,
+        // );
+        // frmData.append(
+        //   "items[" + x + "][individual_pricing][adult][selling_price]",
+        //   formData.value.items[x].individual_pricing.adult.selling_price,
+        // );
+        // frmData.append(
+        //   "items[" + x + "][individual_pricing][adult][cost_price]",
+        //   formData.value.items[x].individual_pricing.adult.cost_price,
+        // );
+        // frmData.append(
+        //   "items[" + x + "][individual_pricing][adult][total_cost_price]",
+        //   formData.value.items[x].individual_pricing.adult.total_cost_price,
+        // );
+        // frmData.append(
+        //   "items[" + x + "][individual_pricing][adult][amount]",
+        //   formData.value.items[x].individual_pricing.adult.amount,
+        // );
+        // frmData.append(
+        //   "items[" + x + "][individual_pricing][child][quantity]",
+        //   formData.value.items[x].individual_pricing.child.quantity,
+        // );
+        // frmData.append(
+        //   "items[" + x + "][individual_pricing][child][selling_price]",
+        //   formData.value.items[x].individual_pricing.child.selling_price,
+        // );
+        // frmData.append(
+        //   "items[" + x + "][individual_pricing][child][cost_price]",
+        //   formData.value.items[x].individual_pricing.child.cost_price,
+        // );
+        // frmData.append(
+        //   "items[" + x + "][individual_pricing][child][total_cost_price]",
+        //   formData.value.items[x].individual_pricing.child.total_cost_price,
+        // );
+        // frmData.append(
+        //   "items[" + x + "][individual_pricing][child][amount]",
+        //   formData.value.items[x].individual_pricing.child.amount,
+        // );
+        formData.value.items[x].child_quantity !== undefined &&
+        formData.value.items[x].child_quantity !== null
+          ? frmData.append(
+              "items[" + x + "][child_quantity]",
+              formData.value.items[x].child_quantity,
+            )
+          : "";
+        formData.value.items[x].child_price !== undefined &&
+        formData.value.items[x].child_price !== null
+          ? frmData.append(
+              "items[" + x + "][child_price]",
+              formData.value.items[x].child_price,
+            )
+          : "";
+        formData.value.items[x].child_cost !== undefined &&
+        formData.value.items[x].child_cost !== null
+          ? frmData.append(
+              "items[" + x + "][child_cost]",
+              formData.value.items[x].child_cost,
+            )
+          : "";
+        formData.value.items[x].child_total_cost !== undefined &&
+        formData.value.items[x].child_total_cost !== null
+          ? frmData.append(
+              "items[" + x + "][child_total_cost]",
+              formData.value.items[x].child_total_cost,
+            )
+          : "";
+        formData.value.items[x].child_total_selling_price !== undefined &&
+        formData.value.items[x].child_total_selling_price !== null
+          ? frmData.append(
+              "items[" + x + "][child_total_selling_price]",
+              formData.value.items[x].child_total_selling_price,
+            )
+          : "";
+        formData.value.items[x].adult_quantity !== undefined &&
+        formData.value.items[x].adult_quantity !== null
+          ? frmData.append(
+              "items[" + x + "][adult_quantity]",
+              formData.value.items[x].adult_quantity,
+            )
+          : "";
+        formData.value.items[x].adult_price !== undefined &&
+        formData.value.items[x].adult_price !== null
+          ? frmData.append(
+              "items[" + x + "][adult_price]",
+              formData.value.items[x].adult_price,
+            )
+          : "";
+        formData.value.items[x].adult_cost !== undefined &&
+        formData.value.items[x].adult_cost !== null
+          ? frmData.append(
+              "items[" + x + "][adult_cost]",
+              formData.value.items[x].adult_cost,
+            )
+          : "";
+        formData.value.items[x].adult_total_cost !== undefined &&
+        formData.value.items[x].adult_total_cost !== null
+          ? frmData.append(
+              "items[" + x + "][adult_total_cost]",
+              formData.value.items[x].adult_total_cost,
+            )
+          : "";
+        formData.value.items[x].adult_total_selling_price !== undefined &&
+        formData.value.items[x].adult_total_selling_price !== null
+          ? frmData.append(
+              "items[" + x + "][adult_total_selling_price]",
+              formData.value.items[x].adult_total_selling_price,
+            )
+          : "";
       }
 
       if (formData.value.items[x].discount) {

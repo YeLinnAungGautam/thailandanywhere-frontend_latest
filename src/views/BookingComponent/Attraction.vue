@@ -134,6 +134,16 @@ const formitem = ref({
   checkout_date: "",
   customer_attachment: "",
   addons: [],
+  child_price: 0,
+  child_cost: 0,
+  child_quantity: 0,
+  child_total_selling_price: 0,
+  child_total_cost: 0,
+  adult_price: 0,
+  adult_cost: 0,
+  adult_quantity: 0,
+  adult_total_selling_price: 0,
+  adult_total_cost: 0,
 });
 
 // add item function
@@ -246,6 +256,16 @@ const clearAction = () => {
         amount: 0,
       },
     },
+    child_price: 0,
+    child_cost: 0,
+    child_quantity: 0,
+    child_total_selling_price: 0,
+    child_total_cost: 0,
+    adult_price: 0,
+    adult_cost: 0,
+    adult_quantity: 0,
+    adult_total_selling_price: 0,
+    adult_total_cost: 0,
     quantity: 0,
     discount: 0,
     days: "",
@@ -280,10 +300,10 @@ const getFunction = () => {
   formitem.value.total_amount =
     formitem.value.selling_price * formitem.value.quantity -
     formitem.value.discount +
-    (formitem.value.individual_pricing?.child?.amount || 0);
+    (formitem.value.child_total_selling_price || 0);
   formitem.value.total_cost_price =
     formitem.value.quantity * formitem.value.cost_price +
-    (formitem.value.individual_pricing?.child?.total_cost_price || 0);
+    (formitem.value.child_total_cost || 0);
   if (addOnList.value != null) {
     let data = {
       addon_id: "",
@@ -327,7 +347,7 @@ watch(bottomOfWindow, (newVal) => {
         changePage(
           entrances?.value?.meta?.links[
             entrances?.value?.meta?.current_page + 1
-          ].url
+          ].url,
         );
       }
     }
@@ -368,27 +388,32 @@ watch(
     const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
 
     // Create a new object for individual_pricing.adult
-    const updatedAdultPricing = {
-      quantity: newValue * 1,
-      selling_price: sellingPrice,
-      cost_price: costPrice,
-      total_cost_price: newValue * 1 * costPrice,
-      amount: newValue * 1 * sellingPrice,
-    };
+    // const updatedAdultPricing = {
+    //   quantity: newValue * 1,
+    //   selling_price: sellingPrice,
+    //   cost_price: costPrice,
+    //   total_cost_price: newValue * 1 * costPrice,
+    //   amount: newValue * 1 * sellingPrice,
+    // };
 
-    // Update formitem.value.individual_pricing.adult
-    formitem.value.individual_pricing.adult = updatedAdultPricing;
+    // // Update formitem.value.individual_pricing.adult
+    // formitem.value.individual_pricing.adult = updatedAdultPricing;
+    formitem.value.adult_quantity = newValue * 1;
+    formitem.value.adult_price = sellingPrice;
+    formitem.value.adult_cost = costPrice;
+    formitem.value.adult_total_cost = newValue * 1 * costPrice;
+    formitem.value.adult_total_selling_price = newValue * 1 * sellingPrice;
 
     // Debugging logs (optional)
     console.log("====================================");
-    console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+    console.log("Updated Adult Pricing:", formitem.value);
     console.log("====================================");
   },
-  { immediate: true } // Optional: Trigger the watcher immediately on setup
+  { immediate: true }, // Optional: Trigger the watcher immediately on setup
 );
 
 watch(
-  () => formitem.value.individual_pricing?.child?.quantity, // Watch the quantity property
+  () => formitem.value.child_quantity, // Watch the quantity property
   (newValue) => {
     // Ensure newValue is a valid number
     // if (typeof newValue !== "number" || isNaN(newValue)) {
@@ -407,36 +432,38 @@ watch(
         : 0;
 
     // Create a new object for individual_pricing.adult
-    const updatedChildPricing = {
-      quantity: newValue * 1,
-      selling_price: sellingPrice,
-      cost_price: costPrice,
-      total_cost_price: newValue * 1 * costPrice,
-      amount: newValue * 1 * sellingPrice,
-    };
+    // const updatedChildPricing = {
+    //   quantity: newValue * 1,
+    //   selling_price: sellingPrice,
+    //   cost_price: costPrice,
+    //   total_cost_price: newValue * 1 * costPrice,
+    //   amount: newValue * 1 * sellingPrice,
+    // };
 
-    // Update formitem.value.individual_pricing.adult
-    formitem.value.individual_pricing.child = updatedChildPricing;
+    // // Update formitem.value.individual_pricing.adult
+    // formitem.value.individual_pricing.child = updatedChildPricing;
+    formitem.value.child_quantity = newValue * 1;
+    formitem.value.child_price = sellingPrice;
+    formitem.value.child_cost = costPrice;
+    formitem.value.child_total_cost = newValue * 1 * costPrice;
+    formitem.value.child_total_selling_price = newValue * 1 * sellingPrice;
 
     // Debugging logs (optional)
     console.log("====================================");
-    console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+    console.log("Updated Child Pricing:", formitem.value);
     console.log("====================================");
   },
-  { immediate: true } // Optional: Trigger the watcher immediately on setup
+  { immediate: true }, // Optional: Trigger the watcher immediately on setup
 );
 
 watch(
-  () => [
-    formitem.value.quantity,
-    formitem.value.individual_pricing?.child?.quantity,
-  ],
+  () => [formitem.value.quantity, formitem.value.child_quantity],
   ([newData, secData]) => {
     if (newData || secData) {
       // checkRoomPrice();
-      formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.individual_pricing?.child?.quantity}`;
+      formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.child_quantity}`;
     }
-  }
+  },
 );
 
 watch(
@@ -444,7 +471,7 @@ watch(
   debounce(async (newValue) => {
     destsList.value = [];
     await entranceStore.getListAction(watchSystem.value);
-  }, 500)
+  }, 500),
 );
 
 onMounted(async () => {
@@ -795,26 +822,26 @@ onMounted(async () => {
                   </div>
                   <input
                     type="number"
-                    v-model="formitem.individual_pricing.child.quantity"
+                    v-model="formitem.child_quantity"
                     name=""
                     class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                     id="adult_pricing"
                   />
                   <p
-                    @click="formitem.individual_pricing.child.quantity++"
+                    @click="formitem.child_quantity++"
                     class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-8"
                   >
                     +
                   </p>
                   <p
-                    @click="formitem.individual_pricing.child.quantity--"
-                    v-if="formitem.individual_pricing.child.quantity > 0"
+                    @click="formitem.child_quantity--"
+                    v-if="formitem.child_quantity > 0"
                     class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
                   >
                     -
                   </p>
                   <p
-                    v-if="formitem.individual_pricing.child.quantity == 0"
+                    v-if="formitem.child_quantity == 0"
                     class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
                   >
                     -
@@ -879,7 +906,7 @@ onMounted(async () => {
                 >{{
                   formitem.selling_price * formitem.quantity -
                   formitem.discount +
-                  (formitem.individual_pricing.child?.amount || 0)
+                  (formitem.child_total_selling_price || 0)
                 }}
                 ฿</span
               >

@@ -91,6 +91,16 @@ const formitem = ref({
       amount: 0,
     },
   },
+  child_price: 0,
+  child_cost: 0,
+  child_quantity: 0,
+  child_total_selling_price: 0,
+  child_total_cost: 0,
+  adult_price: 0,
+  adult_cost: 0,
+  adult_quantity: 0,
+  adult_total_selling_price: 0,
+  adult_total_cost: 0,
 });
 
 const roomRates = ref({})
@@ -241,6 +251,17 @@ const closeModalAction = () => {
         amount: 0,
       },
     },
+    child_price: 0,
+    child_cost: 0,
+    child_quantity: 0,
+    child_total_selling_price: 0,
+    child_total_cost: 0,
+    adult_price: 0,
+    adult_cost: 0,
+    adult_quantity: 0,
+    adult_total_selling_price: 0,
+    adult_total_cost: 0,
+
     pickup_location: "",
     pickup_time: "",
     is_driver_collect: "",
@@ -390,12 +411,8 @@ const getFunction = () => {
   const costPrice = parseFloat(formitem.value.cost_price) || 0;
   const discount = parseFloat(formitem.value.discount) || 0;
   const days = parseFloat(formitem.value.days) || 1;
-  const childAmount = formitem.value.individual_pricing?.child
-    ? parseFloat(formitem.value.individual_pricing.child.amount) || 0
-    : 0;
-  const childCostPrice = formitem.value.individual_pricing?.child
-    ? parseFloat(formitem.value.individual_pricing.child.total_cost_price) || 0
-    : 0;
+  const childAmount = formitem.value.child_total_selling_price || 0;
+  const childCostPrice = formitem.value.child_total_cost || 0;
 
   if (days > 1) {
     formitem.value.total_amount = quantity * sellingPrice - discount;
@@ -405,6 +422,9 @@ const getFunction = () => {
       sellingPrice * quantity - discount + childAmount;
     formitem.value.total_cost_price = quantity * costPrice + childCostPrice;
   }
+
+  console.log(formitem.value,'this is edit');
+  
 };
 
 const cancelAction = () => {
@@ -483,11 +503,11 @@ watch(
 watch(
   () => [
     formitem.value.quantity,
-    formitem.value.individual_pricing?.child?.quantity,
+    formitem.value.child_quantity,
   ],
   ([newData, secData]) => {
     if (formitem.value.product_type == 4 && (newData || secData))
-      formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.individual_pricing?.child?.quantity}`;
+      formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.child_quantity}`;
   },
 );
 
@@ -525,20 +545,25 @@ watch(
             amount: 0,
           },
         };
-      formitem.value.individual_pricing.adult = {
-        quantity: newValue * 1,
-        selling_price: sellingPrice,
-        cost_price: costPrice,
-        total_cost_price: newValue * 1 * costPrice,
-        amount: newValue * 1 * sellingPrice,
-      };
+      // formitem.value.individual_pricing.adult = {
+      //   quantity: newValue * 1,
+      //   selling_price: sellingPrice,
+      //   cost_price: costPrice,
+      //   total_cost_price: newValue * 1 * costPrice,
+      //   amount: newValue * 1 * sellingPrice,
+      // };
+      formitem.value.adult_price = sellingPrice;
+      formitem.value.adult_cost = costPrice;
+      formitem.value.adult_quantity = newValue * 1;
+      formitem.value.adult_total_selling_price = newValue * 1 * sellingPrice;
+      formitem.value.adult_total_cost = newValue * 1 * costPrice;
     }
   },
   { immediate: true },
 );
 
 watch(
-  () => formitem.value.individual_pricing?.child?.quantity,
+  () => formitem.value.child_quantity,
   (newValue) => {
     if (formitem.value.product_type == 4) {
       // ✅ child_info မရောက်သေးလျှင် skip လုပ်သည်
@@ -555,13 +580,18 @@ watch(
         parseFloat(formitem.value.child_info[0]?.child_price) || 0;
       const qty = parseInt(newValue) || 0;
 
-      formitem.value.individual_pricing.child = {
-        quantity: qty,
-        selling_price: sellingPrice, // ✅ မှန်ကန်သော price
-        cost_price: costPrice, // ✅ မှန်ကန်သော cost
-        total_cost_price: qty * costPrice, // ✅ မှန်ကန်
-        amount: qty * sellingPrice, // ✅ မှန်ကန်
-      };
+      // formitem.value.individual_pricing.child = {
+      //   quantity: qty,
+      //   selling_price: sellingPrice, // ✅ မှန်ကန်သော price
+      //   cost_price: costPrice, // ✅ မှန်ကန်သော cost
+      //   total_cost_price: qty * costPrice, // ✅ မှန်ကန်
+      //   amount: qty * sellingPrice, // ✅ မှန်ကန်
+      // };
+      formitem.value.child_price = sellingPrice;
+      formitem.value.child_cost = costPrice;
+      formitem.value.child_quantity = qty;
+      formitem.value.child_total_selling_price = qty * sellingPrice;
+      formitem.value.child_total_cost = qty * costPrice;
     }
   },
 );
@@ -575,102 +605,6 @@ const calculatePrice = computed(() => {
     }, 0);
 });
 
-// Map itemList → ItineraryTable orderedItems format
-const mappedItemsForTable = computed(() => {
-  return itemList.value
-    .filter((i) => i?.product_type !== undefined)
-    .map((i, idx) => {
-      // ── Detect which shape we have ──
-      // "rich" shape = has sellingPrice (already mapped, e.g. from package builder)
-      // "raw" shape  = has total_amount (from reservation itemList)
-      const isRich = i.sellingPrice !== undefined;
-
-      const type =
-        i.product_type == 1 || i._type === "van"
-          ? "van"
-          : i.product_type == 6 || i._type === "hotel"
-          ? "hotel"
-          : "attraction";
-
-      const base = {
-        _uid: i._uid ?? `item-${idx}`,
-        _order: i._order ?? idx,
-        _type: type,
-        dayNumber: i.dayNumber ?? 1,
-        serviceDate: i.serviceDate ?? i.service_date ?? "",
-        // ── Selling / cost: prefer rich fields, fall back to raw ──
-        sellingPrice: isRich
-          ? Number(i.sellingPrice) || 0
-          : Number(i.total_amount) || 0,
-        costPrice: isRich
-          ? Number(i.costPrice) || 0
-          : Number(i.total_cost_price) || 0,
-      };
-
-      // ── VAN ──
-      if (type === "van") {
-        return {
-          ...base,
-          vanTourName: i.vanTourName ?? i.product_name,
-          carName: i.carName ?? i.item_name,
-          city: i.city ?? "",
-          cars: i.cars ?? i.quantity ?? 1,
-        };
-      }
-
-      // ── HOTEL ──
-      if (type === "hotel") {
-        return {
-          ...base,
-          name: i.name ?? i.product_name,
-          roomName: i.roomName ?? i.item_name,
-          nights: i.nights ?? i.days ?? 1,
-          rooms: i.rooms ?? i.quantity ?? 1,
-          checkIn: i.checkIn ?? i.checkin_date ?? i.service_date ?? "",
-          checkOut: i.checkOut ?? i.checkout_date ?? "",
-          checkInDay: i.checkInDay ?? i.dayNumber ?? 1,
-        };
-      }
-
-      // ── ATTRACTION ──
-      const adults = isRich ? i.adults ?? i.quantity ?? 1 : i.quantity ?? 1;
-      const children = isRich
-        ? i.children ?? i.individual_pricing?.child?.quantity ?? 0
-        : i.individual_pricing?.child?.quantity ?? 0;
-
-      // unit prices — rich shape already has them; raw shape uses selling_price
-      const adultPrice = isRich
-        ? Number(i.adultPrice) || 0
-        : Number(i.selling_price) || 0;
-      const adultCostPrice = isRich
-        ? Number(i.adultCostPrice) || 0
-        : Number(i.cost_price) || 0;
-      const childPrice = isRich
-        ? i.childPrice
-        : i.individual_pricing?.child?.selling_price ?? "null";
-      const childCostPrice = isRich
-        ? i.childCostPrice
-        : i.individual_pricing?.child?.selling_price
-        ? String(i.individual_pricing.child.selling_price)
-        : "null";
-
-      return {
-        ...base,
-        name: i.name ?? i.product_name,
-        adults,
-        children,
-        adultPrice,
-        adultCostPrice,
-        childPrice,
-        childCostPrice,
-        unitSellingPrice: adultPrice,
-        city: i.city ?? "",
-        productType: i.productType ?? "entrance_ticket",
-        variation: i.variation ?? i.item_name ?? "",
-      };
-    });
-});
-
 const earliestServiceDate = computed(() => {
   const dates = itemList.value
     .map((i) => i.service_date || i.checkin_date)
@@ -679,10 +613,7 @@ const earliestServiceDate = computed(() => {
   return dates[0] ?? new Date().toISOString().split("T")[0];
 });
 
-const totalUniqueDays = computed(() => {
-  const days = new Set(mappedItemsForTable.value.map((i) => i.dayNumber));
-  return Math.max(...days, 1);
-});
+
 
 onMounted(() => {
   if (props.data) itemList.value = props.data.items;
@@ -831,8 +762,8 @@ onMounted(() => {
             </p>
             <p class="text-[10px]" v-if="i?.product_type == 4">
               adult - {{ i?.quantity }} x {{ i?.selling_price }} ฿<br />
-              child - {{ i?.individual_pricing?.child?.quantity }} x
-              {{ i?.individual_pricing?.child?.selling_price }} ฿
+              child - {{ i?.child_quantity }} x
+              {{ i?.child_price }} ฿
             </p>
             <p class="text-[10px]">
               Amount :
@@ -1185,7 +1116,7 @@ onMounted(() => {
                 <label class="text-[10px] text-gray-400">Qty</label>
                 <input
                   type="number"
-                  v-model="formitem.individual_pricing.child.quantity"
+                  v-model="formitem.child_quantity"
                   min="0"
                   class="border border-gray-300 w-full px-2 py-1.5 rounded-lg text-xs focus:outline-none"
                 />

@@ -56,7 +56,7 @@
           <p class="text-end">
             {{
               formattedNumber(
-                detail?.booking?.grand_total - detail?.booking?.deposit
+                detail?.booking?.grand_total - detail?.booking?.deposit,
               )
             }}
             thb
@@ -570,7 +570,7 @@ const calculateEarlyDate = (dateList) => {
     ) {
       return `${earliestDate.getDate()} - ${latestDate.getDate()} ${latestDate.toLocaleDateString(
         "en-US",
-        { month: "long" }
+        { month: "long" },
       )} ${year}`;
     }
 
@@ -640,7 +640,7 @@ const calculateDaysBetween = (a, b) => {
     const startDateTimestamp = new Date(a).getTime();
     const endDateTimestamp = new Date(b).getTime();
     let result = Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay),
     );
     // formitem.value.days = result;
     return result;
@@ -799,11 +799,7 @@ const ticketChildQty = computed(() => {
   let total = 0;
   props.detail?.items.forEach((item) => {
     if (item.product_type == "App\\Models\\EntranceTicket") {
-      total +=
-        (item.individual_pricing?.child?.quantity != "NaN" &&
-        item.individual_pricing?.child?.quantity
-          ? item.individual_pricing?.child?.quantity
-          : 0) * 1;
+      total += (item.child_quantity ? item.child_quantity : 0) * 1;
     }
   });
   return total;

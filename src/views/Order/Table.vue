@@ -364,11 +364,8 @@
                       >
                         {{ item?.quantity }}
                         {{
-                          JSON.parse(item?.individual_pricing)?.child?.quantity
-                            ? `Adult + ${
-                                JSON.parse(item?.individual_pricing)?.child
-                                  ?.quantity
-                              } Child`
+                          item?.child_quantity
+                            ? `Adult + ${item?.child_quantity} Child`
                             : ""
                         }}
                       </td>

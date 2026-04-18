@@ -285,10 +285,7 @@
                                 item.checkout_date,
                               )}`
                             : `, ${
-                                item.individual_pricing != "null" &&
-                                item.individual_pricing?.child
-                                  ? item.individual_pricing?.child?.quantity
-                                  : 0
+                                item.child_quantity ? item.child_quantity : 0
                               }`
                         }}
                       </td>
@@ -303,12 +300,7 @@
                         "
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
-                        {{
-                          item.individual_pricing != "null" &&
-                          item.individual_pricing?.child
-                            ? item.individual_pricing.child.selling_price
-                            : 0
-                        }}
+                        {{ item.child_price ? item.child_price : 0 }}
                       </td>
 
                       <td

@@ -197,11 +197,7 @@ const copyAction = () => {
 Date: ${getFormatDate(selected.value.service_date)}
 Ticket: ${selected.value.variation?.name}
 Name: ${userName.value}
-Total: ${selected.value.quantity}A ${
-      selected.value.individual_price?.child?.quantity
-        ? selected.value.individual_price?.child?.quantity
-        : ""
-    }${selected.value.individual_price?.child?.quantity ? "C" : ""}
+Total: ${selected.value.quantity}A ${selected.value.child_quantity}C
 ID: ${selected.value.crm_id} \n
 Special Request: ${selected.value.special_request} \n
 Officer: Sunshine

@@ -218,10 +218,8 @@ Date: ${getFormatDate(selected.value.service_date)}
 Ticket: ${selected.value.variation?.name}
 Name: ${userName.value}
 Total: ${selected.value.quantity}Adult ${
-      selected.value.individual_pricing?.child?.quantity
-        ? selected.value.individual_pricing?.child?.quantity
-        : ""
-    }${selected.value.individual_pricing?.child?.quantity ? "Child" : ""}
+      selected.value.child_quantity || 0
+    }Child
 ID: ${selected.value.crm_id} \n
 Special Request: ${selected.value.special_request} \n
 Officer: Sunshine

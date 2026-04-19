@@ -580,6 +580,7 @@
                 <td
                   class="px-2 flex justify-end items-center space-x-2 md:px-4 py-4"
                 >
+                  <!-- <p>invoice_confirm</p> -->
                   <button
                     v-show="activeTag == 'invoice_confirm'"
                     @click.stop="handleEdit(item)"
@@ -2309,6 +2310,8 @@ const handleEdit = async (item) => {
 
   if (!cachedData.value[item.id]?.items) {
     const items = await fetchGroupExpenses(item.id);
+    console.log(items, "this is handleEdit");
+
     if (!cachedData.value[item.id]) {
       cachedData.value[item.id] = {};
     }
@@ -2437,6 +2440,27 @@ const fetchGroupInvoices = async (groupId) => {
 };
 
 // Modify the fetchGroupExpenses to fetch car items for van tours
+// const fetchGroupExpenses = async (groupId) => {
+//   try {
+//     loadingExpandedRow.value = groupId;
+//     const response = await groupStore.detailAction(groupId);
+
+//     console.log(response, "this is response fetch group expense");
+
+//     if (response?.result) {
+//       cachedData.value[groupId] = {
+//         items: response.result.items || [],
+//       };
+//     }
+
+//     console.log(cachedData.value, "this is ");
+//   } catch (error) {
+//     console.error("Error fetching expenses:", error);
+//   } finally {
+//     loadingExpandedRow.value = null;
+//   }
+// };
+
 const fetchGroupExpenses = async (groupId) => {
   try {
     loadingExpandedRow.value = groupId;
@@ -2445,12 +2469,16 @@ const fetchGroupExpenses = async (groupId) => {
     if (response?.result) {
       cachedData.value[groupId] = {
         items: response.result.items || [],
+        groupDetail: response.result, // ✅ store full detail
       };
+      return response.result; // ✅ return full result
     }
+    console.log(cachedData.value, "this is cache data");
 
-    console.log(cachedData.value, "this is ");
+    return null;
   } catch (error) {
     console.error("Error fetching expenses:", error);
+    return null;
   } finally {
     loadingExpandedRow.value = null;
   }

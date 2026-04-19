@@ -326,11 +326,12 @@
                   </div>
                 </div>
 
-                <!-- Child Unit Cost (Entrance Ticket only) -->
+                <!-- Child Unit Cost (Entrance Ticket only, when child_quantity exists) -->
                 <div
                   v-if="
                     item.product_type == 'App\\Models\\EntranceTicket' &&
-                    item.individual_pricing?.child?.cost_price != null
+                    item.child_quantity != null &&
+                    item.child_quantity > 0
                   "
                   class="space-y-1.5"
                 >
@@ -341,16 +342,11 @@
                   <div class="flex items-center gap-2">
                     <span
                       class="text-xs text-gray-600 bg-gray-100 px-2.5 py-1.5 rounded-lg"
-                      >{{
-                        item.individual_pricing?.child?.quantity || 0
-                      }}
-                      ×</span
+                      >{{ item.child_quantity }} ×</span
                     >
                     <div class="relative flex-1">
                       <input
-                        v-model.number="
-                          item.individual_pricing.child.cost_price
-                        "
+                        v-model.number="item.child_cost"
                         type="number"
                         step="0.01"
                         @input="calculateTotalCost(index)"
@@ -528,7 +524,7 @@
                     {{
                       formattedNumber(
                         priceBreakdownData?.total_sale_price *
-                          selectedItemQuantity
+                          selectedItemQuantity,
                       )
                     }}
                     THB
@@ -540,7 +536,7 @@
                     {{
                       formattedNumber(
                         priceBreakdownData?.total_cost_price *
-                          selectedItemQuantity
+                          selectedItemQuantity,
                       )
                     }}
                     THB
@@ -557,7 +553,6 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import Modal from "../../../components/Modal.vue";
 import { useToast } from "vue-toastification";
@@ -567,6 +562,7 @@ import { useGroupStore } from "../../../stores/group";
 import { formattedNumber } from "../../help/FormatData";
 import { daysBetween } from "../../help/DateBetween";
 import { onMounted } from "vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const props = defineProps({
   isOpen: Boolean,
@@ -587,7 +583,7 @@ const showPriceBreakdown = ref(false);
 const priceBreakdownData = ref(null);
 const selectedItemQuantity = ref(0);
 
-// Local state for editing - directly bind to these
+// Local state for editing
 const localItems = ref([]);
 const displayValues = ref([]);
 
@@ -595,7 +591,7 @@ const displayValues = ref([]);
 const totalCostAll = computed(() => {
   return localItems.value.reduce(
     (sum, item) => sum + (item.total_cost_price || 0),
-    0
+    0,
   );
 });
 
@@ -608,31 +604,22 @@ const handleInput = (index) => {
 };
 
 const handleFocus = (index) => {
-  // Show the raw number without formatting when focused
   const value = localItems.value[index].total_cost_price;
   displayValues.value[index] = value > 0 ? String(value) : "";
 };
 
 const handleBlur = (index) => {
-  // Show formatted value when not focused
   const value = localItems.value[index].total_cost_price;
   displayValues.value[index] = value > 0 ? formattedNumber(value) : "";
 };
 
-// Calculate total cost for entrance tickets (auto-calculate when inputs change)
+// Calculate total cost for entrance tickets
 const calculateTotalCost = (index) => {
   const item = localItems.value[index];
 
   if (item.product_type === "App\\Models\\EntranceTicket") {
-    let adultCost = (item.cost_price || 0) * (item.quantity || 0);
-    let childCost = 0;
-
-    if (item.individual_pricing?.child) {
-      childCost =
-        (item.individual_pricing.child.cost_price || 0) *
-        (item.individual_pricing.child.quantity || 0);
-    }
-
+    const adultCost = (item.cost_price || 0) * (item.quantity || 0);
+    const childCost = (item.child_cost || 0) * (item.child_quantity || 0);
     item.total_cost_price = adultCost + childCost;
   } else if (item.product_type === "App\\Models\\PrivateVanTour") {
     item.total_cost_price = (item.cost_price || 0) * (item.quantity || 0);
@@ -665,8 +652,6 @@ const showItemPriceBreakdown = async (item, index) => {
 // Initialize local data
 const initializeLocalData = () => {
   if (props.groupData?.items && props.groupData.items.length > 0) {
-    // Initialize local data
-
     localItems.value = props.groupData.items.map((item) => ({
       id: item.id,
       cost_price: item.cost_price || 0,
@@ -677,14 +662,17 @@ const initializeLocalData = () => {
         daysBetween(item.checkin_date, item.checkout_date) ||
         0,
       product_type: item.product_type,
-      individual_pricing: item.individual_pricing
-        ? JSON.parse(JSON.stringify(item.individual_pricing))
-        : null,
+      // Flat child fields
+      child_cost: parseFloat(item.child_cost) || 0,
+      child_price: parseFloat(item.child_price) || 0,
+      child_quantity: item.child_quantity || 0,
+      child_total_cost: parseFloat(item.child_total_cost) || 0,
+      child_total_selling_price:
+        parseFloat(item.child_total_selling_price) || 0,
     }));
 
-    // Initialize display values with formatted numbers
     displayValues.value = localItems.value.map((item) =>
-      item.total_cost_price > 0 ? formattedNumber(item.total_cost_price) : ""
+      item.total_cost_price > 0 ? formattedNumber(item.total_cost_price) : "",
     );
 
     console.log(localItems.value, "this is item");
@@ -695,24 +683,24 @@ const initializeLocalData = () => {
 watch(
   () => props.groupData,
   (newData) => {
-    if (newData && newData.items) {
+    if (newData) {
+      console.log(newData, "this is item cost");
       initializeLocalData();
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 
-// Also watch when modal opens to re-initialize
 watch(
   () => props.isOpen,
   (isOpen) => {
     if (isOpen && props.groupData?.items) {
       initializeLocalData();
     }
-  }
+  },
 );
 
-// Save all items - matching the reference component logic
+// Save all items
 const handleSaveAll = async () => {
   loading.value = true;
   let successCount = 0;
@@ -725,93 +713,61 @@ const handleSaveAll = async () => {
       return;
     }
 
-    // Process each item
     for (let i = 0; i < localItems.value.length; i++) {
       try {
         const localItem = localItems.value[i];
         const originalItem = props.groupData.items[i];
 
-        // Create form data for the update
         const frmData = new FormData();
         frmData.append("_method", "PUT");
 
         const costPrice = localItem.cost_price;
         const quantity = localItem.quantity;
 
-        // Handle entrance ticket individual pricing
-        if (
-          originalItem.product_type == "App\\Models\\EntranceTicket" &&
-          localItem.individual_pricing != null
-        ) {
-          frmData.append(
-            "individual_pricing[child][quantity]",
-            localItem.individual_pricing?.child?.quantity ?? 0
-          );
-          frmData.append(
-            "individual_pricing[child][selling_price]",
-            localItem.individual_pricing?.child?.selling_price ?? 0
-          );
-          frmData.append(
-            "individual_pricing[child][cost_price]",
-            localItem.individual_pricing?.child?.cost_price ?? 0
-          );
-          frmData.append(
-            "individual_pricing[child][total_cost_price]",
-            (localItem.individual_pricing?.child?.cost_price ?? 0) *
-              (localItem.individual_pricing?.child?.quantity ?? 0)
-          );
-          frmData.append(
-            "individual_pricing[child][amount]",
-            localItem.individual_pricing?.child?.selling_price
-              ? localItem.individual_pricing.child.selling_price *
-                  localItem.individual_pricing.child.quantity
-              : 0
-          );
+        // Handle entrance ticket child pricing using flat fields
+        if (originalItem.product_type == "App\\Models\\EntranceTicket") {
+          if (localItem.child_quantity > 0) {
+            frmData.append("child_quantity", localItem.child_quantity);
+            frmData.append("child_cost", localItem.child_cost);
+            frmData.append("child_price", localItem.child_price);
+            frmData.append(
+              "child_total_cost",
+              localItem.child_cost * localItem.child_quantity,
+            );
+            frmData.append(
+              "child_total_selling_price",
+              localItem.child_price * localItem.child_quantity,
+            );
+          }
         }
 
-        // Append cost price
         if (costPrice) frmData.append("cost_price", costPrice);
         if (quantity) frmData.append("quantity", quantity);
 
         // Calculate and append total cost price based on product type
         if (costPrice) {
           if (originalItem.product_type == "App\\Models\\EntranceTicket") {
-            // For tickets: calculate adult cost + child cost
-            let childCostTotal = 0;
-
-            if (
-              localItem.individual_pricing &&
-              localItem.individual_pricing.child
-            ) {
-              const childCost =
-                localItem.individual_pricing.child.cost_price * 1 || 0;
-              const childQty =
-                localItem.individual_pricing.child.quantity * 1 || 0;
-              childCostTotal = childCost * childQty;
-            }
-
+            const childCostTotal =
+              (localItem.child_cost || 0) * (localItem.child_quantity || 0);
             const totalCostPrice = costPrice * quantity + childCostTotal;
             frmData.append("total_cost_price", totalCostPrice);
           } else {
-            // For hotels: use the manually entered total cost
-            const totalCostPrice = localItem.total_cost_price;
-            frmData.append("total_cost_price", totalCostPrice);
+            frmData.append("total_cost_price", localItem.total_cost_price);
           }
         } else if (localItem.total_cost_price) {
           frmData.append("total_cost_price", localItem.total_cost_price);
         }
 
-        // Send update request
         const response = await reservationStore.updateAction(
           frmData,
-          localItem.id
+          localItem.id,
         );
 
         if (response.status == 1) {
           successCount++;
         } else {
           console.error(
-            `Failed to update item ${localItem.id}: ${response.message}`
+            `Failed to update item ${localItem.id}: ${response.message}`,
           );
           failCount++;
         }
@@ -821,7 +777,6 @@ const handleSaveAll = async () => {
       }
     }
 
-    // Show appropriate toast based on results
     if (failCount === 0) {
       toast.success(`Successfully updated ${successCount} items`);
       props.refreshAction();
@@ -830,7 +785,7 @@ const handleSaveAll = async () => {
       toast.error(`Failed to update all ${failCount} items`);
     } else {
       toast.info(
-        `Updated ${successCount} items, failed to update ${failCount} items`
+        `Updated ${successCount} items, failed to update ${failCount} items`,
       );
       props.refreshAction();
     }

@@ -1162,7 +1162,7 @@ watch(
     setTimeout(() => {
       lastEditedField.value = "none";
     }, 50);
-  }
+  },
 );
 
 const isFormValid = computed(() => {
@@ -1330,12 +1330,12 @@ const updateReceiptDate = () => {
       receiptDay.value,
       12,
       0,
-      0
+      0,
     );
     if (!isNaN(date.getTime())) {
       formData.value.receipt_date = parseDateToLocal(date.toISOString());
       receiptDateValue.value = `${receiptYear.value}-${String(
-        receiptMonth.value
+        receiptMonth.value,
       ).padStart(2, "0")}-${String(receiptDay.value).padStart(2, "0")}`;
     }
   }
@@ -1353,12 +1353,12 @@ const updateServiceStartDate = () => {
       serviceStartDay.value,
       12,
       0,
-      0
+      0,
     );
     if (!isNaN(date.getTime())) {
       formData.value.service_start_date = parseDateToLocal(date.toISOString());
       serviceStartDateValue.value = `${serviceStartYear.value}-${String(
-        serviceStartMonth.value
+        serviceStartMonth.value,
       ).padStart(2, "0")}-${String(serviceStartDay.value).padStart(2, "0")}`;
     }
   }
@@ -1372,12 +1372,12 @@ const updateServiceEndDate = () => {
       serviceEndDay.value,
       12,
       0,
-      0
+      0,
     );
     if (!isNaN(date.getTime())) {
       formData.value.service_end_date = parseDateToLocal(date.toISOString());
       serviceEndDateValue.value = `${serviceEndYear.value}-${String(
-        serviceEndMonth.value
+        serviceEndMonth.value,
       ).padStart(2, "0")}-${String(serviceEndDay.value).padStart(2, "0")}`;
     }
   }
@@ -1438,7 +1438,7 @@ watch(
         receiptMonth.value = date.getMonth() + 1;
         receiptYear.value = date.getFullYear();
         receiptDateValue.value = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
+          date.getMonth() + 1,
         ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
       }
     } else {
@@ -1448,7 +1448,7 @@ watch(
       receiptDateValue.value = "";
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -1461,7 +1461,7 @@ watch(
         serviceStartMonth.value = date.getMonth() + 1;
         serviceStartYear.value = date.getFullYear();
         serviceStartDateValue.value = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
+          date.getMonth() + 1,
         ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
       }
     } else {
@@ -1471,7 +1471,7 @@ watch(
       serviceStartDateValue.value = "";
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -1484,7 +1484,7 @@ watch(
         serviceEndMonth.value = date.getMonth() + 1;
         serviceEndYear.value = date.getFullYear();
         serviceEndDateValue.value = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
+          date.getMonth() + 1,
         ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
       }
     } else {
@@ -1494,7 +1494,7 @@ watch(
       serviceEndDateValue.value = "";
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const selectProduct = (product) => {
@@ -1578,43 +1578,43 @@ const createInvoice = async () => {
     frmData.append("documents[0][file]", invoiceFile.value);
     frmData.append(
       "documents[0][meta][total_tax_amount]",
-      formData.value.total_tax_amount
+      formData.value.total_tax_amount,
     );
     frmData.append(
       "documents[0][meta][total_tax_withold]",
-      formData.value.total_tax_withold
+      formData.value.total_tax_withold,
     );
     frmData.append(
       "documents[0][meta][company_legal_name]",
-      formData.value.company_legal_name
+      formData.value.company_legal_name,
     );
     frmData.append(
       "documents[0][meta][receipt_date]",
-      formatDateDb(formData.value.receipt_date)
+      formatDateDb(formData.value.receipt_date),
     );
     frmData.append(
       "documents[0][meta][service_start_date]",
-      formatDateDb(formData.value.service_start_date)
+      formatDateDb(formData.value.service_start_date),
     );
     frmData.append(
       "documents[0][meta][service_end_date]",
-      formatDateDb(formData.value.service_end_date)
+      formatDateDb(formData.value.service_end_date),
     );
     frmData.append("documents[0][meta][product_id]", formData.value.product_id);
     frmData.append("documents[0][meta][product_name]", productSearch.value);
     frmData.append(
       "documents[0][meta][product_type]",
-      formData.value.product_type
+      formData.value.product_type,
     );
     frmData.append("documents[0][meta][total_after_tax]", totalAfterTax.value);
     frmData.append(
       "documents[0][meta][invoice_number]",
-      formData.value.invoice_number
+      formData.value.invoice_number,
     );
 
     const response = await groupStore.groupDocumentCreateAction(
       frmData,
-      props.groupId
+      props.groupId,
     );
 
     if (response?.status === 1) {
@@ -1685,7 +1685,7 @@ const resetFormForNewInvoice = () => {
   if (props.groupData?.product_id) {
     fetchProductDetails(
       props.groupData.product_id,
-      formData.value.product_type
+      formData.value.product_type,
     );
   }
 
@@ -1706,19 +1706,19 @@ const updateInvoice = async () => {
     frmData.append("meta[product_name]", productSearch.value);
     frmData.append(
       "meta[company_legal_name]",
-      formData.value.company_legal_name
+      formData.value.company_legal_name,
     );
     frmData.append(
       "meta[receipt_date]",
-      formatDateDb(formData.value.receipt_date)
+      formatDateDb(formData.value.receipt_date),
     );
     frmData.append(
       "meta[service_start_date]",
-      formatDateDb(formData.value.service_start_date)
+      formatDateDb(formData.value.service_start_date),
     );
     frmData.append(
       "meta[service_end_date]",
-      formatDateDb(formData.value.service_end_date)
+      formatDateDb(formData.value.service_end_date),
     );
     frmData.append("meta[total_tax_withold]", formData.value.total_tax_withold);
     frmData.append("meta[total_tax_amount]", formData.value.total_tax_amount);
@@ -1729,7 +1729,7 @@ const updateInvoice = async () => {
     const response = await groupStore.groupDocumentUpdateAction(
       frmData,
       props.groupId,
-      formData.value.id
+      formData.value.id,
     );
 
     if (response?.status === 1) {
@@ -1765,7 +1765,7 @@ const handleDelete = async () => {
 
         const response = await groupStore.groupDocumentDeleteAction(
           props.groupId,
-          formData.value.id
+          formData.value.id,
         );
 
         if (response?.status === 1) {
@@ -1837,7 +1837,7 @@ watch(
       isAutoFilled.value = false;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -1861,20 +1861,20 @@ watch(
       if (formData.value.product_id && formData.value.product_type) {
         await fetchProductDetails(
           formData.value.product_id,
-          formData.value.product_type
+          formData.value.product_type,
         );
       }
 
       // Auto-fill dates
       if (newData.firstest_service_date) {
         formData.value.service_start_date = parseDateToLocal(
-          newData.firstest_service_date
+          newData.firstest_service_date,
         );
       }
 
       if (newData.latest_service_date) {
         formData.value.service_end_date = parseDateToLocal(
-          newData.latest_service_date
+          newData.latest_service_date,
         );
       }
 
@@ -1887,7 +1887,7 @@ watch(
       }
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

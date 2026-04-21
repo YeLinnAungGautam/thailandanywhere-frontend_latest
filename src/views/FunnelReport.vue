@@ -7,7 +7,7 @@
           📊 Funnel Analytics Report
         </h1>
 
-        <div class="flex flex-wrap gap-4 items-end">
+        <!-- <div class="flex flex-wrap gap-4 items-end">
           <div class="flex-1 min-w-[200px]">
             <label class="block text-xs font-semibold text-gray-700 mb-2">
               Start Date
@@ -26,6 +26,24 @@
             <input
               v-model="endDate"
               type="date"
+              class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+            />
+          </div>
+
+          <button
+            @click="loadFunnelData"
+            :disabled="funnelStore.loading"
+            class="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            {{ funnelStore.loading ? "Loading..." : "Apply Filter" }}
+          </button>
+        </div> -->
+
+        <div class="flex justify-between items-center gap-x-2">
+          <div class="flex-1 min-w-[200px]">
+            <input
+              v-model="selectedMonth"
+              type="month"
               class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
             />
           </div>
@@ -189,6 +207,40 @@ const productTypes = [
   { key: "private_van_tour", label: "Private Van Tours", icon: "🚐" },
 ];
 
+const selectedMonth = ref("");
+
+const formattedDates = computed(() => {
+  if (!selectedMonth.value) return null;
+
+  const [year, month] = selectedMonth.value.split("-").map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+
+  return {
+    start: `${selectedMonth.value}-01`,
+    end: `${selectedMonth.value}-${String(lastDay).padStart(2, "0")}`,
+  };
+});
+
+const loadFunnelData = async () => {
+  if (!selectedMonth.value) {
+    alert("Please select a month");
+    return;
+  }
+
+  const dates = formattedDates.value;
+
+  try {
+    await funnelStore.getFunnelReport({
+      start_date: dates.start,
+      end_date: dates.end,
+    });
+    await loadTimeSeriesData();
+  } catch (error) {
+    console.error("Error loading funnel data:", error);
+    alert("Failed to load funnel data. Please try again.");
+  }
+};
+
 const funnelStages = computed(() => {
   if (!funnelStore.funnel || !funnelStore.funnel.total_counts) return [];
 
@@ -257,31 +309,15 @@ const selectEvent = async (eventType) => {
   await loadTimeSeriesData();
 };
 
-const loadFunnelData = async () => {
-  if (!startDate.value || !endDate.value) {
-    alert("Please select both start and end dates");
-    return;
-  }
-
-  try {
-    await funnelStore.getFunnelReport({
-      start_date: startDate.value,
-      end_date: endDate.value,
-    });
-    await loadTimeSeriesData();
-  } catch (error) {
-    console.error("Error loading funnel data:", error);
-    alert("Failed to load funnel data. Please try again.");
-  }
-};
-
 const loadTimeSeriesData = async () => {
-  if (!startDate.value || !endDate.value) return;
+  if (!selectedMonth.value) return;
+
+  const dates = formattedDates.value;
 
   try {
     await funnelStore.getTimeSeries({
-      start_date: startDate.value,
-      end_date: endDate.value,
+      start_date: dates.start,
+      end_date: dates.end,
       event_type: selectedEvent.value,
       granularity: selectedGranularity.value,
       product_type: selectedGraphProductType.value,
@@ -290,6 +326,11 @@ const loadTimeSeriesData = async () => {
   } catch (error) {
     console.error("Error loading time series data:", error);
   }
+};
+
+const setDefaultDates = () => {
+  const today = new Date();
+  selectedMonth.value = today.toISOString().slice(0, 7); // e.g. "2026-04"
 };
 
 const renderChart = () => {
@@ -345,14 +386,6 @@ const renderChart = () => {
       },
     },
   });
-};
-
-const setDefaultDates = () => {
-  const today = new Date();
-  const thirtyDaysAgo = new Date(today);
-  thirtyDaysAgo.setDate(today.getDate() - 30);
-  endDate.value = today.toISOString().split("T")[0];
-  startDate.value = thirtyDaysAgo.toISOString().split("T")[0];
 };
 
 watch([selectedGranularity, selectedGraphProductType], () => {

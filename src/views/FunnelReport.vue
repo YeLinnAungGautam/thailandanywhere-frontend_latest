@@ -53,460 +53,78 @@
 
       <!-- Main Content -->
       <div v-else-if="funnelStore.funnel" class="space-y-6">
-        <!-- 3D Funnel Visualization -->
-        <div class="bg-white rounded-2xl shadow-sm p-8">
-          <h2 class="text-lg font-bold text-gray-900 mb-8 text-center">
-            Overall Conversion Funnel
+        <!-- Event Type Selector for Graphs -->
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+          <h2 class="text-lg font-bold text-gray-900 mb-4">
+            📈 Event Trends Over Time
           </h2>
 
-          <div class="flex items-center justify-center py-6">
-            <div class="relative w-full max-w-5xl">
-              <!-- SVG Funnel -->
-              <svg viewBox="0 0 900 550" class="w-full h-auto">
-                <defs>
-                  <!-- Gradients for each stage -->
-                  <linearGradient
-                    id="gradient1"
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                  >
-                    <stop
-                      offset="0%"
-                      style="stop-color: #ff9f6b; stop-opacity: 1"
-                    />
-                    <stop
-                      offset="100%"
-                      style="stop-color: #ff8a50; stop-opacity: 1"
-                    />
-                  </linearGradient>
-                  <linearGradient
-                    id="gradient2"
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                  >
-                    <stop
-                      offset="0%"
-                      style="stop-color: #5b8acf; stop-opacity: 1"
-                    />
-                    <stop
-                      offset="100%"
-                      style="stop-color: #4a6fa5; stop-opacity: 1"
-                    />
-                  </linearGradient>
-                  <linearGradient
-                    id="gradient3"
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                  >
-                    <stop
-                      offset="0%"
-                      style="stop-color: #5fcac7; stop-opacity: 1"
-                    />
-                    <stop
-                      offset="100%"
-                      style="stop-color: #48a9a6; stop-opacity: 1"
-                    />
-                  </linearGradient>
-                  <linearGradient
-                    id="gradient4"
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                  >
-                    <stop
-                      offset="0%"
-                      style="stop-color: #4a5568; stop-opacity: 1"
-                    />
-                    <stop
-                      offset="100%"
-                      style="stop-color: #2d3748; stop-opacity: 1"
-                    />
-                  </linearGradient>
-                  <linearGradient
-                    id="gradient5"
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                  >
-                    <stop
-                      offset="0%"
-                      style="stop-color: #a0d468; stop-opacity: 1"
-                    />
-                    <stop
-                      offset="100%"
-                      style="stop-color: #8bc34a; stop-opacity: 1"
-                    />
-                  </linearGradient>
-
-                  <!-- Shadow filters -->
-                  <filter
-                    id="shadow"
-                    x="-50%"
-                    y="-50%"
-                    width="200%"
-                    height="200%"
-                  >
-                    <feGaussianBlur in="SourceAlpha" stdDeviation="6" />
-                    <feOffset dx="0" dy="3" result="offsetblur" />
-                    <feComponentTransfer>
-                      <feFuncA type="linear" slope="0.2" />
-                    </feComponentTransfer>
-                    <feMerge>
-                      <feMergeNode />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-
-                <!-- Stage 1: Visits site -->
-                <g
-                  filter="url(#shadow)"
-                  class="funnel-stage"
-                  style="cursor: pointer"
-                >
-                  <path
-                    d="M 200,50 L 700,50 L 660,110 L 240,110 Z"
-                    fill="url(#gradient1)"
-                    class="transition-all duration-300 hover:opacity-90"
-                  />
-                  <text
-                    x="450"
-                    y="87"
-                    text-anchor="middle"
-                    class="fill-white"
-                    style="font-size: 18px; font-weight: 600"
-                  >
-                    {{ funnelStages[0]?.displayPercentage || 100 }}%
-                  </text>
-                </g>
-                <text
-                  x="170"
-                  y="87"
-                  text-anchor="end"
-                  class="fill-gray-700"
-                  style="font-size: 13px; font-weight: 600"
-                >
-                  Visits site
-                </text>
-                <circle
-                  cx="780"
-                  cy="80"
-                  r="30"
-                  fill="white"
-                  class="shadow-md"
-                  style="filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))"
-                />
-                <text
-                  x="780"
-                  y="88"
-                  text-anchor="middle"
-                  class="fill-gray-900"
-                  style="font-size: 16px; font-weight: 700"
-                >
-                  {{
-                    (
-                      funnelStore.funnel.total_counts?.visits || 0
-                    ).toLocaleString()
-                  }}
-                </text>
-
-                <!-- Stage 2: Visits product page -->
-                <g
-                  filter="url(#shadow)"
-                  class="funnel-stage"
-                  style="cursor: pointer"
-                >
-                  <path
-                    d="M 250,130 L 650,130 L 620,190 L 280,190 Z"
-                    fill="url(#gradient2)"
-                    class="transition-all duration-300 hover:opacity-90"
-                  />
-                  <text
-                    x="450"
-                    y="167"
-                    text-anchor="middle"
-                    class="fill-white"
-                    style="font-size: 18px; font-weight: 600"
-                  >
-                    {{ funnelStages[1]?.displayPercentage || 0 }}%
-                  </text>
-                </g>
-                <text
-                  x="170"
-                  y="167"
-                  text-anchor="end"
-                  class="fill-gray-700"
-                  style="font-size: 13px; font-weight: 600"
-                >
-                  Visits product page
-                </text>
-                <circle
-                  cx="780"
-                  cy="160"
-                  r="30"
-                  fill="white"
-                  class="shadow-md"
-                  style="filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))"
-                />
-                <text
-                  x="780"
-                  y="168"
-                  text-anchor="middle"
-                  class="fill-gray-900"
-                  style="font-size: 16px; font-weight: 700"
-                >
-                  {{
-                    (
-                      funnelStore.funnel.total_counts?.view_details || 0
-                    ).toLocaleString()
-                  }}
-                </text>
-
-                <!-- Stage 3: Add to cart -->
-                <g
-                  filter="url(#shadow)"
-                  class="funnel-stage"
-                  style="cursor: pointer"
-                >
-                  <path
-                    d="M 300,210 L 600,210 L 580,270 L 320,270 Z"
-                    fill="url(#gradient3)"
-                    class="transition-all duration-300 hover:opacity-90"
-                  />
-                  <text
-                    x="450"
-                    y="247"
-                    text-anchor="middle"
-                    class="fill-white"
-                    style="font-size: 18px; font-weight: 600"
-                  >
-                    {{ funnelStages[2]?.displayPercentage || 0 }}%
-                  </text>
-                </g>
-                <text
-                  x="170"
-                  y="247"
-                  text-anchor="end"
-                  class="fill-gray-700"
-                  style="font-size: 13px; font-weight: 600"
-                >
-                  Add to cart
-                </text>
-                <circle
-                  cx="780"
-                  cy="240"
-                  r="30"
-                  fill="white"
-                  class="shadow-md"
-                  style="filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))"
-                />
-                <text
-                  x="780"
-                  y="248"
-                  text-anchor="middle"
-                  class="fill-gray-900"
-                  style="font-size: 16px; font-weight: 700"
-                >
-                  {{
-                    (
-                      funnelStore.funnel.total_counts?.add_to_cart || 0
-                    ).toLocaleString()
-                  }}
-                </text>
-
-                <!-- Stage 4: Go to checkout -->
-                <g
-                  filter="url(#shadow)"
-                  class="funnel-stage"
-                  style="cursor: pointer"
-                >
-                  <path
-                    d="M 350,290 L 550,290 L 540,350 L 360,350 Z"
-                    fill="url(#gradient4)"
-                    class="transition-all duration-300 hover:opacity-90"
-                  />
-                  <text
-                    x="450"
-                    y="327"
-                    text-anchor="middle"
-                    class="fill-white"
-                    style="font-size: 18px; font-weight: 600"
-                  >
-                    {{ funnelStages[3]?.displayPercentage || 0 }}%
-                  </text>
-                </g>
-                <text
-                  x="170"
-                  y="327"
-                  text-anchor="end"
-                  class="fill-gray-700"
-                  style="font-size: 13px; font-weight: 600"
-                >
-                  Go to checkout
-                </text>
-                <circle
-                  cx="780"
-                  cy="320"
-                  r="30"
-                  fill="white"
-                  class="shadow-md"
-                  style="filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))"
-                />
-                <text
-                  x="780"
-                  y="328"
-                  text-anchor="middle"
-                  class="fill-gray-900"
-                  style="font-size: 16px; font-weight: 700"
-                >
-                  {{
-                    (
-                      funnelStore.funnel.total_counts?.go_checkout || 0
-                    ).toLocaleString()
-                  }}
-                </text>
-
-                <!-- Stage 5: Complete purchase -->
-                <g
-                  filter="url(#shadow)"
-                  class="funnel-stage"
-                  style="cursor: pointer"
-                >
-                  <path
-                    d="M 400,370 L 500,370 L 495,430 L 405,430 Z"
-                    fill="url(#gradient5)"
-                    class="transition-all duration-300 hover:opacity-90"
-                  />
-                  <text
-                    x="450"
-                    y="407"
-                    text-anchor="middle"
-                    class="fill-white"
-                    style="font-size: 18px; font-weight: 600"
-                  >
-                    {{ funnelStages[4]?.displayPercentage || 0 }}%
-                  </text>
-                </g>
-                <text
-                  x="170"
-                  y="407"
-                  text-anchor="end"
-                  class="fill-gray-700"
-                  style="font-size: 13px; font-weight: 600"
-                >
-                  Complete purchase
-                </text>
-                <circle
-                  cx="780"
-                  cy="400"
-                  r="30"
-                  fill="white"
-                  class="shadow-md"
-                  style="filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))"
-                />
-                <text
-                  x="780"
-                  y="408"
-                  text-anchor="middle"
-                  class="fill-gray-900"
-                  style="font-size: 16px; font-weight: 700"
-                >
-                  {{
-                    (
-                      funnelStore.funnel.total_counts?.complete_purchase || 0
-                    ).toLocaleString()
-                  }}
-                </text>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- Conversion Rates -->
-        <div class="bg-white rounded-2xl shadow-sm p-6">
-          <h2 class="text-lg font-bold text-gray-900 mb-6">Conversion Rates</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div
-              class="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-200 hover:border-blue-300 transition-all"
-            >
-              <div class="text-xs font-semibold text-gray-600 mb-2">
-                Visit → View
-              </div>
-              <div class="text-xl font-bold text-blue-600">
-                {{ funnelStore.funnel.conversion_rates?.visit_to_view || 0 }}%
-              </div>
-            </div>
-            <div
-              class="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-200 hover:border-purple-300 transition-all"
-            >
-              <div class="text-xs font-semibold text-gray-600 mb-2">
-                View → Cart
-              </div>
-              <div class="text-xl font-bold text-purple-600">
-                {{ funnelStore.funnel.conversion_rates?.view_to_cart || 0 }}%
-              </div>
-            </div>
-            <div
-              class="bg-gradient-to-br from-teal-50 to-cyan-50 p-5 rounded-xl border border-teal-200 hover:border-teal-300 transition-all"
-            >
-              <div class="text-xs font-semibold text-gray-600 mb-2">
-                Cart → Checkout
-              </div>
-              <div class="text-xl font-bold text-teal-600">
-                {{
-                  funnelStore.funnel.conversion_rates?.cart_to_checkout || 0
-                }}%
-              </div>
-            </div>
-            <div
-              class="bg-gradient-to-br from-orange-50 to-red-50 p-5 rounded-xl border border-orange-200 hover:border-orange-300 transition-all"
-            >
-              <div class="text-xs font-semibold text-gray-600 mb-2">
-                Checkout → Purchase
-              </div>
-              <div class="text-xl font-bold text-orange-600">
-                {{
-                  funnelStore.funnel.conversion_rates?.checkout_to_purchase ||
-                  0
-                }}%
-              </div>
-            </div>
-            <div
-              class="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl border-2 border-green-300 hover:border-green-400 transition-all"
-            >
-              <div class="text-xs font-semibold text-gray-600 mb-2">
-                Overall Conversion
-              </div>
-              <div class="text-xl font-bold text-green-600">
-                {{ funnelStore.funnel.conversion_rates?.overall || 0 }}%
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Product Type Breakdown -->
-        <div class="bg-white rounded-2xl shadow-sm p-6">
-          <h2 class="text-lg font-bold text-gray-900 mb-6">
-            Product Type Performance
-          </h2>
-
+          <!-- Event Type Tags -->
           <div class="flex flex-wrap gap-3 mb-6">
+            <button
+              v-for="event in eventTypes"
+              :key="event.type"
+              @click="selectEvent(event.type)"
+              :class="[
+                'px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 text-sm flex items-center gap-2',
+                selectedEvent === event.type
+                  ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+              ]"
+            >
+              <span>{{ event.icon }}</span>
+              <span>{{ event.label }}</span>
+              <span
+                class="px-2 py-0.5 rounded-full text-xs font-bold"
+                :class="
+                  selectedEvent === event.type
+                    ? 'bg-white text-orange-600'
+                    : 'bg-gray-200 text-gray-700'
+                "
+              >
+                {{ getEventCount(event.type).toLocaleString() }}
+              </span>
+            </button>
+          </div>
+
+          <!-- Granularity Selector -->
+          <div class="flex gap-2 mb-6">
+            <button
+              v-for="gran in granularities"
+              :key="gran.value"
+              @click="selectedGranularity = gran.value"
+              :class="[
+                'px-4 py-2 rounded-lg text-sm font-semibold transition-all',
+                selectedGranularity === gran.value
+                  ? 'bg-blue-500 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+              ]"
+            >
+              {{ gran.label }}
+            </button>
+          </div>
+
+          <!-- Product Type Filter for Graph -->
+          <div class="flex flex-wrap gap-2 mb-6">
+            <button
+              @click="selectedGraphProductType = null"
+              :class="[
+                'px-4 py-2 rounded-lg text-sm font-semibold transition-all',
+                selectedGraphProductType === null
+                  ? 'bg-purple-500 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+              ]"
+            >
+              All Products
+            </button>
             <button
               v-for="type in productTypes"
               :key="type.key"
-              @click="selectedProductType = type.key"
+              @click="selectedGraphProductType = type.key"
               :class="[
-                'px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 text-sm',
-                selectedProductType === type.key
-                  ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md'
+                'px-4 py-2 rounded-lg text-sm font-semibold transition-all',
+                selectedGraphProductType === type.key
+                  ? 'bg-purple-500 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
               ]"
             >
@@ -514,599 +132,56 @@
             </button>
           </div>
 
-          <!-- Hotels -->
-          <div v-if="selectedProductType === 'hotel'" class="space-y-4">
-            <div
-              class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
-            >
-              <h3 class="text-base font-bold text-gray-900">
-                🏨 Hotel Performance
-              </h3>
-              <div class="text-right">
-                <span class="text-xs text-gray-600 font-semibold block mb-1"
-                  >Overall Conversion</span
-                >
-                <div class="text-xl font-bold text-blue-600">
-                  {{ calculateProductConversion("hotel") }}%
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div
-                class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Visits
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{ getProductVisits("hotel").toLocaleString() }}
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Views
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.views_by_product_type?.hotel || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-blue-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      getProductVisits("hotel"),
-                      funnelStore.funnel.views_by_product_type?.hotel || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-xl border border-teal-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">Cart</div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.cart_adds_by_product_type?.hotel || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-teal-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      funnelStore.funnel.views_by_product_type?.hotel || 0,
-                      funnelStore.funnel.cart_adds_by_product_type?.hotel || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-xl border border-gray-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Checkout
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.checkouts_by_product_type?.hotel || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-gray-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      funnelStore.funnel.cart_adds_by_product_type?.hotel || 0,
-                      funnelStore.funnel.checkouts_by_product_type?.hotel || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Purchase
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.purchases_by_product_type?.hotel || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-green-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      funnelStore.funnel.checkouts_by_product_type?.hotel || 0,
-                      funnelStore.funnel.purchases_by_product_type?.hotel || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Entrance Tickets -->
+          <!-- Graph -->
           <div
-            v-if="selectedProductType === 'entrance_ticket'"
-            class="space-y-4"
+            v-if="funnelStore.timeSeriesLoading"
+            class="h-96 flex items-center justify-center"
           >
             <div
-              class="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200"
-            >
-              <h3 class="text-base font-bold text-gray-900">
-                🎫 Entrance Ticket Performance
-              </h3>
-              <div class="text-right">
-                <span class="text-xs text-gray-600 font-semibold block mb-1"
-                  >Overall Conversion</span
-                >
-                <div class="text-xl font-bold text-purple-600">
-                  {{ calculateProductConversion("entrance_ticket") }}%
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div
-                class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Visits
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{ getProductVisits("entrance_ticket").toLocaleString() }}
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Views
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.views_by_product_type
-                        ?.entrance_ticket || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-blue-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      getProductVisits("entrance_ticket"),
-                      funnelStore.funnel.views_by_product_type
-                        ?.entrance_ticket || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-xl border border-teal-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">Cart</div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.cart_adds_by_product_type
-                        ?.entrance_ticket || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-teal-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      funnelStore.funnel.views_by_product_type
-                        ?.entrance_ticket || 0,
-                      funnelStore.funnel.cart_adds_by_product_type
-                        ?.entrance_ticket || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-xl border border-gray-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Checkout
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.checkouts_by_product_type
-                        ?.entrance_ticket || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-gray-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      funnelStore.funnel.cart_adds_by_product_type
-                        ?.entrance_ticket || 0,
-                      funnelStore.funnel.checkouts_by_product_type
-                        ?.entrance_ticket || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Purchase
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.purchases_by_product_type
-                        ?.entrance_ticket || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-green-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      funnelStore.funnel.checkouts_by_product_type
-                        ?.entrance_ticket || 0,
-                      funnelStore.funnel.purchases_by_product_type
-                        ?.entrance_ticket || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-            </div>
+              class="inline-block w-8 h-8 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"
+            ></div>
           </div>
-
-          <!-- Private Van Tours -->
-          <div
-            v-if="selectedProductType === 'private_van_tour'"
-            class="space-y-4"
-          >
-            <div
-              class="flex items-center justify-between p-4 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl border border-teal-200"
-            >
-              <h3 class="text-base font-bold text-gray-900">
-                🚐 Private Van Tour Performance
-              </h3>
-              <div class="text-right">
-                <span class="text-xs text-gray-600 font-semibold block mb-1"
-                  >Overall Conversion</span
-                >
-                <div class="text-xl font-bold text-teal-600">
-                  {{ calculateProductConversion("private_van_tour") }}%
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div
-                class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Visits
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{ getProductVisits("private_van_tour").toLocaleString() }}
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Views
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.views_by_product_type
-                        ?.private_van_tour || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-blue-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      getProductVisits("private_van_tour"),
-                      funnelStore.funnel.views_by_product_type
-                        ?.private_van_tour || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-xl border border-teal-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">Cart</div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.cart_adds_by_product_type
-                        ?.private_van_tour || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-teal-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      funnelStore.funnel.views_by_product_type
-                        ?.private_van_tour || 0,
-                      funnelStore.funnel.cart_adds_by_product_type
-                        ?.private_van_tour || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-xl border border-gray-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Checkout
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.checkouts_by_product_type
-                        ?.private_van_tour || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-gray-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      funnelStore.funnel.cart_adds_by_product_type
-                        ?.private_van_tour || 0,
-                      funnelStore.funnel.checkouts_by_product_type
-                        ?.private_van_tour || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-              <div
-                class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200"
-              >
-                <div class="text-xs font-semibold text-gray-600 mb-2">
-                  Purchase
-                </div>
-                <div class="text-lg font-bold text-gray-900">
-                  {{
-                    (
-                      funnelStore.funnel.purchases_by_product_type
-                        ?.private_van_tour || 0
-                    ).toLocaleString()
-                  }}
-                </div>
-                <div class="text-xs font-semibold text-green-600 mt-1">
-                  {{
-                    calculateStageRate(
-                      funnelStore.funnel.checkouts_by_product_type
-                        ?.private_van_tour || 0,
-                      funnelStore.funnel.purchases_by_product_type
-                        ?.private_van_tour || 0,
-                    )
-                  }}%
-                </div>
-              </div>
-            </div>
+          <div v-else-if="funnelStore.timeSeriesData" class="h-96">
+            <canvas ref="chartCanvas"></canvas>
           </div>
         </div>
-
-        <!-- Comparison Table -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 overflow-x-auto">
-          <h2 class="text-lg font-bold text-gray-900 mb-6">
-            Product Type Comparison
-          </h2>
-          <table class="w-full">
-            <thead>
-              <tr class="border-b-2 border-gray-200">
-                <th class="text-left py-3 px-4 text-xs font-bold text-gray-700">
-                  Product Type
-                </th>
-                <th
-                  class="text-right py-3 px-4 text-xs font-bold text-gray-700"
-                >
-                  Visits
-                </th>
-                <th
-                  class="text-right py-3 px-4 text-xs font-bold text-gray-700"
-                >
-                  Views
-                </th>
-                <th
-                  class="text-right py-3 px-4 text-xs font-bold text-gray-700"
-                >
-                  Cart
-                </th>
-                <th
-                  class="text-right py-3 px-4 text-xs font-bold text-gray-700"
-                >
-                  Checkout
-                </th>
-                <th
-                  class="text-right py-3 px-4 text-xs font-bold text-gray-700"
-                >
-                  Purchase
-                </th>
-                <th
-                  class="text-right py-3 px-4 text-xs font-bold text-gray-700"
-                >
-                  Conversion
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                class="border-b border-gray-100 hover:bg-blue-50 transition-colors"
-              >
-                <td class="py-3 px-4 font-semibold text-gray-900 text-sm">
-                  🏨 Hotel
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{ getProductVisits("hotel").toLocaleString() }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.views_by_product_type?.hotel || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.cart_adds_by_product_type?.hotel || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.checkouts_by_product_type?.hotel || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.purchases_by_product_type?.hotel || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td
-                  class="py-3 px-4 text-right font-bold text-blue-600 text-sm"
-                >
-                  {{ calculateProductConversion("hotel") }}%
-                </td>
-              </tr>
-              <tr
-                class="border-b border-gray-100 hover:bg-purple-50 transition-colors"
-              >
-                <td class="py-3 px-4 font-semibold text-gray-900 text-sm">
-                  🎫 Entrance Ticket
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{ getProductVisits("entrance_ticket").toLocaleString() }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.views_by_product_type
-                        ?.entrance_ticket || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.cart_adds_by_product_type
-                        ?.entrance_ticket || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.checkouts_by_product_type
-                        ?.entrance_ticket || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.purchases_by_product_type
-                        ?.entrance_ticket || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td
-                  class="py-3 px-4 text-right font-bold text-purple-600 text-sm"
-                >
-                  {{ calculateProductConversion("entrance_ticket") }}%
-                </td>
-              </tr>
-              <tr class="hover:bg-teal-50 transition-colors">
-                <td class="py-3 px-4 font-semibold text-gray-900 text-sm">
-                  🚐 Private Van Tour
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{ getProductVisits("private_van_tour").toLocaleString() }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.views_by_product_type
-                        ?.private_van_tour || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.cart_adds_by_product_type
-                        ?.private_van_tour || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.checkouts_by_product_type
-                        ?.private_van_tour || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td class="py-3 px-4 text-right text-gray-800 text-sm">
-                  {{
-                    (
-                      funnelStore.funnel.purchases_by_product_type
-                        ?.private_van_tour || 0
-                    ).toLocaleString()
-                  }}
-                </td>
-                <td
-                  class="py-3 px-4 text-right font-bold text-teal-600 text-sm"
-                >
-                  {{ calculateProductConversion("private_van_tour") }}%
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <div
-        v-else
-        class="bg-white rounded-2xl shadow-sm p-16 text-center space-y-4"
-      >
-        <div class="text-6xl">📊</div>
-        <h3 class="text-lg font-bold text-gray-900">No Data Available</h3>
-        <p class="text-sm text-gray-600">
-          Please select a date range and click "Apply Filter" to view funnel
-          analytics.
-        </p>
       </div>
     </div>
   </Layout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useFunnelStore } from "../stores/funnel";
 import Layout from "./Layout.vue";
+import Chart from "chart.js/auto";
 
 const funnelStore = useFunnelStore();
 
 const startDate = ref("");
 const endDate = ref("");
 const selectedProductType = ref("hotel");
+const selectedEvent = ref("visit_site");
+const selectedGranularity = ref("daily");
+const selectedGraphProductType = ref(null);
+
+const chartCanvas = ref(null);
+let chartInstance = null;
+
+const eventTypes = [
+  { type: "visit_site", label: "Visits Site", icon: "👥" },
+  { type: "view_detail", label: "View Details", icon: "👁️" },
+  { type: "add_to_cart", label: "Add to Cart", icon: "🛒" },
+  { type: "go_checkout", label: "Checkout", icon: "💳" },
+  { type: "complete_purchase", label: "Purchase", icon: "✅" },
+  { type: "messenger_click", label: "Messenger", icon: "💬" },
+];
+
+const granularities = [
+  { value: "daily", label: "Daily" },
+  { value: "weekly", label: "Weekly" },
+  { value: "monthly", label: "Monthly" },
+];
 
 const productTypes = [
   { key: "hotel", label: "Hotels", icon: "🏨" },
@@ -1155,32 +230,31 @@ const funnelStages = computed(() => {
       count: data.complete_purchase || 0,
       displayPercentage: calculateActualPercentage(data.complete_purchase || 0),
     },
+    {
+      key: "messenger",
+      label: "Messenger Click",
+      count: data.messenger_click || 0,
+      displayPercentage: calculateActualPercentage(data.messenger_click || 0),
+    },
   ];
 });
 
-const getProductVisits = (productType) => {
-  if (!funnelStore.funnel) return 0;
-  const visitsFromArray =
-    funnelStore.funnel.visits_by_product_type?.[productType];
-  if (visitsFromArray !== undefined) return visitsFromArray;
-  const visitsFromCounts =
-    funnelStore.funnel.total_counts?.[`${productType}_visits`];
-  if (visitsFromCounts !== undefined) return visitsFromCounts;
-  return funnelStore.funnel.views_by_product_type?.[productType] || 0;
+const getEventCount = (eventType) => {
+  if (!funnelStore.funnel?.total_counts) return 0;
+  const mapping = {
+    visit_site: "visits",
+    view_detail: "view_details",
+    add_to_cart: "add_to_cart",
+    go_checkout: "go_checkout",
+    complete_purchase: "complete_purchase",
+    messenger_click: "messenger_click",
+  };
+  return funnelStore.funnel.total_counts[mapping[eventType]] || 0;
 };
 
-const calculateProductConversion = (productType) => {
-  if (!funnelStore.funnel) return "0.00";
-  const visits = getProductVisits(productType);
-  const purchases =
-    funnelStore.funnel.purchases_by_product_type?.[productType] || 0;
-  return visits > 0 ? ((purchases / visits) * 100).toFixed(2) : "0.00";
-};
-
-const calculateStageRate = (from, to) => {
-  const fromCount = from || 0;
-  const toCount = to || 0;
-  return fromCount > 0 ? ((toCount / fromCount) * 100).toFixed(1) : "0.0";
+const selectEvent = async (eventType) => {
+  selectedEvent.value = eventType;
+  await loadTimeSeriesData();
 };
 
 const loadFunnelData = async () => {
@@ -1194,10 +268,83 @@ const loadFunnelData = async () => {
       start_date: startDate.value,
       end_date: endDate.value,
     });
+    await loadTimeSeriesData();
   } catch (error) {
     console.error("Error loading funnel data:", error);
     alert("Failed to load funnel data. Please try again.");
   }
+};
+
+const loadTimeSeriesData = async () => {
+  if (!startDate.value || !endDate.value) return;
+
+  try {
+    await funnelStore.getTimeSeries({
+      start_date: startDate.value,
+      end_date: endDate.value,
+      event_type: selectedEvent.value,
+      granularity: selectedGranularity.value,
+      product_type: selectedGraphProductType.value,
+    });
+    renderChart();
+  } catch (error) {
+    console.error("Error loading time series data:", error);
+  }
+};
+
+const renderChart = () => {
+  if (!funnelStore.timeSeriesData || !chartCanvas.value) return;
+
+  const ctx = chartCanvas.value.getContext("2d");
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  const data = funnelStore.timeSeriesData.data;
+
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: data.map((d) => d.label),
+      datasets: [
+        {
+          label:
+            eventTypes.find((e) => e.type === selectedEvent.value)?.label ||
+            "Events",
+          data: data.map((d) => d.count),
+          borderColor: "rgb(255, 91, 0)",
+          backgroundColor: "rgba(255, 91, 0, 0.1)",
+          tension: 0.4,
+          fill: true,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: "top",
+        },
+        tooltip: {
+          mode: "index",
+          intersect: false,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0,
+          },
+        },
+      },
+    },
+  });
 };
 
 const setDefaultDates = () => {
@@ -1208,6 +355,10 @@ const setDefaultDates = () => {
   startDate.value = thirtyDaysAgo.toISOString().split("T")[0];
 };
 
+watch([selectedGranularity, selectedGraphProductType], () => {
+  loadTimeSeriesData();
+});
+
 onMounted(() => {
   setDefaultDates();
 });
@@ -1217,11 +368,5 @@ onMounted(() => {
 .funnel-stage:hover path {
   filter: brightness(1.1);
   transition: all 0.3s ease;
-}
-
-@media (max-width: 768px) {
-  svg text {
-    font-size: 11px !important;
-  }
 }
 </style>

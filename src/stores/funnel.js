@@ -5,6 +5,8 @@ export const useFunnelStore = defineStore("funnel", {
   state: () => ({
     loading: false,
     funnel: null,
+    timeSeriesData: null,
+    timeSeriesLoading: false,
   }),
   getters: {},
   actions: {
@@ -22,11 +24,27 @@ export const useFunnelStore = defineStore("funnel", {
         throw error;
       }
     },
-    async getFunnelReportWithProductType(params) {
+
+    async getTimeSeries(params) {
+      try {
+        this.timeSeriesLoading = true;
+        const response = await axios.get("/funnel-events/time-series", {
+          params: params,
+        });
+        this.timeSeriesData = response.data.result;
+        this.timeSeriesLoading = false;
+        return response.data;
+      } catch (error) {
+        this.timeSeriesLoading = false;
+        throw error;
+      }
+    },
+
+    async getFunnelReportWithProductType(productType, params) {
       try {
         this.loading = true;
         const response = await axios.get(
-          "/funnel-events/product-type/" + params,
+          `/funnel-events/product-type/${productType}`,
           {
             params: params,
           },

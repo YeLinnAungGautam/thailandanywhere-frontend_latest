@@ -1439,10 +1439,6 @@ onMounted(async () => {
                 currentTag == l.name
                   ? 'bg-[#ff613c] text-white font-semibold'
                   : 'bg-white',
-                user?.role == 'admin' &&
-                (l.name == 'Hotels' || l.name == 'Attractions')
-                  ? 'hidden'
-                  : '',
               ]"
             >
               <img

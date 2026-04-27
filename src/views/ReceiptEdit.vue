@@ -2,6 +2,7 @@
   <div class="grid grid-cols-2 gap-4">
     <div>
       <img v-if="updateData?.file" :src="updateData.file" alt="" />
+      <img v-if="updateData?.image" :src="updateData.image" alt="" />
       <img v-else :src="placeholderFile" alt="" />
     </div>
     <div class="space-y-4 relative pt-4 pb-14">
@@ -130,7 +131,7 @@ const cashImageStore = useCashImageStore();
 const authStore = useAuthStore();
 
 const placeholderFile = ref(
-  "https://img.freepik.com/premium-vector/payment-check-buying-financial-invoice-bill-purchasing-calculate-pay-vector-isolated-receipt_966580-342.jpg"
+  "https://img.freepik.com/premium-vector/payment-check-buying-financial-invoice-bill-purchasing-calculate-pay-vector-isolated-receipt_966580-342.jpg",
 );
 
 const formData = ref({

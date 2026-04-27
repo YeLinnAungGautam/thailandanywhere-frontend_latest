@@ -259,7 +259,7 @@ export const useCashImageStore = defineStore("cashImage", {
       try {
         const response = await axios.post(
           "/list/cash-images/internal-edit",
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -272,6 +272,21 @@ export const useCashImageStore = defineStore("cashImage", {
         const response = await axios.get(`/cashImage-profit`, {
           params: params,
         });
+
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async cashImageAgentDetail(date, params) {
+      try {
+        const response = await axios.get(
+          `/reports/cash-image/${date}/agent-details`,
+          {
+            params: params,
+          },
+        );
 
         return response.data;
       } catch (error) {

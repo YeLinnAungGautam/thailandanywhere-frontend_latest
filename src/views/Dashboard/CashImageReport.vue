@@ -976,7 +976,9 @@ const fetchCashImagesList = async () => {
       // Process images to add image_url and detect duplicates
       const imagesWithUrl = response.result.all_images.map((img) => ({
         ...img,
-        image_url: img.image ? `/storage/${img.image}` : null,
+        image_url: img.image
+          ? `https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`
+          : null,
       }));
       allCashImages.value = detectDuplicates(imagesWithUrl);
     } else {

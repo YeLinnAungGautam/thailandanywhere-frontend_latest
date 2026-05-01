@@ -61,6 +61,14 @@
               </button>
             </div>
 
+            <!-- Refresh -->
+            <div
+              class="bg-white p-1.5 border border-gray-200 rounded-md"
+              @click="refresh"
+            >
+              <ArrowPathIcon class="w-4 h-4" />
+            </div>
+
             <!-- Expense Status -->
             <!-- <div
               class="flex border border-gray-200 rounded-lg overflow-hidden text-xs"
@@ -607,6 +615,7 @@ import { useHomeStore } from "../stores/home";
 import { useGroupStore } from "../stores/group";
 import { useAuthStore } from "../stores/auth";
 import annotationPlugin from "chartjs-plugin-annotation";
+import { ArrowPathIcon } from "@heroicons/vue/24/outline";
 
 Chart.register(...registerables, annotationPlugin);
 
@@ -619,7 +628,7 @@ const authStore = useAuthStore();
 const selectedYear = ref(new Date().getFullYear());
 const selectedMonth = ref(new Date().getMonth() + 1);
 const productType = ref("all");
-const mode = ref("amount");
+const mode = ref("cost");
 const expenseStatus = ref("not_paid"); // null | 'not_paid'
 const customerPaymentStatus = ref("fully_paid"); // null | 'fully_paid' | 'not_paid'
 const loadingGraph = ref(false);
@@ -948,6 +957,10 @@ async function changeTicketPage(page) {
     loadingTicketGroups.value = false;
   }
 }
+
+const refresh = () => {
+  fetchData();
+};
 
 function goToGroup(group, type) {
   // const name = type === "hotel" ? "group-hotel" : "group-attraction";

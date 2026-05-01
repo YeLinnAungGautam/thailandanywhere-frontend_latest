@@ -429,7 +429,7 @@
                 v-for="group in hotelGroups"
                 :key="group.id"
                 class="border border-gray-100 rounded-lg p-3 hover:border-[#D85A30]/40 hover:bg-orange-50/30 transition-all cursor-pointer"
-                @click="goToGroup(group.id, 'hotel')"
+                @click="goToGroup(group, 'hotel')"
               >
                 <div class="flex items-start justify-between mb-1.5">
                   <div>
@@ -521,7 +521,7 @@
                 v-for="group in ticketGroups"
                 :key="group.id"
                 class="border border-gray-100 rounded-lg p-3 hover:border-blue-400/40 hover:bg-blue-50/30 transition-all cursor-pointer"
-                @click="goToGroup(group.id, 'attraction')"
+                @click="goToGroup(group, 'attraction')"
               >
                 <div class="flex items-start justify-between mb-1.5">
                   <div>
@@ -949,10 +949,16 @@ async function changeTicketPage(page) {
   }
 }
 
-function goToGroup(id, type) {
-  const name = type === "hotel" ? "group-hotel" : "group-attraction";
-  const route = router.resolve({ name, query: { id } });
-  window.open(route.href, "_blank");
+function goToGroup(group, type) {
+  // const name = type === "hotel" ? "group-hotel" : "group-attraction";
+  // const route = router.resolve({ name, query: { id } });
+  // window.open(route.href, "_blank");
+
+  console.log(group, type, "this is data");
+  window.open(
+    `/group-hotel-expense?type=${type}&crmid=${group.booking_crm_id}`,
+    "_blank",
+  );
 }
 
 onMounted(fetchData);

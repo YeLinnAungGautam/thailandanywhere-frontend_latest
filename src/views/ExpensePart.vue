@@ -1657,7 +1657,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import AssignDriverModal from "./GroupComponent/ExpensePart/AssignDriverModal.vue";
 
@@ -1705,6 +1705,7 @@ import { useSidebarStore } from "../stores/sidebar";
 // Initialize
 const toast = useToast();
 const router = useRouter();
+const route = useRoute();
 const groupStore = useGroupStore();
 const cashImageStore = useCashImageStore();
 const reservationStore = useReservationStore();
@@ -2807,6 +2808,12 @@ watch(overExpenseShow, async () => {
 
 // Lifecycle
 onMounted(async () => {
+  if (route.query.type) {
+    productType.value = route.query.type;
+  }
+  if (route.query.crmid) {
+    searchKey.value = route.query.crmid;
+  }
   setStartAndEndDate();
   await getListAction();
 });

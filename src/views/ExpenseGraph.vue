@@ -19,48 +19,157 @@
             </p>
           </div>
 
-          <div class="flex items-center gap-2 flex-wrap">
-            <!-- Product Type -->
-            <div
-              class="flex border border-gray-200 rounded-lg overflow-hidden text-xs"
-            >
-              <button
-                v-for="t in typeOptions"
-                :key="t.val"
-                @click="
-                  productType = t.val;
-                  fetchData();
-                "
-                :class="[
-                  'px-3 py-1.5 font-medium transition-colors',
-                  productType === t.val
-                    ? 'bg-[#D85A30] text-white'
-                    : 'text-gray-600 hover:bg-gray-50',
-                ]"
+          <div class="flex justify-between items-center gap-x-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <!-- Product Type -->
+              <div
+                class="flex border border-gray-200 rounded-lg overflow-hidden text-xs"
               >
-                {{ t.label }}
-              </button>
-            </div>
+                <button
+                  v-for="t in typeOptions"
+                  :key="t.val"
+                  @click="
+                    productType = t.val;
+                    fetchData();
+                  "
+                  :class="[
+                    'px-3 py-1.5 font-medium transition-colors',
+                    productType === t.val
+                      ? 'bg-[#D85A30] text-white'
+                      : 'text-gray-600 hover:bg-gray-50',
+                  ]"
+                >
+                  {{ t.label }}
+                </button>
+              </div>
 
-            <!-- Mode -->
-            <div
-              class="flex border border-gray-200 rounded-lg overflow-hidden text-xs"
-            >
-              <button
-                v-for="m in modeOptions"
-                :key="m.val"
-                @click="mode = m.val"
-                :class="[
-                  'px-3 py-1.5 font-medium transition-colors',
-                  mode === m.val
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-600 hover:bg-gray-50',
-                ]"
+              <!-- Mode -->
+              <div
+                class="flex border border-gray-200 rounded-lg overflow-hidden text-xs"
               >
-                {{ m.label }}
-              </button>
-            </div>
+                <button
+                  v-for="m in modeOptions"
+                  :key="m.val"
+                  @click="mode = m.val"
+                  :class="[
+                    'px-3 py-1.5 font-medium transition-colors',
+                    mode === m.val
+                      ? 'bg-blue-500 text-white'
+                      : 'text-gray-600 hover:bg-gray-50',
+                  ]"
+                >
+                  {{ m.label }}
+                </button>
+              </div>
 
+              <!-- Expense Status -->
+              <!-- <div
+                class="flex border border-gray-200 rounded-lg overflow-hidden text-xs"
+              >
+                <button
+                  @click="
+                    expenseStatus = null;
+                    fetchData();
+                  "
+                  :class="[
+                    'px-3 py-1.5 font-medium transition-colors',
+                    expenseStatus === null
+                      ? 'bg-gray-700 text-white'
+                      : 'text-gray-600 hover:bg-gray-50',
+                  ]"
+                >
+                  All Expense
+                </button>
+                <button
+                  @click="
+                    expenseStatus = 'not_paid';
+                    fetchData();
+                  "
+                  :class="[
+                    'px-3 py-1.5 font-medium transition-colors',
+                    expenseStatus === 'not_paid'
+                      ? 'bg-red-500 text-white'
+                      : 'text-gray-600 hover:bg-gray-50',
+                  ]"
+                >
+                  Not Paid
+                </button>
+              </div> -->
+
+              <!-- Customer Payment Status -->
+              <div
+                class="flex border border-gray-200 rounded-lg overflow-hidden text-xs"
+              >
+                <button
+                  @click="
+                    customerPaymentStatus = null;
+                    fetchData();
+                  "
+                  :class="[
+                    'px-3 py-1.5 font-medium transition-colors',
+                    customerPaymentStatus === null
+                      ? 'bg-gray-700 text-white'
+                      : 'text-gray-600 hover:bg-gray-50',
+                  ]"
+                >
+                  All Customer
+                </button>
+                <button
+                  @click="
+                    customerPaymentStatus = 'fully_paid';
+                    fetchData();
+                  "
+                  :class="[
+                    'px-3 py-1.5 font-medium transition-colors',
+                    customerPaymentStatus === 'fully_paid'
+                      ? 'bg-green-500 text-white'
+                      : 'text-gray-600 hover:bg-gray-50',
+                  ]"
+                >
+                  Fully Paid
+                </button>
+                <button
+                  @click="
+                    customerPaymentStatus = 'not_paid';
+                    fetchData();
+                  "
+                  :class="[
+                    'px-3 py-1.5 font-medium transition-colors',
+                    customerPaymentStatus === 'not_paid'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-gray-600 hover:bg-gray-50',
+                  ]"
+                >
+                  Not Paid
+                </button>
+              </div>
+
+              <!-- Year -->
+              <select
+                v-model="selectedYear"
+                @change="fetchData"
+                class="text-xs border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:border-[#D85A30]"
+              >
+                <option v-for="y in yearOptions" :key="y" :value="y">
+                  {{ y }}
+                </option>
+              </select>
+
+              <!-- Month -->
+              <select
+                v-model="selectedMonth"
+                @change="fetchData"
+                class="text-xs border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:border-[#D85A30]"
+              >
+                <option
+                  v-for="(m, i) in monthLabels"
+                  :key="i + 1"
+                  :value="i + 1"
+                >
+                  {{ m }}
+                </option>
+              </select>
+            </div>
             <!-- Refresh -->
             <div
               class="bg-white p-1.5 border border-gray-200 rounded-md"
@@ -68,110 +177,6 @@
             >
               <ArrowPathIcon class="w-4 h-4" />
             </div>
-
-            <!-- Expense Status -->
-            <!-- <div
-              class="flex border border-gray-200 rounded-lg overflow-hidden text-xs"
-            >
-              <button
-                @click="
-                  expenseStatus = null;
-                  fetchData();
-                "
-                :class="[
-                  'px-3 py-1.5 font-medium transition-colors',
-                  expenseStatus === null
-                    ? 'bg-gray-700 text-white'
-                    : 'text-gray-600 hover:bg-gray-50',
-                ]"
-              >
-                All Expense
-              </button>
-              <button
-                @click="
-                  expenseStatus = 'not_paid';
-                  fetchData();
-                "
-                :class="[
-                  'px-3 py-1.5 font-medium transition-colors',
-                  expenseStatus === 'not_paid'
-                    ? 'bg-red-500 text-white'
-                    : 'text-gray-600 hover:bg-gray-50',
-                ]"
-              >
-                Not Paid
-              </button>
-            </div> -->
-
-            <!-- Customer Payment Status -->
-            <div
-              class="flex border border-gray-200 rounded-lg overflow-hidden text-xs"
-            >
-              <button
-                @click="
-                  customerPaymentStatus = null;
-                  fetchData();
-                "
-                :class="[
-                  'px-3 py-1.5 font-medium transition-colors',
-                  customerPaymentStatus === null
-                    ? 'bg-gray-700 text-white'
-                    : 'text-gray-600 hover:bg-gray-50',
-                ]"
-              >
-                All Customer
-              </button>
-              <button
-                @click="
-                  customerPaymentStatus = 'fully_paid';
-                  fetchData();
-                "
-                :class="[
-                  'px-3 py-1.5 font-medium transition-colors',
-                  customerPaymentStatus === 'fully_paid'
-                    ? 'bg-green-500 text-white'
-                    : 'text-gray-600 hover:bg-gray-50',
-                ]"
-              >
-                Fully Paid
-              </button>
-              <button
-                @click="
-                  customerPaymentStatus = 'not_paid';
-                  fetchData();
-                "
-                :class="[
-                  'px-3 py-1.5 font-medium transition-colors',
-                  customerPaymentStatus === 'not_paid'
-                    ? 'bg-orange-500 text-white'
-                    : 'text-gray-600 hover:bg-gray-50',
-                ]"
-              >
-                Not Paid
-              </button>
-            </div>
-
-            <!-- Year -->
-            <select
-              v-model="selectedYear"
-              @change="fetchData"
-              class="text-xs border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:border-[#D85A30]"
-            >
-              <option v-for="y in yearOptions" :key="y" :value="y">
-                {{ y }}
-              </option>
-            </select>
-
-            <!-- Month -->
-            <select
-              v-model="selectedMonth"
-              @change="fetchData"
-              class="text-xs border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:border-[#D85A30]"
-            >
-              <option v-for="(m, i) in monthLabels" :key="i + 1" :value="i + 1">
-                {{ m }}
-              </option>
-            </select>
           </div>
         </div>
 
@@ -451,14 +456,14 @@
                   <span
                     :class="[
                       'text-[10px] font-medium px-2 py-0.5 rounded-full',
-                      group.customer_payment_status === 'fully_paid'
+                      group.expense_status === 'fully_paid'
                         ? 'bg-green-100 text-green-700'
-                        : group.customer_payment_status === 'partially_paid'
+                        : group.expense_status === 'partially_paid'
                         ? 'bg-yellow-100 text-yellow-700'
                         : 'bg-red-100 text-red-600',
                     ]"
                   >
-                    {{ group.customer_payment_status ?? "not_paid" }}
+                    E: {{ group.expense_status ?? "not_paid" }}
                   </span>
                 </div>
                 <p class="text-[11px] text-gray-500">
@@ -543,14 +548,14 @@
                   <span
                     :class="[
                       'text-[10px] font-medium px-2 py-0.5 rounded-full',
-                      group.customer_payment_status === 'fully_paid'
+                      group.expense_status === 'fully_paid'
                         ? 'bg-green-100 text-green-700'
-                        : group.customer_payment_status === 'partially_paid'
+                        : group.expense_status === 'partially_paid'
                         ? 'bg-yellow-100 text-yellow-700'
                         : 'bg-red-100 text-red-600',
                     ]"
                   >
-                    {{ group.customer_payment_status ?? "not_paid" }}
+                    E: {{ group.expense_status ?? "not_paid" }}
                   </span>
                 </div>
                 <p class="text-[11px] text-gray-500">

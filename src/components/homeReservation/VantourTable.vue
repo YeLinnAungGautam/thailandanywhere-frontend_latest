@@ -8,6 +8,7 @@ import {
   XCircleIcon,
   DocumentDuplicateIcon,
   XMarkIcon,
+  PaperAirplaneIcon, // Add this import
 } from "@heroicons/vue/24/outline";
 import { computed, onMounted, ref, defineEmits } from "vue";
 import Modal from "../Modal.vue";
@@ -21,16 +22,20 @@ import { useToast } from "vue-toastification";
 import { storeToRefs } from "pinia";
 import { Switch } from "@headlessui/vue";
 import { formattedDateTime } from "../../views/help/FormatData";
+import LinePreviewModal from "./LinePreviewModal.vue";
+import { useMessageStore } from "../../stores/message";
 
 const props = defineProps({
   data: Object || Array,
   loading: Boolean,
+  sentToLine: Function,
 });
 
 const carBookingStore = useCarBookingStore();
 const supplierStore = useSupplierStore();
 const driverStore = useDriverStore();
 const authStore = useAuthStore();
+const messageStore = useMessageStore();
 const toast = useToast();
 
 const { suppliers } = storeToRefs(supplierStore);
@@ -39,6 +44,145 @@ const { user } = storeToRefs(authStore);
 
 const carModalOpen = ref(false);
 const showDropDown = ref(false);
+const showLineModal = ref(false); // LINE modal state
+const lineBookingData = ref(null); // Data for LINE modal
+
+// Add this function to handle opening LINE modal
+const openLineModal = async () => {
+  try {
+    const res = await carBookingStore.getDetailAction(props?.data.id);
+
+    if (res.status == 1) {
+      lineBookingData.value = {
+        id: props?.data.id, // Add booking ID for update
+        crm_id: props?.data.crm_id,
+        customer_name: props?.data.customer_name,
+        contact: res?.result?.driver_contact || "null",
+        service_date: formattedDateTime(props?.data.service_date),
+        pickup_time: props?.data.pickup_time || "",
+        pickup_location: props?.data.pickup_location || "",
+        dropoff_location: props?.data.dropoff_location || "",
+        route_plan: props?.data.route_plan || "",
+        product_variation: props?.data.variation_name,
+        payment_method:
+          props?.data.is_driver_collect == 1
+            ? props?.data.payment_method
+            : "xxxx",
+        sale_amount:
+          props?.data.is_driver_collect == 1
+            ? props?.data.selling_price
+            : "xxxx",
+        extra_collect:
+          props?.data.is_driver_collect == 1
+            ? props?.data.extra_collect_amount
+            : "0",
+        special_request: props?.data.special_request || "",
+        is_driver_collect: props?.data.is_driver_collect,
+      };
+
+      showLineModal.value = true;
+    }
+  } catch (error) {
+    toast.error("Failed to load booking details");
+  }
+};
+
+// Handle saving and sending to LINE
+// const handleSendToLine = async (data) => {
+//   try {
+//     const frmData = new FormData();
+
+//     frmData.append("pickup_time", data.editedData.pickupTime || "");
+//     frmData.append("pickup_location", data.editedData.pickupLocation || "");
+//     frmData.append("dropoff_location", data.editedData.dropoffLocation || "");
+//     frmData.append("route_plan", data.editedData.routePlan || "");
+//     frmData.append("special_request", data.editedData.specialRequest || "");
+
+//     // Always save is_driver_collect based on the modal toggle
+//     frmData.append(
+//       "is_driver_collect",
+//       data.editedData.isDriverCollect ? "1" : "0",
+//     );
+
+//     if (data.editedData.isDriverCollect) {
+//       frmData.append(
+//         "extra_collect_amount",
+//         data.editedData.extraCollect || "0",
+//       );
+//       // selling_price / sale amount — append if your API supports updating it
+//       // frmData.append("selling_price", data.editedData.saleAmount || "0");
+//     } else {
+//       // Clear payment fields if driver collect is turned off
+//       frmData.append("payment_method", "");
+//       frmData.append("extra_collect_amount", "0");
+//     }
+
+//     const updateRes = await carBookingStore.addNewAction(
+//       frmData,
+//       lineBookingData.value.id,
+//     );
+
+//     if (updateRes.status == 1) {
+//       toast.success("Booking updated successfully");
+//       await messageStore.sendLineMessage(data.message);
+//       showLineModal.value = false;
+//       emit("change", "updated");
+//     }
+//   } catch (error) {
+//     console.error("Error updating booking:", error);
+//     toast.error(error.response?.data?.message || "Failed to update booking");
+//   }
+// };
+
+const handleSendToLine = async (data) => {
+  try {
+    // ── 1. Save booking fields + append line_history (Laravel) ──────────
+    const payload = {
+      pickup_time: data.editedData.pickup_time,
+      pickup_location: data.editedData.pickup_location,
+      dropoff_location: data.editedData.dropoff_location,
+      route_plan: data.editedData.route_plan,
+      special_request: data.editedData.special_request,
+      is_driver_collect: data.editedData.is_driver_collect,
+      extra_collect_amount: data.editedData.is_driver_collect
+        ? data.editedData.extra_collect
+        : "0",
+      message: data.message,
+      edited_data: data.editedData, // snapshot for diff
+    };
+
+    const saveRes = await carBookingStore.sendLineAction(
+      lineBookingData.value.id,
+      payload,
+    );
+    console.log(saveRes, "this is save res");
+
+    if (saveRes.status != 1) {
+      toast.error("Failed to save booking");
+      return;
+    }
+
+    // ── 2. Send to LINE via Node.js — use sent_message from Laravel ──────
+    //    Laravel already appended the diff block to sent_message
+    await messageStore.sendLineMessage(
+      saveRes.result?.sent_message ?? data.message,
+    );
+
+    toast.success("Saved & sent to LINE");
+    showLineModal.value = false;
+    lineBookingData.value = null;
+    emit("change", "updated");
+  } catch (error) {
+    console.error("Error sending to LINE:", error);
+    toast.error(error.response?.data?.message || "Failed to send to LINE");
+  }
+};
+
+// Close LINE modal
+const closeLineModal = () => {
+  showLineModal.value = false;
+  lineBookingData.value = null;
+};
 
 const total_cost_price = computed(() => {
   return formData.value.cost_price * formData.value.quantity;
@@ -92,7 +236,7 @@ const driverAction = async (id) => {
 };
 
 const errors = ref(null);
-const emit = defineEmits();
+const emit = defineEmits(["change", "send-to-line"]); // Add 'send-to-line' to emits
 
 const closeFunction = () => {
   formData.value = {
@@ -121,7 +265,6 @@ const closeFunction = () => {
 };
 
 const onSubmitHandler = async () => {
-  // console.log(formData.value.pickup_time);
   try {
     const frmData = new FormData();
     frmData.append("supplier_id", formData.value.supplier_id ?? "");
@@ -148,7 +291,7 @@ const onSubmitHandler = async () => {
     if (formData.value.is_driver_collect != "") {
       frmData.append(
         "is_driver_collect",
-        formData.value.is_driver_collect == 1 ? "1" : "0"
+        formData.value.is_driver_collect == 1 ? "1" : "0",
       );
     } else {
       frmData.append("is_driver_collect", "");
@@ -157,7 +300,7 @@ const onSubmitHandler = async () => {
     if (formData.value.is_driver_collect == 1) {
       frmData.append(
         "extra_collect_amount",
-        formData.value.extra_collect_amount || ""
+        formData.value.extra_collect_amount || "",
       );
     }
     frmData.append("route_plan", formData.value.route_plan);
@@ -265,7 +408,6 @@ const openInfoModal = async () => {
     supplier_name: data.supplier_name,
     phone: data.driver_contact,
     car_number: data.car_number,
-    // driver_collect: data.is_driver_collect == 1 ? "Yes" : "No",
     is_driver_collect:
       data.is_driver_collect == null
         ? "Empty"
@@ -312,6 +454,38 @@ const complete = computed(() => {
   }
   return false;
 });
+
+// Add this function to handle sending to LINE
+const sendToLineHandler = async () => {
+  const res = await carBookingStore.getDetailAction(props?.data.id);
+
+  if (res.status == 1) {
+    const bookingData = {
+      crm_id: props?.data.crm_id,
+      customer_name: props?.data.customer_name,
+      contact: res?.result?.driver_contact || null,
+      service_date: formattedDateTime(props?.data.service_date),
+      pickup_time: props?.data.pickup_time,
+      pickup_location: props?.data.pickup_location,
+      dropoff_location: props?.data.dropoff_location,
+      route_plan: props?.data.route_plan,
+      product_variation: props?.data.variation_name,
+      payment_method:
+        props?.data.is_driver_collect == 1
+          ? props?.data.payment_method
+          : "xxxx",
+      sale_amount:
+        props?.data.is_driver_collect == 1 ? props?.data.selling_price : "xxxx",
+      extra_collect:
+        props?.data.is_driver_collect == 1
+          ? props?.data.extra_collect_amount
+          : "0",
+      special_request: props?.data.special_request,
+    };
+
+    emit("send-to-line", bookingData);
+  }
+};
 
 const carOrderCopyFunction = async () => {
   const res = await carBookingStore.getDetailAction(props?.data.id);
@@ -419,6 +593,7 @@ onMounted(async () => {
   }
 });
 </script>
+
 <template>
   <div v-if="!loading">
     <div class="w-full bg-white flex items-center rounded-md pl-2">
@@ -453,8 +628,39 @@ onMounted(async () => {
       </div>
 
       <div
-        class="w-[150px] text-[10px] py-2 px-2 flex justify-end items-center gap-4"
+        class="w-[150px] text-[10px] py-2 px-2 flex justify-end items-center gap-3"
       >
+        <!-- Send to LINE Button -->
+        <!-- <button
+          @click="sendToLineHandler"
+          class="hover:scale-110 transition-transform"
+          title="Send to LINE"
+        >
+          <svg
+            class="w-4 h-4 text-[#06C755] hover:text-[#05b04b] cursor-pointer"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"
+            />
+          </svg>
+        </button> -->
+        <button
+          @click="openLineModal"
+          class="hover:scale-110 transition-transform"
+          title="Send to LINE"
+        >
+          <svg
+            class="w-4 h-4 text-[#06C755] hover:text-[#05b04b] cursor-pointer"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"
+            />
+          </svg>
+        </button>
         <DocumentDuplicateIcon
           @click="carOrderCopyFunction"
           class="w-4 h-4 cursor-pointer hover:text-orange-600"
@@ -479,15 +685,15 @@ onMounted(async () => {
         />
       </div>
     </div>
+
+    <!-- Rest of the template remains the same -->
     <div
       class="w-full bg-gray-300 flex items-center rounded-md pl-2"
       v-if="showDropDown"
     >
       <p class="w-[26%] text-[10px] py-1.5 px-2 font-medium">Route Plan</p>
       <p class="w-[26%] text-[10px] py-1.5 px-2 font-medium">Special Request</p>
-
       <p class="w-[15%] text-[10px] py-1.5 px-2 font-medium">Pickup Time</p>
-
       <p class="w-[15%] text-[10px] py-1.5 px-2 font-medium">Sale Amount</p>
       <p class="w-[15%] text-[10px] py-1.5 px-2 font-medium">Extra Amount</p>
     </div>
@@ -516,7 +722,6 @@ onMounted(async () => {
           rows="2"
         ></textarea>
       </div>
-
       <div class="w-[15%] text-[10px] py-2 px-2">
         <input
           type="time"
@@ -526,7 +731,6 @@ onMounted(async () => {
           id=""
         />
       </div>
-
       <div class="w-[15%] text-[10px] py-2 px-2">
         <input
           type="number"
@@ -549,6 +753,7 @@ onMounted(async () => {
       </div>
     </form>
 
+    <!-- Modals remain the same -->
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
         class="w-full max-w-md transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
@@ -593,12 +798,6 @@ onMounted(async () => {
           </div>
           <div class="space-y-1" v-if="user.role != 'admin'">
             <label for="name" class="text-gray-800 text-xs">Car Number</label>
-            <!-- <input
-              type="text"
-              v-model="formData.car_number"
-              id="name"
-              class="h-9 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
-            /> -->
             <v-select
               v-model="formData.car_number"
               class="style-chooser bg-white rounded-lg"
@@ -855,7 +1054,6 @@ onMounted(async () => {
           </div>
           <div class="space-y-2 col-span-2">
             <p class="text-xs font-semibold">Car Image :</p>
-            <!-- <p class="text-sm font-normal">{{ driverInfoData?.car_image }}</p> -->
             <img
               :src="driverInfoData?.car_image"
               class="pt-4"
@@ -880,5 +1078,11 @@ onMounted(async () => {
         </div>
       </DialogPanel>
     </Modal>
+    <LinePreviewModal
+      v-if="showLineModal"
+      :bookingData="lineBookingData"
+      @close="closeLineModal"
+      @send="handleSendToLine"
+    />
   </div>
 </template>

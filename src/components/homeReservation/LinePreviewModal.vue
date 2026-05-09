@@ -4,10 +4,11 @@
     @click.self="$emit('close')"
   >
     <div
-      class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] flex flex-col"
     >
+      <!-- Header -->
       <div
-        class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center"
+        class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-lg"
       >
         <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
           <svg
@@ -41,18 +42,55 @@
         </button>
       </div>
 
-      <div class="p-6 space-y-4">
-        <div class="bg-gray-50 rounded-lg p-4 mb-4">
-          <p class="text-sm text-gray-600">
-            Edit the details below before sending to LINE
-          </p>
+      <!-- Body -->
+      <div class="overflow-y-auto flex-1 p-6">
+        <!-- Step indicator -->
+        <div class="flex items-center gap-2 mb-6">
+          <div
+            :class="[
+              'w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0',
+              currentStep === 1
+                ? 'bg-[#06C755] text-white'
+                : 'bg-green-100 text-[#06C755]',
+            ]"
+          >
+            <svg
+              v-if="currentStep === 2"
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <span v-else>1</span>
+          </div>
+          <span class="text-xs text-gray-500">Edit details</span>
+          <div class="flex-1 h-px bg-gray-200"></div>
+          <div
+            :class="[
+              'w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0',
+              currentStep === 2
+                ? 'bg-[#06C755] text-white'
+                : 'bg-gray-100 text-gray-400',
+            ]"
+          >
+            2
+          </div>
+          <span class="text-xs text-gray-500">Preview & send</span>
         </div>
 
-        <div class="space-y-3">
+        <!-- STEP 1: Edit form -->
+        <div v-if="currentStep === 1" class="space-y-3">
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-medium text-gray-500 mb-1"
-                >CRM ID (Read-only)</label
+                >CRM ID (read-only)</label
               >
               <input
                 :value="editableData.crmId"
@@ -63,7 +101,7 @@
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-500 mb-1"
-                >Customer Name (Read-only)</label
+                >Customer name (read-only)</label
               >
               <input
                 :value="editableData.customerName"
@@ -76,7 +114,7 @@
 
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1"
-              >Contact (Read-only)</label
+              >Contact (read-only)</label
             >
             <input
               :value="editableData.contact"
@@ -89,7 +127,7 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-medium text-gray-500 mb-1"
-                >Service Date (Read-only)</label
+                >Service date (read-only)</label
               >
               <input
                 :value="editableData.serviceDate"
@@ -100,7 +138,7 @@
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-1"
-                >Pickup Time <span class="text-red-500">*</span></label
+                >Pickup time <span class="text-red-500">*</span></label
               >
               <input
                 v-model="editableData.pickupTime"
@@ -112,7 +150,7 @@
 
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1"
-              >Pickup Location</label
+              >Pickup location</label
             >
             <textarea
               v-model="editableData.pickupLocation"
@@ -123,7 +161,7 @@
 
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1"
-              >Dropoff Location</label
+              >Dropoff location</label
             >
             <textarea
               v-model="editableData.dropoffLocation"
@@ -134,7 +172,7 @@
 
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1"
-              >Route Plan</label
+              >Route plan</label
             >
             <textarea
               v-model="editableData.routePlan"
@@ -145,7 +183,7 @@
 
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1"
-              >Product Variation (Read-only)</label
+              >Product variation (read-only)</label
             >
             <input
               :value="editableData.productVariation"
@@ -155,18 +193,17 @@
             />
           </div>
 
-          <!-- Payment section - only show if driver collects, no toggle -->
           <div
             v-if="isDriverCollect"
             class="bg-blue-50 border border-blue-200 rounded-lg p-4"
           >
             <p class="text-sm font-medium text-gray-800 mb-3">
-              Driver Collect Payment
+              Driver collect payment
             </p>
             <div class="grid grid-cols-3 gap-3">
               <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1"
-                  >Payment Method (Read-only)</label
+                  >Payment method (read-only)</label
                 >
                 <input
                   :value="bookingData.payment_method"
@@ -177,7 +214,7 @@
               </div>
               <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1"
-                  >Sale Amount (Read-only)</label
+                  >Sale amount (read-only)</label
                 >
                 <input
                   :value="bookingData.sale_amount"
@@ -188,7 +225,7 @@
               </div>
               <div>
                 <label class="block text-xs font-medium text-gray-700 mb-1"
-                  >Extra Collect</label
+                  >Extra collect</label
                 >
                 <input
                   v-model="editableData.extraCollect"
@@ -202,7 +239,7 @@
 
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1"
-              >Special Request</label
+              >Special request</label
             >
             <textarea
               v-model="editableData.specialRequest"
@@ -212,70 +249,146 @@
           </div>
         </div>
 
-        <!-- Message Preview -->
-        <div class="bg-gray-50 rounded-lg p-4 mt-6">
-          <p class="text-xs font-medium text-gray-700 mb-2">Message Preview:</p>
-          <pre class="text-xs text-gray-800 whitespace-pre-wrap font-mono">{{
-            formattedMessage
-          }}</pre>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex gap-3 pt-4">
-          <button
-            @click="$emit('close')"
-            :disabled="loading"
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+        <!-- STEP 2: Preview -->
+        <div v-if="currentStep === 2">
+          <div
+            class="bg-gray-50 rounded-lg p-3 mb-4 text-sm text-gray-600 flex items-center gap-2"
           >
-            Cancel
-          </button>
-          <button
-            @click="sendMessage"
-            :disabled="loading"
-            class="flex-1 px-4 py-2 bg-[#06C755] text-white rounded-lg hover:bg-[#05b04b] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            <span v-if="!loading">Save & Send to LINE</span>
-            <span v-else class="flex items-center gap-2">
-              <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                  fill="none"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              Saving & Sending...
-            </span>
-          </button>
+            <svg
+              class="w-4 h-4 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              />
+            </svg>
+            Review the message below before sending to LINE.
+          </div>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <p class="text-xs font-medium text-gray-700 mb-2">
+              Message preview:
+            </p>
+            <pre class="text-xs text-gray-800 whitespace-pre-wrap font-mono">{{
+              formattedMessage
+            }}</pre>
+          </div>
         </div>
       </div>
+
+      <!-- Footer buttons -->
+      <div class="flex gap-3 px-6 py-4 border-t border-gray-200">
+        <button
+          @click="handleLeft"
+          :disabled="loading"
+          class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+        >
+          {{ currentStep === 1 ? "Cancel" : "← Back" }}
+        </button>
+        <button
+          @click="handleRight"
+          :disabled="loading"
+          class="flex-1 px-4 py-2 bg-[#06C755] text-white rounded-lg hover:bg-[#05b04b] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {{ currentStep === 1 ? "Next: preview →" : "Save & send to LINE" }}
+        </button>
+      </div>
+
+      <!-- Confirm dialog overlay -->
+      <Transition name="fade">
+        <div
+          v-if="showConfirm"
+          class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center rounded-lg z-10"
+        >
+          <div class="bg-white rounded-xl shadow-xl p-6 w-72 text-center mx-4">
+            <div
+              class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3"
+            >
+              <svg
+                class="w-6 h-6 text-[#06C755]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
+              </svg>
+            </div>
+            <h3 class="text-base font-semibold text-gray-800 mb-2">
+              Send to LINE?
+            </h3>
+            <p class="text-sm text-gray-500 mb-5">
+              This will save the booking details and send the message to the
+              System LINE chat.
+            </p>
+            <div class="flex gap-2">
+              <button
+                @click="showConfirm = false"
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm"
+              >
+                Go back
+              </button>
+              <button
+                @click="sendMessage"
+                :disabled="loading"
+                class="flex-1 px-4 py-2 bg-[#06C755] text-white rounded-lg hover:bg-[#05b04b] text-sm flex items-center justify-center gap-1 disabled:bg-gray-400"
+              >
+                <span v-if="!loading">Yes, send</span>
+                <span v-else class="flex items-center gap-1">
+                  <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                      fill="none"
+                    />
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Sending...
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue"; // no Switch import
+import { ref, computed } from "vue";
 
 const props = defineProps({
-  bookingData: {
-    type: Object,
-    required: true,
-  },
+  bookingData: { type: Object, required: true },
 });
 
 const emit = defineEmits(["close", "send"]);
 
 const loading = ref(false);
+const currentStep = ref(1);
+const showConfirm = ref(false);
 
-// Plain const — not ref, not reactive, cannot be toggled
 const isDriverCollect = props.bookingData.is_driver_collect == 1;
 
 const editableData = ref({
@@ -323,7 +436,20 @@ ExtraCollect: ${extraCollectDisplay}
 SpecialRequest: ${editableData.value.specialRequest}`;
 });
 
-// LinePreviewModal.vue — sendMessage()
+function handleLeft() {
+  if (currentStep.value === 1) emit("close");
+  else currentStep.value = 1;
+}
+
+function handleRight() {
+  if (currentStep.value === 1) {
+    if (!editableData.value.pickupTime) return;
+    currentStep.value = 2;
+  } else {
+    showConfirm.value = true;
+  }
+}
+
 const sendMessage = () => {
   loading.value = true;
   emit("send", {
@@ -345,3 +471,14 @@ const sendMessage = () => {
   });
 };
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

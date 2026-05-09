@@ -443,7 +443,7 @@ function handleLeft() {
 
 function handleRight() {
   if (currentStep.value === 1) {
-    if (!editableData.value.pickupTime) return;
+    // if (!editableData.value.pickupTime) return;
     currentStep.value = 2;
   } else {
     showConfirm.value = true;

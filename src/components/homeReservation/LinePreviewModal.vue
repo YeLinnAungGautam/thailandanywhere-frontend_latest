@@ -85,8 +85,9 @@
           <span class="text-xs text-gray-500">Preview & send</span>
         </div>
 
-        <!-- STEP 1: Edit form -->
+        <!-- ══ STEP 1 ══════════════════════════════════════════════════════ -->
         <div v-if="currentStep === 1" class="space-y-3">
+          <!-- CRM ID + Customer name -->
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-medium text-gray-500 mb-1"
@@ -112,18 +113,20 @@
             </div>
           </div>
 
+          <!-- Customer contact -->
           <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1"
-              >Contact (read-only)</label
+            <label class="block text-xs font-medium text-gray-700 mb-1"
+              >Customer contact</label
             >
             <input
-              :value="editableData.contact"
-              disabled
+              v-model="editableData.carCustomerContact"
               type="text"
-              class="w-full px-3 py-2 border border-gray-200 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
+              placeholder="e.g. +66 81 234 5678"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
             />
           </div>
 
+          <!-- Service date + Pickup time -->
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-medium text-gray-500 mb-1"
@@ -137,9 +140,9 @@
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1"
-                >Pickup time <span class="text-red-500">*</span></label
-              >
+              <label class="block text-xs font-medium text-gray-700 mb-1">
+                Pickup time <span class="text-red-500">*</span>
+              </label>
               <input
                 v-model="editableData.pickupTime"
                 type="time"
@@ -148,6 +151,7 @@
             </div>
           </div>
 
+          <!-- Pickup / Dropoff -->
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1"
               >Pickup location</label
@@ -158,7 +162,6 @@
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
             />
           </div>
-
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1"
               >Dropoff location</label
@@ -170,6 +173,7 @@
             />
           </div>
 
+          <!-- Route plan -->
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1"
               >Route plan</label
@@ -181,6 +185,7 @@
             />
           </div>
 
+          <!-- Product variation -->
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1"
               >Product variation (read-only)</label
@@ -193,50 +198,164 @@
             />
           </div>
 
+          <!-- ── Driver collect toggle ──────────────────────────────────── -->
           <div
-            v-if="isDriverCollect"
-            class="bg-blue-50 border border-blue-200 rounded-lg p-4"
+            class="flex items-center justify-between py-2.5 px-3 border border-gray-200 rounded-md bg-gray-50"
           >
-            <p class="text-sm font-medium text-gray-800 mb-3">
-              Driver collect payment
-            </p>
-            <div class="grid grid-cols-3 gap-3">
-              <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1"
-                  >Payment method (read-only)</label
-                >
-                <input
-                  :value="bookingData.payment_method"
-                  disabled
-                  type="text"
-                  class="w-full px-3 py-2 border border-gray-200 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1"
-                  >Sale amount (read-only)</label
-                >
-                <input
-                  :value="bookingData.sale_amount"
-                  disabled
-                  type="text"
-                  class="w-full px-3 py-2 border border-gray-200 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1"
-                  >Extra collect</label
-                >
-                <input
-                  v-model="editableData.extraCollect"
-                  type="number"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
-                  placeholder="0.00"
-                />
-              </div>
+            <div>
+              <p class="text-sm font-medium text-gray-700">
+                Driver collect payment
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">
+                Driver collects money from customer on service day
+              </p>
             </div>
+            <button
+              type="button"
+              @click="
+                editableData.isDriverCollect = !editableData.isDriverCollect
+              "
+              :class="
+                editableData.isDriverCollect ? 'bg-[#06C755]' : 'bg-gray-300'
+              "
+              class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#06C755] focus:ring-offset-1"
+              role="switch"
+              :aria-checked="editableData.isDriverCollect"
+            >
+              <span
+                :class="
+                  editableData.isDriverCollect
+                    ? 'translate-x-5'
+                    : 'translate-x-0'
+                "
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+              />
+            </button>
           </div>
 
+          <!-- ── Payment section (visible only when toggle is ON) ───────── -->
+          <Transition
+            enter-active-class="transition-all duration-200 ease-out"
+            enter-from-class="opacity-0 -translate-y-1"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition-all duration-150 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 -translate-y-1"
+          >
+            <div
+              v-if="editableData.isDriverCollect"
+              class="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3"
+            >
+              <p
+                class="text-xs font-semibold text-green-800 uppercase tracking-wide"
+              >
+                Payment details
+              </p>
+
+              <!-- Payment method -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1"
+                  >Payment method</label
+                >
+                <input
+                  v-model="editableData.carPaymentMethod"
+                  type="text"
+                  placeholder="e.g. Cash, QR, Card"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
+                />
+              </div>
+
+              <!-- Sale amount (read-only) + Total collect (user input) -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-500 mb-1"
+                    >Sale amount (read-only)</label
+                  >
+                  <div class="relative">
+                    <input
+                      :value="saleAmount"
+                      disabled
+                      type="text"
+                      class="w-full px-3 py-2 border border-gray-200 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed pr-12"
+                    />
+                    <span
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400"
+                      >THB</span
+                    >
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-700 mb-1">
+                    Total collect <span class="text-red-500">*</span>
+                  </label>
+                  <div class="relative">
+                    <input
+                      v-model.number="editableData.carTotalCollect"
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#06C755] focus:border-transparent pr-12"
+                    />
+                    <span
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400"
+                      >THB</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Extra collect: auto-computed read-only display -->
+              <div
+                :class="[
+                  'flex items-center justify-between rounded-md px-3 py-2.5 border',
+                  computedExtraCollect < 0
+                    ? 'bg-red-50 border-red-200'
+                    : 'bg-white border-gray-200',
+                ]"
+              >
+                <div>
+                  <p class="text-xs font-medium text-gray-600">Extra collect</p>
+                  <p class="text-[10px] text-gray-400 mt-0.5">
+                    Total collect − Sale amount (auto)
+                  </p>
+                </div>
+                <p
+                  :class="[
+                    'text-xl font-semibold tabular-nums',
+                    computedExtraCollect < 0
+                      ? 'text-red-500'
+                      : 'text-[#06C755]',
+                  ]"
+                >
+                  {{ computedExtraCollect }}
+                  <span class="text-sm font-normal">THB</span>
+                </p>
+              </div>
+
+              <!-- Negative warning -->
+              <p
+                v-if="computedExtraCollect < 0"
+                class="text-xs text-red-500 flex items-center gap-1.5"
+              >
+                <svg
+                  class="w-3.5 h-3.5 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  />
+                </svg>
+                Total collect is less than the sale amount — please verify.
+              </p>
+            </div>
+          </Transition>
+
+          <!-- Special request -->
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1"
               >Special request</label
@@ -249,7 +368,7 @@
           </div>
         </div>
 
-        <!-- STEP 2: Preview -->
+        <!-- ══ STEP 2: Preview ════════════════════════════════════════════ -->
         <div v-if="currentStep === 2">
           <div
             class="bg-gray-50 rounded-lg p-3 mb-4 text-sm text-gray-600 flex items-center gap-2"
@@ -304,7 +423,7 @@
         </button>
       </div>
 
-      <!-- Confirm dialog overlay -->
+      <!-- Confirm overlay -->
       <Transition name="fade">
         <div
           v-if="showConfirm"
@@ -389,37 +508,56 @@ const loading = ref(false);
 const currentStep = ref(1);
 const showConfirm = ref(false);
 
-const isDriverCollect = props.bookingData.is_driver_collect == 1;
+// Sale amount from booking — fixed reference for the computation
+const saleAmount = Number(props.bookingData.sale_amount) || 0;
 
+// ── All editable state in one ref ─────────────────────────────────────────────
 const editableData = ref({
   crmId: props.bookingData.crm_id || "",
   customerName: props.bookingData.customer_name || "",
-  contact: props.bookingData.contact || "null",
+  contact: props.bookingData.contact || "",
   serviceDate: props.bookingData.service_date || "",
   pickupTime: props.bookingData.pickup_time || "",
   pickupLocation: props.bookingData.pickup_location || "",
   dropoffLocation: props.bookingData.dropoff_location || "",
   routePlan: props.bookingData.route_plan || "",
   productVariation: props.bookingData.product_variation || "",
-  extraCollect: props.bookingData.extra_collect || "0",
-  specialRequest:
-    props.bookingData.special_request || "Good Car and Good Driver",
+  specialRequest: props.bookingData.special_request || "",
+  // toggle seeded from booking (null → false)
+  isDriverCollect: props.bookingData.is_driver_collect == 1,
+  // new payment fields
+  carCustomerContact: props.bookingData.car_customer_contact || "",
+  carPaymentMethod:
+    props.bookingData.car_payment_method ||
+    props.bookingData.payment_method ||
+    "",
+  // user enters this; extra_collect is derived
+  carTotalCollect: Number(props.bookingData.car_total_collect) || 0,
 });
 
+// extra collect = total collect − sale amount  (live, read-only)
+const computedExtraCollect = computed(
+  () => (Number(editableData.value.carTotalCollect) || 0) - saleAmount,
+);
+
+// ── LINE message ──────────────────────────────────────────────────────────────
 const formattedMessage = computed(() => {
-  const paymentDisplay = isDriverCollect
-    ? props.bookingData.payment_method || "xxxx"
-    : "xxxx";
-  const saleAmountDisplay = isDriverCollect
-    ? props.bookingData.sale_amount || "xxxx"
-    : "xxxx";
-  const extraCollectDisplay = isDriverCollect
-    ? editableData.value.extraCollect || "0"
-    : "0";
+  const contact =
+    editableData.value.carCustomerContact || editableData.value.contact || "-";
+
+  const paymentBlock = editableData.value.isDriverCollect
+    ? `\nPayment Method: ${editableData.value.carPaymentMethod || "-"}
+Sale Amount: ${saleAmount}
+Total Collect: ${editableData.value.carTotalCollect || 0}
+Extra Collect: ${computedExtraCollect.value}`
+    : `\nPayment Method: xxxx
+Sale Amount: xxxx
+Total Collect: xxxx
+Extra Collect: xxxx`;
 
   return `CRMID: ${editableData.value.crmId}
 C. Name: ${editableData.value.customerName}
-Contact: ${editableData.value.contact}
+Contact: ${contact}
 
 S.Date: ${editableData.value.serviceDate}
 Pickup Time: ${editableData.value.pickupTime}
@@ -428,28 +566,23 @@ Dropoff Location: ${editableData.value.dropoffLocation}
 
 Routeplan: ${editableData.value.routePlan}
 
-Product Variation: ${editableData.value.productVariation}
-PaymentMethod: ${paymentDisplay}
-SaleAmount: ${saleAmountDisplay}
-ExtraCollect: ${extraCollectDisplay}
+Product Variation: ${editableData.value.productVariation}${paymentBlock}
 
-SpecialRequest: ${editableData.value.specialRequest}`;
+Special Request: ${editableData.value.specialRequest}`;
 });
 
+// ── Navigation ────────────────────────────────────────────────────────────────
 function handleLeft() {
   if (currentStep.value === 1) emit("close");
   else currentStep.value = 1;
 }
 
 function handleRight() {
-  if (currentStep.value === 1) {
-    // if (!editableData.value.pickupTime) return;
-    currentStep.value = 2;
-  } else {
-    showConfirm.value = true;
-  }
+  if (currentStep.value === 1) currentStep.value = 2;
+  else showConfirm.value = true;
 }
 
+// ── Send ──────────────────────────────────────────────────────────────────────
 const sendMessage = () => {
   loading.value = true;
   emit("send", {
@@ -464,9 +597,13 @@ const sendMessage = () => {
       dropoff_location: editableData.value.dropoffLocation,
       route_plan: editableData.value.routePlan,
       product_variation: editableData.value.productVariation,
-      extra_collect: editableData.value.extraCollect,
       special_request: editableData.value.specialRequest,
-      is_driver_collect: isDriverCollect ? 1 : 0,
+      is_driver_collect: editableData.value.isDriverCollect ? 1 : 0,
+      car_customer_contact: editableData.value.carCustomerContact,
+      car_payment_method: editableData.value.carPaymentMethod,
+      car_total_collect: editableData.value.carTotalCollect,
+      // send the computed value so Laravel can store/use it directly
+      extra_collect: computedExtraCollect.value,
     },
   });
 };

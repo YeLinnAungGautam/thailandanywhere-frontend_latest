@@ -7,6 +7,24 @@
       <p class="text-lg font-semibold tracking-wider mr-4">Filter:</p>
       <div class="flex justify-start items-center gap-3">
         <div class="flex w-full text-xs justify-end items-center gap-4">
+          <div
+            class="flex justify-center items-center gap-0.5 border overflow-hidden bg-black/10 rounded-md"
+          >
+            <p
+              class="px-2 py-2"
+              :class="agent_id == user?.id ? 'bg-white' : ''"
+              @click="agent_id = user?.id"
+            >
+              Mine
+            </p>
+            <p
+              class="px-3 py-2"
+              :class="agent_id == '' ? 'bg-white' : ''"
+              @click="agent_id = ''"
+            >
+              All
+            </p>
+          </div>
           <p
             @click="changeServiceDate('today&90day')"
             class="flex gap-2 justify-start items-center cursor-pointer whitespace-nowrap"
@@ -75,7 +93,7 @@
           v-model="searchId"
           v-if="part != 'vantour'"
           type="text"
-          class="h-9 text-sm w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md focus:ring-0 focus:outline-none text-gray-500"
+          class="h-9 text-sm w-4/5 border px-4 py-2 rounded-xl focus:ring-0 focus:outline-none text-gray-500"
           placeholder="Search CRM ID"
         />
       </div>
@@ -626,11 +644,12 @@ const getWithDate = async (date) => {
     first: first,
     second: second,
   };
-  if (user.value.role == "reservation" || user.value.role == "super_admin") {
-    data.agent_id = agent_id.value;
-  } else {
-    data.agent_id = user.value.id;
-  }
+  // if (user.value.role == "reservation" || user.value.role == "super_admin") {
+  //   data.agent_id = agent_id.value;
+  // } else {
+  //   data.agent_id = user.value.id;
+  // }
+  data.agent_id = agent_id.value;
   if (partOfReservation.value != "") {
     data.supplier_id = partOfReservation.value;
   }
@@ -936,11 +955,21 @@ const onSubmitHandler = async () => {
   }
 };
 
+watch(agent_id, () => {
+  getWithDate(dateFilterRange.value);
+});
+
 onMounted(async () => {
   changeServiceDate("today");
 
   if (route.query.id) {
     await openQueryModal(route.query.id);
+  }
+
+  if (user.value.role == "reservation" || user.value.role == "super_admin") {
+    agent_id.value = "";
+  } else {
+    agent_id.value = user.value.id;
   }
 });
 </script>

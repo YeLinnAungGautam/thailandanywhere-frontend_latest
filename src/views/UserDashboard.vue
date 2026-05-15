@@ -326,6 +326,99 @@
             <p class="text-red-500 text-sm">Expense Graph</p>
           </div>
         </div>
+
+        <div
+          @click="navigateTo('/home/reservations')"
+          class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden border border-blue-100 hover:border-blue-300 transform hover:-translate-y-1"
+        >
+          <div
+            class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded-bl-full opacity-10 group-hover:opacity-20 transition-opacity"
+          ></div>
+          <div class="p-6 relative z-10">
+            <div class="flex items-center justify-between mb-4">
+              <div
+                class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  id="fi_8622708"
+                  viewBox="0 0 60 60"
+                  width="30"
+                  fill="white"
+                  height="30"
+                >
+                  <path
+                    stroke-width="2"
+                    d="M56,11H50a2,2,0,0,0-2-2h-.661a5.7,5.7,0,0,0-8.671,0H38a2,2,0,0,0-2,2H30a4,4,0,0,0-3.858,3H12.162a3.994,3.994,0,0,0-3.794,2.735L6.262,23.051A2.981,2.981,0,0,0,4,22H3a3,3,0,0,0-.524,5.947l-1.021.613A3.02,3.02,0,0,0,0,31.133V44a3,3,0,0,0,2,2.816V49a3,3,0,0,0,3,3H9a3,3,0,0,0,3-3V47H26v2a4,4,0,0,0,4,4H56a4,4,0,0,0,4-4V15A4,4,0,0,0,56,11ZM38,11h1.24a1,1,0,0,0,.908-.581A3.126,3.126,0,0,1,43,9a3.151,3.151,0,0,1,2.864,1.426A1,1,0,0,0,46.77,11L48,11v2H38ZM26,35H14a2,2,0,0,1,2-2H26ZM10.266,17.368A2,2,0,0,1,12.162,16H26V26H7.387ZM2,25a1,1,0,0,1,1-1H4a1,1,0,0,1,1,1v1H3A1,1,0,0,1,2,25Zm8,24a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V47h6ZM3,45a1,1,0,0,1-1-1V31.133a1.01,1.01,0,0,1,.485-.859L6.277,28H26v3H16a4,4,0,0,0-4,4,2,2,0,0,0,2,2H26v3H15a1,1,0,0,0,0,2H26v3Zm55,4a2,2,0,0,1-2,2H30a2,2,0,0,1-2-2V15a2,2,0,0,1,2-2h6a2,2,0,0,0,2,2H48a2,2,0,0,0,2-2h6a2,2,0,0,1,2,2Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M7,30a3,3,0,0,0-3,3v2a3,3,0,0,0,6,0V33A3,3,0,0,0,7,30Zm1,5a1,1,0,0,1-2,0V33a1,1,0,0,1,2,0Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M38.168,18.445l-3.323,4.986-1.138-1.138a1,1,0,0,0-1.414,1.414l2,2A1,1,0,0,0,35,26c.032,0,.065,0,.1,0a1,1,0,0,0,.733-.44l4-6a1,1,0,1,0-1.664-1.11Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M52,20H43a1,1,0,0,0,0,2h9a1,1,0,0,0,0-2Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M43,26h5.818a1,1,0,0,0,0-2H43a1,1,0,0,0,0,2Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M38.168,28.445l-3.323,4.986-1.138-1.138a1,1,0,0,0-1.414,1.414l2,2A1,1,0,0,0,35,36c.032,0,.065,0,.1-.005a1,1,0,0,0,.733-.44l4-6a1,1,0,1,0-1.664-1.11Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M52,30H43a1,1,0,0,0,0,2h9a1,1,0,0,0,0-2Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M43,36h5.818a1,1,0,0,0,0-2H43a1,1,0,0,0,0,2Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M38.168,38.445l-3.323,4.986-1.138-1.138a1,1,0,0,0-1.414,1.414l2,2A1,1,0,0,0,35,46c.032,0,.065,0,.1-.005a1,1,0,0,0,.733-.44l4-6a1,1,0,1,0-1.664-1.11Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M52,40H43a1,1,0,0,0,0,2h9a1,1,0,0,0,0-2Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M48.818,44H43a1,1,0,0,0,0,2h5.818a1,1,0,0,0,0-2Z"
+                  ></path>
+                  <path
+                    stroke-width="2"
+                    d="M8,40H6a1,1,0,0,0,0,2H8a1,1,0,0,0,0-2Z"
+                  ></path>
+                </svg>
+              </div>
+              <span
+                class="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </span>
+            </div>
+            <h3 class="text-xl font-semibold text-blue-800 mb-2">Car Order</h3>
+            <p class="text-blue-500 text-sm">Car Order</p>
+          </div>
+        </div>
       </div>
     </div>
   </Layout>

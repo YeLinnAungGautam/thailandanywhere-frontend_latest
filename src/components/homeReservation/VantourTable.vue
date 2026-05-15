@@ -47,14 +47,17 @@ const showDropDown = ref(false);
 const showLineModal = ref(false); // LINE modal state
 const lineBookingData = ref(null); // Data for LINE modal
 
-// Add this function to handle opening LINE modal
+// Open LINE modal — seeds all fields including the 3 new ones
+// ── Replace the two functions inside <script setup> ──────────────────────────
+
+// Open LINE modal — seeds all fields including the 3 new ones
 const openLineModal = async () => {
   try {
     const res = await carBookingStore.getDetailAction(props?.data.id);
 
     if (res.status == 1) {
       lineBookingData.value = {
-        id: props?.data.id, // Add booking ID for update
+        id: props?.data.id,
         crm_id: props?.data.crm_id,
         customer_name: props?.data.customer_name,
         contact: res?.result?.driver_contact || "null",
@@ -64,26 +67,71 @@ const openLineModal = async () => {
         dropoff_location: props?.data.dropoff_location || "",
         route_plan: props?.data.route_plan || "",
         product_variation: props?.data.variation_name,
-        payment_method:
-          props?.data.is_driver_collect == 1
-            ? props?.data.payment_method
-            : "xxxx",
-        sale_amount:
-          props?.data.is_driver_collect == 1
-            ? props?.data.selling_price
-            : "xxxx",
-        extra_collect:
-          props?.data.is_driver_collect == 1
-            ? props?.data.extra_collect_amount
-            : "0",
+        // Always send the real values — the modal toggle controls visibility.
+        // If we sent "xxxx" here, the sale_amount computation would break
+        // when the user flips is_driver_collect ON inside the modal.
+        payment_method: props?.data.payment_method || "",
+        sale_amount: props?.data.selling_price || 0,
+        extra_collect: props?.data.extra_collect_amount || 0,
         special_request: props?.data.special_request || "",
         is_driver_collect: props?.data.is_driver_collect,
+        // ── new fields from DB ───────────────────────────────────────────
+        car_customer_contact: res?.result?.car_customer_contact || "",
+        car_total_collect: res?.result?.car_total_collect || "",
+        car_payment_method: res?.result?.car_payment_method || "",
       };
 
       showLineModal.value = true;
     }
   } catch (error) {
     toast.error("Failed to load booking details");
+  }
+};
+
+// Save booking fields + send LINE message
+const handleSendToLine = async (data) => {
+  try {
+    const payload = {
+      pickup_time: data.editedData.pickup_time,
+      pickup_location: data.editedData.pickup_location,
+      dropoff_location: data.editedData.dropoff_location,
+      route_plan: data.editedData.route_plan,
+      special_request: data.editedData.special_request,
+      is_driver_collect: data.editedData.is_driver_collect,
+      extra_collect_amount: data.editedData.is_driver_collect
+        ? data.editedData.extra_collect
+        : "0",
+      // ── new fields ──────────────────────────────────────────────────────
+      car_customer_contact: data.editedData.car_customer_contact,
+      car_total_collect: data.editedData.car_total_collect,
+      car_payment_method: data.editedData.car_payment_method,
+      // ── diff / history ──────────────────────────────────────────────────
+      message: data.message,
+      edited_data: data.editedData,
+    };
+
+    const saveRes = await carBookingStore.sendLineAction(
+      lineBookingData.value.id,
+      payload,
+    );
+
+    if (saveRes.status != 1) {
+      toast.error("Failed to save booking");
+      return;
+    }
+
+    // Send to LINE via Node.js — use the assembled message from Laravel
+    await messageStore.sendLineMessage(
+      saveRes.result?.sent_message ?? data.message,
+    );
+
+    toast.success("Saved & sent to LINE");
+    showLineModal.value = false;
+    lineBookingData.value = null;
+    emit("change", "updated");
+  } catch (error) {
+    console.error("Error sending to LINE:", error);
+    toast.error(error.response?.data?.message || "Failed to send to LINE");
   }
 };
 
@@ -134,50 +182,6 @@ const openLineModal = async () => {
 //   }
 // };
 
-const handleSendToLine = async (data) => {
-  try {
-    // ── 1. Save booking fields + append line_history (Laravel) ──────────
-    const payload = {
-      pickup_time: data.editedData.pickup_time,
-      pickup_location: data.editedData.pickup_location,
-      dropoff_location: data.editedData.dropoff_location,
-      route_plan: data.editedData.route_plan,
-      special_request: data.editedData.special_request,
-      is_driver_collect: data.editedData.is_driver_collect,
-      extra_collect_amount: data.editedData.is_driver_collect
-        ? data.editedData.extra_collect
-        : "0",
-      message: data.message,
-      edited_data: data.editedData, // snapshot for diff
-    };
-
-    const saveRes = await carBookingStore.sendLineAction(
-      lineBookingData.value.id,
-      payload,
-    );
-    console.log(saveRes, "this is save res");
-
-    if (saveRes.status != 1) {
-      toast.error("Failed to save booking");
-      return;
-    }
-
-    // ── 2. Send to LINE via Node.js — use sent_message from Laravel ──────
-    //    Laravel already appended the diff block to sent_message
-    await messageStore.sendLineMessage(
-      saveRes.result?.sent_message ?? data.message,
-    );
-
-    toast.success("Saved & sent to LINE");
-    showLineModal.value = false;
-    lineBookingData.value = null;
-    emit("change", "updated");
-  } catch (error) {
-    console.error("Error sending to LINE:", error);
-    toast.error(error.response?.data?.message || "Failed to send to LINE");
-  }
-};
-
 // Close LINE modal
 const closeLineModal = () => {
   showLineModal.value = false;
@@ -220,7 +224,7 @@ const supplierAction = async () => {
 const driverCarNumberList = ref(null);
 const driverAction = async (id) => {
   console.log(id);
-  const res = await driverStore.getDetailAction(id);
+  const res = await driverStore.getDetailAction(id?.id ? id?.id : id);
   console.log(res, "this is driver detail action");
   let data = res.result;
   formData.value.driver_contact = data.contact;

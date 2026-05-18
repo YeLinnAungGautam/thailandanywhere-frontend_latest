@@ -115,15 +115,38 @@
 
           <!-- Customer contact -->
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1"
-              >Customer contact</label
-            >
+            <label class="block text-xs font-medium text-gray-700 mb-1">
+              Customer contact <span class="text-red-500">*</span>
+            </label>
             <input
               v-model="editableData.carCustomerContact"
+              @input="clearError('carCustomerContact')"
               type="text"
               placeholder="e.g. +66 81 234 5678"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
+              :class="[
+                'w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent',
+                validationErrors.carCustomerContact
+                  ? 'border-red-400 bg-red-50'
+                  : 'border-gray-300',
+              ]"
             />
+            <p
+              v-if="validationErrors.carCustomerContact"
+              class="mt-1 text-xs text-red-500 flex items-center gap-1"
+            >
+              <svg
+                class="w-3 h-3 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              {{ validationErrors.carCustomerContact }}
+            </p>
           </div>
 
           <!-- Service date + Pickup time -->
@@ -145,44 +168,136 @@
               </label>
               <input
                 v-model="editableData.pickupTime"
+                @change="clearError('pickupTime')"
                 type="time"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
+                :class="[
+                  'w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent',
+                  validationErrors.pickupTime
+                    ? 'border-red-400 bg-red-50'
+                    : 'border-gray-300',
+                ]"
               />
+              <p
+                v-if="validationErrors.pickupTime"
+                class="mt-1 text-xs text-red-500 flex items-center gap-1"
+              >
+                <svg
+                  class="w-3 h-3 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                {{ validationErrors.pickupTime }}
+              </p>
             </div>
           </div>
 
           <!-- Pickup / Dropoff -->
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1"
-              >Pickup location</label
-            >
+            <label class="block text-xs font-medium text-gray-700 mb-1">
+              Pickup location <span class="text-red-500">*</span>
+            </label>
             <textarea
               v-model="editableData.pickupLocation"
+              @input="clearError('pickupLocation')"
               rows="2"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
+              :class="[
+                'w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent',
+                validationErrors.pickupLocation
+                  ? 'border-red-400 bg-red-50'
+                  : 'border-gray-300',
+              ]"
             />
+            <p
+              v-if="validationErrors.pickupLocation"
+              class="mt-1 text-xs text-red-500 flex items-center gap-1"
+            >
+              <svg
+                class="w-3 h-3 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              {{ validationErrors.pickupLocation }}
+            </p>
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1"
-              >Dropoff location</label
-            >
+            <label class="block text-xs font-medium text-gray-700 mb-1">
+              Dropoff location <span class="text-red-500">*</span>
+            </label>
             <textarea
               v-model="editableData.dropoffLocation"
+              @input="clearError('dropoffLocation')"
               rows="2"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
+              :class="[
+                'w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent',
+                validationErrors.dropoffLocation
+                  ? 'border-red-400 bg-red-50'
+                  : 'border-gray-300',
+              ]"
             />
+            <p
+              v-if="validationErrors.dropoffLocation"
+              class="mt-1 text-xs text-red-500 flex items-center gap-1"
+            >
+              <svg
+                class="w-3 h-3 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              {{ validationErrors.dropoffLocation }}
+            </p>
           </div>
 
           <!-- Route plan -->
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1"
-              >Route plan</label
-            >
+            <label class="block text-xs font-medium text-gray-700 mb-1">
+              Route plan <span class="text-red-500">*</span>
+            </label>
             <textarea
               v-model="editableData.routePlan"
+              @input="clearError('routePlan')"
               rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
+              :class="[
+                'w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent',
+                validationErrors.routePlan
+                  ? 'border-red-400 bg-red-50'
+                  : 'border-gray-300',
+              ]"
             />
+            <p
+              v-if="validationErrors.routePlan"
+              class="mt-1 text-xs text-red-500 flex items-center gap-1"
+            >
+              <svg
+                class="w-3 h-3 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              {{ validationErrors.routePlan }}
+            </p>
           </div>
 
           <!-- Product variation -->
@@ -254,15 +369,38 @@
 
               <!-- Payment method -->
               <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1"
-                  >Payment method</label
-                >
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Payment method <span class="text-red-500">*</span>
+                </label>
                 <input
                   v-model="editableData.carPaymentMethod"
+                  @input="clearError('carPaymentMethod')"
                   type="text"
                   placeholder="e.g. Cash, QR, Card"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
+                  :class="[
+                    'w-full px-3 py-2 border rounded-md bg-white focus:ring-2 focus:ring-[#06C755] focus:border-transparent',
+                    validationErrors.carPaymentMethod
+                      ? 'border-red-400 bg-red-50'
+                      : 'border-gray-300',
+                  ]"
                 />
+                <p
+                  v-if="validationErrors.carPaymentMethod"
+                  class="mt-1 text-xs text-red-500 flex items-center gap-1"
+                >
+                  <svg
+                    class="w-3 h-3 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  {{ validationErrors.carPaymentMethod }}
+                </p>
               </div>
 
               <!-- Sale amount (read-only) + Total collect (user input) -->
@@ -291,16 +429,39 @@
                   <div class="relative">
                     <input
                       v-model.number="editableData.carTotalCollect"
+                      @input="clearError('carTotalCollect')"
                       type="number"
                       min="0"
                       placeholder="0"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#06C755] focus:border-transparent pr-12"
+                      :class="[
+                        'w-full px-3 py-2 border rounded-md bg-white focus:ring-2 focus:ring-[#06C755] focus:border-transparent pr-12',
+                        validationErrors.carTotalCollect
+                          ? 'border-red-400 bg-red-50'
+                          : 'border-gray-300',
+                      ]"
                     />
                     <span
                       class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400"
                       >THB</span
                     >
                   </div>
+                  <p
+                    v-if="validationErrors.carTotalCollect"
+                    class="mt-1 text-xs text-red-500 flex items-center gap-1"
+                  >
+                    <svg
+                      class="w-3 h-3 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    {{ validationErrors.carTotalCollect }}
+                  </p>
                 </div>
               </div>
 
@@ -365,6 +526,27 @@
               rows="2"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#06C755] focus:border-transparent"
             />
+          </div>
+
+          <!-- Summary error banner -->
+          <div
+            v-if="Object.keys(validationErrors).length > 0"
+            class="flex items-center gap-2 px-3 py-2.5 bg-red-50 border border-red-200 rounded-md"
+          >
+            <svg
+              class="w-4 h-4 text-red-500 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <p class="text-xs text-red-600">
+              Please fill in all required fields before continuing.
+            </p>
           </div>
         </div>
 
@@ -507,6 +689,7 @@ const emit = defineEmits(["close", "send"]);
 const loading = ref(false);
 const currentStep = ref(1);
 const showConfirm = ref(false);
+const validationErrors = ref({});
 
 // Sale amount from booking — fixed reference for the computation
 const saleAmount = Number(props.bookingData.sale_amount) || 0;
@@ -539,6 +722,48 @@ const editableData = ref({
 const computedExtraCollect = computed(
   () => (Number(editableData.value.carTotalCollect) || 0) - saleAmount,
 );
+
+// ── Validation ────────────────────────────────────────────────────────────────
+function clearError(field) {
+  if (validationErrors.value[field]) {
+    const errors = { ...validationErrors.value };
+    delete errors[field];
+    validationErrors.value = errors;
+  }
+}
+
+function validateStep1() {
+  const errors = {};
+
+  const requiredFields = [
+    { key: "carCustomerContact", label: "Customer contact" },
+    { key: "pickupTime", label: "Pickup time" },
+    { key: "pickupLocation", label: "Pickup location" },
+    { key: "dropoffLocation", label: "Dropoff location" },
+    { key: "routePlan", label: "Route plan" },
+  ];
+
+  for (const field of requiredFields) {
+    const val = editableData.value[field.key];
+    if (!val || String(val).trim() === "") {
+      errors[field.key] = `${field.label} is required`;
+    }
+  }
+
+  // Payment fields required when driver collect is ON
+  if (editableData.value.isDriverCollect) {
+    if (!editableData.value.carPaymentMethod?.trim()) {
+      errors.carPaymentMethod = "Payment method is required";
+    }
+    const tc = editableData.value.carTotalCollect;
+    if (tc === null || tc === "" || isNaN(Number(tc))) {
+      errors.carTotalCollect = "Total collect is required";
+    }
+  }
+
+  validationErrors.value = errors;
+  return Object.keys(errors).length === 0;
+}
 
 // ── LINE message ──────────────────────────────────────────────────────────────
 const formattedMessage = computed(() => {
@@ -578,8 +803,12 @@ function handleLeft() {
 }
 
 function handleRight() {
-  if (currentStep.value === 1) currentStep.value = 2;
-  else showConfirm.value = true;
+  if (currentStep.value === 1) {
+    if (!validateStep1()) return;
+    currentStep.value = 2;
+  } else {
+    showConfirm.value = true;
+  }
 }
 
 // ── Send ──────────────────────────────────────────────────────────────────────

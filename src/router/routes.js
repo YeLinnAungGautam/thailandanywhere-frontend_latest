@@ -122,6 +122,7 @@ import Availability from "../views/Availability.vue";
 import AvailabilityAnalytics from "../views/AvailabilityAnalytics.vue";
 import AllowmentChecker from "../views/AllowmentChecker.vue";
 import HotelReport from "../views/HotelReport.vue";
+import ExternalPDF from "../views/ExternalPDF.vue";
 
 const routes = [
   {
@@ -489,6 +490,11 @@ const routes = [
     path: "/accounting",
     name: "accounting",
     component: Accounting,
+  },
+  {
+    path: "/external_pdf",
+    name: "externalPDF",
+    component: ExternalPDF,
   },
   {
     path: "/reservation/update/:id/:crm",

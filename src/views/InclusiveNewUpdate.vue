@@ -160,21 +160,21 @@ const onSubmitHandler = async () => {
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "products[" + x + "][product_id]",
-      formData.value.items[x].product_id
+      formData.value.items[x].product_id,
     );
     frmData.append("products[" + x + "][day]", formData.value.items[x].day);
     formData.value.items[x].cost_price
       ? frmData.append(
           "products[" + x + "][cost_price]",
-          formData.value.items[x].cost_price
+          formData.value.items[x].cost_price,
         )
       : frmData.append(
           "products[" + x + "][cost_price]",
-          formData.value.items[x].selling_price
+          formData.value.items[x].selling_price,
         );
     frmData.append(
       "products[" + x + "][selling_price]",
-      formData.value.items[x].selling_price
+      formData.value.items[x].selling_price,
     );
     frmData.append("products[" + x + "][quantity]", 1);
   }
@@ -183,26 +183,26 @@ const onSubmitHandler = async () => {
     formData.value.items[x].product_type == "3"
       ? frmData.append(
           "products[" + x + "][car_id]",
-          formData.value.items[x].car_id
+          formData.value.items[x].car_id,
         )
       : "";
     formData.value.items[x].product_type == "4"
       ? frmData.append(
           "products[" + x + "][variation_id]",
-          formData.value.items[x].car_id
+          formData.value.items[x].car_id,
         )
       : "";
     formData.value.items[x].product_type == "5"
       ? frmData.append(
           "products[" + x + "][room_id]",
-          formData.value.items[x].car_id
+          formData.value.items[x].car_id,
         )
       : "";
 
     formData.value.items[x].product_type == "6"
       ? frmData.append(
           "products[" + x + "][ticket_id]",
-          formData.value.items[x].car_id
+          formData.value.items[x].car_id,
         )
       : "";
   }
@@ -211,51 +211,57 @@ const onSubmitHandler = async () => {
   try {
     const response = await inclusiveStore.updateAction(
       frmData,
-      route.params.id
+      route.params.id,
     );
     const frmData2 = new FormData();
     for (let i = 0; i < formData.value.details.length; i++) {
       frmData2.append(
         `details[${i}][day_name]`,
-        formData.value.details[i].day_name
+        formData.value.details[i].day_name,
       );
       frmData2.append(`details[${i}][title]`, formData.value.details[i].title);
       frmData2.append(
         `details[${i}][summary]`,
-        formData.value.details[i].summary
+        formData.value.details[i].summary,
       );
       frmData2.append(
         `details[${i}][summary_mm]`,
-        formData.value.details[i].summary_mm
+        formData.value.details[i].summary_mm,
       );
       frmData2.append(`details[${i}][meals]`, formData.value.details[i].meals);
       frmData2.append(
         `details[${i}][cities]`,
-        formData.value.details[i].cities
+        formData.value.details[i].cities,
       );
       if (formData.value.details[i].destinations.length > 0) {
         frmData2.append(
           `details[${i}][destinations]`,
-          formData.value.details[i].destinations
+          formData.value.details[i].destinations,
         );
       } else {
         frmData2.append(`details[${i}][destinations]`, "");
       }
-      if (formData.value.details[i].restaurants && formData.value.details[i].restaurants.length > 0) {
-        frmData2.append(`details[${i}][restaurants]`, formData.value.details[i].restaurants);
+      if (
+        formData.value.details[i].restaurants &&
+        formData.value.details[i].restaurants.length > 0
+      ) {
+        frmData2.append(
+          `details[${i}][restaurants]`,
+          formData.value.details[i].restaurants,
+        );
       } else {
         frmData2.append(`details[${i}][restaurants]`, "");
       }
       if (formData.value.details[i].image) {
         frmData2.append(
           `details[${i}][image]`,
-          formData.value.details[i].image
+          formData.value.details[i].image,
         );
       }
     }
     const res = await inclusiveStore.addNewDetailAction(
       frmData2,
-      route.params.id
+      route.params.id,
     );
     console.log(res, "====================================");
     formData.value = {
@@ -282,7 +288,7 @@ const onSubmitHandler = async () => {
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
-      error
+      error,
     );
     if (error.response.data.errors) {
       errors.value = error.response.data.errors;
@@ -510,6 +516,103 @@ watch(session, (newValue) => {
   });
 });
 
+const copyItinerary = () => {
+  const lines = [];
+
+  lines.push(
+    `Draw an itinerary design for the following itinerary. Please see the attached image as reference. Make sure you use the correct photos for each destination. Remove times in the image. Add more colors and make design more modern.`,
+  );
+  lines.push("");
+
+  const dayGroups = {};
+  formData.value.items.forEach((item) => {
+    const d = String(item.day);
+    if (!dayGroups[d]) dayGroups[d] = { vans: [], tickets: [], hotels: [] };
+    if (item.product_type === "1" || item.product_type === "3") {
+      dayGroups[d].vans.push(item);
+    } else if (item.product_type === "4") {
+      dayGroups[d].tickets.push(item);
+    } else if (item.product_type === "5") {
+      dayGroups[d].hotels.push(item);
+    }
+  });
+
+  const allDays = [
+    ...new Set([
+      ...Object.keys(dayGroups),
+      ...formData.value.details.map((d) => String(d.day_name)),
+    ]),
+  ].sort((a, b) => Number(a) - Number(b));
+
+  const lunchKeywords = ["dream world", "nong nooch", "safari world"];
+
+  allDays.forEach((day, idx) => {
+    const detail = formData.value.details.find(
+      (d) => String(d.day_name) === day,
+    );
+    const group = dayGroups[day] || { vans: [], tickets: [], hotels: [] };
+
+    const cityNames = detail?.cities?.length
+      ? detail.cities
+          .map((c) => (typeof c === "object" ? c.name : c))
+          .join(" → ")
+      : "";
+
+    lines.push(
+      `Day ${day}${cityNames ? " : " + cityNames : ""}  ( - / - / - )`,
+    );
+
+    if (idx === 0) {
+      lines.push(`• Airport pickup`);
+    }
+
+    group.vans.forEach((v) => {
+      lines.push(
+        `• ${v.product_name}${v.item_name ? " (" + v.item_name + ")" : ""}`,
+      );
+    });
+
+    group.tickets.forEach((t) => {
+      const nameLower = t.product_name.toLowerCase();
+      const hasLunch = lunchKeywords.some((kw) => nameLower.includes(kw));
+      const label = `• ${t.product_name}${
+        t.item_name ? " (" + t.item_name + ")" : ""
+      }`;
+      lines.push(hasLunch ? `${label}  (lunch included)` : label);
+    });
+
+    group.hotels.forEach((h) => {
+      lines.push(
+        `• ${h.product_name}${h.item_name ? " (" + h.item_name + ")" : ""}`,
+      );
+    });
+
+    if (idx === 0) {
+      lines.push(`• Drop off Hotel`);
+    }
+
+    if (idx === allDays.length - 1) {
+      lines.push(`• Airport drop off`);
+    }
+
+    if (idx < allDays.length - 1) {
+      lines.push("");
+      lines.push("---");
+      lines.push("");
+    }
+  });
+
+  const text = lines.join("\n");
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      toast.success("Itinerary copied to clipboard!");
+    })
+    .catch(() => {
+      toast.error("Failed to copy.");
+    });
+};
+
 onMounted(async () => {
   session.value = route.query.session ? route.query.session : 1;
   await getDetail();
@@ -520,8 +623,14 @@ onMounted(async () => {
   <Layout class="">
     <!-- header part -->
     <div
-      class="flex justify-start py-3 overflow-x-scroll overflow-y-hidden no-sidebar bg-white border-b border-gray-200 px-8 gap-x-2 items-center"
+      class="flex justify-start pl-1 py-3 pr-3 overflow-x-scroll w-[92vw] overflow-y-hidden no-sidebar bg-white border-b border-gray-200 px-8 gap-x-2 items-center"
     >
+      <button
+        @click="copyItinerary"
+        class="flex items-center gap-1 bg-blue-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+      >
+        <i class="ti ti-copy"></i> Copy
+      </button>
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
         :class="session == 1 ? '' : 'opacity-40'"

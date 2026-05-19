@@ -13,6 +13,12 @@
           <p class="text-xs font-light">{{ i.des }}</p>
         </div>
       </div>
+      <div v-if="step == 'bank_verify'">
+        <BankVerifyComponent />
+      </div>
+      <div v-if="step == 'incoming'">
+        <IncomeAccountVerify />
+      </div>
     </Layout>
   </div>
 </template>
@@ -20,6 +26,8 @@
 <script setup>
 import { ref } from "vue";
 import Layout from "./Layout.vue";
+import BankVerifyComponent from "./BankVerifyComponent.vue";
+import IncomeAccountVerify from "./IncomeAccountVerify.vue";
 
 const step = ref("bank_verify");
 

@@ -7,11 +7,11 @@
         <h1 class="text-xl font-bold text-[#FF613c] tracking-tight">
           Bank Verify
         </h1>
-        <span
+        <!-- <span
           class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full"
         >
           {{ cashImages?.total ?? 0 }} records
-        </span>
+        </span> -->
       </div>
       <div class="flex items-center gap-2">
         <YearPickerVue @year-change="handleYearChange" />
@@ -269,7 +269,7 @@
             <th
               class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
             >
-              CRM ID
+              Cash Unit
             </th>
             <th
               class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
@@ -321,7 +321,7 @@
           >
             <td class="px-5 py-3.5">
               <span class="font-semibold text-gray-800 text-xs">{{
-                item.crm_id || `#${item.id}`
+                `${item.unit}`
               }}</span>
             </td>
             <td class="px-5 py-3.5">
@@ -686,6 +686,7 @@ const searchCount = computed(
 
 const watchSystem = computed(() => {
   const result = {};
+  result.interact_bank = "company";
   Object.keys(searchKey.value).forEach((k) => {
     if (searchKey.value[k]) result[k] = searchKey.value[k];
   });
@@ -700,6 +701,8 @@ const watchSystem = computed(() => {
   }
   result.limit = 20;
   result.data_verify = 1;
+  result.relatable_type = "App\\Models\\Booking";
+
   return result;
 });
 

@@ -496,18 +496,24 @@ const buildPrintHtml = (
       const scaledTotal = Number(bi.amount ?? 0) * scaleFactor;
       const scaledUnit = qty > 0 ? scaledTotal / qty : scaledTotal;
 
+      // Strip 7% VAT for display
+      const unitExVat = scaledUnit / 1.07;
+      const totalExVat = scaledTotal / 1.07;
+
       return `
       <tr>
         <td>${productName}</td>
         <td>-</td>
         <td style="text-align:right">${qty}</td>
-        <td style="text-align:right">${fmt(scaledUnit)} ${currency}</td>
-        <td style="text-align:right">${fmt(scaledTotal)} ${currency}</td>
+        <td style="text-align:right">${fmt(unitExVat)} ${currency}</td>
+        <td style="text-align:right">${fmt(totalExVat)} ${currency}</td>
       </tr>`;
     })
     .join("");
 
-  const grandTotal = fmt(cashAmount);
+  const subTotal = cashAmount / 1.07; // ex-VAT sum
+  const vatAmount = cashAmount - subTotal; // 7% portion
+  const grandTotal = fmt(cashAmount); // final total (unchanged)
 
   const customerName = customer?.name ?? detail.sender ?? "—";
   const customerPhone = customer?.phone_number ?? "—";
@@ -607,9 +613,24 @@ const buildPrintHtml = (
         </tbody>
       </table>
 
-      <div class="total-row">
-        <span>Total</span>
-        <span>${grandTotal} ${currency}</span>
+      <div class="total-row" style="flex-direction:column; align-items:flex-end; gap:6px;">
+        <div style="display:flex; justify-content:flex-end; gap:40px; font-weight:400; font-size:13px;">
+          <span>Sub Total</span>
+          <span style="min-width:120px; text-align:right">${fmt(
+            subTotal,
+          )} ${currency}</span>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:40px; font-weight:400; font-size:13px;">
+          <span>VAT 7%</span>
+          <span style="min-width:120px; text-align:right">${fmt(
+            vatAmount,
+          )} ${currency}</span>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:40px; font-weight:400; font-size:13px;">
+          <span>Total Amount</span>
+          <span style="min-width:120px; text-align:right">${grandTotal} ${currency}</span>
+        </div>
+        
       </div>
 
       

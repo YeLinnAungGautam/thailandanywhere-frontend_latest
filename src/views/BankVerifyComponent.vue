@@ -265,17 +265,9 @@
 
       <table v-else class="w-full text-sm">
         <thead>
-          <tr class="bg-gray-50 border-b border-gray-200">
-            <th
-              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
-            >
-              Cash Unit
-            </th>
-            <th
-              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
-            >
-              Sender → Receiver
-            </th>
+          <tr
+            class="bg-gray-50 border-b divide-x divide-gray-500 border-gray-200"
+          >
             <th
               class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
             >
@@ -284,8 +276,25 @@
             <th
               class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
             >
-              Amount
+              Time/ Eff.Date
             </th>
+            <!-- <th
+              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
+            >
+              Cash Unit
+            </th> -->
+            <th
+              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
+            >
+              Sender → Receiver
+            </th>
+            <th
+              colspan="2"
+              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
+            >
+              Withdrawal / Deposit
+            </th>
+
             <th
               class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide"
             >
@@ -317,28 +326,42 @@
                 ? 'bg-green-50/60 hover:bg-green-100/60'
                 : 'bg-white hover:bg-gray-50'
             "
-            class="transition-colors"
+            class="transition-colors divide-x divide-gray-500"
           >
-            <td class="px-5 py-3.5">
+            <!-- <td class="px-5 py-3.5">
               <span class="font-semibold text-gray-800 text-xs">{{
                 `${item.unit}`
               }}</span>
+            </td> -->
+            <td class="px-5 py-3.5 text-xs text-gray-500 whitespace-nowrap">
+              {{ item.date.split(" ")[0] }}
             </td>
-            <td class="px-5 py-3.5">
+            <td class="px-5 py-3.5 text-xs text-gray-500 whitespace-nowrap">
+              {{ item.date.split(" ")[1] }}
+            </td>
+            <td class="px-5 py-3.5 w-[200px]">
               <div class="flex items-center gap-1.5 text-xs">
                 <span class="font-medium text-gray-700">{{ item.sender }}</span>
                 <ArrowRightIcon class="w-3 h-3 text-gray-400 shrink-0" />
                 <span class="text-gray-500">{{ item.receiver }}</span>
               </div>
             </td>
-            <td class="px-5 py-3.5 text-xs text-gray-500 whitespace-nowrap">
-              {{ item.date }}
+
+            <td class="px-5 py-3.5 text-xs font-bold text-red-600 tabular-nums">
+              <p v-if="item.relatable_type != 'App\\Models\\Booking'">
+                {{ item.amount }}
+              </p>
+              <p v-if="item.relatable_type == 'App\\Models\\Booking'"></p>
             </td>
             <td
-              class="px-5 py-3.5 text-xs font-bold text-gray-900 tabular-nums"
+              class="px-5 py-3.5 text-xs font-bold text-green-600 tabular-nums"
             >
-              {{ formatCurrency(item.amount) }}
+              <p v-if="item.relatable_type == 'App\\Models\\Booking'">
+                {{ item.amount }}
+              </p>
+              <p v-if="item.relatable_type != 'App\\Models\\Booking'"></p>
             </td>
+
             <td class="px-5 py-3.5">
               <span
                 class="inline-block text-[11px] font-semibold px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md"
@@ -701,8 +724,10 @@ const watchSystem = computed(() => {
   }
   result.limit = 20;
   result.data_verify = 1;
-  result.relatable_type = "App\\Models\\Booking";
-
+  // result.relatable_type = "App\\Models\\Booking";
+  result.sort_by = "date";
+  result.sort_order = "asc";
+  result.include_relatable = true;
   return result;
 });
 

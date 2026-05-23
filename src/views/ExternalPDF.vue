@@ -19,6 +19,9 @@
       <div v-if="step == 'incoming'">
         <IncomeAccountVerify />
       </div>
+      <div v-if="step == 'outgoing'">
+        <IncomeAccountVerify />
+      </div>
     </Layout>
   </div>
 </template>
@@ -51,7 +54,7 @@ const cart = ref([
   },
   {
     name: "Outgoing",
-    key: "out_going",
+    key: "outgoing",
     des: "check out going slip",
   },
 ]);

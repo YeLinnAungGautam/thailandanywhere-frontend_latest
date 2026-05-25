@@ -366,7 +366,10 @@ const queryParams = computed(() => {
   result.data_verify = 1;
   result.bank_verify = 1;
   result.interact_bank = "company";
-  result.relatable_type = "App\\Models\\Booking";
+  result.relatable_type = "App\\Models\\BookingItemGroup";
+  result.sort_by = "date";
+  result.sort_order = "asc";
+  result.include_relatable = true;
   return result;
 });
 

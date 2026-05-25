@@ -19,9 +19,7 @@
       <div v-if="step == 'incoming'">
         <IncomeAccountVerify />
       </div>
-      <div v-if="step == 'outgoing'">
-        <IncomeAccountVerify />
-      </div>
+      <div v-if="step == 'outgoing'"><OutAccountVerify /></div>
     </Layout>
   </div>
 </template>
@@ -31,6 +29,7 @@ import { ref } from "vue";
 import Layout from "./Layout.vue";
 import BankVerifyComponent from "./BankVerifyComponent.vue";
 import IncomeAccountVerify from "./IncomeAccountVerify.vue";
+import OutAccountVerify from "./OutAccountVerify.vue";
 
 const step = ref("bank_verify");
 

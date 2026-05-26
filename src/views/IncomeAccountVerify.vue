@@ -215,7 +215,7 @@
           <tr
             v-for="item in cashImages?.data ?? []"
             :key="item.id"
-            class="bg-green-50/60 hover:bg-green-100/60 transition-colors"
+            class="transition-colors"
           >
             <td class="px-5 py-3.5">
               <span class="font-semibold text-gray-800 text-xs">{{

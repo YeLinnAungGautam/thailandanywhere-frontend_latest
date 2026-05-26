@@ -20,7 +20,7 @@
       <div class="pb-4 space-y-3 sticky -top-5 bg-white z-40">
         <div class="flex justify-start items-center space-x-2">
           <p
-            @click="router.push(`/bank_statement_purchese`)"
+            @click="router.push(`/external_pdf`)"
             class="px-3 rounded-lg py-2 text-xs border border-gray-100 cursor-pointer"
           >
             Cash View Table

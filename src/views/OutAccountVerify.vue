@@ -1,326 +1,1543 @@
 <template>
-  <div class="bg-gray-50 py-6 min-h-screen font-sans">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
-      <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-full bg-[#FF613c] inline-block"></span>
-        <h1 class="text-xl font-bold text-[#FF613c] tracking-tight">
-          Income Print PDF
-        </h1>
-        <!-- <span
-          class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full"
-        >
-          {{ cashImages?.total ?? 0 }} records
-        </span> -->
-      </div>
-      <div class="flex items-center gap-2">
-        <YearPickerVue @year-change="handleYearChange" />
-        <select
-          v-model="selectedMonth"
-          @change="handleMonthChange"
-          class="text-xs px-3 py-2 border border-gray-200 rounded-lg bg-white outline-none cursor-pointer"
-        >
-          <option :value="m.id" v-for="m in monthArray" :key="m.id">
-            {{ m.name }}
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Toolbar -->
-    <div class="flex items-center gap-2 mb-4 flex-wrap relative">
-      <!-- Search -->
-      <div class="relative flex-shrink-0 w-64">
-        <MagnifyingGlassIcon
-          class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"
-        />
-        <input
-          type="search"
-          v-model="searchKey.crm_id"
-          placeholder="Search CRM ID or Amount…"
-          @keyup.enter="searchAction"
-          class="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:border-[#FF613c] transition-colors"
-        />
-      </div>
-
-      <!-- Filter button -->
-      <div class="relative">
-        <button
-          @click="filterShow = !filterShow"
-          class="flex items-center gap-1.5 px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white hover:border-[#FF613c] hover:text-[#FF613c] transition-colors"
-        >
-          <FunnelIcon class="w-3.5 h-3.5" />
-          Filter
-          <span
-            v-if="activeFilterCount > 0"
-            class="bg-[#FF613c] text-white text-[10px] px-1.5 rounded-full leading-5"
+  <div class="relative">
+    <div class="relative">
+      <!-- Filters and Search -->
+      <div class="pb-4 px-4 pt-4 space-y-3 sticky -top-5 bg-white z-40">
+        <div class="flex justify-start items-center space-x-2">
+          <p
+            @click="table_type = false"
+            class="px-3 rounded-lg py-2 text-xs cursor-pointer"
+            :class="
+              !table_type ? 'bg-[#FF613c] text-white' : 'border border-gray-200'
+            "
           >
-            {{ activeFilterCount }}
-          </span>
-        </button>
+            Cash View Table
+          </p>
 
-        <!-- Dropdown -->
-        <transition
-          enter-active-class="transition ease-out duration-150"
-          enter-from-class="opacity-0 -translate-y-1"
-          enter-to-class="opacity-100 translate-y-0"
-          leave-active-class="transition ease-in duration-100"
-          leave-from-class="opacity-100 translate-y-0"
-          leave-to-class="opacity-0 -translate-y-1"
-        >
           <div
-            v-if="filterShow"
-            class="absolute top-full left-0 mt-1.5 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-3 flex flex-col gap-2.5"
+            class="flex justify-center cursor-pointer items-center gap-x-2 bg-blue-600 rounded-lg text-xs text-white px-3 py-2"
+            @click="goTaxMissingTable"
           >
-            <div
-              class="flex justify-between items-center pb-2 border-b border-gray-100"
-            >
-              <span class="text-xs font-semibold text-gray-700">Filters</span>
-              <button
-                @click="clearFilter"
-                class="text-[11px] text-[#FF613c] hover:underline"
-              >
-                Clear all
-              </button>
-            </div>
-            <div class="flex flex-col gap-1">
-              <label class="text-[11px] text-gray-500 font-medium"
-                >Sender</label
-              >
-              <input
-                type="text"
-                v-model="searchKey.sender"
-                placeholder="Sender name"
-                class="px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-[#FF613c]"
-              />
-            </div>
-            <div class="flex flex-col gap-1">
-              <label class="text-[11px] text-gray-500 font-medium"
-                >Receiver</label
-              >
-              <input
-                type="text"
-                v-model="searchKey.receiver"
-                placeholder="Receiver name"
-                class="px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-[#FF613c]"
-              />
-            </div>
-            <div class="flex flex-col gap-1">
-              <label class="text-[11px] text-gray-500 font-medium"
-                >Currency</label
-              >
-              <select
-                v-model="searchKey.currency"
-                class="px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-[#FF613c] bg-white"
-              >
-                <option value="">All</option>
-                <option value="THB">THB</option>
-                <option value="MMK">MMK</option>
-                <option value="USD">USD</option>
-              </select>
-            </div>
-            <div class="pt-1.5 border-t border-gray-100">
-              <button
-                @click="searchAction"
-                class="w-full py-2 bg-[#FF613c] text-white text-xs font-semibold rounded-lg hover:bg-[#e84e2a] transition-colors"
-              >
-                Apply Filters
-              </button>
-            </div>
-          </div>
-        </transition>
-      </div>
-
-      <!-- Active filter chips -->
-      <div class="flex gap-1.5 flex-wrap items-center">
-        <span
-          v-for="chip in activeChips"
-          :key="chip.key"
-          class="flex items-center gap-1 text-[11px] px-2 py-0.5 bg-orange-50 border border-orange-200 text-[#FF613c] rounded-full"
-        >
-          {{ chip.label }}
-          <XMarkIcon
-            class="w-3 h-3 cursor-pointer"
-            @click="removeFilter(chip.key)"
-          />
-        </span>
-      </div>
-    </div>
-
-    <!-- Table card -->
-    <div
-      class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
-    >
-      <!-- Skeleton -->
-      <template v-if="loading">
-        <div class="divide-y divide-gray-100">
-          <div
-            v-for="i in 8"
-            :key="i"
-            class="flex gap-4 px-5 py-3.5 items-center"
-          >
-            <div class="h-3 bg-gray-100 rounded-full w-20 animate-pulse"></div>
-            <div class="h-3 bg-gray-100 rounded-full w-36 animate-pulse"></div>
-            <div class="h-3 bg-gray-100 rounded-full w-28 animate-pulse"></div>
-            <div
-              class="h-3 bg-gray-100 rounded-full w-20 animate-pulse ml-auto"
-            ></div>
-            <div class="h-3 bg-gray-100 rounded-full w-16 animate-pulse"></div>
-            <div class="h-7 bg-gray-100 rounded-lg w-20 animate-pulse"></div>
+            <p>Tax Report Table</p>
           </div>
         </div>
-      </template>
 
-      <table v-else class="w-full text-sm">
-        <thead>
-          <tr class="bg-gray-50 border-b border-gray-200">
-            <th
-              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
-            >
-              Cash Unit
-            </th>
-            <th
-              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
-            >
-              Sender → Receiver
-            </th>
-            <th
-              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
-            >
-              Date
-            </th>
-            <th
-              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
-            >
-              Amount
-            </th>
-            <th
-              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide"
-            >
-              Currency
-            </th>
-            <th
-              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide"
-            >
-              Status
-            </th>
-            <th
-              class="text-left px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide"
-            >
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr
-            v-for="item in cashImages?.data ?? []"
-            :key="item.id"
-            class="bg-green-50/60 hover:bg-green-100/60 transition-colors"
+        <!-- Date and Type Filters -->
+        <div class="flex justify-start space-x-2 items-center">
+          <p
+            v-if="!authStore.isExternalAudit"
+            @click="filterType = 'all'"
+            class="px-5 py-2.5 rounded-lg text-xs"
+            :class="
+              filterType == 'all'
+                ? 'bg-[#FF613c] text-white'
+                : ' border border-[#FF613x]'
+            "
           >
-            <td class="px-5 py-3.5">
-              <span class="font-semibold text-gray-800 text-xs">{{
-                `${item.unit}`
-              }}</span>
-            </td>
-            <td class="px-5 py-3.5">
-              <div class="flex items-center gap-1.5 text-xs">
-                <span class="font-medium text-gray-700">{{ item.sender }}</span>
-                <ArrowRightIcon class="w-3 h-3 text-gray-400 shrink-0" />
-                <span class="text-gray-500">{{ item.receiver }}</span>
-              </div>
-            </td>
-            <td class="px-5 py-3.5 text-xs text-gray-500 whitespace-nowrap">
-              {{ item.date }}
-            </td>
-            <td
-              class="px-5 py-3.5 text-xs font-bold text-gray-900 tabular-nums"
+            All
+          </p>
+          <select
+            name=""
+            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
+            id=""
+            v-model="invoice"
+          >
+            <option value="">Filter by Tax</option>
+            <option value="tax_receipt_have">Have Tax Receipt</option>
+            <option value="tax_receipt_missing">Non Tax Receipt</option>
+          </select>
+          <select
+            name=""
+            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
+            id=""
+            v-model="invoiceTax"
+          >
+            <option value="">Filter by Invoice</option>
+            <option value="invoice_have">Have Invoice</option>
+            <option value="invoice_missing">Non Invoice</option>
+          </select>
+          <YearPickerVue @year-change="handleYearChange" />
+          <select
+            v-model="selectedMonth"
+            @change="handleMonthChange(selectedMonth)"
+            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
+          >
+            <option :value="m.id" v-for="m in monthArray" :key="m.id">
+              {{ m.name }}
+            </option>
+          </select>
+          <TaxReceiptModal v-model="showTaxModal" @close="closeTaxModal" />
+        </div>
+
+        <!-- Search Filters -->
+        <div class="flex space-x-2 items-center">
+          <div class="relative">
+            <input
+              v-model="senderSearch"
+              type="text"
+              placeholder="Search by sender..."
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            />
+          </div>
+          <div class="relative">
+            <input
+              v-model="crmSearch"
+              type="text"
+              placeholder="Search by crm..."
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            />
+          </div>
+
+          <div class="relative">
+            <input
+              v-model="amountSearch"
+              type="number"
+              placeholder="Search by amount..."
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            />
+          </div>
+
+          <div class="relative">
+            <select
+              name=""
+              v-model="per_page"
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+              id=""
             >
-              {{ item.amount }}
-            </td>
-            <td class="px-5 py-3.5">
-              <span
-                class="inline-block text-[11px] font-semibold px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md"
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="40">40</option>
+              <option value="50">50</option>
+              <option value="60">60</option>
+              <option value="70">70</option>
+              <option value="80">80</option>
+              <option value="90">90</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <div>
+            <select
+              name=""
+              id=""
+              v-model="sort_by"
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            >
+              <option value="date">Date</option>
+              <option value="amount">Amount</option>
+              <option value="sender">Sender</option>
+              <option value="receiver">Receiver</option>
+            </select>
+          </div>
+          <div>
+            <select
+              name=""
+              id=""
+              v-model="sort_order"
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+          <button
+            @click="clearSearch"
+            class="px-3 py-2 text-xs bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Card Layout -->
+      <div>
+        <div v-if="loading" class="text-center py-10">
+          <div
+            class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF613c]"
+          ></div>
+          <p class="mt-2 text-gray-600">Loading transactions...</p>
+        </div>
+        <div
+          v-else-if="!cashImages?.data || cashImages.data.length === 0"
+          class="text-center py-10"
+        >
+          <div class="text-gray-400 text-6xl mb-4">📄</div>
+          <p class="text-gray-600">No receipts found</p>
+        </div>
+
+        <!-- Cash View Table -->
+        <div
+          v-if="
+            cashImages?.data &&
+            !table_type &&
+            cashImages?.data.length > 0 &&
+            !loading
+          "
+          class="overflow-x-auto"
+        >
+          <table class="w-full text-xs border border-gray-500">
+            <thead class="border border-gray-500">
+              <tr class="bg-gray-200 divide-x divide-gray-500">
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  TR.Date
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Company
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  S.Total Value
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  S.Amount VAT
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  I.Total Value
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  I.Amount VAT
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  C.Total Value
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  C.Amount VAT
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Hotel
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Attraction
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Cash Amount
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Deposit Count
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  DateTime
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Crm Number
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Invoice
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Tax Credit
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <template
+                v-for="(item, index) in cashImages?.data"
+                :key="item.id"
               >
-                {{ item.currency }}
-              </span>
-            </td>
-            <td class="px-5 py-3.5">
-              <span
-                class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap bg-green-100 text-green-700"
+                <!-- Main transaction row -->
+                <tr
+                  class="bg-gray-50 odd:bg-white group relative divide-x divide-gray-500 hover:bg-gray-100 cursor-pointer"
+                  :class="
+                    expandedItems[item.id] ? 'border border-[#FF613c]' : ''
+                  "
+                  @click="toggleExpand(item.id)"
+                >
+                  <td class="px-3 py-2 text-xs text-center whitespace-nowrap">
+                    {{ formatDateForTime(item?.date) }}
+                  </td>
+                  <td class="px-3 py-2 text-xs text-center min-w-[200px]">
+                    {{ item?.relatable?.items[0]?.product?.legal_name }}
+                  </td>
+                  <td class="px-3 py-2 text-xs text-end">
+                    <p
+                      v-if="
+                        item.relatable_type == 'App\\Models\\BookingItemGroup'
+                      "
+                    >
+                      {{ getTotalValue(item?.relatable?.items) }}
+                    </p>
+                    <p v-else></p>
+                  </td>
+                  <td class="px-3 py-2 text-xs w-[80px]">
+                    {{ item.vat ? formattedNumber(item.vat.toFixed(2)) : "-" }}
+                  </td>
+                  <td class="px-3 py-2 text-xs w-[80px]">
+                    {{
+                      calculateInvoiceTotal(
+                        item?.relatable?.booking_confirm_letter,
+                      )
+                    }}
+                  </td>
+                  <td class="px-3 py-2 text-xs w-[80px]">
+                    {{
+                      calculateInvoiceVat(
+                        item?.relatable?.booking_confirm_letter,
+                      )
+                    }}
+                  </td>
+                  <td class="px-3 py-2 text-xs w-[80px]">
+                    {{ calculateTaxTotal(item?.relatable?.tax_credit) }}
+                  </td>
+                  <td class="px-3 py-2 text-xs w-[80px]">
+                    {{ calculateTaxVAT(item?.relatable?.tax_credit) }}
+                  </td>
+                  <td class="px-3 py-2 text-xs">
+                    {{
+                      item?.relatable?.product_type == "App\\Models\\Hotel"
+                        ? "✓"
+                        : "-"
+                    }}
+                  </td>
+                  <td class="px-3 py-2 text-xs">
+                    {{
+                      item?.relatable?.product_type ==
+                      "App\\Models\\EntranceTicket"
+                        ? "✓"
+                        : "-"
+                    }}
+                  </td>
+                  <td class="px-3 py-2 text-xs">
+                    {{ item?.amount }}
+                  </td>
+                  <td class="px-3 py-2 text-xs">final deposit</td>
+                  <td class="px-3 py-2 text-xs whitespace-nowrap">
+                    {{ formatDateForTime(item?.date) }} ,
+                    {{ formatTime(item?.date) }}
+                  </td>
+                  <td class="px-3 py-2 text-xs whitespace-nowrap">
+                    {{ item?.crm_id }}
+                  </td>
+                  <td class="px-3 py-2 text-xs whitespace-nowrap">
+                    <CheckBadgeIcon
+                      v-if="item?.has_invoice"
+                      class="h-5 w-5 text-green-500"
+                    />
+                  </td>
+                  <td class="px-3 py-2 text-xs whitespace-nowrap">
+                    <CheckBadgeIcon
+                      v-if="item?.relatable?.tax_credit.length > 0"
+                      class="h-5 w-5 text-green-500"
+                    />
+                  </td>
+                </tr>
+
+                <!-- Loading row -->
+                <tr v-if="loadingDetails[item?.id]">
+                  <td colspan="16" class="px-3 py-4 text-center">
+                    <div class="flex justify-center items-center">
+                      <div
+                        class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF613c]"
+                      ></div>
+                      <span class="ml-2 text-sm text-gray-600"
+                        >Loading details...</span
+                      >
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Expanded details row -->
+                <tr
+                  v-if="
+                    expandedItems[item.id] &&
+                    !loadingDetails[item.id] &&
+                    getRelatableData(item.id)
+                  "
+                >
+                  <td colspan="16" class="p-0">
+                    <div class="bg-gray-50 pb-4 px-4">
+                      <div class="w-full flex justify-end items-center py-2">
+                        <div
+                          class="bg-white/90 max-w-[400px] px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm flex items-center justify-center space-x-2"
+                        >
+                          <button
+                            v-if="!authStore.isExternalAudit"
+                            @click.stop="goToView(item)"
+                            class="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="View Details"
+                          >
+                            <MagnifyingGlassIcon class="w-4 h-4" />
+                          </button>
+                          <button
+                            @click.stop="update(item)"
+                            class="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <PencilSquareIcon
+                              class="w-4 h-4"
+                              v-if="!authStore.isExternalAudit"
+                            />
+                            <EyeIcon class="w-4 h-4 text-blue-600" v-else />
+                          </button>
+                        </div>
+                      </div>
+                      <table
+                        class="min-w-full"
+                        v-if="
+                          item?.relatable_type == 'App\\Models\\Booking' ||
+                          item?.relatable_type ==
+                            'App\\Models\\BookingItemGroup'
+                        "
+                      >
+                        <!-- Table Header -->
+                        <thead class="bg-gray-50">
+                          <tr class="bg-[#FF613c] divide-x divide-gray-50">
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-start"
+                            >
+                              List
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              Product Variation
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              Price
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              VAT (7%)
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              Slip
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              Invoice
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              Tax Credit
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <!-- Table Body: Booking -->
+                        <tbody
+                          class="bg-white divide-y divide-gray-200"
+                          v-if="item.relatable_type == 'App\\Models\\Booking'"
+                        >
+                          <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-start">
+                              <span
+                                class="text-xs font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
+                              >
+                                Total Sale
+                              </span>
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                            >
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{
+                                  formattedNumber(
+                                    getRelatableData(item.id)?.grand_total,
+                                  )
+                                }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{
+                                  formattedNumber(
+                                    getRelatableData(item.id)?.output_vat,
+                                  )
+                                }}
+                              </span>
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                              @click="show(getRelatableData(item.id)?.receipts)"
+                            >
+                              <span
+                                class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
+                              >
+                                sale slip ({{
+                                  getRelatableData(item.id)?.receipts?.length ||
+                                  0
+                                }})
+                              </span>
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                              @click="openCredit(getRelatableData(item.id)?.id)"
+                            >
+                              <span
+                                class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
+                              >
+                                tax Invoice
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span
+                                class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-start">
+                              <span
+                                class="text-xs font-mono text-gray-900 bg-red-100 px-2 py-1 rounded"
+                              >
+                                Deduct Commission
+                              </span>
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                            >
+                              <span
+                                class="text-xs font-mono px-2 py-1 rounded"
+                              ></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                -
+                                {{
+                                  formattedNumber(
+                                    getRelatableData(item.id)?.commission,
+                                  )
+                                }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-start">
+                              <span
+                                class="text-xs font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
+                              >
+                                Subtotal
+                              </span>
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                            >
+                              <span
+                                class="text-xs font-mono px-2 py-1 rounded"
+                              ></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{
+                                  formattedNumber(
+                                    getRelatableData(item.id)?.grand_total -
+                                      getRelatableData(item.id)?.commission,
+                                  )
+                                }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{
+                                  formattedNumber(
+                                    (
+                                      getRelatableData(item.id)?.grand_total -
+                                      getRelatableData(item.id)?.commission -
+                                      (getRelatableData(item.id)?.grand_total -
+                                        getRelatableData(item.id)?.commission) /
+                                        1.07
+                                    ).toFixed(2),
+                                  )
+                                }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                          </tr>
+
+                          <!-- Grouped items -->
+                          <tr
+                            v-for="v in getGroupedItems(item.id)"
+                            :key="v.group_id"
+                          >
+                            <td class="px-6 py-4 whitespace-nowrap text-start">
+                              <div class="text-xs font-mono flex flex-wrap">
+                                <span
+                                  @click="goToGroup(v)"
+                                  class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded cursor-pointer"
+                                >
+                                  Group
+                                </span>
+                                <span
+                                  v-for="i in v.items"
+                                  class="text-gray-900 bg-gray-100 px-2 py-1 rounded mr-2"
+                                  :key="i.id"
+                                >
+                                  {{ i.crm_id.split("_")[1] }}
+                                </span>
+                              </div>
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                            >
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{ v.items[0]?.product_name }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{ formattedNumber(totalCost(v.items)) }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{
+                                  formattedNumber(
+                                    (
+                                      totalCost(v.items) -
+                                      totalCost(v.items) / 1.07
+                                    ).toFixed(2),
+                                  )
+                                }}
+                              </span>
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                              @click="
+                                v.related_slip.length > 0 &&
+                                  show(v.related_slip)
+                              "
+                            >
+                              <span
+                                class="text-xs font-mono px-2 py-1 rounded"
+                                :class="
+                                  v.related_slip.length > 0
+                                    ? 'text-blue-600 underline'
+                                    : 'text-red-600 font-medium'
+                                "
+                              >
+                                {{
+                                  v.related_slip.length > 0
+                                    ? "slip (" + v.related_slip.length + ")"
+                                    : "missing"
+                                }}
+                              </span>
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                              @click="
+                                v.related_tax.length > 0 &&
+                                  showTax(v.related_tax)
+                              "
+                            >
+                              <span
+                                class="text-xs font-mono px-2 py-1 rounded"
+                                :class="
+                                  v.related_tax.length > 0
+                                    ? 'text-blue-600 underline'
+                                    : 'text-red-600 font-medium'
+                                "
+                              >
+                                {{
+                                  v.related_tax.length > 0
+                                    ? "Invoice (" + v.related_tax.length + ")"
+                                    : "missing"
+                                }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span
+                                :class="
+                                  v.related_credit.length > 0
+                                    ? ''
+                                    : 'text-red-600 font-medium'
+                                "
+                                class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
+                                @click="showCredit(v.related_credit)"
+                              >
+                                {{
+                                  v.related_credit.length > 0
+                                    ? "Credit (" + v.related_credit.length + ")"
+                                    : "missing"
+                                }}
+                              </span>
+                            </td>
+                          </tr>
+
+                          <!-- Net Summary Row -->
+                          <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-start">
+                              <span
+                                class="text-xs font-mono text-gray-900 bg-blue-100 px-2 py-1 rounded"
+                              >
+                                Net Summary
+                              </span>
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                            >
+                              <span
+                                class="text-xs font-mono px-2 py-1 rounded"
+                              ></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{
+                                  formattedNumber(
+                                    calculateGrandVat(
+                                      getRelatableData(item.id)?.items,
+                                      getRelatableData(item.id)?.grand_total,
+                                    ) - getRelatableData(item.id)?.commission,
+                                  )
+                                }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{
+                                  formattedNumber(
+                                    (
+                                      getRelatableData(item.id)?.commission -
+                                      getRelatableData(item.id)?.commission /
+                                        1.07
+                                    ).toFixed(2),
+                                  )
+                                }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded"
+                                >-</span
+                              >
+                            </td>
+                          </tr>
+                        </tbody>
+
+                        <!-- Table Body: BookingItemGroup -->
+                        <tbody
+                          v-if="
+                            item.relatable_type ==
+                            'App\\Models\\BookingItemGroup'
+                          "
+                          class="bg-white divide-y divide-gray-200"
+                        >
+                          <tr>
+                            <td
+                              class="px-6 py-4 w-[200px] whitespace-nowrap text-start"
+                            >
+                              <div
+                                class="text-xs flex justify-start items-center flex-wrap gap-2 font-mono rounded-md"
+                              >
+                                <span
+                                  @click="goToGroup(getExpenseItems(item.id))"
+                                  class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded cursor-pointer"
+                                >
+                                  Group
+                                </span>
+                                <span
+                                  class="text-xs font-mono px-2 py-1 bg-gray-200 rounded"
+                                  v-for="a in getExpenseItems(item.id)?.items"
+                                  :key="a.id"
+                                >
+                                  {{ a?.crm_id.split("_")[1] }}
+                                </span>
+                              </div>
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-normal text-end">
+                              <p class="text-xs font-mono px-2 py-1 rounded">
+                                {{
+                                  getExpenseItems(item.id)?.items[0]?.product
+                                    ?.name
+                                }}
+                                /
+                                <span
+                                  class="text-blue-600"
+                                  v-for="a in getExpenseItems(item.id)?.items"
+                                  :key="a.id"
+                                >
+                                  S: {{ a.service_date }},
+                                </span>
+                                /
+                                <span
+                                  class="text-red-600"
+                                  v-for="a in getExpenseItems(item.id)?.items"
+                                  :key="a.id"
+                                >
+                                  Q: {{ a.quantity }},
+                                </span>
+                              </p>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{
+                                  formattedNumber(
+                                    getExpenseItems(item.id)?.items.reduce(
+                                      (total, a) => {
+                                        return total + a.total_cost_price;
+                                      },
+                                      0,
+                                    ),
+                                  )
+                                }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{
+                                  formattedNumber(
+                                    getExpenseItems(item.id)?.items.reduce(
+                                      (total, a) => {
+                                        return total + a.output_vat;
+                                      },
+                                      0,
+                                    ),
+                                  )
+                                }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span
+                                class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
+                                @click="viewReceipt(item)"
+                              >
+                                slip
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span
+                                :class="
+                                  getRelatableData(item.id)
+                                    ?.booking_confirm_letter.length > 0
+                                    ? 'text-blue-500 underline'
+                                    : 'text-red-500'
+                                "
+                                class="text-xs font-mono px-2 py-1 rounded"
+                                @click="
+                                  showTax(
+                                    getRelatableData(item.id)
+                                      ?.booking_confirm_letter,
+                                  )
+                                "
+                              >
+                                {{
+                                  getRelatableData(item.id)
+                                    ?.booking_confirm_letter.length > 0
+                                    ? "tax"
+                                    : "missing"
+                                }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span
+                                :class="
+                                  getRelatableData(item.id)?.tax_credit.length >
+                                  0
+                                    ? 'text-blue-500 underline'
+                                    : 'text-orange-500'
+                                "
+                                class="text-xs bg-orange-200 font-mono px-2 py-1 rounded cursor-pointer"
+                                @click="
+                                  getRelatableData(item.id)?.tax_credit.length >
+                                  0
+                                    ? showCredit(
+                                        getRelatableData(item.id)?.tax_credit,
+                                      )
+                                    : addTaxReceipt(getRelatableData(item.id))
+                                "
+                              >
+                                {{
+                                  getRelatableData(item.id)?.tax_credit.length >
+                                  0
+                                    ? "credit"
+                                    : "add credit"
+                                }}
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tax View Table -->
+        <div
+          v-if="
+            cashImages?.data &&
+            table_type &&
+            cashImages?.data.length > 0 &&
+            !loading
+          "
+          class="overflow-x-auto"
+        >
+          <table class="w-full text-xs border border-gray-500">
+            <thead class="border border-gray-500">
+              <tr class="bg-gray-200 divide-x divide-gray-500">
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  TR.Datetime
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Cash Amount
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Tax Receipt Number
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Tax Receipt Date
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Supplier Name
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Order Description
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Sale Value
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  VAT Value
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  CRM ID
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Invoice
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(item, index) in cashImages?.data"
+                :key="item.id"
+                class="bg-gray-50 odd:bg-white group relative divide-x divide-gray-500 hover:bg-gray-100 cursor-pointer"
               >
-                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                Verified
-              </span>
-            </td>
-            <td class="px-5 py-3.5 flex justify-start items-center gap-x-2">
-              <button
-                @click="openPrintModal(item)"
-                :disabled="printLoading === item.id"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-semibold rounded-lg transition-all hover:-translate-y-px hover:shadow-md active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span
-                  v-if="printLoading === item.id"
-                  class="w-3.5 h-3.5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"
-                ></span>
-                <PrinterIcon v-else class="w-3.5 h-3.5" />
-                {{ printLoading === item.id ? "Loading…" : "Print" }}
-              </button>
-              <button
-                @click="goToBooking(item)"
-                class="inline-flex items-center whitespace-nowrap gap-1.5 px-3 py-1.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-semibold rounded-lg transition-all hover:-translate-y-px hover:shadow-md active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Go Booking
-              </button>
-            </td>
-          </tr>
-          <tr v-if="(cashImages?.data ?? []).length === 0">
-            <td colspan="7" class="text-center text-gray-400 text-sm py-16">
-              No records found.
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                <td class="text-xs whitespace-nowrap text-center px-3 py-3">
+                  {{ formatDateForTime(item?.date) }},
+                  {{ formatTime(item?.date) }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.amount }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.tax_credit[0]?.invoice_number ?? "N/A" }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.tax_credit[0]?.receipt_date }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.items[0]?.product?.vat_name ?? "N/A" }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.items[0]?.product_type.split("\\")[2] }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.tax_credit[0]?.total_after_tax }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.tax_credit[0]?.total_tax_withold }}
+                </td>
+                <td class="px-3 py-2 text-xs whitespace-nowrap">
+                  {{ item?.crm_id }}
+                </td>
+                <td class="px-3 py-2 text-xs whitespace-nowrap">
+                  <CheckBadgeIcon
+                    v-if="item?.has_invoice"
+                    class="h-5 w-5 text-green-500"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-8">
+          <Pagination
+            v-if="!loading && cashImages?.data?.length > 0"
+            :data="cashImages"
+            @change-page="changePage"
+          />
+        </div>
+      </div>
     </div>
 
-    <!-- Pagination -->
-    <div class="mt-3" v-if="!loading">
-      <Pagination :data="cashImages" @change-page="changePage" />
-    </div>
+    <!-- ── Modals ── -->
+
+    <!-- Receipt image modal -->
+    <Modal
+      :isOpen="placeholderFile != null"
+      @closeModal="placeholderFile = null"
+    >
+      <DialogPanel
+        class="w-full max-w-xl transform overflow-hidden rounded-xl bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          Receipt
+        </DialogTitle>
+        <div class="grid grid-cols-2 gap-4">
+          <img
+            :src="placeholderFile?.image"
+            alt="Receipt"
+            class="w-full rounded-lg"
+          />
+          <div class="space-y-2 text-sm">
+            <div class="space-y-2">
+              <p class="w-[200px] text-xs">Interact Bank:</p>
+              <p class="font-medium">{{ placeholderFile?.interact_bank }}</p>
+            </div>
+            <div class="space-y-2">
+              <p class="w-[200px] text-xs">Currency:</p>
+              <p class="font-medium">{{ placeholderFile?.currency }}</p>
+            </div>
+            <div class="space-y-2">
+              <p class="w-[200px] text-xs">Date:</p>
+              <p class="font-medium">
+                {{ formatDateForTime(placeholderFile?.date) }} ,
+                {{ formatTime(placeholderFile?.date) }}
+              </p>
+            </div>
+            <div class="space-y-2">
+              <p class="w-[200px] text-xs">Sender:</p>
+              <p class="font-medium">{{ placeholderFile?.sender }}</p>
+            </div>
+            <div class="space-y-2">
+              <p class="w-[200px] text-xs">Receiver:</p>
+              <p class="font-medium">{{ placeholderFile?.receiver }}</p>
+            </div>
+            <div class="space-y-2">
+              <p class="w-[200px] text-xs">Amount:</p>
+              <p class="font-medium">{{ placeholderFile?.amount }}</p>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <!-- Edit modal -->
+    <Modal :isOpen="updateModalOpen" @closeModal="closeModal">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white/95 backdrop-blur-md text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
+        >
+          <span class="uppercase">{{
+            updateData?.relatable_type == "App\\Models\\Booking"
+              ? "Booking"
+              : updateData?.relatable_type == "App\\Models\\BookingItemGroup"
+              ? "Group Expense"
+              : "Cash Book"
+          }}</span>
+        </DialogTitle>
+        <div class="p-4">
+          <ReceiptEdit :updateData="updateData" @update="onChangeUpdate" />
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <!-- Sale slip modal -->
+    <Modal :isOpen="IsShow" @closeModal="showOff">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white/95 backdrop-blur-md text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
+        >
+          <span class="uppercase">Sale Slip</span>
+        </DialogTitle>
+        <div class="p-4">
+          <div v-if="showData.length > 0" class="grid grid-cols-2 gap-4">
+            <div
+              class="flex items-center justify-center bg-gray-100 rounded-lg"
+            >
+              <img
+                :src="
+                  showData[currentIndex].image.includes(
+                    'https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images',
+                  )
+                    ? showData[currentIndex].image
+                    : `https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${showData[currentIndex].image}`
+                "
+                alt="Receipt image"
+                class="object-cover h-full w-full"
+                v-if="showData[currentIndex].image"
+              />
+              <div v-else class="text-gray-500 p-4">No image available</div>
+            </div>
+            <div class="pb-4">
+              <div class="mt-2 space-y-4 text-sm">
+                <div class="space-y-2">
+                  <p>Amount:</p>
+                  <p class="text-base font-medium">
+                    {{ showData[currentIndex].amount }}
+                    {{ showData[currentIndex].currency }}
+                  </p>
+                </div>
+                <div class="space-y-2">
+                  <p>Date:</p>
+                  <p class="text-base font-medium">
+                    {{ showData[currentIndex].date }}
+                  </p>
+                </div>
+                <div class="space-y-2">
+                  <p>Sender:</p>
+                  <p class="text-base font-medium">
+                    {{ showData[currentIndex].sender }}
+                  </p>
+                </div>
+                <div class="space-y-2">
+                  <p>Receiver:</p>
+                  <p class="text-base font-medium">
+                    {{ showData[currentIndex].receiver }}
+                  </p>
+                </div>
+                <div class="space-y-2">
+                  <p>Bank:</p>
+                  <p class="text-base font-medium">
+                    {{ showData[currentIndex].interact_bank }}
+                  </p>
+                </div>
+                <div class="space-y-2">
+                  <p>Created At:</p>
+                  <p class="text-base font-medium">
+                    {{ showData[currentIndex].created_at }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            v-if="showData.length > 1"
+            class="flex justify-between items-center mt-4"
+          >
+            <button
+              @click="prevItem"
+              :disabled="currentIndex === 0"
+              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+            >
+              &lt; Previous
+            </button>
+            <span class="text-sm">
+              {{ currentIndex + 1 }} of {{ showData.length }}
+            </span>
+            <button
+              @click="nextItem"
+              :disabled="currentIndex === showData.length - 1"
+              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+            >
+              Next &gt;
+            </button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <!-- Tax invoice modal -->
+    <Modal :isOpen="IsTaxShow" @closeModal="showTaxOff">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white/95 backdrop-blur-md text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
+        >
+          <span class="uppercase">Purchasing Tax Invoice</span>
+        </DialogTitle>
+        <div class="p-4">
+          <div v-if="taxData.length > 0" class="grid grid-cols-2 gap-4">
+            <div
+              class="flex items-center justify-center bg-gray-100 rounded-lg"
+            >
+              <img
+                :src="taxData[currentIndex2].file"
+                alt="Receipt image"
+                class="object-cover h-full w-full"
+                v-if="taxData[currentIndex2].file"
+              />
+              <div v-else class="text-gray-500 p-4">No image available</div>
+            </div>
+            <div class="space-y-3">
+              <div class="pb-4 px-3">
+                <h3 class="font-semibold text-gray-700 mb-4">Details</h3>
+                <div class="space-y-3 text-sm">
+                  <div class="space-y-2">
+                    <p>Company Legal Name:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.company_legal_name }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Invoice Number:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.invoice_number }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Product Name:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.product_name }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Receipt Date:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.receipt_date }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Total Before Tax:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.total_tax_amount }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Total Tax Withheld:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.total_tax_withold }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Total After Tax:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.total_after_tax }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            v-if="taxData.length > 1"
+            class="flex justify-between items-center mt-4"
+          >
+            <button
+              @click="prev2Item"
+              :disabled="currentIndex2 === 0"
+              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+            >
+              &lt; Previous
+            </button>
+            <span class="text-sm">
+              {{ currentIndex2 + 1 }} of {{ taxData.length }}
+            </span>
+            <button
+              @click="next2Item"
+              :disabled="currentIndex2 === taxData.length - 1"
+              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+            >
+              Next &gt;
+            </button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <!-- Credit receipt modal -->
+    <Modal :isOpen="IsCredit" @closeModal="showCreditOff">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white/95 backdrop-blur-md text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
+        >
+          <span class="uppercase">Credit Receipt</span>
+          <div class="flex justify-end items-center gap-x-2">
+            <p
+              class="bg-blue-500 px-2 py-1 rounded"
+              @click="editCredit(creditData[currentIndex2]?.id)"
+            >
+              Go Tax Credit
+            </p>
+          </div>
+        </DialogTitle>
+        <div class="p-4">
+          <div v-if="creditData.length > 0" class="grid grid-cols-2 gap-4">
+            <div
+              class="flex items-center justify-center bg-gray-100 rounded-lg"
+            >
+              <img
+                :src="creditData[currentIndex2].receipt_image"
+                alt="Receipt image"
+                class="object-cover h-full w-full"
+                v-if="creditData[currentIndex2].receipt_image"
+              />
+              <div v-else class="text-gray-500 p-4">No image available</div>
+            </div>
+            <div class="space-y-3">
+              <div class="pb-4 px-3">
+                <h3 class="font-semibold text-gray-700 mb-4">Details</h3>
+                <div class="space-y-3 text-sm">
+                  <div class="space-y-2">
+                    <p>Company Legal Name:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.company_legal_name }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Invoice Number:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.invoice_number }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Product Name:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.product?.name }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Receipt Date:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.receipt_date }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Total Before Tax:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.total_tax_amount }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Total Tax Withheld:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.total_tax_withold }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p>Total After Tax:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.total_after_tax }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between items-center gap-x-2 pt-2">
+            <div
+              v-if="creditData.length > 1"
+              class="flex justify-between items-center mt-4"
+            >
+              <button
+                @click="prev2Item"
+                :disabled="currentIndex2 === 0"
+                class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+              >
+                &lt; Previous
+              </button>
+              <span class="text-sm">
+                {{ currentIndex2 + 1 }} of {{ creditData.length }}
+              </span>
+              <button
+                @click="next2Item"
+                :disabled="currentIndex2 === creditData.length - 1"
+                class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+              >
+                Next &gt;
+              </button>
+            </div>
+            <p
+              v-if="authStore.isSuperAdmin"
+              class="bg-red-600 px-2 py-1.5 text-white text-sm rounded"
+              @click="deleteCredit(creditData[currentIndex2]?.id)"
+            >
+              Delete Tax Credit
+            </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <ConnectTaxReceiptModal
+      v-model="showConnectModal"
+      :group-id="addingGroupId"
+      :group-info="addingGroupInfo"
+      @connected="onConnected"
+      @close="closeConnectModal"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
+import { useSidebarStore } from "../stores/sidebar";
+import { computed, onMounted, ref, watch } from "vue";
+import Pagination from "../components/Pagination.vue";
+import { useToast } from "vue-toastification";
 import {
-  ArrowRightIcon,
-  FunnelIcon,
+  EyeIcon,
+  PencilSquareIcon,
   MagnifyingGlassIcon,
-  PrinterIcon,
-  XMarkIcon,
+  PlusIcon,
 } from "@heroicons/vue/24/outline";
-import Pagination from "../components/PaginationExpense.vue";
+import debounce from "lodash/debounce";
+import Swal from "sweetalert2";
+import { useAuthStore } from "../stores/auth";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
+import { useRoute, useRouter } from "vue-router";
+import { useBookingReceiptStore } from "../stores/bookingReceipt";
+import Modal from "../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import { useReservationStore } from "../stores/reservation";
+import ReceiptEdit from "./ReceiptEdit.vue";
 import { useCashImageStore } from "../stores/cashImage";
+import { useGroupStore } from "../stores/group";
+import { CheckBadgeIcon } from "@heroicons/vue/24/solid";
+import { formattedNumber } from "./help/FormatData";
+import TaxReceiptModal from "./TaxComponent/CreateModal.vue";
+import ConnectTaxReceiptModal from "./TaxComponent/ConnectModal.vue";
+import { useTaxReceiptStore } from "../stores/taxReceipt";
 
-const route = useRoute();
+const sideBarStore = useSidebarStore();
+const groupStore = useGroupStore();
+const toast = useToast();
+const { isShowSidebar } = storeToRefs(sideBarStore);
+const bookingReceiptStore = useBookingReceiptStore();
 const cashImageStore = useCashImageStore();
+const taxReceiptStore = useTaxReceiptStore();
+const reservationStore = useReservationStore();
+const route = useRoute();
+const router = useRouter();
+const authStore = useAuthStore();
 const { cashImages, loading } = storeToRefs(cashImageStore);
+
+const showConnectModal = ref(false);
+const table_type = ref(false);
+
+const addingGroupId = ref(null);
+const addingGroupInfo = ref(null);
+const addTaxReceipt = (data) => {
+  addingGroupId.value = data.items[0].group_id;
+  addingGroupInfo.value = data;
+  showConnectModal.value = true;
+};
+
+const closeConnectModal = () => {
+  showConnectModal.value = false;
+  addingGroupId.value = null;
+  addingGroupInfo.value = null;
+};
+
+const onConnected = async () => {
+  showConnectModal.value = false;
+  addingGroupId.value = null;
+  addingGroupInfo.value = null;
+  await getAction();
+};
+
+// Search and filter states
+const date_range = ref("");
+const filterType = ref("all");
+const senderSearch = ref("");
+const crmSearch = ref("");
+const invoice = ref("");
+const invoiceTax = ref("");
+const sort_by = ref("date");
+const sort_order = ref("asc");
+const amountSearch = ref("");
+const per_page = ref(100);
+
+const expandedItems = ref({});
 
 const currentDate = new Date();
 const year = ref(currentDate.getFullYear());
 const selectedMonth = ref(currentDate.getMonth() + 1);
-const filterShow = ref(false);
-const saveUrl = ref("");
 
-const searchKey = ref({ crm_id: "", sender: "", receiver: "", currency: "" });
+const detailedItems = ref({});
+const loadingDetails = ref({});
 
-// Print state
-const printModal = ref(false);
-const printHtml = ref("");
-const printCrmId = ref("");
-const printLoading = ref(null);
+const showTaxModal = ref(false);
+const openTaxModal = () => {
+  showTaxModal.value = true;
+};
+const closeTaxModal = () => {
+  showTaxModal.value = false;
+};
+
+const getDetailAction = async (itemId) => {
+  if (detailedItems.value[itemId]) {
+    return detailedItems.value[itemId];
+  }
+  loadingDetails.value[itemId] = true;
+  try {
+    const response = await cashImageStore.getDetailAction(itemId);
+    if (response.status == 1) {
+      detailedItems.value[itemId] = response.result;
+      return response.result;
+    } else {
+      toast.error("Failed to load details");
+      return null;
+    }
+  } catch (error) {
+    toast.error("Error loading details");
+    return null;
+  } finally {
+    loadingDetails.value[itemId] = false;
+  }
+};
+
+const goTaxMissingTable = () => {
+  router.push({
+    name: "outTaxMissing",
+    query: { daterange: date_range.value },
+  });
+};
 
 const monthArray = [
   { id: 1, name: "January" },
@@ -337,472 +1554,404 @@ const monthArray = [
   { id: 12, name: "December" },
 ];
 
-const chipLabels = {
-  sender: "Sender",
-  receiver: "Receiver",
-  currency: "Currency",
+const deleteCredit = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
+    reverseButtons: true,
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await taxReceiptStore.deleteAction(id);
+        if (response.status == 1) {
+          toast.success("Tax Credit Deleted");
+          await getAction();
+        } else {
+          toast.error("Failed to delete tax credit");
+        }
+      } catch (error) {
+        toast.error("Failed to delete tax credit");
+      }
+    }
+  });
 };
 
-const activeChips = computed(() =>
-  Object.entries(searchKey.value)
-    .filter(([k, v]) => k !== "crm_id" && v)
-    .map(([k, v]) => ({ key: k, label: `${chipLabels[k]}: ${v}` })),
-);
+const editCredit = (id) => {
+  window.open(`/tax_receipt?id=${id}`, "_blank");
+};
 
-const activeFilterCount = computed(() => activeChips.value.length);
+const formatDateForTime = (dateString) => {
+  if (!dateString) return "";
+  const [datePart] = dateString.split(" ");
+  const [day, month, year] = datePart.split("-");
+  const date = new Date(`${year}-${month}-${day}`);
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const formattedDay = day.padStart(2, "0");
+  const formattedMonth = monthNames[date.getMonth()];
+  const formattedYear = year.slice(-2);
+  return `${formattedDay} ${formattedMonth} ${formattedYear}`;
+};
 
-const queryParams = computed(() => {
-  const result = Object.fromEntries(
-    Object.entries(searchKey.value).filter(([, v]) => v),
+const goToGroup = (data) => {
+  if (authStore.user.role != "external_audit") {
+    const type = data?.group_info?.product_type ?? data?.product_type;
+    const id = data?.group_id ?? data?.id;
+    if (!id) return;
+    if (type == "App\\Models\\EntranceTicket") {
+      window.open(`/group-attraction?id=${id}`, "_blank");
+    } else if (type == "App\\Models\\Hotel") {
+      window.open(`/group-hotel?id=${id}`, "_blank");
+    } else if (type == "App\\Models\\PrivateVanTour") {
+      window.open(`/group-private-van-tour?id=${id}`, "_blank");
+    }
+  }
+};
+
+const totalCost = (items) => {
+  if (!items) return 0;
+  return items.reduce((total, item) => total + item.expense, 0);
+};
+
+const formatTime = (timeString) => {
+  if (!timeString) return "-";
+  const timePart = timeString.split(" ")[1];
+  const [hours, minutes] = timePart.split(":");
+  const hour = parseInt(hours, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const hour12 = hour % 12 || 12;
+  return `${hour12}:${minutes} ${ampm}`;
+};
+
+const getTotalValue = (items) => {
+  if (!items) return 0;
+  return items.reduce((total, item) => total + item.total_cost_price * 1, 0);
+};
+
+const calculateInvoiceTotal = (item) => {
+  if (!item) return 0;
+  return item.reduce((total, i) => total + i.meta?.total_after_tax * 1, 0);
+};
+
+const calculateInvoiceVat = (item) => {
+  if (!item) return 0;
+  const total = item.reduce((t, i) => t + i.meta?.total_tax_withold * 1, 0);
+  return formattedNumber(total);
+};
+
+const calculateTaxTotal = (item) => {
+  if (!item) return 0;
+  return item.reduce(
+    (total, i) => total + (i?.total_after_tax ? i.total_after_tax * 1 : 0),
+    0,
   );
-  const start = new Date(year.value, selectedMonth.value - 1, 1);
-  const end = new Date(year.value, selectedMonth.value, 0);
-  const fmt = (d) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-      d.getDate(),
-    ).padStart(2, "0")}`;
-  result.date = `${fmt(start)},${fmt(end)}`;
-  result.limit = 20;
-  result.data_verify = 1;
-  result.bank_verify = 1;
-  result.interact_bank = "company";
-  result.relatable_type = "App\\Models\\BookingItemGroup";
-  result.sort_by = "date";
-  result.sort_order = "asc";
-  result.include_relatable = true;
-  return result;
+};
+
+const calculateTaxVAT = (item) => {
+  if (!item) return 0;
+  return item.reduce(
+    (total, i) => total + (i?.total_tax_withold ? i.total_tax_withold * 1 : 0),
+    0,
+  );
+};
+
+const toggleExpand = async (itemId) => {
+  const isCurrentlyExpanded = expandedItems.value[itemId];
+  expandedItems.value = {};
+  if (!isCurrentlyExpanded) {
+    expandedItems.value[itemId] = true;
+    await getDetailAction(itemId);
+  }
+};
+
+const getRelatableData = (itemId) => {
+  const detailedItem = detailedItems.value[itemId];
+  return detailedItem ? detailedItem.relatable : null;
+};
+
+const getGroupedItems = (itemId) => {
+  const detailedItem = detailedItems.value[itemId];
+  return detailedItem ? detailedItem.grouped_items : [];
+};
+
+const getExpenseItems = (itemId) => {
+  const detailedItem = detailedItems.value[itemId];
+  return detailedItem ? detailedItem.relatable : [];
+};
+
+const generateDateRangeForMonth = (month, yearValue) => {
+  const startDate = new Date(yearValue, month - 1, 1);
+  const endDate = new Date(yearValue, month, 0);
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+  };
+  return `${formatDate(startDate)},${formatDate(endDate)}`;
+};
+
+const setMonthDateRange = (month, yearValue) => {
+  date_range.value = generateDateRangeForMonth(month, yearValue);
+};
+
+// ── searchParams: locked to BookingItemGroup + bank_verify + company bank ──
+const searchParams = computed(() => {
+  let params = {};
+
+  if (date_range.value) {
+    params.date = date_range.value;
+  }
+
+  if (senderSearch.value) {
+    params.sender = senderSearch.value;
+  }
+
+  if (crmSearch.value) {
+    params.crm_id = crmSearch.value;
+  }
+
+  if (sort_by.value && sort_order.value) {
+    params.sort_by = sort_by.value;
+    params.sort_order = sort_order.value;
+  }
+
+  if (amountSearch.value) {
+    params.amount = amountSearch.value;
+  }
+
+  if (invoice.value) {
+    params.filter_type = invoice.value;
+  }
+
+  if (invoiceTax.value) {
+    params.filter_type_invoice = invoiceTax.value;
+  }
+
+  params.include_relatable = true;
+
+  // Always locked values
+  params.relatable_type = "App\\Models\\BookingItemGroup";
+  params.bank_verify = 1;
+  params.interact_bank = "company";
+
+  params.limit = per_page.value ? per_page.value : 100;
+
+  return params;
 });
 
-const getList = async () => {
-  if (saveUrl.value) {
-    await cashImageStore.getChangePage(saveUrl.value, queryParams.value);
-  } else {
-    await cashImageStore.getListAction(queryParams.value);
-  }
+const getAction = async () => {
+  await cashImageStore.getListAction(searchParams.value);
 };
 
 const changePage = async (url) => {
-  saveUrl.value = url;
-  await cashImageStore.getChangePage(url, queryParams.value);
+  await cashImageStore.getChangePage(url, searchParams.value);
 };
 
-const searchAction = () => {
-  filterShow.value = false;
-  saveUrl.value = "";
-  getList();
+const handleYearChange = (message) => {
+  year.value = message;
+  setMonthDateRange(selectedMonth.value, year.value);
 };
 
-const clearFilter = () => {
-  searchKey.value = { crm_id: "", sender: "", receiver: "", currency: "" };
-  filterShow.value = false;
-  getList();
+const handleMonthChange = (month) => {
+  selectedMonth.value = month;
+  setMonthDateRange(month, year.value);
 };
 
-const removeFilter = (key) => {
-  searchKey.value[key] = "";
-  searchAction();
+const clearSearch = () => {
+  senderSearch.value = "";
+  crmSearch.value = "";
+  amountSearch.value = "";
+  filterType.value = "";
+  invoice.value = "";
+  invoiceTax.value = "";
+  sort_by.value = "date";
+  sort_order.value = "desc";
 };
 
-const handleYearChange = (y) => {
-  year.value = y;
-  getList();
-};
-
-const handleMonthChange = () => {
-  saveUrl.value = "";
-  getList();
-};
-
-// ─── Helpers ──────────────────────────────────────────────
-
-const fmt = (n) =>
-  n != null ? new Intl.NumberFormat().format(Math.round(Number(n))) : "0";
-
-/**
- * Resolve display name for a booking item.
- * Rules:
- *  - room / hotel type  → "Hotel Service"
- *  - ticket / entrance  → "Entrance Ticket Service"
- *  - anything else      → original name (append " Service" if missing)
- */
-const resolveProductName = (bi) => {
-  const rawType = (bi.product_type ?? "").split("\\").pop().toLowerCase();
-
-  console.log(rawType, "this is raw type");
-
-  // Only use "Hotel Service" if the actual model type is Hotel
-  if (rawType === "hotel" || bi.room) {
-    return "Hotel Service";
-  }
-
-  if (rawType === "entranceticket") {
-    return "Ticket Service";
-  }
-
-  if (rawType === "privatevantour") {
-    return "Car Service";
-  }
-
-  // For everything else (including EntranceTicket products with "hotel" in their name),
-  // use the specific ticket/variation name
-  // const ticketName = bi.ticket?.name ?? bi.variation?.name ?? "";
-  // if (ticketName) return ticketName;
-
-  // const productName = bi.product?.name ?? "";
-  // if (productName) return productName;
-
-  return "General Service";
-};
-
-// ─── Build print HTML ─────────────────────────────────────
-
-const injectPrintStyles = () => {
-  if (document.getElementById("print-styles")) return;
-  const style = document.createElement("style");
-  style.id = "print-styles";
-  style.textContent = `
-    @media print {
-      body > *:not(#print-portal-root) {
-        display: none !important;
-      }
-      #print-content {
-        display: block !important;
-        width: 100% !important;
-        box-shadow: none !important;
-        margin: 0 !important;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-};
-
-const removePrintStyles = () => {
-  document.getElementById("print-styles")?.remove();
-};
-
-const buildPrintHtml = (
-  detail,
-  booking,
-  customer,
-  bookingItems,
-  cashAmount,
-) => {
-  const currency = booking?.payment_currency ?? detail.currency ?? "THB";
-
-  // Scale factor: make item totals sum to cashAmount
-  const bookingTotal = bookingItems.reduce(
-    (sum, bi) => sum + Number(bi.amount ?? 0),
-    0,
-  );
-  const scaleFactor =
-    bookingTotal > 0 && cashAmount > 0 ? cashAmount / bookingTotal : 1;
-
-  const itemRows = bookingItems
-    .map((bi) => {
-      const productName = resolveProductName(bi);
-      const qty = Number(bi.quantity ?? 1);
-      const scaledTotal = Number(bi.amount ?? 0) * scaleFactor;
-      const scaledUnit = qty > 0 ? scaledTotal / qty : scaledTotal;
-
-      // Strip 7% VAT for display
-      const unitExVat = scaledUnit / 1.07;
-      const totalExVat = scaledTotal / 1.07;
-
-      return `
-      <tr>
-        <td>${productName}</td>
-        <td>-</td>
-        <td style="text-align:right">${qty}</td>
-        <td style="text-align:right">${fmt(unitExVat)} ${currency}</td>
-        <td style="text-align:right">${fmt(totalExVat)} ${currency}</td>
-      </tr>`;
-    })
-    .join("");
-
-  const subTotal = cashAmount / 1.07; // ex-VAT sum
-  const vatAmount = cashAmount - subTotal; // 7% portion
-  const grandTotal = fmt(cashAmount); // final total (unchanged)
-
-  const customerName = customer?.name ?? detail.sender ?? "—";
-  const customerPhone = customer?.phone_number ?? "—";
-  const customerEmail = customer?.email ?? "";
-
-  const cashImageUrl = detail.image ? `${detail.image}` : null;
-
-  console.log(cashImageUrl);
-
-  return `
-    <style>
-      #print-content * { box-sizing: border-box; }
-      #print-content .page { padding: 36px 44px; page-break-after: always; }
-      #print-content .page:last-child { page-break-after: auto; }
-      #print-content .header-row { display: flex; justify-content: space-between; margin-bottom: 28px; gap: 24px; }
-      #print-content .label { font-weight: 700; font-size: 11px; letter-spacing: .06em; margin-bottom: 5px; text-transform: uppercase; color: #555; }
-      #print-content .val { font-size: 13px; line-height: 1.7; }
-      #print-content hr.divider { border: none; border-top: 2px solid #111; margin: 0 0 0; }
-      #print-content .meta-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 12px; color: #444; border-bottom: 1px solid #eee; }
-      #print-content .meta-row span:first-child { font-weight: 600; color: #111; }
-      #print-content table.items { width: 100%; border-collapse: collapse; margin-top: 22px; }
-      #print-content table.items thead tr { border-top: 2px solid #111; border-bottom: 2px solid #111; }
-      #print-content table.items th { padding: 8px 6px; font-size: 10px; font-weight: 700; letter-spacing: .07em; text-align: left; }
-      #print-content table.items th:nth-child(3),
-      #print-content table.items th:nth-child(4),
-      #print-content table.items th:nth-child(5) { text-align: right; }
-      #print-content table.items td { padding: 10px 6px; font-size: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
-      #print-content table.items td:nth-child(3),
-      #print-content table.items td:nth-child(4),
-      #print-content table.items td:nth-child(5) { text-align: right; }
-      #print-content .total-row { display: flex; justify-content: flex-end; gap: 40px; padding: 14px 6px 0; border-top: 2px solid #111; margin-top: 8px; font-weight: 700; font-size: 15px; }
-      #print-content .receipt-section { margin-top: 28px; padding-top: 18px; border-top: 1px solid #ddd; font-size: 12px; }
-      #print-content .r-row { display: flex; gap: 12px; margin-bottom: 5px; }
-      #print-content .r-label { width: 140px; font-weight: 600; color: #333; }
-      #print-content .slip-page { padding: 36px 44px; display: flex; flex-direction: column; align-items: center; }
-      #print-content .slip-img { width: 100%; border: 1px solid #ddd; border-radius: 6px; }
-      @media print {
-        #print-content .page { padding: 18mm 22mm; min-height: 297mm; }
-        #print-content .slip-page { padding: 18mm 22mm; min-height: 297mm; }
-      }
-    </style>
-
-    <!-- PAGE 1: INVOICE -->
-    <div class="page">
-      <div class="header-row" style="align-items: flex-start; margin-bottom: 24px;">
-        <div>
-          <div style="font-size: 22px; font-weight: 900; color: #111; margin-bottom: 6px; letter-spacing: -0.3px;">TH ANYWHERE CO., LTD.</div>
-          <div style="font-size: 12px; color: #333; line-height: 2;">
-            TH Anywhere (Head Office)<br>
-            100, 151 Huay Kaew Rd, Chiang Mai<br>
-            <strong>Tax ID:</strong> 0105555809643B<br>
-            <strong>Tel:</strong> 020042354
-          </div>
-        </div>
-        <div style="text-align: right;">
-          <div style="font-size: 20px; font-weight: 900; color: #111; margin-bottom: 10px;">PAYMENT</div>
-          <div style="font-size: 12px; color: #333; line-height: 2;">
-            <strong>Date:</strong> ${detail.date ?? "—"}<br>
-            <strong>Payment No.:</strong> ${detail?.unit ?? "—"}<br>
-            <strong>Agency Sold by:</strong> TH Anywhere Myanmar
-          </div>
-        </div>
-      </div>
-      <div class="header-row">
-        <div>
-          <div class="label">Customer Detail</div>
-          <div class="val">
-            <strong>${customerName}</strong><br>
-            ${customerPhone}${customerEmail ? "<br>" + customerEmail : ""}
-          </div>
-        </div>
-        <div style="text-align:right">
-          <div class="label">Agency Sold From</div>
-          <div class="val">
-            TH Anywhere Co., Ltd.<br>
-            Alan Pya Phaya Lan, Yangon<br>
-            Myanmar
-          </div>
-        </div>
-      </div>
-
-      <table class="items">
-        <thead>
-          <tr>
-            <th>PRODUCT</th>
-            <th>DESCRIPTION</th>
-            <th>QUANTITY</th>
-            <th>UNIT PRICE</th>
-            <th>TOTAL</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${
-            itemRows ||
-            `<tr><td colspan="5" style="padding:14px 6px;color:#888">No items</td></tr>`
-          }
-        </tbody>
-      </table>
-
-      <div class="total-row" style="flex-direction:column; align-items:flex-end; gap:6px;">
-        <div style="display:flex; justify-content:flex-end; gap:40px; font-weight:400; font-size:13px;">
-          <span>Sub Total</span>
-          <span style="min-width:120px; text-align:right">${fmt(
-            subTotal,
-          )} ${currency}</span>
-        </div>
-        <div style="display:flex; justify-content:flex-end; gap:40px; font-weight:400; font-size:13px;">
-          <span>VAT 7%</span>
-          <span style="min-width:120px; text-align:right">${fmt(
-            vatAmount,
-          )} ${currency}</span>
-        </div>
-        <div style="display:flex; justify-content:flex-end; gap:40px; font-weight:400; font-size:13px;">
-          <span>Total Amount</span>
-          <span style="min-width:120px; text-align:right">${grandTotal} ${currency}</span>
-        </div>
-        
-      </div>
-
-      
-    </div>
-
-    <!-- PAGE 2: CASH SLIP -->
-    <div class="slip-page">
-      
-      ${
-        cashImageUrl
-          ? `<img class="slip-img" src="${cashImageUrl}" alt="Cash slip" />`
-          : `<p style="color:#888;font-size:13px;margin-top:40px">No slip image available.</p>`
-      }
-    </div>`;
-};
-
-// ─── Open modal ───────────────────────────────────────────
-
-const goToBooking = async (item) => {
-  const res = await cashImageStore.getDetailAction(item.id);
-  const detail = res?.result ?? {};
-
-  let bookingId = null;
-
-  if (detail.relatable?.id) {
-    bookingId = detail.relatable.id;
-  } else if (detail.relatable_id && detail.relatable_id !== 0) {
-    bookingId = detail.relatable_id;
-  } else if (detail.attached_bookings?.length > 0) {
-    bookingId = detail.attached_bookings[0].booking?.id;
-  }
-
-  if (bookingId) {
-    window.open(`/bookings/new-update/${bookingId}`, "_blank");
+const placeholderFile = ref(null);
+const viewReceipt = (item) => {
+  if (item) {
+    placeholderFile.value = item;
   } else {
-    console.warn("No booking ID found to navigate to");
+    toast.warning("No receipt file available");
   }
 };
 
-const openPrintModal = async (item) => {
-  printLoading.value = item.id;
-  try {
-    const res = await cashImageStore.getDetailAction(item.id);
-    const detail = res?.result ?? {};
-
-    let booking = null;
-    let customer = null;
-    let bookingItems = [];
-
-    // CASE 1: relatable is populated (direct booking relationship)
-    if (detail.relatable) {
-      booking = detail.relatable;
-      customer = booking.customer ?? null;
-      bookingItems = (booking.items ?? []).filter(
-        (bi) => bi.product_type !== "App\\Models\\InclusiveProduct",
-      );
-
-      // CASE 2: attached_bookings has entries (many-to-many / merged slips)
-    } else if (detail.attached_bookings?.length > 0) {
-      // Use first attached booking; if slip belongs to multiple bookings,
-      // pick the one whose total most closely matches the cash amount
-      const cashAmount = Number(detail.amount ?? 0);
-      const best = detail.attached_bookings.reduce((prev, curr) => {
-        const prevDiff = Math.abs(
-          Number(prev.booking?.grand_total ?? 0) - cashAmount,
-        );
-        const currDiff = Math.abs(
-          Number(curr.booking?.grand_total ?? 0) - cashAmount,
-        );
-        return currDiff < prevDiff ? curr : prev;
-      });
-      booking = best.booking ?? null;
-      customer = booking?.customer ?? null;
-      bookingItems = (booking?.items ?? []).filter(
-        (bi) => bi.product_type !== "App\\Models\\InclusiveProduct",
-      );
-
-      // CASE 3: nothing — orphaned slip
-    } else {
-      console.warn("No booking found for this cash image");
+const goToView = async (data) => {
+  if (data.relatable_type == "App\\Models\\Booking") {
+    router.push(`bookings/new-update/${data?.relatable_id}`);
+  } else if (data.relatable_type == "App\\Models\\BookingItemGroup") {
+    if (data?.product_type == "App\\Models\\EntranceTicket") {
+      router.push(`/group-attraction?id=${data?.relatable_id}`);
+    } else if (data?.product_type == "App\\Models\\Hotel") {
+      router.push(`/group-hotel?id=${data?.relatable_id}`);
+    } else if (data?.product_type == "App\\Models\\PrivateVanTour") {
+      router.push(`/group-private-van-tour?id=${data?.relatable_id}`);
     }
-
-    const cashAmount = Number(detail.amount ?? 0);
-    printCrmId.value = booking?.crm_id ?? item.crm_id ?? `#${item.id}`;
-    printHtml.value = buildPrintHtml(
-      detail,
-      booking,
-      customer,
-      bookingItems,
-      cashAmount,
-    );
-    triggerPrint();
-    injectPrintStyles();
-  } catch (e) {
-    console.error("Failed to load print detail", e);
-  } finally {
-    printLoading.value = null;
+  } else if (data.relatable_type == "App\\Models\\CashBook") {
+    router.push(`/cash-book/${data?.relatable_id}`);
   }
 };
 
-const closePrintModal = () => {
-  printModal.value = false;
-  removePrintStyles();
+const openCredit = (id) => {
+  window.open(
+    import.meta.env.VITE_API_URL + "/bookings/" + id + "/credit",
+    "_blank",
+  );
 };
 
-// ─── Trigger browser print ────────────────────────────────
-
-const triggerPrint = () => {
-  // Hide everything except #print-content for the print dialog
-  const style = document.createElement("style");
-  style.id = "__bank-verify-print-override__";
-  style.textContent = `
-    @media print {
-      body > * { display: none !important; }
-      #__print_portal__ { display: block !important; position: fixed; top: 0; left: 0; width: 100%; }
-    }
-  `;
-
-  // Build a dedicated print iframe for clean output
-  const iframe = document.createElement("iframe");
-  iframe.style.cssText =
-    "position:fixed;top:0;left:0;width:0;height:0;border:none;";
-  document.body.appendChild(iframe);
-
-  const doc = iframe.contentDocument || iframe.contentWindow.document;
-  doc.open();
-  doc.write(`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Receipt — ${printCrmId.value}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; font-size: 13px; color: #111; background: #fff; }
-    @page { size: A4; margin: 0; }
-  </style>
-</head>
-<body>
-  <div id="print-content">${printHtml.value}</div>
-  <script>
-    window.onload = function() {
-      var img = document.querySelector('.slip-img');
-      if (img && !img.complete) {
-        img.onload = function() { window.print(); window.onafterprint = function() { window.close(); }; };
-        img.onerror = function() { window.print(); window.onafterprint = function() { window.close(); }; };
-      } else {
-        window.print();
-        window.onafterprint = function() { window.close(); };
+const calculateGrandVat = (items, grand_total) => {
+  if (grand_total && items) {
+    let grand_total_minus = 0;
+    items.forEach((item) => {
+      if (item.total_cost_price) {
+        grand_total_minus += item.total_cost_price * 1;
       }
-    };
-  <\/script>
-</body>
-</html>`);
-  doc.close();
+    });
+    return (grand_total - grand_total_minus).toFixed(2);
+  }
+  return 0;
+};
 
-  // Clean up iframe after printing
-  iframe.contentWindow.onafterprint = () => {
-    document.body.removeChild(iframe);
+const updateModalOpen = ref(false);
+const updateData = ref({
+  id: "",
+  date: "",
+  file: "",
+  sender: "",
+  amount: "",
+  receiver: "",
+  interact_bank: "",
+  currency: "",
+  relatable_type: "",
+});
+
+const update = (data) => {
+  updateModalOpen.value = true;
+  updateData.value.id = data.id;
+  updateData.value.date = data.date;
+  updateData.value.sender = data.sender;
+  updateData.value.amount = data.amount;
+  updateData.value.receiver = data.receiver;
+  updateData.value.interact_bank = data.interact_bank;
+  updateData.value.currency = data.currency;
+  updateData.value.relatable_type = data.relatable_type;
+  updateData.value.file = data.image;
+};
+
+const showData = ref([]);
+const taxData = ref([]);
+const currentIndex = ref(0);
+const currentIndex2 = ref(0);
+
+const nextItem = () => {
+  if (currentIndex.value < showData.value.length - 1) currentIndex.value++;
+};
+const prevItem = () => {
+  if (currentIndex.value > 0) currentIndex.value--;
+};
+const next2Item = () => {
+  if (currentIndex2.value < taxData.value.length - 1) currentIndex2.value++;
+};
+const prev2Item = () => {
+  if (currentIndex2.value > 0) currentIndex2.value--;
+};
+
+const IsShow = ref(false);
+const IsTaxShow = ref(false);
+const IsCredit = ref(false);
+const creditData = ref([]);
+
+const show = (data) => {
+  showData.value = data;
+  IsShow.value = true;
+};
+const showTax = (data) => {
+  taxData.value = data;
+  IsTaxShow.value = true;
+};
+const showCredit = (data) => {
+  creditData.value = data;
+  IsCredit.value = true;
+};
+const showCreditOff = () => {
+  IsCredit.value = false;
+  creditData.value = [];
+  currentIndex2.value = 0;
+};
+const showTaxOff = () => {
+  IsTaxShow.value = false;
+  taxData.value = [];
+  currentIndex2.value = 0;
+};
+const showOff = () => {
+  IsShow.value = false;
+  showData.value = [];
+  currentIndex.value = 0;
+};
+
+const closeModal = () => {
+  updateModalOpen.value = false;
+  updateData.value = {
+    id: "",
+    date: "",
+    sender: "",
+    receiver: "",
+    interact_bank: "",
+    currency: "",
+    amount: "",
+    relatable_type: "",
+    file: "",
   };
 };
 
-onMounted(() => {
-  if (route.query.month) selectedMonth.value = parseInt(route.query.month);
-  if (route.query.year) year.value = parseInt(route.query.year);
-  getList();
+const onChangeUpdate = async () => {
+  closeModal();
+  await getAction();
+};
+
+onMounted(async () => {
+  if (route.query.month && route.query.year) {
+    selectedMonth.value = parseInt(route.query.month);
+    year.value = parseInt(route.query.year);
+  }
+  setMonthDateRange(selectedMonth.value, year.value);
 });
+
+watch(
+  [
+    date_range,
+    filterType,
+    senderSearch,
+    crmSearch,
+    amountSearch,
+    per_page,
+    sort_by,
+    sort_order,
+    invoice,
+    invoiceTax,
+  ],
+  debounce(async () => {
+    await getAction();
+  }, 500),
+);
 </script>

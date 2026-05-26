@@ -123,6 +123,7 @@ import AvailabilityAnalytics from "../views/AvailabilityAnalytics.vue";
 import AllowmentChecker from "../views/AllowmentChecker.vue";
 import HotelReport from "../views/HotelReport.vue";
 import ExternalPDF from "../views/ExternalPDF.vue";
+import RemaindTaxReceiptOutput from "../views/TaxReceiptComponent/RemaindTaxReceiptOutput.vue";
 
 const routes = [
   {
@@ -732,6 +733,11 @@ const routes = [
     path: "/tax-missing",
     name: "taxMissing",
     component: RemaindTaxReceiptModal,
+  },
+  {
+    path: "/out-tax-missing",
+    name: "outTaxMissing",
+    component: RemaindTaxReceiptOutput,
   },
   {
     path: "/mail-box",

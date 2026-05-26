@@ -3,7 +3,11 @@
     <div>
       <img v-if="updateData?.file" :src="updateData.file" alt="" />
       <img v-if="updateData?.image" :src="updateData.image" alt="" />
-      <img v-else :src="placeholderFile" alt="" />
+      <img
+        v-if="!updateData?.file && !updateData?.image"
+        :src="placeholderFile"
+        alt=""
+      />
     </div>
     <div class="space-y-4 relative pt-4 pb-14">
       <div class="">

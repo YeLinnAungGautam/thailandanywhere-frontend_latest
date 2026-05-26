@@ -287,5 +287,21 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
+    async getBalanceDueOverGraph(year, month) {
+      return await axios.get("/balance-due-over/graph", {
+        params: { year, month },
+      });
+    },
+
+    async getBalanceDueOverList({
+      date,
+      page = 1,
+      per_page = 10,
+      admin_id,
+    } = {}) {
+      return await axios.get("/balance-due-over/list", {
+        params: { date, page, per_page, admin_id },
+      });
+    },
   },
 });

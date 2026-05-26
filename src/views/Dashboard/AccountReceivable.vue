@@ -1,371 +1,544 @@
 <template>
   <Layout>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white p-6 rounded-lg shadow-sm col-span-2">
-        <div class="flex justify-between items-start mb-6">
+    <div class="flex gap-4 w-full min-h-[580px]">
+      <!-- LEFT: Chart -->
+      <div class="flex-[2] bg-white rounded-xl shadow-sm p-5 flex flex-col">
+        <!-- Header -->
+        <div class="flex items-start justify-between flex-wrap gap-3 mb-4">
           <div>
-            <h2 class="text-lg font-semibold tracking-wide mb-2">
-              Account Receivable - Unpaid Sales
-            </h2>
-            <p class="text-sm text-gray-600">
-              Total Unpaid Amount:
-              <span class="text-red-600 font-semibold"
-                >{{ totalUnpaidAmount }} THB</span
-              >
+            <p class="text-sm font-semibold text-gray-800">
+              Account Receivable — Balance Due Overdue
             </p>
-            <p class="text-sm text-gray-600 mt-1">
-              Total Unpaid Bookings:
-              <span class="text-red-600 font-semibold">{{
-                totalUnpaidBookings
-              }}</span>
+            <p class="text-xs text-gray-500 mt-1">
+              Total Overdue:
+              <span class="text-red-600 font-semibold">
+                {{ formatNumber(summary.total_balance_due) }} THB
+              </span>
+              &nbsp; Bookings:
+              <span class="font-semibold text-gray-700">
+                {{ summary.total_count ?? 0 }}
+              </span>
             </p>
           </div>
-          <div class="flex items-center gap-3">
-            <input
-              type="month"
-              v-model="monthForGraph"
-              class="bg-white text-sm w-[200px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- Year -->
+            <select
+              v-model="selectedYear"
+              @change="fetchData"
+              class="text-xs border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:border-red-500"
+            >
+              <option v-for="y in yearOptions" :key="y" :value="y">
+                {{ y }}
+              </option>
+            </select>
+
+            <!-- Month -->
+            <select
+              v-model="selectedMonth"
+              @change="fetchData"
+              class="text-xs border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:border-red-500"
+            >
+              <option v-for="(m, i) in monthLabels" :key="i + 1" :value="i + 1">
+                {{ m }}
+              </option>
+            </select>
+
+            <!-- Refresh -->
+            <div
+              class="p-2 border border-gray-200 flex justify-center items-center gap-x-2 text-xs text-white bg-red-500 rounded-lg cursor-pointer"
+              @click="fetchData"
+            >
+              <ArrowPathIcon class="w-4 h-4 text-white" /> Refresh
+            </div>
           </div>
         </div>
 
-        <!-- Chart Container -->
-        <div class="h-[400px]">
-          <BarChart :chartData="unpaidSaleData" :options="chartOptions" />
+        <!-- Summary cards (super admin only) -->
+        <div class="grid grid-cols-3 gap-2 mb-4" v-if="authStore.isSuperAdmin">
+          <div class="bg-red-50 rounded-lg p-3">
+            <p class="text-[10px] text-gray-500 mb-1">Total Balance Due</p>
+            <p class="text-sm font-semibold text-red-600">
+              {{ formatNumber(summary.total_balance_due) }} THB
+            </p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <p class="text-[10px] text-gray-500 mb-1">Overdue Bookings</p>
+            <p class="text-sm font-semibold text-gray-800">
+              {{ summary.total_count ?? 0 }}
+            </p>
+          </div>
+          <div class="bg-orange-50 rounded-lg p-3">
+            <p class="text-[10px] text-gray-500 mb-1">Admins with Overdue</p>
+            <p class="text-sm font-semibold text-orange-700">
+              {{ adminNames.length }}
+            </p>
+          </div>
         </div>
 
-        <!-- Agent Performance Table -->
-        <div class="mt-8" v-if="agentUnpaidData.length > 0">
-          <h3 class="text-md font-semibold mb-4">
-            Agent Receivable Analysitic
-          </h3>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Agent Name
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Total Unpaid Amount
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Unpaid Bookings
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Percentage
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="agent in agentUnpaidData" :key="agent.name">
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-                  >
-                    {{ agent.name }}
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold"
-                  >
-                    {{ agent.unpaidAmount.toLocaleString() }} THB
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ agent.unpaidBookings }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ agent.percentage }}%
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- Legend (per-admin colors) -->
+        <div class="flex flex-wrap gap-3 text-[11px] text-gray-500 mb-3">
+          <span
+            v-for="(admin, idx) in adminNames"
+            :key="admin"
+            class="flex items-center gap-1.5"
+          >
+            <span
+              class="w-2.5 h-2.5 rounded-sm"
+              :style="{ background: adminColors[idx % adminColors.length] }"
+            ></span>
+            {{ admin }}
+          </span>
+        </div>
+
+        <!-- Chart -->
+        <div class="flex-1 relative min-h-[360px]">
+          <div
+            v-if="loadingGraph"
+            class="absolute inset-0 flex items-center justify-center"
+          >
+            <div
+              class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"
+            ></div>
           </div>
+          <BarChart
+            v-else
+            :chartData="chartData"
+            :options="chartOptions"
+            class="w-full h-full"
+          />
         </div>
       </div>
-      <div>
-        <ReceivableList :admin-only-list="adminOnlyList" />
+
+      <!-- RIGHT: Day detail + booking list -->
+      <div class="flex-1 bg-white rounded-xl shadow-sm flex flex-col h-[85vh]">
+        <!-- Header -->
+        <div class="px-4 py-3 border-b border-gray-100">
+          <div v-if="selectedDay">
+            <p class="text-sm font-semibold text-gray-800">
+              {{ selectedDay.date_label }}
+            </p>
+            <p class="text-xs text-gray-400 mt-0.5">
+              {{ selectedDay.total_count }} bookings &nbsp;·&nbsp;
+              {{ formatNumber(selectedDay.total_balance_due) }} THB overdue
+            </p>
+          </div>
+          <p v-else class="text-sm text-gray-400 py-1">
+            Click a bar to see overdue bookings
+          </p>
+        </div>
+
+        <!-- Admin filter tabs (when day selected) -->
+        <div
+          v-if="selectedDay && dayAdminNames.length > 1"
+          class="flex gap-1 px-3 pt-2 flex-wrap"
+        >
+          <button
+            @click="activeAdminFilter = null"
+            :class="[
+              'text-[10px] px-2 py-1 rounded-full font-medium transition-colors',
+              activeAdminFilter === null
+                ? 'bg-gray-700 text-white'
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
+            ]"
+          >
+            All
+          </button>
+          <button
+            v-for="(admin, idx) in dayAdminNames"
+            :key="admin"
+            @click="activeAdminFilter = admin"
+            :class="[
+              'text-[10px] px-2 py-1 rounded-full font-medium transition-colors',
+              activeAdminFilter === admin
+                ? 'text-white'
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
+            ]"
+            :style="
+              activeAdminFilter === admin
+                ? { background: adminColorByName(admin) }
+                : {}
+            "
+          >
+            {{ admin }}
+          </button>
+        </div>
+
+        <!-- Booking list -->
+        <div class="flex-1 overflow-y-auto px-4 py-3">
+          <!-- Empty state -->
+          <div
+            v-if="!selectedDay"
+            class="flex flex-col items-center justify-center h-full text-gray-300 py-12"
+          >
+            <svg
+              class="w-12 h-12 mb-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <p class="text-xs text-center leading-relaxed">
+              Select a date on the<br />graph to view bookings
+            </p>
+          </div>
+
+          <!-- Loading -->
+          <div
+            v-else-if="loadingBookings"
+            class="flex items-center justify-center h-40"
+          >
+            <div
+              class="animate-spin rounded-full h-6 w-6 border-b-2 border-red-500"
+            ></div>
+          </div>
+
+          <!-- No results -->
+          <div
+            v-else-if="filteredBookings.length === 0"
+            class="flex flex-col items-center justify-center h-40 text-gray-300"
+          >
+            <p class="text-xs">No overdue bookings found</p>
+          </div>
+
+          <!-- Booking cards -->
+          <div v-else class="space-y-2">
+            <div
+              v-for="booking in filteredBookings"
+              :key="booking.id"
+              class="border rounded-xl p-3 transition-all hover:shadow-sm"
+              :style="{
+                borderColor: adminColorByName(booking.created_by_name) + '60',
+              }"
+            >
+              <!-- Top row -->
+              <div class="flex items-start justify-between gap-2 mb-1.5">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-semibold text-gray-800 truncate">
+                    {{ booking.customer_name }}
+                  </p>
+                  <p
+                    @click="goToBooking(booking.id)"
+                    class="text-[10px] px-4 py-1 bg-[#FF613c] inline-block rounded-lg text-white mt-0.5"
+                  >
+                    {{ booking.booking_crm_id }}
+                  </p>
+                </div>
+                <div class="text-right flex-shrink-0 space-y-1">
+                  <span
+                    class="text-[9px] font-medium px-2 py-0.5 rounded-full block"
+                    :style="{
+                      background:
+                        adminColorByName(booking.created_by_name) + '22',
+                      color: adminColorByName(booking.created_by_name),
+                    }"
+                  >
+                    {{ booking.created_by_name }}
+                  </span>
+                  <span
+                    class="text-[9px] px-2 py-0.5 rounded-full block bg-red-100 text-red-700 font-medium"
+                  >
+                    {{ booking.payment_status?.replace("_", " ") }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Middle info -->
+              <div class="flex items-center gap-2 flex-wrap mt-1">
+                <span class="text-[10px] text-gray-500">
+                  Due:
+                  <span class="font-medium text-red-500">{{
+                    booking.balance_due_date
+                  }}</span>
+                </span>
+                <span
+                  class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full"
+                >
+                  {{ booking.booking_date }}
+                </span>
+              </div>
+
+              <!-- Footer -->
+              <div
+                class="flex items-center justify-between mt-2 pt-2 border-t border-gray-50"
+              >
+                <div>
+                  <p class="text-[10px] text-gray-400">
+                    Total:
+                    <span class="text-gray-600 font-medium"
+                      >{{ formatNumber(booking.total_amount) }} THB</span
+                    >
+                  </p>
+                  <p class="text-[10px] text-gray-400">
+                    Paid:
+                    <span class="text-green-600 font-medium"
+                      >{{ formatNumber(booking.paid_amount) }} THB</span
+                    >
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-[10px] text-gray-400">Balance Due</p>
+                  <p class="text-sm font-bold text-red-600">
+                    {{ formatNumber(booking.balance_due) }} THB
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div
+              v-if="totalPages > 1"
+              class="flex items-center justify-center gap-2 pt-2"
+            >
+              <button
+                @click="changePage(currentPage - 1)"
+                :disabled="currentPage === 1"
+                class="text-xs px-2 py-1 rounded border border-gray-200 disabled:opacity-40 hover:border-red-500 hover:text-red-500"
+              >
+                ‹
+              </button>
+              <span class="text-xs text-gray-500"
+                >{{ currentPage }} / {{ totalPages }}</span
+              >
+              <button
+                @click="changePage(currentPage + 1)"
+                :disabled="currentPage === totalPages"
+                class="text-xs px-2 py-1 rounded border border-gray-200 disabled:opacity-40 hover:border-red-500 hover:text-red-500"
+              >
+                ›
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </Layout>
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from "vue";
 import { BarChart } from "vue-chart-3";
-import { useAuthStore } from "../../stores/auth";
-import { useHomeStore } from "../../stores/home";
-import { useAdminStore } from "../../stores/admin";
-import { computed, onMounted, reactive, ref, watch } from "vue";
 import { Chart, registerables } from "chart.js";
-import ReceivableList from "./ReceivableList.vue";
 import Layout from "../Layout.vue";
+import { useHomeStore } from "../../stores/home";
+import { useAuthStore } from "../../stores/auth";
+import { ArrowPathIcon } from "@heroicons/vue/24/outline";
 
 Chart.register(...registerables);
 
-const authStore = useAuthStore();
 const homeStore = useHomeStore();
-const adminStore = useAdminStore();
+const authStore = useAuthStore();
 
-const adminOnlyList = ref([]);
-const getAdminListOnly = async () => {
-  // Fetch admin list and set up permissions
-  const res = await adminStore.getSimpleListAction();
-  if (res && res.result && res.result.data) {
-    adminOnlyList.value = res.result.data
-      .filter((item) => item.role === "admin" || item.role === "sale_manager")
-      .map((item) => ({
-        id: item.id,
-        name: item.name,
-      }));
-  } else {
-    console.error("Failed to fetch admin list");
-    adminOnlyList.value = [];
-  }
-};
+// ── State ──────────────────────────────────────────────────────────────────
+const selectedYear = ref(new Date().getFullYear());
+const selectedMonth = ref(new Date().getMonth() + 1);
+const loadingGraph = ref(false);
+const loadingBookings = ref(false);
 
-// Reactive data for chart
-const dataTest = reactive({ items: [] });
-const dataNotPaid = reactive({ items: [] });
-const monthForGraph = ref("");
-const createdByList = ref([]);
-const agentUnpaidData = ref([]);
+const days = ref([]); // [{ date, date_label, total_balance_due, total_count, admins: [{name, balance_due, count}] }]
+const summary = ref({ total_balance_due: 0, total_count: 0 });
+const selectedDay = ref(null);
+const activeAdminFilter = ref(null);
+const dayBookings = ref([]);
+const currentPage = ref(1);
+const totalPages = ref(1);
 
-// Computed total unpaid amount
-const totalUnpaidAmount = computed(() => {
-  if (dataNotPaid.items.length > 0) {
-    return dataNotPaid.items.reduce((total, amount) => total + amount, 0);
-  }
-  return 0;
+// ── Admin color palette (distinct, readable) ──────────────────────────────
+const adminColors = [
+  "#E54B4B",
+  "#F59E0B",
+  "#10B981",
+  "#3B82F6",
+  "#8B5CF6",
+  "#EC4899",
+  "#14B8A6",
+  "#F97316",
+  "#6366F1",
+  "#84CC16",
+  "#06B6D4",
+  "#D946EF",
+];
+
+// All distinct admin names across all days
+const adminNames = computed(() => {
+  const names = new Set();
+  days.value.forEach((d) => d.admins?.forEach((a) => names.add(a.name)));
+  return [...names];
 });
 
-// Computed total unpaid bookings
-const totalUnpaidBookings = computed(() => {
-  return agentUnpaidData.value.reduce(
-    (total, agent) => total + agent.unpaidBookings,
-    0,
+const adminColorByName = (name) => {
+  const idx = adminNames.value.indexOf(name);
+  return adminColors[idx >= 0 ? idx % adminColors.length : 0];
+};
+
+const goToBooking = (id) => {
+  window.open(`/bookings/new-update/${id}`, "_blink");
+};
+
+// Admin names present in the selected day
+const dayAdminNames = computed(() => {
+  if (!selectedDay.value) return [];
+  return selectedDay.value.admins?.map((a) => a.name) ?? [];
+});
+
+// ── Options ────────────────────────────────────────────────────────────────
+const curYear = new Date().getFullYear();
+const yearOptions = Array.from({ length: 4 }, (_, i) => curYear - i);
+const monthLabels = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+const formatNumber = (n) => Math.round(n ?? 0).toLocaleString();
+
+// ── Filtered bookings (right panel) ───────────────────────────────────────
+const filteredBookings = computed(() => {
+  if (!activeAdminFilter.value) return dayBookings.value;
+  return dayBookings.value.filter(
+    (b) => b.created_by_name === activeAdminFilter.value,
   );
 });
 
-// Chart data configuration - only showing not_paid data
-const unpaidSaleData = {
-  labels: dataTest.items,
-  datasets: [
-    {
-      label: "Unpaid Amount",
-      type: "bar",
-      data: dataNotPaid.items,
-      backgroundColor: "rgba(223, 0, 0, 0.8)", // Red color for unpaid with transparency
-      borderColor: "rgb(223, 0, 0)",
-      borderWidth: 1,
-      borderRadius: 4,
-      borderSkipped: false,
-    },
-  ],
-};
+// ── Chart data — stacked by admin ─────────────────────────────────────────
+const chartData = computed(() => {
+  const labels = days.value.map((d) => d.date_label);
 
-// Chart options
-const chartOptions = {
+  const datasets = adminNames.value.map((adminName, idx) => ({
+    label: adminName,
+    data: days.value.map((d) => {
+      const found = d.admins?.find((a) => a.name === adminName);
+      return found?.balance_due ?? 0;
+    }),
+    backgroundColor: adminColors[idx % adminColors.length] + "CC",
+    borderColor: adminColors[idx % adminColors.length],
+    borderWidth: 1,
+    borderRadius: 3,
+    stack: "stack",
+  }));
+
+  return { labels, datasets };
+});
+
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
+  onClick: (evt, els) => {
+    if (!els.length) return;
+    const clickedDay = days.value[els[0].index];
+    if (!clickedDay) return;
+    selectedDay.value = clickedDay;
+    console.log(selectedDay.value, "this is selected day");
+
+    activeAdminFilter.value = null;
+    currentPage.value = 1;
+    fetchDayBookings(clickedDay.date);
+  },
   scales: {
+    x: {
+      grid: { display: false },
+      ticks: { font: { size: 9 }, maxRotation: 55, autoSkip: false },
+      stacked: true,
+    },
     y: {
       beginAtZero: true,
-      title: {
-        display: true,
-        text: "Amount (THB)",
-        color: "#374151",
-        font: {
-          size: 12,
-          weight: "bold",
-        },
-      },
-      grid: {
-        color: "#f3f4f6",
-      },
+      stacked: true,
+      grid: { color: "rgba(0,0,0,0.04)" },
       ticks: {
-        color: "#6b7280",
-      },
-    },
-    x: {
-      title: {
-        display: true,
-        text: "Date",
-        color: "#374151",
-        font: {
-          size: 12,
-          weight: "bold",
-        },
-      },
-      grid: {
-        color: "#f3f4f6",
-      },
-      ticks: {
-        color: "#6b7280",
+        font: { size: 10 },
+        callback: (v) => (v >= 1000 ? (v / 1000).toFixed(0) + "k" : v),
       },
     },
   },
   plugins: {
-    legend: {
-      display: true,
-      position: "top",
-      labels: {
-        color: "#374151",
-        font: {
-          size: 12,
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        title: (ctx) => days.value[ctx[0].dataIndex]?.date_label ?? "",
+        label: (ctx) => {
+          const adminName = ctx.dataset.label;
+          const d = days.value[ctx.dataIndex];
+          const admin = d?.admins?.find((a) => a.name === adminName);
+          const count = admin?.count ?? 0;
+          const amount = formatNumber(ctx.parsed.y);
+          return ` ${adminName}: ${amount} THB (${count} bookings)`; // ← added count
+        },
+        afterBody: (ctx) => {
+          const d = days.value[ctx[0].dataIndex];
+          if (!d) return [];
+          return [
+            `─────────────────────`,
+            `Total: ${formatNumber(d.total_balance_due)} THB`,
+            `Total bookings: ${d.total_count}`, // ← total count
+          ];
         },
       },
     },
-    tooltip: {
-      mode: "index",
-      intersect: false,
-      backgroundColor: "rgba(0, 0, 0, 0.8)",
-      titleColor: "#ffffff",
-      bodyColor: "#ffffff",
-      borderColor: "rgb(223, 0, 0)",
-      borderWidth: 1,
-    },
   },
-};
+}));
 
-// Function to get admin list and set up permissions
-const getAdminList = async () => {
+// ── API calls ──────────────────────────────────────────────────────────────
+async function fetchData() {
+  loadingGraph.value = true;
+  selectedDay.value = null;
+  dayBookings.value = [];
   try {
-    const res = await adminStore.getSaleManager();
-    let manager = res.result.data.find((a) => a.id == authStore.user?.id);
-
-    if (authStore.isSuperAdmin || authStore.isAuditor) {
-      // Super admin sees all data - set createdByList to null to include all
-      createdByList.value = null;
-    } else if (manager) {
-      // Sale manager sees their subsidiaries + themselves
-      createdByList.value =
-        manager.subsidiaries?.map((item) => item.name) || [];
-      createdByList.value.push(manager.name);
-    } else {
-      // Regular admin sees only their own data
-      createdByList.value = [authStore.user.name];
-    }
-
-    console.log("Created by list for account receivable:", createdByList.value);
-  } catch (error) {
-    console.error("Error fetching admin list:", error);
-    createdByList.value = [authStore.user.name]; // Fallback to user's own data
-  }
-};
-
-// Function to get unpaid data based on user role
-const getUnpaidData = async (monthGet) => {
-  try {
-    // Use existing API that's already being called
-    const res = await homeStore.getTimeFilterArray(monthGet);
-
-    // Clear existing data
-    dataTest.items.splice(0);
-    dataNotPaid.items.splice(0);
-    agentUnpaidData.value = [];
-
-    // Object to track agent unpaid data
-    const agentUnpaidMap = {};
-
-    // Process the API response to extract only unpaid amounts
-    if (res?.result?.sales) {
-      for (let x = 0; x < res.result.sales.length; x++) {
-        let dailyUnpaidTotal = 0;
-
-        // Calculate total unpaid amount for the day
-        for (let i = 0; i < res.result.sales[x].agents.length; i++) {
-          const agent = res.result.sales[x].agents[i];
-
-          // Apply role-based filtering
-          const shouldIncludeAgent =
-            authStore.isSuperAdmin ||
-            authStore.isAuditor ||
-            createdByList.value === null ||
-            createdByList.value.includes(agent.name);
-
-          if (shouldIncludeAgent) {
-            const unpaidAmount = agent.total_balance || 0;
-            dailyUnpaidTotal += unpaidAmount;
-
-            // Track agent unpaid data
-            if (!agentUnpaidMap[agent.name]) {
-              agentUnpaidMap[agent.name] = {
-                name: agent.name,
-                unpaidAmount: 0,
-                unpaidBookings: 0,
-              };
-            }
-
-            agentUnpaidMap[agent.name].unpaidAmount += unpaidAmount;
-            // Count bookings that have unpaid balance
-            if (unpaidAmount > 0) {
-              agentUnpaidMap[agent.name].unpaidBookings +=
-                agent.total_count || 0;
-            }
-          }
-        }
-
-        dataNotPaid.items.push(dailyUnpaidTotal);
-        dataTest.items.push(res.result.sales[x].date);
-      }
-    }
-
-    // Convert agent map to array and calculate percentages
-    const totalUnpaid = Object.values(agentUnpaidMap).reduce(
-      (sum, agent) => sum + agent.unpaidAmount,
-      0,
+    const res = await homeStore.getBalanceDueOverGraph(
+      selectedYear.value,
+      selectedMonth.value,
     );
-    agentUnpaidData.value = Object.values(agentUnpaidMap)
-      .filter((agent) => agent.unpaidAmount > 0) // Only show agents with unpaid amounts
-      .map((agent) => ({
-        ...agent,
-        percentage:
-          totalUnpaid > 0
-            ? ((agent.unpaidAmount / totalUnpaid) * 100).toFixed(1)
-            : 0,
-      }))
-      .sort((a, b) => b.unpaidAmount - a.unpaidAmount); // Sort by unpaid amount descending
-  } catch (error) {
-    console.error("Error fetching unpaid data:", error);
+    const result = res.data?.result ?? res.data ?? {};
+    days.value = result.days ?? [];
+    summary.value = result.summary ?? {};
+  } catch (e) {
+    console.error("Balance due graph error:", e);
+    days.value = [];
+    summary.value = {};
+  } finally {
+    loadingGraph.value = false;
   }
-};
+}
 
-// Set current month on component mount
-const currentMonth = () => {
-  const currentDate = new Date();
-  const year = currentDate.getFullYear();
-  const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
-  monthForGraph.value = `${year}-${month}`;
-};
-
-// Watch for month changes
-watch(monthForGraph, async (newValue) => {
-  if (newValue) {
-    await getUnpaidData(newValue);
+async function fetchDayBookings(date, page = 1) {
+  loadingBookings.value = true;
+  try {
+    const res = await homeStore.getBalanceDueOverList({
+      date,
+      page,
+      per_page: 20,
+    });
+    const result = res.data?.result ?? res.data ?? {};
+    dayBookings.value = result.data ?? [];
+    totalPages.value = result.meta?.total_page ?? 1;
+    currentPage.value = page;
+    console.log(res.data, "this is balance due");
+  } catch (e) {
+    console.error("Balance due list error:", e);
+    dayBookings.value = [];
+  } finally {
+    loadingBookings.value = false;
   }
-});
+}
 
-// Initialize component
-onMounted(async () => {
-  // Check basic authorization
-  if (!authStore.user) {
-    console.warn("User not authenticated");
-    return;
-  }
+function changePage(page) {
+  if (!selectedDay.value || page < 1 || page > totalPages.value) return;
+  fetchDayBookings(selectedDay.value.date, page);
+}
 
-  await getAdminList();
-  await getAdminListOnly();
-  currentMonth();
-  await getUnpaidData(monthForGraph.value);
-});
+onMounted(fetchData);
 </script>
-
-<style scoped>
-/* Add any specific styles for the component here */
-</style>

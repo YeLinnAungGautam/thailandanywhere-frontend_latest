@@ -114,14 +114,32 @@
       <div class="flex-1 bg-white rounded-xl shadow-sm flex flex-col h-[85vh]">
         <!-- Header -->
         <div class="px-4 py-3 border-b border-gray-100">
-          <div v-if="selectedDay">
-            <p class="text-sm font-semibold text-gray-800">
-              {{ selectedDay.date_label }}
-            </p>
-            <p class="text-xs text-gray-400 mt-0.5">
-              {{ selectedDay.total_count }} bookings &nbsp;·&nbsp;
-              {{ formatNumber(selectedDay.total_balance_due) }} THB overdue
-            </p>
+          <div v-if="selectedDay" class="flex justify-between items-center">
+            <div>
+              <p class="text-sm font-semibold text-gray-800">
+                {{ selectedDay.date_label }}
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">
+                {{ selectedDay.total_count }} bookings &nbsp;·&nbsp;
+                {{ formatNumber(selectedDay.total_balance_due) }} THB overdue
+              </p>
+            </div>
+            <div>
+              <button
+                v-if="activeAdminFilter"
+                @click="copyFilteredBookings"
+                :class="[
+                  'ml-auto text-[10px] px-2 py-1 rounded-full font-medium flex items-center gap-1 transition-colors',
+                  copiedAdmin
+                    ? 'bg-green-100 text-green-600'
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
+                ]"
+              >
+                <DocumentDuplicateIcon class="w-4 h-4" v-if="!copiedAdmin" />
+                <CheckIcon class="w-4 h-4" v-if="copiedAdmin" />
+                {{ copiedAdmin ? "Copied!" : "Copy" }}
+              </button>
+            </div>
           </div>
           <p v-else class="text-sm text-gray-400 py-1">
             Click a bar to see overdue bookings
@@ -328,7 +346,11 @@ import { Chart, registerables } from "chart.js";
 import Layout from "../Layout.vue";
 import { useHomeStore } from "../../stores/home";
 import { useAuthStore } from "../../stores/auth";
-import { ArrowPathIcon } from "@heroicons/vue/24/outline";
+import {
+  ArrowPathIcon,
+  CheckIcon,
+  DocumentDuplicateIcon,
+} from "@heroicons/vue/24/outline";
 
 Chart.register(...registerables);
 
@@ -491,6 +513,31 @@ const chartOptions = computed(() => ({
     },
   },
 }));
+
+const copyFilteredBookings = () => {
+  const adminName = activeAdminFilter.value;
+  const bookings = filteredBookings.value;
+  if (!bookings.length) return;
+
+  const dateLabel = selectedDay.value?.date_label ?? "";
+
+  const lines = bookings
+    .map(
+      (b) =>
+        `${b.booking_crm_id}, ${b.customer_name}, ${formatNumber(
+          b.balance_due,
+        )}`,
+    )
+    .join("\n");
+
+  const text = `${adminName} (${dateLabel})\n${lines}`;
+  navigator.clipboard.writeText(text);
+
+  copiedAdmin.value = true;
+  setTimeout(() => (copiedAdmin.value = false), 2000);
+};
+
+const copiedAdmin = ref(false);
 
 // ── API calls ──────────────────────────────────────────────────────────────
 async function fetchData() {

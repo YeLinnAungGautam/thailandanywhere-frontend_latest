@@ -749,9 +749,9 @@ onMounted(() => {
           <p class="text-[10px] pt-1">{{ i?.item_name }}</p>
 
           <div class="flex justify-between items-center">
-            <p class="text-[10px]">{{ i?.service_date }}</p>
+            <p class="text-[10px]">{{ i?.service_date }} <span v-if="i.checkout_date"> , {{ i.checkout_date }}</span></p>
             <p class="text-[10px]">
-              Discount :
+              Dis :
               <span class="font-medium text-xs">{{ i?.discount }} ฿</span>
             </p>
           </div>

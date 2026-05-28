@@ -6,7 +6,34 @@
       <h1 class="text-base font-bold text-gray-800 pl-4">Cash Image Report</h1>
 
       <!-- Month Filter -->
+      <!-- Month Filter -->
       <div class="flex items-center gap-4">
+        <!-- Interact Bank Toggle -->
+        <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+          <button
+            @click="setInteractBankFilter('all')"
+            :class="{
+              'bg-white shadow text-orange-600 font-semibold':
+                interactBankFilter === 'all',
+              'text-gray-500': interactBankFilter !== 'all',
+            }"
+            class="px-3 py-1 rounded-md text-xs transition"
+          >
+            All
+          </button>
+          <button
+            @click="setInteractBankFilter('company')"
+            :class="{
+              'bg-white shadow text-orange-600 font-semibold':
+                interactBankFilter === 'company',
+              'text-gray-500': interactBankFilter !== 'company',
+            }"
+            class="px-3 py-1 rounded-md text-xs transition"
+          >
+            Company
+          </button>
+        </div>
+
         <label class="text-xs font-medium text-gray-700">Select Month:</label>
         <input
           type="month"
@@ -808,6 +835,8 @@ const duplicateFilter = ref("all");
 const currentShow = ref("thb");
 const showByType = ref(false);
 
+const interactBankFilter = ref("all"); // 'all' or 'company'
+
 // Chart data
 const monthlyChartData = reactive({
   labels: [],
@@ -969,11 +998,14 @@ const fetchCashImagesList = async () => {
       {
         agent_id: selectedAgentId.value,
         currency: selectedCurrency.value,
+        interact_bank:
+          interactBankFilter.value !== "all"
+            ? interactBankFilter.value
+            : undefined,
       },
     );
 
     if (response.result && response.result.all_images) {
-      // Process images to add image_url and detect duplicates
       const imagesWithUrl = response.result.all_images.map((img) => ({
         ...img,
         image_url: img.image
@@ -1001,6 +1033,15 @@ const closeCashImagesPanel = () => {
   selectedCurrency.value = "";
   verificationFilter.value = "all";
   duplicateFilter.value = "all";
+};
+
+const setInteractBankFilter = async (value) => {
+  interactBankFilter.value = value;
+  await getCashImageReport(monthForGraph.value);
+  // Refresh panel if it's open
+  if (showCashImagesPanel.value && selectedAgentId.value) {
+    await fetchCashImagesList();
+  }
 };
 
 const openImagePreview = (url) => {
@@ -1201,9 +1242,13 @@ const currentMonth = () => {
 const getCashImageReport = async (month) => {
   loading.value = true;
   try {
-    console.log("Fetching cash image report for:", month);
-    const res = await homeStore.generalCashImageReport(month);
-    console.log("Cash image report response:", res);
+    const params = {
+      interact_bank:
+        interactBankFilter.value !== "all"
+          ? interactBankFilter.value
+          : undefined,
+    };
+    const res = await homeStore.generalCashImageReport(month, params);
     cashImageData.value = res.result;
     updateCharts();
   } catch (error) {

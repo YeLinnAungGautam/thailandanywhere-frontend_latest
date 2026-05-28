@@ -524,7 +524,7 @@ const copyFilteredBookings = () => {
   const lines = bookings
     .map(
       (b) =>
-        `${b.booking_crm_id}, ${b.customer_name}, ${formatNumber(
+        `\n- ${b.booking_crm_id}, ${b.customer_name}, ${formatNumber(
           b.balance_due,
         )}`,
     )

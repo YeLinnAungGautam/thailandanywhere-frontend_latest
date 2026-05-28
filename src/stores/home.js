@@ -78,10 +78,13 @@ export const useHomeStore = defineStore("home", {
         throw error;
       }
     },
-    async generalCashImageReport(params) {
+    async generalCashImageReport(month, params) {
       try {
         const response = await axios.get(
-          `/general-cash-image-reports/${params}`,
+          `/general-cash-image-reports/${month}`,
+          {
+            params,
+          },
         );
         console.log(response, "cash image report");
 

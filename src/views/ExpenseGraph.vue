@@ -1297,7 +1297,7 @@ const chartData = computed(() => {
   return { labels, datasets };
 });
 
-const threshold = ref(65000);
+const threshold = ref(40000);
 
 const formatTs = (ts) => {
   if (!ts) return "-";

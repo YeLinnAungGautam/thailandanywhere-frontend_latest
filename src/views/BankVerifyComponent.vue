@@ -76,6 +76,18 @@
             class="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:border-[#FF613c] transition-colors"
           />
         </div>
+        <div class="relative flex-shrink-0 w-64">
+          <MagnifyingGlassIcon
+            class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"
+          />
+          <input
+            type="search"
+            v-model="cashImageIds"
+            placeholder="Search Cash Image IDs"
+            @keyup.enter="searchAction"
+            class="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:border-[#FF613c] transition-colors"
+          />
+        </div>
 
         <div class="relative">
           <button
@@ -660,13 +672,38 @@
               >
                 {{ row.balance ? fmtNum(row.balance) : "" }}
               </td>
-              <td class="px-5 py-3">
+              <!-- <td class="px-5 py-3">
                 <span
                   v-if="row.cash_image_id"
                   class="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md"
                 >
                   #{{ row.cash_image_id }}
                 </span>
+                <span
+                  v-if="row.duplicate_ids"
+                  class="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md"
+                >
+                  #{{ row.duplicate_ids }}
+                </span>
+                <span v-else class="text-[11px] text-gray-300">—</span>
+              </td> -->
+              <td class="px-5 py-3">
+                <template v-if="row.cash_image_id || row.duplicate_ids">
+                  <span
+                    v-if="row.cash_image_id"
+                    @click="goToVerifyWithIds(row.cash_image_id)"
+                    class="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md cursor-pointer hover:bg-blue-100 transition-colors"
+                  >
+                    #{{ row.cash_image_id }}
+                  </span>
+                  <span
+                    v-if="row.duplicate_ids"
+                    @click="goToVerifyWithIds(row.duplicate_ids)"
+                    class="text-[11px] font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md cursor-pointer hover:bg-orange-100 transition-colors ml-1"
+                  >
+                    #{{ row.duplicate_ids }}
+                  </span>
+                </template>
                 <span v-else class="text-[11px] text-gray-300">—</span>
               </td>
               <!-- Status badge -->
@@ -1447,6 +1484,9 @@ const watchSystem = computed(() => {
   Object.keys(searchKey.value).forEach((k) => {
     if (searchKey.value[k]) result[k] = searchKey.value[k];
   });
+  if (cashImageIds.value) {
+    result.cash_image_ids = cashImageIds.value;
+  }
   if (year.value && selectedMonth.value) {
     const start = new Date(year.value, selectedMonth.value - 1, 1);
     const end = new Date(year.value, selectedMonth.value, 0);
@@ -1477,6 +1517,17 @@ const searchAction = async () => {
   filterShow.value = false;
   await getAction();
 };
+// const clearFilter = () => {
+//   searchKey.value = {
+//     crm_id: "",
+//     sender: "",
+//     receiver: "",
+//     currency: "",
+//     interact_bank: "",
+//   };
+//   filterShow.value = false;
+//   getAction();
+// };
 const clearFilter = () => {
   searchKey.value = {
     crm_id: "",
@@ -1484,7 +1535,10 @@ const clearFilter = () => {
     receiver: "",
     currency: "",
     interact_bank: "",
+    bank_verify: "",
+    data_verify: "",
   };
+  cashImageIds.value = ""; // ← add this
   filterShow.value = false;
   getAction();
 };
@@ -1740,6 +1794,16 @@ const doImport = async () => {
   } catch (err) {
     toast.error(err?.response?.data?.message ?? "Import failed");
   }
+};
+
+const cashImageIds = ref("");
+const goToVerifyWithIds = async (ids) => {
+  activeTab.value = "verify";
+  // reuse the search bar as the display chip
+  // store cash_image_ids separately so watchSystem picks it up
+  cashImageIds.value = String(ids);
+  saveUrl.value = "";
+  await getAction();
 };
 
 // ─── Resolve duplicate modal ─────────────────────────────

@@ -486,7 +486,6 @@ const buildPrintHtml = (
 ) => {
   const currency = booking?.payment_currency ?? detail.currency ?? "THB";
 
-  // Scale factor: make item totals sum to cashAmount
   const bookingTotal = bookingItems.reduce(
     (sum, bi) => sum + Number(bi.amount ?? 0),
     0,
@@ -501,7 +500,6 @@ const buildPrintHtml = (
       const scaledTotal = Number(bi.amount ?? 0) * scaleFactor;
       const scaledUnit = qty > 0 ? scaledTotal / qty : scaledTotal;
 
-      // Strip 7% VAT for display
       const unitExVat = scaledUnit / 1.07;
       const totalExVat = scaledTotal / 1.07;
 
@@ -516,9 +514,9 @@ const buildPrintHtml = (
     })
     .join("");
 
-  const subTotal = cashAmount / 1.07; // ex-VAT sum
-  const vatAmount = cashAmount - subTotal; // 7% portion
-  const grandTotal = fmt(cashAmount); // final total (unchanged)
+  const subTotal = cashAmount / 1.07;
+  const vatAmount = cashAmount - subTotal;
+  const grandTotal = fmt(cashAmount);
 
   const customerName = customer?.name ?? detail.sender ?? "—";
   const customerPhone = customer?.phone_number ?? "—";
@@ -526,47 +524,82 @@ const buildPrintHtml = (
 
   const cashImageUrl = detail.image ? `${detail.image}` : null;
 
-  console.log(cashImageUrl);
-
   return `
     <style>
-      #print-content * { box-sizing: border-box; }
-      #print-content .page { padding: 36px 44px; page-break-after: always; }
-      #print-content .page:last-child { page-break-after: auto; }
-      #print-content .header-row { display: flex; justify-content: space-between; margin-bottom: 28px; gap: 24px; }
-      #print-content .label { font-weight: 700; font-size: 11px; letter-spacing: .06em; margin-bottom: 5px; text-transform: uppercase; color: #555; }
-      #print-content .val { font-size: 13px; line-height: 1.7; }
-      #print-content hr.divider { border: none; border-top: 2px solid #111; margin: 0 0 0; }
-      #print-content .meta-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 12px; color: #444; border-bottom: 1px solid #eee; }
-      #print-content .meta-row span:first-child { font-weight: 600; color: #111; }
-      #print-content table.items { width: 100%; border-collapse: collapse; margin-top: 22px; }
-      #print-content table.items thead tr { border-top: 2px solid #111; border-bottom: 2px solid #111; }
-      #print-content table.items th { padding: 8px 6px; font-size: 10px; font-weight: 700; letter-spacing: .07em; text-align: left; }
-      #print-content table.items th:nth-child(3),
-      #print-content table.items th:nth-child(4),
-      #print-content table.items th:nth-child(5) { text-align: right; }
-      #print-content table.items td { padding: 10px 6px; font-size: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
-      #print-content table.items td:nth-child(3),
-      #print-content table.items td:nth-child(4),
-      #print-content table.items td:nth-child(5) { text-align: right; }
-      #print-content .total-row { display: flex; justify-content: flex-end; gap: 40px; padding: 14px 6px 0; border-top: 2px solid #111; margin-top: 8px; font-weight: 700; font-size: 15px; }
-      #print-content .receipt-section { margin-top: 28px; padding-top: 18px; border-top: 1px solid #ddd; font-size: 12px; }
-      #print-content .r-row { display: flex; gap: 12px; margin-bottom: 5px; }
-      #print-content .r-label { width: 140px; font-weight: 600; color: #333; }
-      #print-content .slip-page { padding: 36px 44px; display: flex; flex-direction: column; align-items: center; }
-      #print-content .slip-img { width: 100%; border: 1px solid #ddd; border-radius: 6px; }
-      @media print {
-        #print-content .page { padding: 18mm 22mm; min-height: 297mm; }
-        #print-content .slip-page { padding: 18mm 22mm; min-height: 297mm; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      .page {
+        width: 210mm;
+        height: 297mm;
+        max-height: 297mm;
+        overflow: hidden;
+        padding: 18mm 22mm;
+        page-break-after: always;
+        page-break-inside: avoid;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .slip-page {
+        width: 210mm;
+        height: 297mm;
+        max-height: 297mm;
+        overflow: hidden;
+        padding: 18mm 22mm;
+        page-break-before: always;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header-row { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 24px; }
+      .label { font-weight: 700; font-size: 11px; letter-spacing: .06em; margin-bottom: 4px; text-transform: uppercase; color: #555; }
+      .val { font-size: 12px; line-height: 1.6; }
+      hr.divider { border: none; border-top: 2px solid #111; margin: 0; }
+      .meta-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 11px; color: #444; border-bottom: 1px solid #eee; }
+      .meta-row span:first-child { font-weight: 600; color: #111; }
+
+      table.items { width: 100%; border-collapse: collapse; margin-top: 16px; flex-shrink: 0; }
+      table.items thead tr { border-top: 2px solid #111; border-bottom: 2px solid #111; }
+      table.items th { padding: 6px 5px; font-size: 10px; font-weight: 700; letter-spacing: .07em; text-align: left; }
+      table.items th:nth-child(3),
+      table.items th:nth-child(4),
+      table.items th:nth-child(5) { text-align: right; }
+      table.items td { padding: 7px 5px; font-size: 11px; border-bottom: 1px solid #eee; vertical-align: top; }
+      table.items td:nth-child(3),
+      table.items td:nth-child(4),
+      table.items td:nth-child(5) { text-align: right; }
+
+      .totals-block { margin-top: 8px; border-top: 2px solid #111; padding-top: 10px; flex-shrink: 0; }
+      .total-line { display: flex; justify-content: flex-end; gap: 40px; font-size: 12px; padding: 2px 0; }
+      .total-line.grand { font-weight: 700; font-size: 14px; margin-top: 4px; }
+
+      .slip-img {
+        max-width: 100%;
+        max-height: 245mm;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        display: block;
       }
     </style>
 
     <!-- PAGE 1: INVOICE -->
     <div class="page">
-      <div class="header-row" style="align-items: flex-start; margin-bottom: 24px;">
+      <div class="header-row" style="align-items: flex-start; margin-bottom: 18px;">
         <div>
-          <div style="font-size: 22px; font-weight: 900; color: #111; margin-bottom: 6px; letter-spacing: -0.3px;">TH ANYWHERE CO., LTD.</div>
-          <div style="font-size: 12px; color: #333; line-height: 2;">
+          <div style="font-size: 20px; font-weight: 900; color: #111; margin-bottom: 5px; letter-spacing: -0.3px;">TH ANYWHERE CO., LTD.</div>
+          <div style="font-size: 11px; color: #333; line-height: 1.9;">
             TH Anywhere (Head Office)<br>
             100, 151 Huay Kaew Rd, Chiang Mai<br>
             <strong>Tax ID:</strong> 0105555809643B<br>
@@ -574,15 +607,16 @@ const buildPrintHtml = (
           </div>
         </div>
         <div style="text-align: right;">
-          <div style="font-size: 20px; font-weight: 900; color: #111; margin-bottom: 10px;">PAYMENT</div>
-          <div style="font-size: 12px; color: #333; line-height: 2;">
+          <div style="font-size: 18px; font-weight: 900; color: #111; margin-bottom: 8px;">PAYMENT</div>
+          <div style="font-size: 11px; color: #333; line-height: 1.9;">
             <strong>Date:</strong> ${detail.date ?? "—"}<br>
             <strong>Payment No.:</strong> ${detail?.unit ?? "—"}<br>
             <strong>Agency Sold by:</strong> TH Anywhere Myanmar
           </div>
         </div>
       </div>
-      <div class="header-row">
+
+      <div class="header-row" style="margin-bottom: 16px;">
         <div>
           <div class="label">Customer Detail</div>
           <div class="val">
@@ -613,41 +647,37 @@ const buildPrintHtml = (
         <tbody>
           ${
             itemRows ||
-            `<tr><td colspan="5" style="padding:14px 6px;color:#888">No items</td></tr>`
+            `<tr><td colspan="5" style="padding:12px 5px;color:#888">No items</td></tr>`
           }
         </tbody>
       </table>
 
-      <div class="total-row" style="flex-direction:column; align-items:flex-end; gap:6px;">
-        <div style="display:flex; justify-content:flex-end; gap:40px; font-weight:400; font-size:13px;">
+      <div class="totals-block">
+        <div class="total-line">
           <span>Sub Total</span>
-          <span style="min-width:120px; text-align:right">${fmt(
+          <span style="min-width:130px; text-align:right">${fmt(
             subTotal,
           )} ${currency}</span>
         </div>
-        <div style="display:flex; justify-content:flex-end; gap:40px; font-weight:400; font-size:13px;">
+        <div class="total-line">
           <span>VAT 7%</span>
-          <span style="min-width:120px; text-align:right">${fmt(
+          <span style="min-width:130px; text-align:right">${fmt(
             vatAmount,
           )} ${currency}</span>
         </div>
-        <div style="display:flex; justify-content:flex-end; gap:40px; font-weight:400; font-size:13px;">
+        <div class="total-line grand">
           <span>Total Amount</span>
-          <span style="min-width:120px; text-align:right">${grandTotal} ${currency}</span>
+          <span style="min-width:130px; text-align:right">${grandTotal} ${currency}</span>
         </div>
-        
       </div>
-
-      
     </div>
 
     <!-- PAGE 2: CASH SLIP -->
     <div class="slip-page">
-      
       ${
         cashImageUrl
           ? `<img class="slip-img" src="${cashImageUrl}" alt="Cash slip" />`
-          : `<p style="color:#888;font-size:13px;margin-top:40px">No slip image available.</p>`
+          : `<p style="color:#888;font-size:13px;">No slip image available.</p>`
       }
     </div>`;
 };

@@ -13,6 +13,7 @@
           <p class="text-xs font-light">{{ i.des }}</p>
         </div>
       </div>
+
       <div v-if="step == 'bank_verify'">
         <BankVerifyComponent />
       </div>

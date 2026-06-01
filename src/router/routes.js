@@ -124,6 +124,7 @@ import AllowmentChecker from "../views/AllowmentChecker.vue";
 import HotelReport from "../views/HotelReport.vue";
 import ExternalPDF from "../views/ExternalPDF.vue";
 import RemaindTaxReceiptOutput from "../views/TaxReceiptComponent/RemaindTaxReceiptOutput.vue";
+import ProductGraphReport from "../views/ProductGraphReport.vue";
 
 const routes = [
   {
@@ -158,6 +159,11 @@ const routes = [
     path: "/home/hotel-report",
     name: "hotel-report",
     component: HotelReport,
+  },
+  {
+    path: "/home/product-sale-report",
+    name: "product-sale-report",
+    component: ProductGraphReport,
   },
   {
     path: "/home/sale-analysics",

@@ -636,6 +636,63 @@
           </div>
         </div>
 
+        <!-- 6. Expense graph Report -->
+        <div
+          @click="navigateTo('/home/product-sale-report')"
+          class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden border border-orange-100 hover:border-orange-300 transform hover:-translate-y-1"
+        >
+          <div
+            class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400 to-orange-600 rounded-bl-full opacity-10 group-hover:opacity-20 transition-opacity"
+          ></div>
+          <div class="p-6 relative z-10">
+            <div class="flex items-center justify-between mb-4">
+              <div
+                class="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-chart-column-stacked-icon lucide-chart-column-stacked"
+                >
+                  <path d="M11 13H7" />
+                  <path d="M19 9h-4" />
+                  <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+                  <rect x="15" y="5" width="4" height="12" rx="1" />
+                  <rect x="7" y="8" width="4" height="9" rx="1" />
+                </svg>
+              </div>
+              <span
+                class="text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </span>
+            </div>
+            <h3 class="text-xl font-semibold text-orange-800 mb-2">
+              Product Sale Report
+            </h3>
+            <p class="text-orange-500 text-sm">product sale report</p>
+          </div>
+        </div>
+
         <!-- <SendMessage /> -->
       </div>
     </div>

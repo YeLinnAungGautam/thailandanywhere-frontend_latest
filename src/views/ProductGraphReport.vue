@@ -414,7 +414,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { BarChart } from "vue-chart-3"; // Fix 2: BarChart
 import { Chart, registerables } from "chart.js";
 import { useProductSalesReportStore } from "../stores/productSaleReport.js";
@@ -509,18 +509,28 @@ const totalQuantity = computed(() =>
 );
 
 // Fix 1: all unique period labels sorted — daily when month view, monthly when year view
+// const allPeriods = computed(() => {
+//   const set = new Set();
+//   store.seriesData.forEach((s) => s.data.forEach((d) => set.add(d.period)));
+//   return [...set].sort();
+// });
 const allPeriods = computed(() => {
-  const set = new Set();
-  store.seriesData.forEach((s) => s.data.forEach((d) => set.add(d.period)));
-  return [...set].sort();
+  if (period.value === "month") {
+    // Return ALL days in the selected month, not just days with data
+    return getAllDaysInMonth(selectedYear.value, selectedMonth.value);
+  } else {
+    // Return ALL months in the selected year
+    return getAllMonthsInYear(selectedYear.value);
+  }
 });
 
 // Fix 1 + 2: x-axis labels formatted nicely for daily vs monthly
 const periodLabels = computed(() =>
   allPeriods.value.map((p) => {
     if (period.value === "month") {
-      // "2025-03-15" → "15"  (just the day number)
-      return p.split("-")[2];
+      // "2025-03-15" → "15" (just the day number)
+      const day = p.split("-")[2];
+      return day;
     }
     // "2025-03" → "Mar"
     const [, m] = p.split("-");
@@ -533,24 +543,41 @@ const chartData = computed(() => ({
   labels: periodLabels.value,
   datasets: store.seriesData.map((s, i) => {
     const color = BAR_COLORS[i % BAR_COLORS.length];
-    const dataMap = Object.fromEntries(
-      s.data.map((d) => [
-        d.period,
-        graphMetric.value === "amount" ? d.total_amount : d.total_quantity,
-      ]),
-    );
 
-    const backgroundColors = allPeriods.value.map((p) => {
+    // Create a map of existing data by period
+    const dataMap = new Map();
+    s.data.forEach((d) => {
+      dataMap.set(d.period, {
+        amount: d.total_amount,
+        qty: d.total_quantity,
+        profit: d.total_profit,
+        booking_count: d.booking_count,
+      });
+    });
+
+    // Build data array for all periods (use 0 for missing periods)
+    const data = allPeriods.value.map((period) => {
+      const existingData = dataMap.get(period);
+      if (existingData) {
+        return graphMetric.value === "amount"
+          ? existingData.amount
+          : existingData.qty;
+      }
+      return 0; // Return 0 for periods with no data
+    });
+
+    // Build background colors (dimmed for periods with no data if selected)
+    const backgroundColors = allPeriods.value.map((period) => {
       if (!selectedLine.value) return color;
       const isSelected =
         selectedLine.value.product_id === s.product_id &&
-        selectedLine.value.period === p;
+        selectedLine.value.period === period;
       return isSelected ? color : color + "44";
     });
 
     return {
       label: s.product_name,
-      data: allPeriods.value.map((p) => dataMap[p] ?? 0),
+      data: data,
       backgroundColor: backgroundColors,
       borderColor: color,
       borderWidth: 1,
@@ -647,6 +674,28 @@ const chartOptions = computed(() => ({
     },
   },
 }));
+
+// ── Add this helper function to get all days in a month ──
+function getAllDaysInMonth(year, month) {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const days = [];
+  for (let i = 1; i <= daysInMonth; i++) {
+    const dayStr = `${year}-${String(month).padStart(2, "0")}-${String(
+      i,
+    ).padStart(2, "0")}`;
+    days.push(dayStr);
+  }
+  return days;
+}
+
+// ── Add this helper function to get all months in a year ──
+function getAllMonthsInYear(year) {
+  const months = [];
+  for (let i = 1; i <= 12; i++) {
+    months.push(`${year}-${String(i).padStart(2, "0")}`);
+  }
+  return months;
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const formatNumber = (n) => Math.round(n ?? 0).toLocaleString();
@@ -745,6 +794,38 @@ async function fetchGraph() {
     selectedProductType.value,
     selectedProductIds.value,
   );
+
+  // Optional: If your backend doesn't return all periods, you might need to
+  // transform the data here to include zero values for missing periods
+  transformSeriesDataToIncludeAllPeriods();
+}
+
+// ── Add this function to ensure all periods are represented (backend fallback) ──
+function transformSeriesDataToIncludeAllPeriods() {
+  if (!store.seriesData.length) return;
+
+  const allPossiblePeriods = allPeriods.value;
+
+  store.seriesData.forEach((series) => {
+    const existingPeriods = new Set(series.data.map((d) => d.period));
+    const missingPeriods = allPossiblePeriods.filter(
+      (p) => !existingPeriods.has(p),
+    );
+
+    // Add missing periods with zero values
+    missingPeriods.forEach((period) => {
+      series.data.push({
+        period: period,
+        total_amount: 0,
+        total_quantity: 0,
+        total_profit: 0,
+        booking_count: 0,
+      });
+    });
+
+    // Sort by period
+    series.data.sort((a, b) => a.period.localeCompare(b.period));
+  });
 }
 
 async function loadDetail() {
@@ -763,6 +844,18 @@ async function changeDetailPage(page) {
   detailPage.value = page;
   await loadDetail();
 }
+
+watch([selectedYear, selectedMonth], () => {
+  if (period.value === "month") {
+    fetchGraph();
+  }
+});
+
+watch(selectedYear, () => {
+  if (period.value === "year") {
+    fetchGraph();
+  }
+});
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 onMounted(async () => {

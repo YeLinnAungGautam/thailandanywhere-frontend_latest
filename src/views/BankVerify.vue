@@ -139,8 +139,8 @@
             <div class="relative w-1/2">
               <input
                 type="search"
-                v-model="searchKey.crm_id"
-                placeholder="Search by CRM ID or Amount"
+                v-model="searchKey.amount"
+                placeholder="Search by Amount"
                 class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
               />
               <div
@@ -573,7 +573,7 @@ const scrollToItem = async (itemId) => {
 
 // Search and filter
 const searchKey = ref({
-  crm_id: "",
+  amount: "",
   sender: "",
   receiver: "",
   currency: "",
@@ -656,7 +656,7 @@ function formatDateForShow(dateString) {
     monthNames[date.getMonth()]
   } ${date.getFullYear()}`;
   const formattedTime = `${String(date.getHours()).padStart(2, "0")}:${String(
-    date.getMinutes()
+    date.getMinutes(),
   ).padStart(2, "0")}`;
 
   return `${formattedDate} - ${formattedTime}`;
@@ -675,7 +675,7 @@ const watchSystem = computed(() => {
   if (year.value && selectedMonth.value) {
     const dateRange = generateDateRangeForMonth(
       selectedMonth.value,
-      year.value
+      year.value,
     );
     // result.date_from = dateRange.split(",")[0];
     // result.date_to = dateRange.split(",")[1];
@@ -697,7 +697,7 @@ const searchAction = async () => {
 
 const clearFilter = () => {
   searchKey.value = {
-    crm_id: "",
+    amount: "",
     sender: "",
     receiver: "",
     currency: "",
@@ -776,7 +776,7 @@ const goToSource = (detail) => {
       detail.relatable?.items[0]?.product_type == "App\\Models\\EntranceTicket"
     ) {
       const route = router.resolve(
-        `/group-attraction?id=${detail.relatable_id}`
+        `/group-attraction?id=${detail.relatable_id}`,
       );
       window.open(route.href, "_blank");
     }
@@ -910,7 +910,7 @@ const verifyStatus = async (status) => {
       toast.success(`Item marked as ${status}`);
       // Find current item index
       const currentIndex = cashImages.value.data.findIndex(
-        (item) => item.id === selectedItem.value
+        (item) => item.id === selectedItem.value,
       );
 
       // Get next item (if exists)
@@ -974,7 +974,7 @@ watch(
       await scrollToItem(newId);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

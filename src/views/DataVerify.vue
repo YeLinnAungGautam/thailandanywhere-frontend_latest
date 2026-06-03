@@ -36,7 +36,9 @@
             'col-span-2': showSide == 3,
           }"
         >
-          <div class="pb-4 flex justify-start items-center gap-x-3 relative">
+          <div
+            class="pb-4 flex justify-start flex-wrap items-center gap-3 relative"
+          >
             <div
               @click="filterShow = !filterShow"
               class="bg-blue-600 px-2 rounded-lg shadow py-1 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
@@ -127,8 +129,8 @@
               <div class="relative w-full">
                 <input
                   type="search"
-                  v-model="searchKey.crm_id"
-                  placeholder="Search by CRM ID or Amount"
+                  v-model="searchKey.amount"
+                  placeholder="Search by Amount"
                   class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                 />
                 <div
@@ -138,6 +140,8 @@
                   <MagnifyingGlassIcon class="w-4 h-4 text-white" />
                 </div>
               </div>
+            </div>
+            <div class="flex justify-start items-center gap-x-1">
               <select
                 v-model="searchKey.currency"
                 class="border border-gray-300 px-4 focus:outline-none w-[100px] py-2 text-[10px] rounded-lg"
@@ -235,7 +239,7 @@
           <div
             ref="listContainer"
             v-if="!loading"
-            class="bg-white mt-2 shadow pr-4 rounded-lg divide-y divide-gray-100 max-h-[59vh] overflow-y-scroll relative"
+            class="bg-white mt-2 shadow pr-4 rounded-lg divide-y divide-gray-100 max-h-[54vh] overflow-y-scroll relative"
           >
             <div
               :ref="(el) => setItemRef(el, item.id)"
@@ -587,7 +591,7 @@ const scrollToItem = async (itemId) => {
 
 // Search and filter
 const searchKey = ref({
-  crm_id: "",
+  amount: "",
   sender: "",
   receiver: "",
   currency: "",
@@ -671,7 +675,7 @@ function formatDateForShow(dateString) {
     monthNames[date.getMonth()]
   } ${date.getFullYear()}`;
   const formattedTime = `${String(date.getHours()).padStart(2, "0")}:${String(
-    date.getMinutes()
+    date.getMinutes(),
   ).padStart(2, "0")}`;
 
   return `${formattedDate} - ${formattedTime}`;
@@ -696,7 +700,7 @@ const watchSystem = computed(() => {
   if (year.value && selectedMonth.value) {
     const dateRange = generateDateRangeForMonth(
       selectedMonth.value,
-      year.value
+      year.value,
     );
     // result.date_from = dateRange.split(",")[0];
     // result.date_to = dateRange.split(",")[1];
@@ -721,7 +725,7 @@ const searchAction = async () => {
 
 const clearFilter = () => {
   searchKey.value = {
-    crm_id: "",
+    amount: "",
     sender: "",
     receiver: "",
     data_verify: "",
@@ -801,7 +805,7 @@ const goToSource = (detail) => {
       detail.relatable?.items[0]?.product_type == "App\\Models\\EntranceTicket"
     ) {
       const route = router.resolve(
-        `/group-attraction?id=${detail.relatable_id}`
+        `/group-attraction?id=${detail.relatable_id}`,
       );
       window.open(route.href, "_blank");
     }
@@ -946,7 +950,7 @@ const verifyStatus = async (status) => {
       toast.success(`Item marked as ${status}`);
       // Find current item index
       const currentIndex = cashImages.value.data.findIndex(
-        (item) => item.id === selectedItem.value
+        (item) => item.id === selectedItem.value,
       );
 
       // Get next item (if exists)
@@ -1000,6 +1004,7 @@ watch(selectedMonth, () => {
     query: {
       month: selectedMonth.value,
       year: year.value,
+      id: selectedItem.value || undefined, // ← keep id if exists
     },
   });
 });
@@ -1011,7 +1016,7 @@ watch(
       await scrollToItem(newId);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

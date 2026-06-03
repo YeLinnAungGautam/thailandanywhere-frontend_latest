@@ -70,8 +70,8 @@
           />
           <input
             type="search"
-            v-model="searchKey.crm_id"
-            placeholder="Search CRM ID or Amount…"
+            v-model="searchKey.amount"
+            placeholder="Search with Amount"
             @keyup.enter="searchAction"
             class="w-full pl-8 pr-3 py-2 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:border-[#FF613c] transition-colors"
           />
@@ -531,6 +531,17 @@
 
         <div class="flex justify-end items-center gap-x-2">
           <button
+            @click="doRematch"
+            :disabled="bsStore.rematching"
+            class="flex items-center gap-1.5 px-4 py-2 bg-blue-500 text-white text-xs font-semibold rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+          >
+            <ArrowPathIcon
+              class="w-3.5 h-3.5"
+              :class="bsStore.rematching ? 'animate-spin' : ''"
+            />
+            {{ bsStore.rematching ? "Matching…" : "Re-match" }}
+          </button>
+          <button
             @click="doBankVerifyAll"
             class="flex items-center gap-1.5 px-4 py-2 bg-green-500 text-white text-xs font-semibold rounded-lg hover:bg-green-600 transition-colors"
           >
@@ -640,7 +651,7 @@
               class="transition-colors"
             >
               <td class="px-5 py-3 text-xs text-gray-500 whitespace-nowrap">
-                {{ row.txn_date }}
+                {{ formatTxnDate(row.txn_date) }}
               </td>
               <td class="px-5 py-3 text-xs text-gray-500 font-mono">
                 {{ row.txn_time ?? "—" }}
@@ -1399,6 +1410,9 @@ import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
 import { formattedDateTime, formattedDateTimeDB } from "./help/FormatData";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 // ─── Stores ──────────────────────────────────────────────
 const router = useRouter();
@@ -1453,7 +1467,7 @@ const filterShow = ref(false);
 const saveUrl = ref("");
 
 const searchKey = ref({
-  crm_id: "",
+  amount: "",
   sender: "",
   receiver: "",
   currency: "",
@@ -1461,6 +1475,8 @@ const searchKey = ref({
   bank_verify: "",
   data_verify: "",
 });
+
+const formatTxnDate = (dateStr) => dayjs.utc(dateStr).format("DD MMM YYYY");
 
 const formData = ref({
   id: "",
@@ -1776,6 +1792,37 @@ const onDrop = (e) => {
   else toast.error("Please drop a .csv file");
 };
 
+const doRematch = async () => {
+  const res = await Swal.fire({
+    title: "Re-match?",
+    text: `Re-run matching for ${monthName(selectedMonth.value)} ${
+      year.value
+    }? Existing verifications will be reset.`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#3B82F6",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, re-match",
+  });
+  if (!res.isConfirmed) return;
+  try {
+    console.log("====================================");
+    console.log("reach");
+    console.log("====================================");
+    const result = await bsStore.rematchAction({
+      month: selectedMonth.value,
+      year: year.value,
+    });
+    toast.success(
+      `Re-match done · ${result.match} matched · ${result.duplicate} duplicate · ${result.unmatch} unmatched`,
+    );
+    await loadBsData();
+    await getAction();
+  } catch {
+    toast.error("Re-match failed");
+  }
+};
+
 const doImport = async () => {
   if (!importFile.value) return;
   try {
@@ -1798,12 +1845,13 @@ const doImport = async () => {
 
 const cashImageIds = ref("");
 const goToVerifyWithIds = async (ids) => {
-  activeTab.value = "verify";
-  // reuse the search bar as the display chip
-  // store cash_image_ids separately so watchSystem picks it up
-  cashImageIds.value = String(ids);
-  saveUrl.value = "";
-  await getAction();
+  const query = new URLSearchParams({
+    activeTab: "verify",
+    cashImageIds: String(ids),
+    month: selectedMonth.value,
+    year: year.value,
+  });
+  window.open(`/external_pdf?${query.toString()}`, "_blank");
 };
 
 // ─── Resolve duplicate modal ─────────────────────────────
@@ -1861,9 +1909,19 @@ const fmtNum = (n) =>
     : "";
 
 // ─── Mount ───────────────────────────────────────────────
+// onMounted(async () => {
+//   if (route.query.month) selectedMonth.value = parseInt(route.query.month);
+//   if (route.query.year) year.value = parseInt(route.query.year);
+//   if (route.query.activeTab) activeTab.value = route.query.activeTab;
+//   if (route.query.cashImageIds) activeTab.value = route.query.cashImageIds;
+//   await getAction();
+//   bsStore.getSummary({ month: selectedMonth.value, year: year.value });
+// });
 onMounted(async () => {
   if (route.query.month) selectedMonth.value = parseInt(route.query.month);
   if (route.query.year) year.value = parseInt(route.query.year);
+  if (route.query.activeTab) activeTab.value = route.query.activeTab;
+  if (route.query.cashImageIds) cashImageIds.value = route.query.cashImageIds; // ← was setting activeTab by mistake
   await getAction();
   bsStore.getSummary({ month: selectedMonth.value, year: year.value });
 });

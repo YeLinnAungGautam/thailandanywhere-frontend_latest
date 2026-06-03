@@ -8,6 +8,7 @@ export const useBankStatementStore = defineStore("bankStatement", () => {
   const summary = ref(null); // { total, match, duplicate, unmatch, total_withdrawal, total_deposit }
   const loading = ref(false);
   const importing = ref(false);
+  const rematching = ref(false);
   const error = ref(null);
 
   // ─── GET /bank-statements?month=&year=&limit= ────────────
@@ -150,6 +151,29 @@ export const useBankStatementStore = defineStore("bankStatement", () => {
       throw err;
     }
   }
+  async function rematchAction(data) {
+    rematching.value = true;
+    try {
+      console.log("reach function");
+
+      const res = await axios.post(`/bank-statements/rematch`, data);
+      return res.data?.result ?? res.data;
+    } catch (err) {
+      error.value = err?.response?.data?.message ?? err.message;
+      throw err;
+    } finally {
+      rematching.value = false;
+    }
+  }
+  // async function rematch(params) {
+  //   this.rematching = true;
+  //   try {
+  //     const res = await api.post("/bank-statements/rematch", params);
+  //     return res.data?.result ?? res.data;
+  //   } finally {
+  //     this.rematching = false;
+  //   }
+  // }
 
   function $reset() {
     records.value = null;
@@ -164,10 +188,12 @@ export const useBankStatementStore = defineStore("bankStatement", () => {
     summary,
     loading,
     importing,
+    rematching,
     error,
     getRecords,
     getRecordsPage,
     getSummary,
+    rematchAction,
     importCsv,
     getDuplicateCandidates,
     resolveRecord,

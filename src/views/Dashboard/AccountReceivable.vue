@@ -53,6 +53,34 @@
             </div>
           </div>
         </div>
+        <!-- Add this toggle near your Year/Month selectors -->
+        <div class="flex items-center relative gap-2 pb-2 text-xs">
+          <span
+            :class="
+              !showUpcoming ? 'text-red-600 font-semibold' : 'text-gray-400'
+            "
+            >Overdue</span
+          >
+          <button
+            @click="
+              showUpcoming = !showUpcoming;
+              fetchData();
+            "
+            class="relative w-10 h-5 rounded-full transition-colors"
+            :class="showUpcoming ? 'bg-yellow-400' : 'bg-red-400'"
+          >
+            <span
+              class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
+              :class="showUpcoming ? 'translate-x-0.5' : '-translate-x-4'"
+            />
+          </button>
+          <span
+            :class="
+              showUpcoming ? 'text-yellow-600 font-semibold' : 'text-gray-400'
+            "
+            >Upcoming</span
+          >
+        </div>
 
         <!-- Summary cards (super admin only) -->
         <div class="grid grid-cols-3 gap-2 mb-4" v-if="authStore.isSuperAdmin">
@@ -362,6 +390,7 @@ const selectedYear = ref(new Date().getFullYear());
 const selectedMonth = ref(new Date().getMonth() + 1);
 const loadingGraph = ref(false);
 const loadingBookings = ref(false);
+const showUpcoming = ref(false);
 
 const days = ref([]); // [{ date, date_label, total_balance_due, total_count, admins: [{name, balance_due, count}] }]
 const summary = ref({ total_balance_due: 0, total_count: 0 });
@@ -548,6 +577,7 @@ async function fetchData() {
     const res = await homeStore.getBalanceDueOverGraph(
       selectedYear.value,
       selectedMonth.value,
+      showUpcoming.value ? "upcoming" : "overdue",
     );
     const result = res.data?.result ?? res.data ?? {};
     days.value = result.days ?? [];
@@ -568,6 +598,7 @@ async function fetchDayBookings(date, page = 1) {
       date,
       page,
       per_page: 20,
+      mode: showUpcoming.value ? "upcoming" : "overdue",
     });
     const result = res.data?.result ?? res.data ?? {};
     dayBookings.value = result.data ?? [];

@@ -290,9 +290,9 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
-    async getBalanceDueOverGraph(year, month) {
+    async getBalanceDueOverGraph(year, month, mode = "overdue") {
       return await axios.get("/balance-due-over/graph", {
-        params: { year, month },
+        params: { year, month, mode },
       });
     },
 
@@ -300,10 +300,11 @@ export const useHomeStore = defineStore("home", {
       date,
       page = 1,
       per_page = 10,
+      mode = "overdue",
       admin_id,
     } = {}) {
       return await axios.get("/balance-due-over/list", {
-        params: { date, page, per_page, admin_id },
+        params: { date, page, per_page, mode, admin_id },
       });
     },
   },

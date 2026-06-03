@@ -1007,7 +1007,6 @@
                             <div
                               v-for="expense in getExpenses(item.id)"
                               :key="expense.id"
-                              @click="openEditExpenseModal(expense, item)"
                               class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
                             >
                               <div class="flex items-start gap-3">
@@ -1070,10 +1069,24 @@
                                     </div>
                                   </div>
                                   <div
-                                    class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
+                                    class="flex justify-start items-center gap-x-4"
                                   >
-                                    <PencilSquareIcon class="w-4 h-4 mr-1" />
-                                    Click to edit
+                                    <div
+                                      @click="
+                                        openEditExpenseModal(expense, item)
+                                      "
+                                      class="mt-3 text-xs text-[#FF613c] whitespace-nowrap font-medium flex items-center"
+                                    >
+                                      <PencilSquareIcon class="w-4 h-4 mr-1" />
+                                      Edit
+                                    </div>
+                                    <div
+                                      @click="openDataVerifyPage(expense)"
+                                      class="mt-3 text-xs text-[#FF613c] whitespace-nowrap font-medium flex items-center"
+                                    >
+                                      <PencilSquareIcon class="w-4 h-4 mr-1" />
+                                      Data Verify
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -2365,6 +2378,19 @@ function openEditExpenseModal(expense, item) {
   selectedExpense.value = expense;
   selectedItem.value = item;
   expenseModalOpen.value = true;
+}
+function openDataVerifyPage(e) {
+  console.log(e);
+
+  const date = e.date || e.created_at; // "28-04-2026 15:17:00"
+  const [d, m, y] = date.split(" ")[0].split("-");
+
+  const query = new URLSearchParams({
+    id: e.id,
+    month: parseInt(m),
+    year: parseInt(y),
+  });
+  window.open(`/data_verify?${query.toString()}`, "_blank");
 }
 
 function closeExpenseModal() {

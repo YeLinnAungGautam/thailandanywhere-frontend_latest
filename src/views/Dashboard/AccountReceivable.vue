@@ -54,7 +54,10 @@
           </div>
         </div>
         <!-- Add this toggle near your Year/Month selectors -->
-        <div class="flex items-center relative gap-2 pb-2 text-xs">
+        <div
+          class="flex items-center relative gap-2 pb-2 text-xs"
+          v-if="!authStore.isAdmin && !authStore.isSaleAdmin"
+        >
           <span
             :class="
               !showUpcoming ? 'text-red-600 font-semibold' : 'text-gray-400'
@@ -390,7 +393,7 @@ const selectedYear = ref(new Date().getFullYear());
 const selectedMonth = ref(new Date().getMonth() + 1);
 const loadingGraph = ref(false);
 const loadingBookings = ref(false);
-const showUpcoming = ref(false);
+const showUpcoming = ref(true);
 
 const days = ref([]); // [{ date, date_label, total_balance_due, total_count, admins: [{name, balance_due, count}] }]
 const summary = ref({ total_balance_due: 0, total_count: 0 });

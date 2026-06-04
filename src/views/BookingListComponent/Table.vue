@@ -364,10 +364,17 @@
             </button>
             <button
               v-if="authStore.isSuperAdmin"
-              @click="handleDelete(selectedRowData)"
+              @click="handleDelete(selectedRowData, 'Delete')"
               class="px-3 py-1 text-xs bg-red-500 text-white rounded-lg hover:bg-red-600"
             >
               Delete Booking
+            </button>
+            <button
+              v-if="authStore.isSuperAdmin"
+              @click="handleDelete(selectedRowData, 'Cancel')"
+              class="px-3 py-1 text-xs bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+            >
+              Cancel Booking
             </button>
             <button
               @click="
@@ -453,7 +460,7 @@ const handleEdit = (row) => {
 const errors = ref(null);
 
 // Handle delete button click
-const handleDelete = (row) => {
+const handleDelete = (row, title) => {
   Swal.fire({
     title: "Are you sure?",
     text: "You won't be able to revert this!",
@@ -461,7 +468,7 @@ const handleDelete = (row) => {
     showCancelButton: true,
     confirmButtonColor: "#2463EB",
     cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
+    confirmButtonText: "Yes, " + title + " it!",
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {

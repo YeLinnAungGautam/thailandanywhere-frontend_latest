@@ -148,7 +148,7 @@
                       : 'text-gray-400',
                   ]"
                 >
-                  Supplier & Driver
+                  Supplier
                 </h3>
                 <p class="text-[10px] text-gray-500 mt-0.5">
                   Choose supplier, cost & driver
@@ -298,39 +298,9 @@
                 </label>
                 <input
                   type="text"
-                  :value="
-                    groupData?.customer_name || itemData?.customer_name || ''
-                  "
+                  :value="itemData?.customer_info?.name || ''"
                   disabled
                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-100 text-gray-600"
-                />
-              </div>
-
-              <!-- Pax Count -->
-              <div>
-                <label
-                  class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
-                >
-                  <svg
-                    class="w-4 h-4 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  Pax Count
-                </label>
-                <input
-                  type="number"
-                  v-model="tripForm.total_pax"
-                  placeholder="Number of pax"
-                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
                 />
               </div>
 
@@ -568,7 +538,7 @@
                   >
                   <div class="relative">
                     <input
-                      :value="itemData?.sale_amount || 0"
+                      :value="saleAmount || 0"
                       disabled
                       type="text"
                       class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed pr-12"
@@ -759,171 +729,7 @@
               </div>
             </div>
 
-            <!-- Divider -->
-            <div class="relative my-2">
-              <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-gray-200"></div>
-              </div>
-              <div class="relative flex justify-center">
-                <span class="bg-white px-3 text-xs text-gray-400"
-                  >Driver Assignment</span
-                >
-              </div>
-            </div>
-
-            <!-- Driver Select -->
-            <div>
-              <label
-                class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
-              >
-                <svg
-                  class="w-4 h-4 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-                Driver *
-              </label>
-              <SearchDriver
-                v-model="formData.driver_id"
-                :drivers="drivers"
-                @change="onDriverChange"
-              />
-            </div>
-
-            <!-- Driver Contact + Car Number side by side -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label
-                  class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
-                >
-                  <svg
-                    class="w-4 h-4 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
-                  Driver Contact
-                </label>
-                <input
-                  type="text"
-                  v-model="formData.driver_contact"
-                  placeholder="Auto-filled on driver select"
-                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 bg-gray-50"
-                  readonly
-                />
-              </div>
-
-              <div>
-                <label
-                  class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
-                >
-                  <TruckIcon class="w-4 h-4 text-purple-600" />
-                  Car Number
-                </label>
-                <select
-                  v-model="formData.car_number"
-                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
-                  :disabled="!carNumbers.length"
-                >
-                  <option value="">Select Car Number</option>
-                  <option
-                    v-for="car in carNumbers"
-                    :key="car.id"
-                    :value="car.id"
-                  >
-                    {{ car.car_number }}
-                  </option>
-                </select>
-                <p
-                  v-if="!formData.driver_id"
-                  class="text-[10px] text-gray-500 mt-1"
-                >
-                  Select a driver first
-                </p>
-              </div>
-            </div>
-
-            <!-- Car Photo Preview -->
-            <div v-if="formData.car_photo">
-              <label class="text-xs font-medium text-gray-700 mb-1.5 block"
-                >Vehicle Photo</label
-              >
-              <div
-                class="w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-200"
-              >
-                <img
-                  :src="formData.car_photo"
-                  alt="Car photo"
-                  class="w-full h-full object-contain"
-                />
-              </div>
-            </div>
-
-            <!-- Assignment Summary Card -->
-            <div
-              v-if="formData.driver_id"
-              class="mt-2 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200"
-            >
-              <h4
-                class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2"
-              >
-                <svg
-                  class="w-5 h-5 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                Assignment Summary
-              </h4>
-              <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Supplier:</span>
-                  <span class="font-medium text-gray-900">{{
-                    getSupplierName(formData.supplier_id)
-                  }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Cost Price:</span>
-                  <span class="font-medium text-green-600"
-                    >{{ formData.cost_price || 0 }} THB</span
-                  >
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Driver Contact:</span>
-                  <span class="font-medium text-gray-900">{{
-                    formData.driver_contact || "-"
-                  }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Car Number:</span>
-                  <span class="font-medium text-gray-900">{{
-                    getCarNumber(formData.car_number)
-                  }}</span>
-                </div>
-              </div>
-            </div>
+            <!--  -->
           </div>
 
           <!-- ── STEP 3: Send to LINE ── -->
@@ -1038,11 +844,11 @@
           <!-- Step 1 → 2 -->
           <button
             v-if="currentStep === 1"
-            @click="currentStep++"
+            @click="nextAction"
             :disabled="loading || saving"
             class="px-4 py-2.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            Next <ChevronRightIcon class="w-4 h-4" />
+            Next & Save <ChevronRightIcon class="w-4 h-4" />
           </button>
 
           <!-- Step 2: Save then go to Step 3 -->
@@ -1114,6 +920,8 @@ import { useDriverStore } from "../../../stores/driver";
 import { storeToRefs } from "pinia";
 import Modal from "../../../components/Modal.vue";
 import SearchDriver from "../../ReservationGroupByComponent/SearchDriver.vue";
+import { useAuthStore } from "../../../stores/auth.js";
+import { useMessageStore } from "../../../stores/message.js";
 
 const props = defineProps({
   isOpen: Boolean,
@@ -1126,7 +934,9 @@ const props = defineProps({
 const emit = defineEmits(["close", "refresh"]);
 
 const toast = useToast();
+const messageStore = useMessageStore();
 const carBookingStore = useCarBookingStore();
+const authStore = useAuthStore();
 const supplierStore = useSupplierStore();
 const driverStore = useDriverStore();
 
@@ -1173,12 +983,7 @@ const isStep1Complete = computed(
   () => !!(tripForm.value.pickup_location || tripForm.value.total_pax),
 );
 const isStep2Complete = computed(
-  () =>
-    !!(
-      formData.value.supplier_id &&
-      formData.value.cost_price &&
-      formData.value.driver_id
-    ),
+  () => !!(formData.value.supplier_id && formData.value.cost_price),
 );
 // Step 3 has no required gate — always accessible
 const isStep3Complete = computed(() => true);
@@ -1191,9 +996,21 @@ const completionPercentage = computed(() =>
 );
 
 const computedExtraCollect = computed(() => {
-  const saleAmount = Number(props.itemData?.sale_amount) || 0;
-  return (Number(lineForm.value.car_total_collect) || 0) - saleAmount;
+  const sale =
+    Number(props.itemData?.sale_amount) ||
+    Number(props.itemData?.selling_price) ||
+    Number(props.itemData?.amount) ||
+    0;
+  return (Number(lineForm.value.car_total_collect) || 0) - sale;
 });
+
+const saleAmount = computed(
+  () =>
+    Number(props.itemData?.sale_amount) ||
+    Number(props.itemData?.selling_price) ||
+    Number(props.itemData?.amount) ||
+    0,
+);
 
 // Auto-build LINE message on step 3
 watch(currentStep, (val) => {
@@ -1271,6 +1088,16 @@ const onDriverChange = async (driverId) => {
   }
 };
 
+const nextAction = async () => {
+  if (authStore.isAdmin || authStore.isSaleAdmin) {
+    await saveDriver();
+    emit("close");
+  } else {
+    await saveDriver();
+    currentStep++;
+  }
+};
+
 // ── Load existing data ─────────────────────────────────
 const loadDriverData = async () => {
   if (!props.itemData?.id) {
@@ -1280,34 +1107,50 @@ const loadDriverData = async () => {
   loading.value = true;
   try {
     const res = await carBookingStore.getDetailAction(props.itemData.id);
-    if (res?.result) {
-      const d = res.result;
-      formData.value = {
-        supplier_id: d.supplier_id || "",
-        driver_id: d.driver_id || "",
-        driver_contact: d.driver_contact || "",
-        car_number: d.driver_info_id || "",
-        cost_price: d.cost_price || "",
-        car_photo: d.car_photo || "",
-      };
-      tripForm.value = {
-        total_pax: d.total_pax || "",
-        pickup_time: d.pickup_time || "",
-        pickup_location: d.pickup_location || "",
-        dropoff_location: d.dropoff_location || "",
-        route_plan: d.route_plan && d.route_plan !== "null" ? d.route_plan : "",
-        special_request: d.special_request || "",
-        car_customer_contact: d.car_customer_contact || "",
-      };
-      lineForm.value = {
-        is_driver_collect: d.is_driver_collect == 1,
-        car_payment_method: d.car_payment_method || "",
-        car_total_collect: Number(d.car_total_collect) || 0,
-      };
-      if (formData.value.supplier_id) await onSupplierChange();
-      if (formData.value.driver_id)
-        await onDriverChange(formData.value.driver_id);
-    }
+    console.log(res, "this is result");
+
+    const d = res?.result;
+
+    // Helper: pull from API result first, fallback to prop itemData
+    const item = props.itemData;
+
+    formData.value = {
+      supplier_id:
+        d?.supplier_id || item?.reservation_supplier_info?.supplier_id || "",
+      driver_id: d?.driver_id || "",
+      driver_contact: d?.driver_contact || "",
+      car_number: d?.driver_info_id || "",
+      cost_price:
+        d?.cost_price || item?.price_snapshot?.cost_price || item?.cost || "",
+      car_photo: d?.car_photo || "",
+    };
+
+    tripForm.value = {
+      total_pax: d?.total_pax || item?.total_pax || item?.total_guest || "",
+      pickup_time: d?.pickup_time || item?.pickup_time || "",
+      pickup_location: d?.pickup_location || item?.pickup_location || "",
+      dropoff_location: d?.dropoff_location || item?.dropoff_location || "",
+      route_plan:
+        d?.route_plan && d.route_plan !== "null"
+          ? d.route_plan
+          : item?.route_plan && item.route_plan !== "null"
+          ? item.route_plan
+          : "",
+      special_request: d?.special_request || item?.special_request || "",
+      // Auto-fill from customer_info
+      car_customer_contact:
+        d?.car_customer_contact || item?.customer_info?.phone_number || "",
+    };
+
+    lineForm.value = {
+      is_driver_collect: d?.is_driver_collect == 1,
+      car_payment_method: d?.car_payment_method || "",
+      car_total_collect: Number(d?.car_total_collect) || 0,
+    };
+
+    if (formData.value.supplier_id) await onSupplierChange();
+    if (formData.value.driver_id)
+      await onDriverChange(formData.value.driver_id);
   } catch (e) {
     toast.error("Failed to load driver details");
   } finally {
@@ -1359,10 +1202,29 @@ const saveDriver = async () => {
     frmData.append("route_plan", tripForm.value.route_plan || "");
     frmData.append("special_request", tripForm.value.special_request || "");
     frmData.append("pickup_time", tripForm.value.pickup_time || "");
+
+    frmData.append(
+      "is_driver_collect",
+      lineForm.value.is_driver_collect ? 1 : 0,
+    );
+
     frmData.append(
       "car_customer_contact",
       tripForm.value.car_customer_contact || "",
     );
+
+    if (lineForm.value.is_driver_collect) {
+      frmData.append(
+        "car_total_collect",
+        lineForm.value.car_total_collect || "",
+      );
+      frmData.append(
+        "car_payment_method",
+        lineForm.value.car_payment_method || "",
+      );
+      frmData.append("extra_collect_amount", computedExtraCollect.value || "");
+    }
+
     if (formData.value.cost_price && props.itemData?.quantity) {
       frmData.append(
         "total_cost_price",
@@ -1377,7 +1239,7 @@ const saveDriver = async () => {
           : "Driver assigned successfully",
       );
       emit("refresh");
-      currentStep.value = 3;
+      // currentStep.value = 3;
     } else {
       toast.error("Failed to assign driver");
     }
@@ -1392,7 +1254,11 @@ const saveDriver = async () => {
 const buildLineMessage = () => {
   const item = props.itemData;
   const group = props.groupData;
-  const saleAmount = Number(item?.sale_amount) || 0;
+  const saleAmount =
+    Number(props.itemData?.sale_amount) ||
+    Number(props.itemData?.selling_price) ||
+    Number(props.itemData?.amount) ||
+    0;
 
   const paymentBlock = lineForm.value.is_driver_collect
     ? [
@@ -1443,32 +1309,56 @@ const handleSendToLine = async () => {
     toast.error("Message is empty");
     return;
   }
-  try {
-    const frmData = new FormData();
-    frmData.append(
-      "is_driver_collect",
-      lineForm.value.is_driver_collect ? "1" : "0",
-    );
-    frmData.append(
-      "car_payment_method",
-      lineForm.value.car_payment_method || "",
-    );
-    frmData.append("car_total_collect", lineForm.value.car_total_collect || 0);
-    frmData.append("extra_collect", computedExtraCollect.value);
-    frmData.append(
-      "car_customer_contact",
-      tripForm.value.car_customer_contact || "",
-    );
-    await carBookingStore.addNewAction(frmData, props.itemData?.id);
-  } catch (e) {
-    console.warn("Failed to save LINE payment fields:", e);
-  }
+
   sendingLine.value = true;
   try {
-    await new Promise((r) => setTimeout(r, 800));
-    toast.success("Sent to LINE successfully");
+    const editedData = {
+      pickup_time: tripForm.value.pickup_time || "",
+      pickup_location: tripForm.value.pickup_location || "",
+      dropoff_location: tripForm.value.dropoff_location || "",
+      route_plan: tripForm.value.route_plan || "",
+      special_request: tripForm.value.special_request || "",
+      is_driver_collect: lineForm.value.is_driver_collect ? 1 : 0,
+      extra_collect: lineForm.value.is_driver_collect
+        ? computedExtraCollect.value
+        : 0,
+      car_customer_contact: tripForm.value.car_customer_contact || "",
+      car_total_collect: lineForm.value.car_total_collect || 0,
+      car_payment_method: lineForm.value.car_payment_method || "",
+    };
+
+    const saveRes = await carBookingStore.sendLineAction(props.itemData?.id, {
+      pickup_time: editedData.pickup_time,
+      pickup_location: editedData.pickup_location,
+      dropoff_location: editedData.dropoff_location,
+      route_plan: editedData.route_plan,
+      special_request: editedData.special_request,
+      is_driver_collect: editedData.is_driver_collect,
+      extra_collect_amount: lineForm.value.is_driver_collect
+        ? computedExtraCollect.value
+        : "0",
+      car_customer_contact: editedData.car_customer_contact,
+      car_total_collect: editedData.car_total_collect,
+      car_payment_method: editedData.car_payment_method,
+      message: lineMessage.value,
+      edited_data: editedData, // ← this was missing
+    });
+
+    if (saveRes?.status !== 1) {
+      toast.error(saveRes?.message || "Failed to save booking");
+      return;
+    }
+
+    await messageStore.sendLineMessage(
+      saveRes.result?.sent_message ?? lineMessage.value,
+    );
+
+    toast.success("Saved & sent to LINE successfully");
+    emit("refresh");
+    emit("close");
   } catch (e) {
-    toast.error("Failed to send to LINE");
+    console.error("Error sending to LINE:", e);
+    toast.error(e.response?.data?.message || "Failed to send to LINE");
   } finally {
     sendingLine.value = false;
   }

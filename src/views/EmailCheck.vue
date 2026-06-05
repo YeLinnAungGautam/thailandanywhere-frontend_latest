@@ -1790,6 +1790,8 @@ const openEditItemCost = () => {
 
 // Add this function to open the assign driver modal
 const openAssignDriverModal = (carItem, item) => {
+  console.log(carItem, "this is info ");
+
   selectedDriverItem.value = carItem;
   selectedItem.value = item;
   assignDriverModalOpen.value = true;

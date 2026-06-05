@@ -370,7 +370,7 @@
               Delete Booking
             </button>
             <button
-              v-if="authStore.isSuperAdmin"
+              v-if="authStore.isSuperAdmin || authStore.isReservation"
               @click="handleDelete(selectedRowData, 'Cancel')"
               class="px-3 py-1 text-xs bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
             >

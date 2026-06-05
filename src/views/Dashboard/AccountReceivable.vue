@@ -314,8 +314,10 @@
               </div>
 
               <!-- Footer -->
+              <!-- Footer (keep @click on this div) -->
               <div
-                class="flex items-center justify-between mt-2 pt-2 border-t border-gray-50"
+                @click="showBookingItems(booking)"
+                class="flex items-center justify-between mt-2 pt-2 border-t border-gray-50 cursor-pointer"
               >
                 <div>
                   <p class="text-[10px] text-gray-400">
@@ -333,10 +335,75 @@
                 </div>
                 <div class="text-right">
                   <p class="text-[10px] text-gray-400">Balance Due</p>
-                  <p class="text-sm font-bold text-red-600">
-                    {{ formatNumber(booking.balance_due) }} THB
-                  </p>
+                  <div class="flex justify-end items-center gap-x-3">
+                    <p class="text-sm font-bold text-red-600">
+                      {{ formatNumber(booking.balance_due) }} THB
+                    </p>
+                    <ChevronDoubleDownIcon
+                      class="w-4 h-4 transition-transform duration-200"
+                      :class="
+                        bookingItems[booking.id]?.open ? 'rotate-180' : ''
+                      "
+                    />
+                  </div>
                 </div>
+              </div>
+
+              <!-- Items dropdown -->
+              <div
+                v-if="bookingItems[booking.id]?.open"
+                class="mt-2 pt-2 border-t border-gray-100 space-y-1"
+              >
+                <!-- Loading -->
+                <div
+                  v-if="bookingItems[booking.id]?.loading"
+                  class="flex justify-center py-2"
+                >
+                  <div
+                    class="animate-spin rounded-full h-4 w-4 border-b-2 border-red-400"
+                  ></div>
+                </div>
+
+                <!-- Items -->
+                <template v-else>
+                  <div
+                    v-for="item in bookingItems[booking.id]?.items"
+                    :key="item.id"
+                    class="flex items-center justify-between gap-2 px-2 py-1.5 bg-gray-50 rounded-lg"
+                    :class="
+                      item.product_type != 'App\\Models\\InclusiveProduct'
+                        ? ''
+                        : 'hidden'
+                    "
+                  >
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[10px] font-medium text-gray-700 truncate">
+                        {{
+                          item.product?.name ??
+                          item.product_snapshot?.name ??
+                          "-"
+                        }}
+                      </p>
+                      <p class="text-[9px] text-gray-400 truncate">
+                        {{
+                          item.variation_snapshot?.name ?? item.car?.name ?? "-"
+                        }}
+                      </p>
+                    </div>
+                    <p
+                      class="text-[10px] font-semibold text-gray-700 flex-shrink-0"
+                    >
+                      {{ formatNumber(item.amount) }} THB
+                    </p>
+                  </div>
+
+                  <p
+                    v-if="!bookingItems[booking.id]?.items?.length"
+                    class="text-[10px] text-gray-400 text-center py-1"
+                  >
+                    No items found
+                  </p>
+                </template>
               </div>
             </div>
 
@@ -380,13 +447,16 @@ import { useAuthStore } from "../../stores/auth";
 import {
   ArrowPathIcon,
   CheckIcon,
+  ChevronDoubleDownIcon,
   DocumentDuplicateIcon,
 } from "@heroicons/vue/24/outline";
+import { useBookingStore } from "../../stores/booking.js";
 
 Chart.register(...registerables);
 
 const homeStore = useHomeStore();
 const authStore = useAuthStore();
+const bookingStore = useBookingStore();
 
 // ── State ──────────────────────────────────────────────────────────────────
 const selectedYear = ref(new Date().getFullYear());
@@ -593,6 +663,37 @@ async function fetchData() {
     loadingGraph.value = false;
   }
 }
+
+const bookingItems = ref({}); // { [booking.id]: { open: bool, items: [] } }
+
+const showBookingItems = async (booking) => {
+  const entry = bookingItems.value[booking.id];
+
+  // Toggle closed if already open
+  if (entry?.open) {
+    bookingItems.value[booking.id] = { ...entry, open: false };
+    return;
+  }
+
+  // If already fetched, just open
+  if (entry?.items) {
+    bookingItems.value[booking.id] = { ...entry, open: true };
+    return;
+  }
+
+  // Fetch for the first time
+  bookingItems.value[booking.id] = { open: true, items: null, loading: true };
+  try {
+    const res = await bookingStore.getDetailAction(booking.id);
+    bookingItems.value[booking.id] = {
+      open: true,
+      loading: false,
+      items: res?.result?.items ?? [],
+    };
+  } catch (e) {
+    bookingItems.value[booking.id] = { open: false, loading: false, items: [] };
+  }
+};
 
 async function fetchDayBookings(date, page = 1) {
   loadingBookings.value = true;

@@ -228,6 +228,45 @@
             </p>
           </div>
         </div>
+
+        <!-- Amends Card -->
+        <div
+          @click="goToVantourManagement"
+          class="bg-white rounded-2xl shadow-lg p-8 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        >
+          <div class="flex flex-col items-center justify-center space-y-4">
+            <div
+              class="w-20 h-20 bg-[#FF613c] rounded-2xl flex items-center justify-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-van-icon lucide-van"
+              >
+                <path
+                  d="M13 6v5a1 1 0 0 0 1 1h6.102a1 1 0 0 1 .712.298l.898.91a1 1 0 0 1 .288.702V17a1 1 0 0 1-1 1h-3"
+                />
+                <path
+                  d="M5 18H3a1 1 0 0 1-1-1V8a2 2 0 0 1 2-2h12c1.1 0 2.1.8 2.4 1.8l1.176 4.2"
+                />
+                <path d="M9 18h5" />
+                <circle cx="16" cy="18" r="2" />
+                <circle cx="7" cy="18" r="2" />
+              </svg>
+            </div>
+            <h2 class="text-2xl font-semibold text-gray-800">Vantour</h2>
+            <p class="text-gray-500 text-xs text-center">
+              View and manage your van tour.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </Layout>
@@ -266,6 +305,10 @@ const goToConfirmation = () => {
 const goToExpense = () => {
   // showWelcomeModal.value = false;
   router.push({ name: "group-hotel-expense" }); // or your main page route name
+};
+
+const goToVantourManagement = () => {
+  router.push({ name: "vantour-management" });
 };
 
 const goToMainPage = () => {

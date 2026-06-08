@@ -90,5 +90,28 @@ export const useCarBookingStore = defineStore("carbooking", {
         throw error;
       }
     },
+    // ── NEW: Monthly graph ─────────────────────────────────────────────────
+    async getMonthlyGraph(year, month, params = {}) {
+      try {
+        const response = await axios.get("/car-bookings/monthly-graph", {
+          params: { year, month, ...params },
+        });
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    // ── NEW: Detail list for a specific date ───────────────────────────────
+    async getDateDetail(date, params = {}) {
+      try {
+        const response = await axios.get("/car-bookings/date-detail", {
+          params: { date, ...params },
+        });
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

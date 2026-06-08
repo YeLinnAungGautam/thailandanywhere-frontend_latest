@@ -20,30 +20,40 @@
           </button>
         </div>
 
-        <!-- Quick Date Pills -->
-        <div class="flex items-center gap-1.5 flex-wrap">
+        <!-- Day Navigator -->
+        <div class="flex items-center gap-2 ml-auto">
+          <!-- Today / Tomorrow pills -->
           <button
-            v-for="q in quickDates"
-            :key="q.value"
-            @click="applyQuickDate(q.value)"
-            class="px-3 py-1.5 text-xs rounded-full border transition-all duration-150 font-medium"
+            @click="selectQuick('today')"
+            class="px-3 py-1.5 text-xs rounded-full border transition-all duration-150 font-medium whitespace-nowrap"
             :class="
-              activeQuickDate === q.value
+              activeQuick === 'today'
                 ? 'bg-[#FF613c] text-white border-[#FF613c]'
                 : 'border-gray-200 text-gray-600 hover:border-[#FF613c] hover:text-[#FF613c]'
             "
           >
-            {{ q.label }}
+            Today
           </button>
-        </div>
 
-        <!-- Date Range + Search + Reset -->
-        <div class="flex items-center gap-2 ml-auto">
-          <div
-            class="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"
+          <button
+            @click="selectQuick('tomorrow')"
+            class="px-3 py-1.5 text-xs rounded-full border transition-all duration-150 font-medium whitespace-nowrap"
+            :class="
+              activeQuick === 'tomorrow'
+                ? 'bg-[#FF613c] text-white border-[#FF613c]'
+                : 'border-gray-200 text-gray-600 hover:border-[#FF613c] hover:text-[#FF613c]'
+            "
+          >
+            Tomorrow
+          </button>
+
+          <!-- Prev Arrow -->
+          <button
+            @click="shiftDay(-1)"
+            class="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <svg
-              class="w-3.5 h-3.5 text-gray-400"
+              class="w-3.5 h-3.5 text-gray-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -52,24 +62,49 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                d="M15 19l-7-7 7-7"
               />
             </svg>
-            <input
-              type="date"
-              v-model="dateFrom"
-              @change="onDateRangeChange"
-              class="text-xs bg-transparent focus:outline-none text-gray-600 w-28"
-            />
-            <span class="text-gray-300 text-xs">→</span>
-            <input
-              type="date"
-              v-model="dateTo"
-              @change="onDateRangeChange"
-              class="text-xs bg-transparent focus:outline-none text-gray-600 w-28"
-            />
+          </button>
+
+          <!-- Date Display (click to open calendar) -->
+          <!-- Date Display (click to open calendar) -->
+          <div class="relative" @click="toggleCalendar">
+            <label
+              class="px-4 py-1.5 text-xs font-semibold border border-gray-200 rounded-lg hover:border-[#FF613c] hover:text-[#FF613c] transition-colors whitespace-nowrap min-w-[90px] text-center cursor-pointer block"
+            >
+              {{ formatPill(currentDate) }}
+              <input
+                type="date"
+                ref="calendarInput"
+                v-model="calendarValue"
+                @change="onCalendarPick"
+                class="absolute opacity-0 w-0 h-0 pointer-events-none"
+              />
+            </label>
           </div>
 
+          <!-- Next Arrow -->
+          <button
+            @click="shiftDay(1)"
+            class="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <svg
+              class="w-3.5 h-3.5 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+
+          <!-- Reset -->
           <button
             @click="resetFilters"
             class="px-3 py-2 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-1"
@@ -143,17 +178,7 @@
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
-                Status
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
-                CRM ID
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
-                Customer
+                Service Date
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
@@ -168,7 +193,17 @@
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
-                Service Date
+                CRM ID
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
+              >
+                Customer
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
+              >
+                Status
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
@@ -194,11 +229,45 @@
           </thead>
           <tbody class="divide-y divide-gray-100">
             <template v-for="item in filteredItems" :key="item.id">
-              <!-- Main Row -->
               <tr
                 class="hover:bg-gray-50 transition-colors cursor-pointer"
                 @click="toggleExpand(item.id)"
               >
+                <!-- Service Date -->
+                <td class="px-4 py-3">
+                  <div class="text-xs text-gray-700 whitespace-nowrap">
+                    {{ formatDate(item.service_date) }}
+                  </div>
+                </td>
+                <!-- Product -->
+                <td class="px-4 py-3 max-w-[180px]">
+                  <p
+                    class="text-xs text-gray-800 font-medium truncate"
+                    :title="item.product_name"
+                  >
+                    {{ item.product_name || "—" }}
+                  </p>
+                </td>
+                <!-- Variation -->
+                <td class="px-4 py-3">
+                  <p class="text-xs text-gray-600 whitespace-nowrap">
+                    {{ item.variation_name || "—" }}
+                  </p>
+                </td>
+                <!-- CRM ID -->
+                <td class="px-4 py-3">
+                  <span
+                    class="px-2.5 py-1 bg-[#FF613c] text-white text-xs font-semibold rounded-full shadow-sm whitespace-nowrap"
+                  >
+                    {{ item.crm_id }}
+                  </span>
+                </td>
+                <!-- Customer -->
+                <td class="px-4 py-3">
+                  <p class="text-xs text-gray-700 whitespace-nowrap">
+                    {{ item.customer_name || "—" }}
+                  </p>
+                </td>
                 <!-- Status -->
                 <td class="px-4 py-3">
                   <span
@@ -220,48 +289,7 @@
                     {{ item.supplier_name != "-" ? "Assigned" : "Pending" }}
                   </span>
                 </td>
-
-                <!-- CRM ID -->
-                <td class="px-4 py-3">
-                  <span
-                    class="px-2.5 py-1 bg-[#FF613c] text-white text-xs font-semibold rounded-full shadow-sm whitespace-nowrap"
-                  >
-                    {{ item.crm_id }}
-                  </span>
-                </td>
-
-                <!-- Customer -->
-                <td class="px-4 py-3">
-                  <p class="text-xs text-gray-700 whitespace-nowrap">
-                    {{ item.customer_name || "—" }}
-                  </p>
-                </td>
-
-                <!-- Product -->
-                <td class="px-4 py-3 max-w-[180px]">
-                  <p
-                    class="text-xs text-gray-800 font-medium truncate"
-                    :title="item.product_name"
-                  >
-                    {{ item.product_name || "—" }}
-                  </p>
-                </td>
-
-                <!-- Variation -->
-                <td class="px-4 py-3">
-                  <p class="text-xs text-gray-600 whitespace-nowrap">
-                    {{ item.variation_name || "—" }}
-                  </p>
-                </td>
-
-                <!-- Service Date -->
-                <td class="px-4 py-3">
-                  <div class="text-xs text-gray-700 whitespace-nowrap">
-                    {{ formatDate(item.service_date) }}
-                  </div>
-                </td>
-
-                <!-- Pickup Location -->
+                <!-- Qty -->
                 <td class="px-4 py-3 max-w-[150px]">
                   <p
                     v-if="item.qty"
@@ -272,8 +300,7 @@
                   </p>
                   <p v-else class="text-xs text-gray-300">—</p>
                 </td>
-
-                <!-- Driver -->
+                <!-- Supplier -->
                 <td class="px-4 py-3">
                   <div
                     v-if="item.supplier_name"
@@ -296,18 +323,12 @@
                         />
                       </svg>
                     </div>
-                    <div class="min-w-0">
-                      <p
-                        v-if="item.supplier_name"
-                        class="text-xs text-gray-400 truncate"
-                      >
-                        {{ item.supplier_name }}
-                      </p>
-                    </div>
+                    <p class="text-xs text-gray-400 truncate">
+                      {{ item.supplier_name }}
+                    </p>
                   </div>
                   <p v-else class="text-xs text-gray-300">Not assigned</p>
                 </td>
-
                 <!-- Driver Collect -->
                 <td class="px-4 py-3">
                   <span
@@ -322,40 +343,36 @@
                   >
                   <span v-else class="text-xs text-gray-300">—</span>
                 </td>
-
                 <!-- Actions -->
                 <td class="px-4 py-3 text-right">
-                  <div class="flex items-center justify-end gap-2">
-                    <!-- Assign / Reassign Driver -->
-                    <button
-                      @click.stop="openAssignModal(item)"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 whitespace-nowrap"
-                      :class="
-                        item.supplier_id
-                          ? 'bg-gray-100 hover:bg-orange-50 text-gray-600 hover:text-[#FF613c] border border-gray-200 hover:border-[#FF613c]'
-                          : 'bg-[#FF613c] hover:bg-[#e55139] text-white shadow-sm'
-                      "
+                  <button
+                    @click.stop="openAssignModal(item)"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 whitespace-nowrap"
+                    :class="
+                      item.supplier_id
+                        ? 'bg-gray-100 hover:bg-orange-50 text-gray-600 hover:text-[#FF613c] border border-gray-200 hover:border-[#FF613c]'
+                        : 'bg-[#FF613c] hover:bg-[#e55139] text-white shadow-sm'
+                    "
+                  >
+                    <svg
+                      class="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <svg
-                        class="w-3.5 h-3.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                      {{
-                        authStore.isAdmin || authStore.isSaleAdmin
-                          ? "Fill Data"
-                          : "Assign Driver"
-                      }}
-                    </button>
-                  </div>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                    {{
+                      authStore.isAdmin || authStore.isSaleAdmin
+                        ? "Fill Data"
+                        : "Assign Driver"
+                    }}
+                  </button>
                 </td>
               </tr>
             </template>
@@ -384,13 +401,10 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
-import { DialogPanel, DialogTitle } from "@headlessui/vue";
-import { Switch } from "@headlessui/vue";
 import { useToast } from "vue-toastification";
 import { useCarBookingStore } from "../../stores/carbooking";
 import { useSupplierStore } from "../../stores/supplier";
 import { useDriverStore } from "../../stores/driver";
-import Modal from "../Modal.vue";
 import Pagination from "../Pagination.vue";
 import AssignDriverModal from "../../views/GroupComponent/ExpensePart/AssignDriverModal.vue";
 import { useAuthStore } from "../../stores/auth.js";
@@ -407,11 +421,8 @@ const { drivers } = storeToRefs(driverStore);
 
 // ── Filter state ───────────────────────────────────────────────────────────
 const filterStatus = ref("all");
-const searchCrm = ref("");
 const dateFrom = ref("");
 const dateTo = ref("");
-const activeQuickDate = ref("today&90day");
-const expandedId = ref(null);
 
 const statusTabs = [
   { value: "all", label: "All" },
@@ -419,36 +430,15 @@ const statusTabs = [
   { value: "assigned", label: "Assigned" },
 ];
 
-const quickDates = [
-  { value: "today", label: "Today" },
-  { value: "tomorrow", label: "Tomorrow" },
-  { value: "7day", label: "Next 7 Days" },
-  { value: "30day", label: "Next 30 Days" },
-  { value: "today&90day", label: "Next 90 Days" },
-];
+// ── Day navigator state ────────────────────────────────────────────────────
+const currentDate = ref(new Date());
+const activeQuick = ref("today");
+const calendarInput = ref(null);
+const calendarValue = ref("");
 
 // ── Modal state ────────────────────────────────────────────────────────────
 const assignModalOpen = ref(false);
-const modalLoading = ref(false);
-const submitting = ref(false);
 const selectedItem = ref(null);
-const driverCarList = ref([]);
-
-const assignForm = ref({
-  supplier_id: "",
-  driver_id: "",
-  car_number: "",
-  driver_contact: "",
-  cost_price: "",
-  extra_collect_amount: "",
-  is_driver_collect: false,
-  pickup_time: "",
-  pickup_location: "",
-  dropoff_location: "",
-  route_plan: "",
-  special_request: "",
-  quantity: 1,
-});
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const toYMD = (d) => {
@@ -478,85 +468,100 @@ const formatDate = (dateStr) => {
   } ${d.getFullYear()}`;
 };
 
+const formatPill = (d) => {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  return `${days[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}/${String(
+    d.getMonth() + 1,
+  ).padStart(2, "0")}`;
+};
+
 // ── Computed ───────────────────────────────────────────────────────────────
 const flatItems = computed(() => carbookings.value?.data ?? []);
-
-const filteredItems = computed(() => {
-  let list = flatItems.value;
-
-  return list;
-});
+const filteredItems = computed(() => flatItems.value);
 
 // ── Fetch ──────────────────────────────────────────────────────────────────
 const fetchData = async () => {
-  let data = {
+  const data = {
     first: dateFrom.value,
     second: dateTo.value,
     agent_id: "",
   };
-  if (filterStatus.value != "all") {
-    if (filterStatus.value == "assigned") {
-      data.assigned_only = true;
-    } else {
-      data.supplier_id = "unassigned";
-    }
+  if (filterStatus.value === "assigned") {
+    data.assigned_only = true;
+  } else if (filterStatus.value === "unassigned") {
+    data.supplier_id = "unassigned";
   }
   await carBookingStore.getListAction(data);
 };
 
 const changePage = async (url) => {
-  let data = {
+  const data = {
     first: dateFrom.value,
     second: dateTo.value,
     agent_id: "",
   };
-  if (filterStatus.value != "all") {
-    if (filterStatus.value == "assigned") {
-      data.assigned_only = true;
-    } else {
-      data.supplier_id = "unassigned";
-    }
+  if (filterStatus.value === "assigned") {
+    data.assigned_only = true;
+  } else if (filterStatus.value === "unassigned") {
+    data.supplier_id = "unassigned";
   }
   await carBookingStore.getChangePage(url, data);
 };
 
-// ── Quick date ─────────────────────────────────────────────────────────────
-const applyQuickDate = (val) => {
-  activeQuickDate.value = val;
-  const today = new Date();
-  const addDays = (d, n) => {
-    const r = new Date(d);
-    r.setDate(r.getDate() + n);
-    return r;
-  };
-
-  const map = {
-    today: [today, today],
-    tomorrow: [addDays(today, 1), addDays(today, 1)],
-    "7day": [today, addDays(today, 7)],
-    "30day": [today, addDays(today, 30)],
-    "today&90day": [today, addDays(today, 90)],
-  };
-
-  const [from, to] = map[val] || [today, addDays(today, 90)];
-  dateFrom.value = toYMD(from);
-  dateTo.value = toYMD(to);
+// ── Day navigator ──────────────────────────────────────────────────────────
+const applyDate = (d) => {
+  const ymd = toYMD(d);
+  dateFrom.value = ymd;
+  dateTo.value = ymd;
+  calendarValue.value = ymd;
+  const todayYMD = toYMD(new Date());
+  const tomorrowDate = new Date();
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrowYMD = toYMD(tomorrowDate);
+  if (ymd === todayYMD) activeQuick.value = "today";
+  else if (ymd === tomorrowYMD) activeQuick.value = "tomorrow";
+  else activeQuick.value = "";
   fetchData();
 };
 
-const onDateRangeChange = () => {
-  activeQuickDate.value = "";
-  fetchData();
+const selectQuick = (val) => {
+  const d = new Date();
+  if (val === "tomorrow") d.setDate(d.getDate() + 1);
+  currentDate.value = d;
+  activeQuick.value = val;
+  applyDate(d);
+};
+
+const shiftDay = (n) => {
+  const d = new Date(currentDate.value);
+  d.setDate(d.getDate() + n);
+  currentDate.value = d;
+  applyDate(d);
+};
+
+const toggleCalendar = () => {
+  calendarInput.value?.showPicker?.();
+  calendarInput.value?.click();
+};
+
+const onCalendarPick = () => {
+  console.log("hello");
+
+  if (!calendarValue.value) return;
+  const [y, m, day] = calendarValue.value.split("-").map(Number);
+  const d = new Date(y, m - 1, day);
+  currentDate.value = d;
+  applyDate(d);
 };
 
 const resetFilters = () => {
   filterStatus.value = "all";
-  searchCrm.value = "";
-  applyQuickDate("today&90day");
+  currentDate.value = new Date();
+  selectQuick("today");
 };
 
+// ── Modal ──────────────────────────────────────────────────────────────────
 const openAssignModal = (item) => {
-  console.log(item);
   assignModalOpen.value = true;
   selectedItem.value = item;
 };
@@ -566,13 +571,8 @@ const closeAssignDriverModal = () => {
   selectedItem.value = null;
 };
 
-// ── Row expand ─────────────────────────────────────────────────────────────
+// ── Watch ──────────────────────────────────────────────────────────────────
+watch(filterStatus, () => fetchData());
 
-// ── Watch filters ──────────────────────────────────────────────────────────
-watch(filterStatus, () => {
-  /* client-side only filtering, no refetch needed */
-  fetchData();
-});
-
-onMounted(() => applyQuickDate("today&90day"));
+onMounted(() => selectQuick("today"));
 </script>

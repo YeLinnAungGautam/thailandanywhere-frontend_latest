@@ -125,6 +125,7 @@ import HotelReport from "../views/HotelReport.vue";
 import ExternalPDF from "../views/ExternalPDF.vue";
 import RemaindTaxReceiptOutput from "../views/TaxReceiptComponent/RemaindTaxReceiptOutput.vue";
 import ProductGraphReport from "../views/ProductGraphReport.vue";
+import VantourManagement from "../views/VantourManagement.vue";
 
 const routes = [
   {
@@ -462,6 +463,11 @@ const routes = [
     path: "/group-hotel-email",
     name: "group-hotel-email",
     component: EmailCheck,
+  },
+  {
+    path: "/vantour-management",
+    name: "vantour-management",
+    component: VantourManagement,
   },
   {
     path: "/group-hotel-expense",

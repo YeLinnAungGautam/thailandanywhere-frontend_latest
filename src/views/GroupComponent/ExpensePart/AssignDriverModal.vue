@@ -24,7 +24,7 @@
           </svg>
           {{ driverData ? "Edit Driver Assignment" : "Assign Driver" }}
           <span class="text-xs font-normal text-gray-500 ml-2">
-            ({{ itemData?.car?.name || "Car Booking" }})
+            ({{ itemData?.variation_name || "Car Booking" }})
           </span>
         </div>
         <button
@@ -107,6 +107,7 @@
 
             <!-- Step 2: Supplier & Driver -->
             <div
+              v-if="authStore.isSuperAdmin || authStore.isReservation"
               @click="currentStep = 2"
               :class="[
                 'relative flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all duration-300',
@@ -261,7 +262,7 @@
                 </div>
                 <div class="flex-1">
                   <p class="text-sm font-semibold text-gray-900">
-                    {{ itemData?.car?.name || "Vehicle" }}
+                    {{ itemData?.variation_name || "Vehicle" }}
                   </p>
                   <p class="text-xs text-gray-600">
                     {{ formatDate(itemData?.service_date) }}
@@ -298,7 +299,7 @@
                 </label>
                 <input
                   type="text"
-                  :value="itemData?.customer_info?.name || ''"
+                  :value="itemData?.customer_name || ''"
                   disabled
                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-100 text-gray-600"
                 />
@@ -834,7 +835,7 @@
         <div class="flex items-center gap-3">
           <button
             v-if="currentStep > 1"
-            @click="currentStep--"
+            @click="previousAction"
             :disabled="loading || saving"
             class="px-4 py-2.5 bg-gray-200 text-black text-sm rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
@@ -854,7 +855,7 @@
           <!-- Step 2: Save then go to Step 3 -->
           <button
             v-if="currentStep === 2"
-            @click="saveDriver"
+            @click="nextAction"
             :disabled="saving || !isStep2Complete"
             class="px-4 py-2.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
@@ -1088,13 +1089,11 @@ const onDriverChange = async (driverId) => {
   }
 };
 
-const nextAction = async () => {
+const previousAction = () => {
   if (authStore.isAdmin || authStore.isSaleAdmin) {
-    await saveDriver();
-    emit("close");
+    currentStep.value = 1;
   } else {
-    await saveDriver();
-    currentStep++;
+    currentStep.value--;
   }
 };
 
@@ -1102,6 +1101,8 @@ const nextAction = async () => {
 const loadDriverData = async () => {
   if (!props.itemData?.id) {
     resetForm();
+    console.log("reset");
+
     return;
   }
   loading.value = true;
@@ -1149,8 +1150,8 @@ const loadDriverData = async () => {
     };
 
     if (formData.value.supplier_id) await onSupplierChange();
-    if (formData.value.driver_id)
-      await onDriverChange(formData.value.driver_id);
+    // if (formData.value.driver_id)
+    //   await onDriverChange(formData.value.driver_id);
   } catch (e) {
     toast.error("Failed to load driver details");
   } finally {
@@ -1202,12 +1203,10 @@ const saveDriver = async () => {
     frmData.append("route_plan", tripForm.value.route_plan || "");
     frmData.append("special_request", tripForm.value.special_request || "");
     frmData.append("pickup_time", tripForm.value.pickup_time || "");
-
     frmData.append(
       "is_driver_collect",
       lineForm.value.is_driver_collect ? 1 : 0,
     );
-
     frmData.append(
       "car_customer_contact",
       tripForm.value.car_customer_contact || "",
@@ -1231,22 +1230,42 @@ const saveDriver = async () => {
         formData.value.cost_price * props.itemData.quantity,
       );
     }
+
     const res = await carBookingStore.addNewAction(frmData, props.itemData?.id);
+    console.log(res, "this is res");
+
     if (res?.status === 1) {
-      toast.success(
-        props.driverData
-          ? "Driver assignment updated"
-          : "Driver assigned successfully",
-      );
-      emit("refresh");
-      // currentStep.value = 3;
+      toast.success("Driver assigned successfully");
+      // Make sure refresh completes
+      await loadDriverData();
+      return true; // Return success
     } else {
       toast.error("Failed to assign driver");
+      return false; // Return failure
     }
   } catch (e) {
     toast.error("Failed to assign driver");
+    return false;
   } finally {
     saving.value = false;
+  }
+};
+
+const nextAction = async () => {
+  const success = await saveDriver();
+
+  console.log(success);
+
+  if (success) {
+    if (authStore.isAdmin || authStore.isSaleAdmin) {
+      console.log("emit");
+
+      currentStep.value = 3;
+    } else {
+      currentStep.value++;
+    }
+  } else {
+    console.log("hello");
   }
 };
 
@@ -1254,53 +1273,37 @@ const saveDriver = async () => {
 const buildLineMessage = () => {
   const item = props.itemData;
   const group = props.groupData;
-  const saleAmount =
-    Number(props.itemData?.sale_amount) ||
-    Number(props.itemData?.selling_price) ||
-    Number(props.itemData?.amount) ||
-    0;
+  const saleAmountValue = saleAmount.value;
+
+  const contact =
+    tripForm.value.car_customer_contact ||
+    item?.customer_info?.phone_number ||
+    "-";
 
   const paymentBlock = lineForm.value.is_driver_collect
-    ? [
-        `💳 Payment Method: ${lineForm.value.car_payment_method || "-"}`,
-        `💰 Sale Amount  : ${saleAmount} THB`,
-        `💵 Total Collect: ${lineForm.value.car_total_collect || 0} THB`,
-        `➕ Extra Collect : ${computedExtraCollect.value} THB`,
-      ]
-    : [
-        `💳 Payment Method: xxxx`,
-        `💰 Sale Amount  : xxxx`,
-        `💵 Total Collect: xxxx`,
-        `➕ Extra Collect : xxxx`,
-      ];
+    ? `\nPayment Method: ${lineForm.value.car_payment_method || "-"}
+Sale Amount: ${saleAmountValue}
+Total Collect: ${lineForm.value.car_total_collect || 0}
+Extra Collect: ${computedExtraCollect.value}`
+    : `\nPayment Method: xxxx
+Sale Amount: xxxx
+Total Collect: xxxx
+Extra Collect: xxxx`;
 
-  lineMessage.value = [
-    `📋 Trip Assignment`,
-    `──────────────────`,
-    `🆔 CRM ID      : ${item?.crm_id || "-"}`,
-    `👤 Customer    : ${group?.customer_name || item?.customer_name || "-"}`,
-    `📞 Contact     : ${tripForm.value.car_customer_contact || "-"}`,
-    `📅 Service Date: ${formatDate(item?.service_date)}`,
-    `🚗 Vehicle     : ${item?.car?.name || "-"}`,
-    `👥 Pax         : ${tripForm.value.total_pax || "-"}`,
-    `⏰ Pickup Time : ${tripForm.value.pickup_time || "-"}`,
-    `📍 Pickup      : ${tripForm.value.pickup_location || "-"}`,
-    `🏁 Dropoff     : ${tripForm.value.dropoff_location || "-"}`,
-    tripForm.value.route_plan
-      ? `🗺️  Route       : ${tripForm.value.route_plan}`
-      : "",
-    tripForm.value.special_request
-      ? `📝 Special     : ${tripForm.value.special_request}`
-      : "",
-    `──────────────────`,
-    `🧑‍✈️ Driver      : ${formData.value.driver_contact || "-"}`,
-    `🚘 Car Number  : ${getCarNumber(formData.value.car_number)}`,
-    `🏢 Supplier    : ${getSupplierName(formData.value.supplier_id)}`,
-    `──────────────────`,
-    ...paymentBlock,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  lineMessage.value = `CRMID: ${item?.crm_id || "-"}
+C. Name: ${group?.customer_name || item?.customer_name || "-"}
+Contact: ${contact}
+
+S.Date: ${formatDate(item?.service_date)}
+Pickup Time: ${tripForm.value.pickup_time || "-"}
+Pickup Location: ${tripForm.value.pickup_location || "-"}
+Dropoff Location: ${tripForm.value.dropoff_location || "-"}
+
+Routeplan: ${tripForm.value.route_plan || "-"}
+
+Product Variation: ${item?.variation_name || "-"}${paymentBlock}
+
+Special Request: ${tripForm.value.special_request || "-"}`;
 };
 
 // ── Send to LINE ───────────────────────────────────────
@@ -1312,37 +1315,44 @@ const handleSendToLine = async () => {
 
   sendingLine.value = true;
   try {
-    const editedData = {
+    const payload = {
       pickup_time: tripForm.value.pickup_time || "",
       pickup_location: tripForm.value.pickup_location || "",
       dropoff_location: tripForm.value.dropoff_location || "",
       route_plan: tripForm.value.route_plan || "",
       special_request: tripForm.value.special_request || "",
       is_driver_collect: lineForm.value.is_driver_collect ? 1 : 0,
-      extra_collect: lineForm.value.is_driver_collect
-        ? computedExtraCollect.value
-        : 0,
-      car_customer_contact: tripForm.value.car_customer_contact || "",
-      car_total_collect: lineForm.value.car_total_collect || 0,
-      car_payment_method: lineForm.value.car_payment_method || "",
-    };
-
-    const saveRes = await carBookingStore.sendLineAction(props.itemData?.id, {
-      pickup_time: editedData.pickup_time,
-      pickup_location: editedData.pickup_location,
-      dropoff_location: editedData.dropoff_location,
-      route_plan: editedData.route_plan,
-      special_request: editedData.special_request,
-      is_driver_collect: editedData.is_driver_collect,
       extra_collect_amount: lineForm.value.is_driver_collect
         ? computedExtraCollect.value
         : "0",
-      car_customer_contact: editedData.car_customer_contact,
-      car_total_collect: editedData.car_total_collect,
-      car_payment_method: editedData.car_payment_method,
+      car_customer_contact: tripForm.value.car_customer_contact || "",
+      car_total_collect: lineForm.value.car_total_collect || 0,
+      car_payment_method: lineForm.value.car_payment_method || "",
       message: lineMessage.value,
-      edited_data: editedData, // ← this was missing
-    });
+      edited_data: {
+        crm_id: props.itemData?.crm_id || "",
+        customer_name:
+          props.groupData?.customer_name || props.itemData?.customer_name || "",
+        contact: tripForm.value.car_customer_contact || "",
+        service_date: props.itemData?.service_date || "",
+        pickup_time: tripForm.value.pickup_time || "",
+        pickup_location: tripForm.value.pickup_location || "",
+        dropoff_location: tripForm.value.dropoff_location || "",
+        route_plan: tripForm.value.route_plan || "",
+        product_variation: props.itemData?.variation_name || "",
+        special_request: tripForm.value.special_request || "",
+        is_driver_collect: lineForm.value.is_driver_collect ? 1 : 0,
+        car_customer_contact: tripForm.value.car_customer_contact || "",
+        car_payment_method: lineForm.value.car_payment_method || "",
+        car_total_collect: lineForm.value.car_total_collect || 0,
+        extra_collect: computedExtraCollect.value,
+      },
+    };
+
+    const saveRes = await carBookingStore.sendLineAction(
+      props.itemData?.id,
+      payload,
+    );
 
     if (saveRes?.status !== 1) {
       toast.error(saveRes?.message || "Failed to save booking");
@@ -1377,9 +1387,13 @@ onMounted(async () => {
 watch(
   () => props.isOpen,
   (val) => {
-    if (val) loadDriverData();
-    else resetForm();
+    if (val) {
+      loadDriverData();
+    } else {
+      resetForm();
+    }
   },
+  { immediate: true }, // Add this to control initial load
 );
 </script>
 

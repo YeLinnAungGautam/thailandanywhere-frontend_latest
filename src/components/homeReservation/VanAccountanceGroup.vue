@@ -94,7 +94,7 @@
                   d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"
                 />
               </svg>
-              Send LINE
+              Send LINE For All
             </button>
             <button
               @click="search"
@@ -353,7 +353,24 @@
                     <div class="flex items-center justify-end gap-2">
                       <!-- Detail -->
                       <button
-                        @click="toggleDay(day.date)"
+                        @click="openLineModalForDay(day)"
+                        class="px-4 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 text-white"
+                        style="background: #06c755"
+                      >
+                        <svg
+                          class="w-3.5 h-3.5"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path
+                            d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"
+                          />
+                        </svg>
+                        Send LINE
+                      </button>
+                      <!-- Detail -->
+                      <button
+                        @click="routeToDate(day)"
                         class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all border-gray-200 text-gray-600 hover:border-[#FF613c] hover:text-[#FF613c]"
                       >
                         <svg
@@ -429,11 +446,7 @@
                     >
                       Product
                     </th>
-                    <th
-                      class="px-4 py-2 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wide whitespace-nowrap"
-                    >
-                      Qty
-                    </th>
+
                     <th
                       class="px-4 py-2 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wide whitespace-nowrap"
                     >
@@ -443,6 +456,11 @@
                       class="px-4 py-2 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wide whitespace-nowrap"
                     >
                       Cost
+                    </th>
+                    <th
+                      class="px-4 py-2 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wide whitespace-nowrap"
+                    >
+                      Profit/Loss
                     </th>
                     <th
                       class="px-4 py-2 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wide whitespace-nowrap"
@@ -465,6 +483,7 @@
                     <td class="pl-12 pr-4 py-2.5">
                       <div class="flex items-center gap-2">
                         <span
+                          @click="goToBooking(item.booking_id)"
                           class="px-2 py-0.5 bg-[#FF613c] text-white text-[10px] font-bold rounded-full whitespace-nowrap"
                         >
                           {{ item.crm_id }}
@@ -494,15 +513,15 @@
                         class="text-xs text-gray-700 truncate max-w-[160px]"
                         :title="item.product_name"
                       >
-                        {{ item.product_name || "—" }}
+                        {{ item.product_name || "—" }} x {{ item.qty ?? "—" }}
                       </p>
                     </td>
                     <!-- Qty -->
-                    <td class="px-4 py-2.5 text-right">
+                    <!-- <td class="px-4 py-2.5 text-right">
                       <span class="text-xs text-gray-600">{{
                         item.qty ?? "—"
                       }}</span>
-                    </td>
+                    </td> -->
                     <!-- Sale -->
                     <td class="px-4 py-2.5 text-right">
                       <span class="text-xs text-gray-600">{{
@@ -514,6 +533,20 @@
                       <span class="text-xs text-gray-600">{{
                         fmt(item.cost_amount)
                       }}</span>
+                    </td>
+
+                    <!-- Profit/Loss -->
+                    <td class="px-4 py-3 text-center">
+                      <p
+                        class="whitespace-nowrap font-medium text-sm"
+                        :class="
+                          item.sale_amount - item.cost_amount >= 0
+                            ? 'text-green-600'
+                            : 'text-red-500'
+                        "
+                      >
+                        {{ item.sale_amount - item.cost_amount || "—" }}
+                      </p>
                     </td>
                     <!-- Collect -->
                     <td class="px-4 py-2.5 text-right">
@@ -691,7 +724,12 @@
             <div>
               <h3 class="text-sm font-bold text-white">LINE Summary Preview</h3>
               <p class="text-[11px] text-white/75">
-                {{ supplier?.name }} · {{ dateFrom }} – {{ dateTo }}
+                {{ supplier?.name }} ·
+                {{
+                  activeDayForLine
+                    ? activeDayForLine.date
+                    : `${dateFrom} – ${dateTo}`
+                }}
               </p>
             </div>
           </div>
@@ -745,7 +783,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, defineEmits } from "vue";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import { useCarBookingStore } from "../../stores/carbooking";
@@ -764,6 +802,8 @@ const dateTo = ref("");
 const selectedSupplierId = ref("");
 const activeQuick = ref("");
 const hasSearched = ref(false);
+
+const emit = defineEmits(["route-to-date"]);
 
 // ── Expanded rows ──────────────────────────────────────────────────────────
 const expandedDates = ref(new Set());
@@ -940,7 +980,16 @@ const executePay = async () => {
 
 const lineModal = ref({ open: false, sending: false });
 
+// Add after lineModal ref
+const activeDayForLine = ref(null); // null = all days, day object = single day
+
+const openLineModalForDay = (day) => {
+  activeDayForLine.value = day;
+  lineModal.value = { open: true, sending: false };
+};
+
 const openLineModal = () => {
+  activeDayForLine.value = null; // all days
   lineModal.value = { open: true, sending: false };
 };
 
@@ -957,18 +1006,81 @@ const executeSendLine = async () => {
   }
 };
 
+const goToBooking = (id) => {
+  // console.log(id, "this is id");
+  window.open(`/bookings/new-update/${id}`, "_blink");
+};
+
+const routeToDate = (day) => {
+  emit("route-to-date", {
+    supplier_id: selectedSupplierId.value,
+    date: day.date,
+  });
+};
+
 const lineMessage = computed(() => {
   if (!ledger.value.length || !supplier.value || !grandTotal.value) return "";
+
+  // ── Single-day mode ──────────────────────────────────────────────────────
+  if (activeDayForLine.value) {
+    const day = activeDayForLine.value;
+    const lines = [];
+
+    lines.push(`📊 Daily Ledger Summary`);
+    lines.push(`👨‍💼 Supplier: ${supplier.value.name}`);
+    lines.push(`📆 Date: ${day.date}`);
+    lines.push(`━━━━━━━━━━━━━━━━━━━━━━`);
+    lines.push(`🚙 Total Trip: ${day.total_trips}`);
+    lines.push(``);
+
+    day.items?.forEach((item, index) => {
+      const num = `${index + 1}️⃣`;
+      const isCollect = item.is_driver_collect == 1;
+      const balance = Number(item.balance ?? 0);
+      const balanceSign =
+        balance >= 0
+          ? `+${balance.toLocaleString()}`
+          : balance.toLocaleString();
+
+      lines.push(`${num} CRMID: ${item.crm_id}`);
+      lines.push(`➖ Customer: ${item.customer_name ?? "—"}`);
+      lines.push(`➖ Trip Name: ${item.product_name ?? "—"}`);
+      if (item.pickup_time) lines.push(`➖ Pickup Time: ${item.pickup_time}`);
+      if (item.pickup_location)
+        lines.push(`➖ Pickup: ${item.pickup_location}`);
+      lines.push(`➖ Qty: ${item.qty ?? 1}`);
+      lines.push(`➖ P. Method: ${isCollect ? "Collect" : "Not Collect"}`);
+      lines.push(`➖ Amount: ${Number(item.sale_amount).toLocaleString()} THB`);
+      lines.push(`➖ Cost: ${Number(item.cost_amount).toLocaleString()} THB`);
+      lines.push(`⭕ (${balanceSign})`);
+      lines.push(``);
+    });
+
+    lines.push(`~~~~~~~~~~~~~~~~~~~~~~~~`);
+    lines.push(`📊 Day Total`);
+    lines.push(
+      `   💸 Total Sale Order   : ${day.total_cost_amount.toLocaleString()} THB`,
+    );
+    lines.push(
+      `   💳 Balance: ${
+        day.total_balance >= 0 ? "+" : ""
+      }${day.total_balance.toLocaleString()} THB`,
+    );
+    lines.push(``);
+    lines.push(`⚠️ Please note: Balance as of ${toYMD(new Date())}`);
+
+    return lines.join("\n");
+  }
+
+  // ── All-days mode (unchanged) ────────────────────────────────────────────
   const g = grandTotal.value;
   const lines = [];
 
-  // Header
   lines.push(`📊 Supplier Ledger Summary`);
   lines.push(`👨‍💼 Supplier: ${supplier.value.name}`);
   lines.push(`📅 ${dateFrom.value} ~ ${dateTo.value}`);
   lines.push(`━━━━━━━━━━━━━━━━━━━━━━`);
 
-  // Day-by-day breakdown
   for (const day of ledger.value) {
     lines.push(``);
     lines.push(`📆 S. Date: ${day.date}`);
@@ -999,13 +1111,10 @@ const lineMessage = computed(() => {
       lines.push(``);
     });
 
+    lines.push(`~~~~~~~~~~~~~~~~~~~~~~~~`);
     lines.push(`📊 Day Total`);
-    lines.push(`   💰 Sale   : ${day.total_sale_amount.toLocaleString()} THB`);
-    lines.push(`   💸 Cost   : ${day.total_cost_amount.toLocaleString()} THB`);
     lines.push(
-      `   📈 P/L    : ${
-        day.total_profit_loss >= 0 ? "+" : ""
-      }${day.total_profit_loss.toLocaleString()} THB`,
+      `   💸 Total Sale Order   : ${day.total_cost_amount.toLocaleString()} THB`,
     );
     lines.push(
       `   💳 Balance: ${
@@ -1015,20 +1124,13 @@ const lineMessage = computed(() => {
     lines.push(`~~~~~~~~~~~~~~~~~~~~~~~~`);
   }
 
-  // Grand total
   lines.push(``);
   lines.push(`━━━━━━━━━━━━━━━━━━━━━━`);
   lines.push(`📋 GRAND TOTAL`);
   lines.push(`🚙 Total Trips  : ${g.total_trips}`);
   lines.push(
-    `💰 Sale Amount  : ${Number(g.total_sale_amount).toLocaleString()} THB`,
-  );
-  lines.push(
-    `💸 Cost Amount  : ${Number(g.total_cost_amount).toLocaleString()} THB`,
-  );
-  lines.push(
-    `📈 Profit / Loss: ${g.total_profit_loss >= 0 ? "+" : ""}${Number(
-      g.total_profit_loss,
+    `💸 Total Sale Order  : ${Number(
+      g.total_cost_amount,
     ).toLocaleString()} THB`,
   );
   lines.push(
@@ -1037,7 +1139,7 @@ const lineMessage = computed(() => {
     ).toLocaleString()} THB`,
   );
   lines.push(``);
-  lines.push(`⚠️ Please note: Balance as of ${dateTo.value}`);
+  lines.push(`⚠️ Please note: Balance as of ${toYMD(new Date())}`);
 
   return lines.join("\n");
 });

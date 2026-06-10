@@ -199,27 +199,12 @@
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
-                Product
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
                 Variation
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
-                Qty
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
-                Sale Amount
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
-                Cost Amount
+                Sale & Cost
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
@@ -229,12 +214,7 @@
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
-                Collect
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
-                Collect Amount
+                Collect & Amount
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
@@ -265,48 +245,45 @@
                 </td>
                 <!-- Service Date -->
                 <td class="px-4 py-3">
-                  <div class="text-xs text-gray-700 whitespace-nowrap">
+                  <div
+                    class="text-xs text-gray-900 font-medium whitespace-nowrap"
+                  >
                     {{ formatDate(item.service_date) }}
                   </div>
-                </td>
-                <!-- Product -->
-                <td class="px-4 py-3 max-w-[180px]">
                   <p
-                    class="text-xs text-gray-800 font-medium truncate"
+                    class="text-xs text-gray-800 truncate"
                     :title="item.product_name"
                   >
                     {{ item.product_name || "—" }}
                   </p>
                 </td>
                 <!-- Variation -->
-                <td class="px-4 py-3">
+                <td class="px-4 py-3 flex justify-center items-center gap-x-1">
                   <p class="text-xs text-gray-600 whitespace-nowrap">
                     {{ item.variation_name || "—" }}
                   </p>
-                </td>
-                <!-- Qty -->
-                <td class="px-4 py-3 max-w-[150px]">
                   <p
                     v-if="item.qty"
                     class="text-xs text-gray-600 truncate"
                     :title="item.qty"
                   >
-                    {{ item.qty }}
+                    ( {{ item.qty }} )
                   </p>
                   <p v-else class="text-xs text-gray-300">—</p>
                 </td>
+
                 <!-- Sale Amount -->
                 <td class="px-4 py-3">
+                  <p
+                    class="text-xs text-gray-600 font-medium whitespace-nowrap"
+                  >
+                    S: {{ item.amount || "—" }}
+                  </p>
                   <p class="text-xs text-gray-600 whitespace-nowrap">
-                    {{ item.amount || "—" }}
+                    C: {{ item.total_cost || "—" }}
                   </p>
                 </td>
-                <!-- cost Amount -->
-                <td class="px-4 py-3">
-                  <p class="text-xs text-gray-600 whitespace-nowrap">
-                    {{ item.total_cost || "—" }}
-                  </p>
-                </td>
+
                 <!-- Profit/Loss -->
                 <td class="px-4 py-3">
                   <p
@@ -329,7 +306,7 @@
                 <!-- Collect -->
                 <td class="px-4 py-3">
                   <p
-                    class="text-xs text-gray-600 whitespace-nowrap"
+                    class="text-xs text-gray-600 inline-block whitespace-nowrap"
                     :class="
                       item.is_driver_collect == 1
                         ? 'bg-green-600 px-1.5 py-0.5 rounded-lg text-white'
@@ -340,13 +317,13 @@
                       item.is_driver_collect == 1 ? "collect" : "not collect"
                     }}
                   </p>
-                </td>
-                <!-- Collect Amount -->
-                <td class="px-4 py-3">
-                  <p class="text-xs text-gray-600 whitespace-nowrap">
+                  <p
+                    class="text-sm pt-1 font-semibold text-gray-600 whitespace-nowrap"
+                  >
                     {{ item.car_total_collect || "—" }}
                   </p>
                 </td>
+
                 <!-- Balance -->
                 <td class="px-4 py-3">
                   <p
@@ -422,7 +399,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, defineProps, defineEmits } from "vue";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import { useCarBookingStore } from "../../stores/carbooking";
@@ -437,6 +414,7 @@ const carBookingStore = useCarBookingStore();
 const supplierStore = useSupplierStore();
 const driverStore = useDriverStore();
 const authStore = useAuthStore();
+const emit = defineEmits(["clear-filter"]);
 
 const { carbookings, loading } = storeToRefs(carBookingStore);
 const { suppliers } = storeToRefs(supplierStore);
@@ -446,6 +424,13 @@ const { drivers } = storeToRefs(driverStore);
 const filterStatus = ref("all");
 const dateFrom = ref("");
 const dateTo = ref("");
+
+const props = defineProps({
+  preFilter: {
+    type: Object, // { supplier_id, date } | null
+    default: null,
+  },
+});
 
 const statusTabs = ref([
   { value: "all", label: "All", have: true },
@@ -654,8 +639,48 @@ const closeAssignDriverModal = async () => {
   await fetchData();
 };
 
+const applyPreFilter = ({ supplier_id, date }) => {
+  // Set the supplier tab
+  filterStatus.value = String(supplier_id);
+
+  // Set the date navigator to that date
+  const [y, m, d] = date.split("-").map(Number);
+  const dateObj = new Date(y, m - 1, d);
+  currentDate.value = dateObj;
+  dateFrom.value = date;
+  dateTo.value = date;
+  calendarValue.value = date;
+
+  // Sync the Today/Tomorrow pill label
+  const todayYMD = toYMD(new Date());
+  const tomorrowDate = new Date();
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  activeQuick.value =
+    date === todayYMD
+      ? "today"
+      : date === toYMD(tomorrowDate)
+      ? "tomorrow"
+      : "";
+
+  fetchData();
+  emit("clear-filter"); // tell parent we've consumed it so re-navigating works
+};
+
 // ── Watch ──────────────────────────────────────────────────────────────────
 watch(filterStatus, () => fetchData());
 
-onMounted(() => selectQuick("today"));
+watch(
+  () => props.preFilter,
+  (val) => {
+    if (val) applyPreFilter(val);
+  },
+);
+
+onMounted(() => {
+  if (props.preFilter) {
+    applyPreFilter(props.preFilter);
+  } else {
+    selectQuick("today"); // default behaviour
+  }
+});
 </script>

@@ -78,10 +78,13 @@
         <AssignVan />
       </div>
       <div v-if="part == 'accountance'">
-        <VanAccountance />
+        <VanAccountance
+          :preFilter="assignFilter"
+          @clear-filter="assignFilter = null"
+        />
       </div>
       <div v-if="part == 'accountance_group'">
-        <VanAccountanceGroup />
+        <VanAccountanceGroup @route-to-date="handleRouteToDate" />
       </div>
     </div>
   </Layout>
@@ -101,4 +104,11 @@ const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 
 const part = ref("graph");
+
+const assignFilter = ref(null); // { supplier_id, date }
+
+const handleRouteToDate = ({ supplier_id, date }) => {
+  assignFilter.value = { supplier_id, date };
+  part.value = "accountance";
+};
 </script>

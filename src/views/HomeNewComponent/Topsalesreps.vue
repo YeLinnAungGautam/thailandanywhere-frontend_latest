@@ -2,32 +2,6 @@
   <div class="bg-white rounded-lg shadow-sm p-6 h-[40vh] overflow-scroll">
     <div class="flex items-center justify-between mb-4">
       <p class="text-gray-700 text-lg font-semibold">Top Sales Reps</p>
-
-      <!-- Toggle Switch -->
-      <!-- <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-        <button
-          @click="viewMode = 'today'"
-          :class="[
-            'px-3 py-1 rounded text-[10px] font-medium transition-colors',
-            viewMode === 'today'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700',
-          ]"
-        >
-          Today
-        </button>
-        <button
-          @click="viewMode = 'average'"
-          :class="[
-            'px-3 py-1 rounded text-[10px] font-medium transition-colors',
-            viewMode === 'average'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700',
-          ]"
-        >
-          Avg / Day
-        </button>
-      </div> -->
     </div>
 
     <div class="space-y-3">
@@ -43,7 +17,6 @@
               alt="Agent Avatar"
               class="w-10 h-10 rounded-full object-contain"
             />
-            <!-- Crown for top 3 -->
             <div
               v-if="index < 6"
               class="absolute -top-4 -right-1 text-lg"
@@ -52,11 +25,40 @@
               {{ getCrownEmoji(index) }}
             </div>
           </div>
-          <span class="text-gray-700 text-sm font-medium">{{ rep.name }}</span>
+
+          <!-- Name + cash image count -->
+          <div>
+            <span class="text-gray-700 text-sm font-medium block">
+              {{ rep.name }}
+            </span>
+            <span v-if="rep.cash_image_count > 0" class="text-gray-400 text-xs">
+              {{ rep.cash_image_count }} payment(s)
+            </span>
+          </div>
         </div>
-        <span class="font-semibold text-[#FF613c]">
-          ฿{{ rep.amount.toLocaleString() }}
-        </span>
+
+        <!-- Sales amount + cash received -->
+        <div class="text-right">
+          <!-- Cash received -->
+          <div
+            v-if="rep.total_cash_received > 0"
+            class="text-base text-green-600 font-medium"
+          >
+            ฿{{ Math.round(rep.total_cash_received).toLocaleString() }}
+          </div>
+          <!-- Difference indicator -->
+          <div
+            v-if="rep.total_cash_received > 0"
+            class="text-[10px]"
+            :class="getCashDiffClass(rep)"
+          >
+            {{ getCashDiffText(rep) }}
+          </div>
+          <!-- Sales amount -->
+          <div class="font-semibold text-[#FF613c] text-sm">
+            ฿{{ Math.round(rep.amount).toLocaleString() }}
+          </div>
+        </div>
       </div>
 
       <div
@@ -79,23 +81,35 @@ import ShooneLei from "../../assets/agents/shoonelei2.png";
 import ZarKyi from "../../assets/agents/zarkyi.png";
 
 const props = defineProps({
-  // Average daily sales reps (existing prop)
-  salesReps: {
-    type: Array,
-    default: () => [],
-  },
-  // Today's sales reps (new prop)
-  todaySalesReps: {
-    type: Array,
-    default: () => [],
-  },
+  salesReps: { type: Array, default: () => [] },
+  todaySalesReps: { type: Array, default: () => [] },
 });
 
 const viewMode = ref("average");
 
-const displayReps = computed(() => {
-  return viewMode.value === "today" ? props.todaySalesReps : props.salesReps;
-});
+const displayReps = computed(() =>
+  viewMode.value === "today" ? props.todaySalesReps : props.salesReps,
+);
+
+// Sales amount (daily avg * days) vs cash received
+const getCashDiffClass = (rep) => {
+  const monthlySales = rep.amount * 30; // approximate
+  const diff = rep.total_cash_received - monthlySales;
+  if (Math.abs(diff) < 1000) return "text-gray-400";
+  return diff >= 0 ? "text-green-500" : "text-red-400";
+};
+
+const getCashDiffText = (rep) => {
+  // Compare total_cash_received vs total_without_airline (monthly)
+  // rep.amount is avg/day so we just show ratio
+  const ratio =
+    rep.total_cash_received > 0
+      ? Math.round((rep.total_cash_received / (rep.amount * 30)) * 100)
+      : 0;
+  if (ratio >= 100) return `+${ratio - 100}% overpaid`;
+  if (ratio > 0) return `${ratio}% collected`;
+  return "";
+};
 
 const getImageByName = (idOrName) => {
   const byId = {
@@ -106,7 +120,6 @@ const getImageByName = (idOrName) => {
     47: ShooneLei,
     46: ZarKyi,
   };
-
   const byName = {
     "Chit Su": chitSu,
     "Hnin N": maHnin,
@@ -115,7 +128,6 @@ const getImageByName = (idOrName) => {
     "Shoon Lei": ShooneLei,
     "Zar Kyi": ZarKyi,
   };
-
   return (
     byId[idOrName] ??
     byName[idOrName] ??

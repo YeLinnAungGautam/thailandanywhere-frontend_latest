@@ -46,7 +46,25 @@
         @click="part = 'accountance'"
       >
         <p :class="part == 'accountance' ? 'text-[#FF613c] font-semibold' : ''">
-          Accountance
+          Accountance item
+        </p>
+        <p class="text-xs">Accountance of vantour</p>
+      </div>
+      <div
+        class="border-2 p-4 rounded-lg space-y-1"
+        :class="
+          part == 'accountance_group'
+            ? 'border-[#FF613c] bg-orange-50'
+            : 'border-gray-300'
+        "
+        @click="part = 'accountance_group'"
+      >
+        <p
+          :class="
+            part == 'accountance_group' ? 'text-[#FF613c] font-semibold' : ''
+          "
+        >
+          Accountance Group
         </p>
         <p class="text-xs">Accountance of vantour</p>
       </div>
@@ -59,6 +77,12 @@
       <div v-if="part == 'assign'">
         <AssignVan />
       </div>
+      <div v-if="part == 'accountance'">
+        <VanAccountance />
+      </div>
+      <div v-if="part == 'accountance_group'">
+        <VanAccountanceGroup />
+      </div>
     </div>
   </Layout>
 </template>
@@ -70,6 +94,8 @@ import { useSidebarStore } from "../stores/sidebar";
 import Layout from "./Layout.vue";
 import { ref } from "vue";
 import GraphVan from "../components/homeReservation/GraphVan.vue";
+import VanAccountance from "../components/homeReservation/VanAccountance.vue";
+import VanAccountanceGroup from "../components/homeReservation/VanAccountanceGroup.vue";
 
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);

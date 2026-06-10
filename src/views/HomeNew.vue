@@ -421,6 +421,9 @@ const fetchCommissionData = async () => {
 
     const resSaleAgent = await homeStore.getAgentSales(data);
 
+    const responseSaleCash = await homeStore.getAgentSaleCash(data);
+    console.log(responseSaleCash, "this is response of sale cash");
+
     console.log("Step 2: Commission data loaded", resSaleAgent.result);
 
     if (resSaleAgent?.result) {
@@ -458,8 +461,10 @@ const fetchCommissionData = async () => {
           name: sale.created_by?.name || "Unknown",
           initials: getInitials(sale.created_by?.name || "Unknown"),
           amount: sale.total_without_airline / daysToCalculate || 0,
+          total_cash_received: sale.total_cash_received ?? 0,
+          cash_image_count: sale.cash_image_count ?? 0,
         }))
-        .sort((a, b) => b.amount - a.amount)
+        .sort((a, b) => b.total_cash_received - a.total_cash_received)
         .slice(0, 10);
 
       // todayTopSalesReps.value = resSaleAgent.result

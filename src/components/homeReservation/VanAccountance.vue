@@ -16,7 +16,9 @@
                 : 'text-gray-600 hover:text-gray-800'
             "
           >
-            {{ tab.label }}
+            <span :class="tab.have ? '' : 'text-gray-800/50'">{{
+              tab.label
+            }}</span>
           </button>
         </div>
 
@@ -126,6 +128,15 @@
           </button>
         </div>
       </div>
+      <div class="flex justify-start items-center gap-x-2 pt-3">
+        <p class="text-sm font-medium">Total Balance :</p>
+        <p
+          class="text-sm font-medium"
+          :class="totalBalance != 0 ? 'text-[#FF613c] ' : ''"
+        >
+          {{ totalBalance != 0 ? totalBalance : "select one supplier" }}
+        </p>
+      </div>
     </div>
 
     <!-- ── Loading ────────────────────────────────────────────────────────── -->
@@ -178,6 +189,11 @@
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
+                CRM ID
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
+              >
                 Service Date
               </th>
               <th
@@ -193,37 +209,37 @@
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
-                CRM ID
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
-                Customer
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
-                Customer Payment
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
-                Status
-              </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
                 Qty
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
-                Supplier
+                Sale Amount
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
-                Collect?
+                Cost Amount
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
+              >
+                Profit/Loss
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
+              >
+                Collect
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
+              >
+                Collect Amount
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
+              >
+                Balance
               </th>
               <th
                 class="px-4 py-3 text-right text-xs font-semibold text-gray-600 whitespace-nowrap"
@@ -239,6 +255,14 @@
                 :class="item.is_checked == 1 ? 'bg-green-50' : ''"
                 @click="toggleExpand(item.id)"
               >
+                <!-- CRM ID -->
+                <td class="px-4 py-3" @click="goToBooking(item.booking_id)">
+                  <span
+                    class="px-2.5 py-1 bg-[#FF613c] text-white text-xs font-semibold rounded-full shadow-sm whitespace-nowrap"
+                  >
+                    {{ item.crm_id }}
+                  </span>
+                </td>
                 <!-- Service Date -->
                 <td class="px-4 py-3">
                   <div class="text-xs text-gray-700 whitespace-nowrap">
@@ -260,62 +284,6 @@
                     {{ item.variation_name || "—" }}
                   </p>
                 </td>
-                <!-- CRM ID -->
-                <td class="px-4 py-3" @click="goToBooking(item.booking_id)">
-                  <span
-                    class="px-2.5 py-1 bg-[#FF613c] text-white text-xs font-semibold rounded-full shadow-sm whitespace-nowrap"
-                  >
-                    {{ item.crm_id }}
-                  </span>
-                </td>
-                <!-- Customer -->
-                <td class="px-4 py-3">
-                  <p class="text-xs text-gray-700 whitespace-nowrap">
-                    {{ item.customer_name || "—" }}
-                  </p>
-                </td>
-                <!-- customer payment -->
-                <td class="px-4 py-3">
-                  <span
-                    class="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium w-fit whitespace-nowrap"
-                    :class="
-                      item.customer_payment == 'fully_paid'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-yellow-100 text-yellow-700'
-                    "
-                  >
-                    <span
-                      class="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      :class="
-                        item.customer_payment == 'fully_paid'
-                          ? 'bg-green-500'
-                          : 'bg-yellow-500'
-                      "
-                    ></span>
-                    {{ item.customer_payment }}
-                  </span>
-                </td>
-                <!-- Status -->
-                <td class="px-4 py-3">
-                  <span
-                    class="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium w-fit whitespace-nowrap"
-                    :class="
-                      item.supplier_name != '-'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-yellow-100 text-yellow-700'
-                    "
-                  >
-                    <span
-                      class="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      :class="
-                        item.supplier_name != '-'
-                          ? 'bg-green-500'
-                          : 'bg-yellow-500'
-                      "
-                    ></span>
-                    {{ item.supplier_name != "-" ? "Assigned" : "Pending" }}
-                  </span>
-                </td>
                 <!-- Qty -->
                 <td class="px-4 py-3 max-w-[150px]">
                   <p
@@ -327,48 +295,70 @@
                   </p>
                   <p v-else class="text-xs text-gray-300">—</p>
                 </td>
-                <!-- Supplier -->
+                <!-- Sale Amount -->
                 <td class="px-4 py-3">
-                  <div
-                    v-if="item.supplier_name"
-                    class="flex items-center gap-2"
-                  >
-                    <div
-                      class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0"
-                    >
-                      <svg
-                        class="w-3.5 h-3.5 text-green-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                    </div>
-                    <p class="text-xs text-gray-400 truncate">
-                      {{ item.supplier_name }}
-                    </p>
-                  </div>
-                  <p v-else class="text-xs text-gray-300">Not assigned</p>
+                  <p class="text-xs text-gray-600 whitespace-nowrap">
+                    {{ item.amount || "—" }}
+                  </p>
                 </td>
-                <!-- Driver Collect -->
+                <!-- cost Amount -->
                 <td class="px-4 py-3">
-                  <span
-                    v-if="item.is_driver_collect === 1"
-                    class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium"
-                    >Yes</span
+                  <p class="text-xs text-gray-600 whitespace-nowrap">
+                    {{ item.total_cost || "—" }}
+                  </p>
+                </td>
+                <!-- Profit/Loss -->
+                <td class="px-4 py-3">
+                  <p
+                    class="whitespace-nowrap font-medium text-sm"
+                    :class="
+                      item.amount - item.total_cost >= 0
+                        ? 'text-green-600'
+                        : 'text-red-500'
+                    "
                   >
-                  <span
-                    v-else-if="item.is_driver_collect === 0"
-                    class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium"
-                    >No</span
+                    {{ item.amount - item.total_cost || "—" }}
+                  </p>
+                </td>
+                <!-- Collect -->
+                <td class="px-4 py-3">
+                  <p
+                    class="text-xs text-gray-600 whitespace-nowrap"
+                    :class="
+                      item.is_driver_collect == 1
+                        ? 'bg-green-600 px-1.5 py-0.5 rounded-lg text-white'
+                        : 'bg-red-600 px-1.5 py-0.5 rounded-lg text-white'
+                    "
                   >
-                  <span v-else class="text-xs text-gray-300">—</span>
+                    {{
+                      item.is_driver_collect == 1 ? "collect" : "not collect"
+                    }}
+                  </p>
+                </td>
+                <!-- Collect Amount -->
+                <td class="px-4 py-3">
+                  <p class="text-xs text-gray-600 whitespace-nowrap">
+                    {{ item.car_total_collect || "—" }}
+                  </p>
+                </td>
+                <!-- Balance -->
+                <td class="px-4 py-3">
+                  <p
+                    class="text-sm font-medium whitespace-nowrap"
+                    :class="
+                      (item.is_driver_collect == 1
+                        ? item.car_total_collect - item.total_cost
+                        : -item.total_cost) >= 0
+                        ? 'text-green-600'
+                        : 'text-red-500'
+                    "
+                  >
+                    {{
+                      item.is_driver_collect == 1
+                        ? item.car_total_collect - item.total_cost
+                        : -item.total_cost
+                    }}
+                  </p>
                 </td>
                 <!-- Actions -->
                 <td class="px-4 py-3 text-right">
@@ -451,11 +441,10 @@ const filterStatus = ref("all");
 const dateFrom = ref("");
 const dateTo = ref("");
 
-const statusTabs = [
-  { value: "all", label: "All" },
-  { value: "unassigned", label: "Unassigned" },
-  { value: "assigned", label: "Assigned" },
-];
+const statusTabs = ref([
+  { value: "all", label: "All", have: true },
+  { value: "unassigned", label: "Unassigned", have: true },
+]);
 
 // ── Day navigator state ────────────────────────────────────────────────────
 const currentDate = ref(new Date());
@@ -505,6 +494,7 @@ const formatPill = (d) => {
 // ── Computed ───────────────────────────────────────────────────────────────
 const flatItems = computed(() => carbookings.value?.data ?? []);
 const filteredItems = computed(() => flatItems.value);
+const totalBalance = ref(0);
 
 // ── Fetch ──────────────────────────────────────────────────────────────────
 const fetchData = async () => {
@@ -513,12 +503,40 @@ const fetchData = async () => {
     second: dateTo.value,
     agent_id: "",
   };
-  if (filterStatus.value === "assigned") {
-    data.assigned_only = true;
-  } else if (filterStatus.value === "unassigned") {
+  if (filterStatus.value === "unassigned") {
     data.supplier_id = "unassigned";
+  } else if (
+    filterStatus.value !== "unassigned" &&
+    filterStatus.value != "" &&
+    filterStatus.value != "all"
+  ) {
+    data.supplier_id = filterStatus.value;
   }
-  await carBookingStore.getListAction(data);
+  const res = await carBookingStore.getListAction(data);
+  console.log(res, "this is accountance");
+  totalBalance.value = res.total_balance != null ? res.total_balance : 0;
+  statusTabs.value = [
+    { value: "all", label: "All", have: true },
+    { value: "unassigned", label: "Unassigned", have: true },
+  ];
+
+  if (res.supplierLists && Object.keys(res.supplierLists).length > 0) {
+    Object.entries(res.supplierLists).forEach(([id, name]) => {
+      statusTabs.value.push({ value: id, label: name, have: false });
+    });
+  }
+
+  if (res.suppliers && Object.keys(res.suppliers).length > 0) {
+    Object.entries(res.suppliers).forEach(([id, name]) => {
+      const existing = statusTabs.value.find((tab) => tab.value === id);
+      if (existing) {
+        // Update existing entry instead of adding duplicate
+        existing.have = true;
+      } else {
+        statusTabs.value.push({ value: id, label: name, have: true });
+      }
+    });
+  }
 };
 
 const changePage = async (url) => {
@@ -527,12 +545,39 @@ const changePage = async (url) => {
     second: dateTo.value,
     agent_id: "",
   };
-  if (filterStatus.value === "assigned") {
-    data.assigned_only = true;
-  } else if (filterStatus.value === "unassigned") {
+  if (filterStatus.value === "unassigned") {
     data.supplier_id = "unassigned";
+  } else if (
+    filterStatus.value !== "unassigned" &&
+    filterStatus.value != "" &&
+    filterStatus.value != "all"
+  ) {
+    data.supplier_id = filterStatus.value;
   }
-  await carBookingStore.getChangePage(url, data);
+  const res = await carBookingStore.getChangePage(url, data);
+  totalBalance.value = res.total_balance != null ? res.total_balance : 0;
+  statusTabs.value = [
+    { value: "all", label: "All", have: true },
+    { value: "unassigned", label: "Unassigned", have: true },
+  ];
+
+  if (res.supplierLists && Object.keys(res.supplierLists).length > 0) {
+    Object.entries(res.supplierLists).forEach(([id, name]) => {
+      statusTabs.value.push({ value: id, label: name, have: false });
+    });
+  }
+
+  if (res.suppliers && Object.keys(res.suppliers).length > 0) {
+    Object.entries(res.suppliers).forEach(([id, name]) => {
+      const existing = statusTabs.value.find((tab) => tab.value === id);
+      if (existing) {
+        // Update existing entry instead of adding duplicate
+        existing.have = true;
+      } else {
+        statusTabs.value.push({ value: id, label: name, have: true });
+      }
+    });
+  }
 };
 
 const goToBooking = (id) => {

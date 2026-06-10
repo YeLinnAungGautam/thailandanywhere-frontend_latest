@@ -195,6 +195,19 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
+    async getAgentSaleCash(params) {
+      if (params.first == "NaN-NaN-NaN" || params.second == "NaN-NaN-NaN")
+        return;
+      try {
+        const response = await axios.get(
+          `/sales-by-agent-cash?daterange=${params.first},${params.second}`,
+        );
+        return response.data;
+      } catch (error) {
+        // console.log(error, "this is error");
+        return error;
+      }
+    },
     async getUnpaidSales(params) {
       try {
         const response = await axios.get(

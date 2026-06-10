@@ -472,6 +472,116 @@
                 ></textarea>
               </div>
             </div>
+          </div>
+
+          <!-- ── STEP 2: Supplier & Driver ── -->
+          <div v-show="currentStep === 2" class="space-y-4">
+            <div class="mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                Supplier & Driver
+              </h3>
+              <p class="text-[10px] text-gray-500">
+                Select supplier, set cost price, then assign a driver and
+                vehicle
+              </p>
+            </div>
+
+            <!-- Car Info Display -->
+            <div
+              class="bg-gradient-to-r from-purple-50 to-indigo-100 rounded-xl p-4 mb-4 border border-purple-200"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm"
+                >
+                  <TruckIcon class="w-6 h-6 text-purple-600" />
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-gray-900">
+                    {{ itemData?.car?.name || "Vehicle" }}
+                  </p>
+                  <p class="text-xs text-gray-600">
+                    {{ formatDate(itemData?.service_date) }}
+                  </p>
+                </div>
+                <div class="px-3 py-1 bg-white rounded-full">
+                  <p class="text-xs font-medium text-purple-600">
+                    {{ itemData?.crm_id }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Supplier + Cost Price side by side -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
+                >
+                  <svg
+                    class="w-4 h-4 text-purple-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    />
+                  </svg>
+                  Supplier *
+                </label>
+                <select
+                  v-model="formData.supplier_id"
+                  @change="onSupplierChange"
+                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                >
+                  <option value="">Select Supplier</option>
+                  <option
+                    v-for="supplier in suppliers?.data"
+                    :key="supplier.id"
+                    :value="supplier.id"
+                  >
+                    {{ supplier.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
+                >
+                  <svg
+                    class="w-4 h-4 text-purple-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Cost Price *
+                </label>
+                <div class="relative">
+                  <input
+                    type="number"
+                    v-model="formData.cost_price"
+                    placeholder="0.00"
+                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  />
+                  <span
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500"
+                    >THB</span
+                  >
+                </div>
+              </div>
+            </div>
 
             <!-- Driver Collect Toggle -->
             <div
@@ -619,118 +729,33 @@
                 Total collect is less than the sale amount — please verify.
               </p>
             </div>
-          </div>
 
-          <!-- ── STEP 2: Supplier & Driver ── -->
-          <div v-show="currentStep === 2" class="space-y-4">
-            <div class="mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 mb-1">
-                Supplier & Driver
-              </h3>
-              <p class="text-[10px] text-gray-500">
-                Select supplier, set cost price, then assign a driver and
-                vehicle
-              </p>
-            </div>
-
-            <!-- Car Info Display -->
-            <div
-              class="bg-gradient-to-r from-purple-50 to-indigo-100 rounded-xl p-4 mb-4 border border-purple-200"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm"
+            <div class="">
+              <label
+                class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
+              >
+                <svg
+                  class="w-4 h-4 text-purple-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <TruckIcon class="w-6 h-6 text-purple-600" />
-                </div>
-                <div class="flex-1">
-                  <p class="text-sm font-semibold text-gray-900">
-                    {{ itemData?.car?.name || "Vehicle" }}
-                  </p>
-                  <p class="text-xs text-gray-600">
-                    {{ formatDate(itemData?.service_date) }}
-                  </p>
-                </div>
-                <div class="px-3 py-1 bg-white rounded-full">
-                  <p class="text-xs font-medium text-purple-600">
-                    {{ itemData?.crm_id }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Supplier + Cost Price side by side -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label
-                  class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
-                >
-                  <svg
-                    class="w-4 h-4 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  Supplier *
-                </label>
-                <select
-                  v-model="formData.supplier_id"
-                  @change="onSupplierChange"
-                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
-                >
-                  <option value="">Select Supplier</option>
-                  <option
-                    v-for="supplier in suppliers?.data"
-                    :key="supplier.id"
-                    :value="supplier.id"
-                  >
-                    {{ supplier.name }}
-                  </option>
-                </select>
-              </div>
-
-              <div>
-                <label
-                  class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
-                >
-                  <svg
-                    class="w-4 h-4 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  Cost Price *
-                </label>
-                <div class="relative">
-                  <input
-                    type="number"
-                    v-model="formData.cost_price"
-                    placeholder="0.00"
-                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                   />
-                  <span
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500"
-                    >THB</span
-                  >
-                </div>
-              </div>
+                </svg>
+                Car Collect Comment (Note)
+              </label>
+              <textarea
+                v-model="tripForm.car_comment"
+                rows="2"
+                placeholder="Any special requests or notes"
+                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+              ></textarea>
             </div>
-
-            <!--  -->
           </div>
 
           <!-- ── STEP 3: Send to LINE ── -->
@@ -892,9 +917,22 @@
 
           <!-- Step 3: Done -->
           <button
-            v-if="currentStep === 3"
+            v-if="
+              currentStep === 3 &&
+              (authStore.isSuperAdmin || authStore.isReservation)
+            "
+            @click="checkedAndClose"
+            class="px-4 py-2.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 flex items-center gap-2"
+          >
+            <CheckCircleIcon class="w-4 h-4" /> Checked & Close
+          </button>
+
+          <button
+            v-if="
+              currentStep === 3 && (authStore.isAdmin || authStore.isSaleAdmin)
+            "
             @click="$emit('close')"
-            class="px-4 py-2.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 flex items-center gap-2"
+            class="px-4 py-2.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 flex items-center gap-2"
           >
             <CheckCircleIcon class="w-4 h-4" /> Done
           </button>
@@ -960,6 +998,8 @@ const tripForm = ref({
   route_plan: "",
   special_request: "",
   car_customer_contact: "",
+  is_checked: false,
+  car_comment: "",
 });
 
 // ── Driver/Supplier form (Step 2) ──────────────────────
@@ -997,21 +1037,11 @@ const completionPercentage = computed(() =>
 );
 
 const computedExtraCollect = computed(() => {
-  const sale =
-    Number(props.itemData?.sale_amount) ||
-    Number(props.itemData?.selling_price) ||
-    Number(props.itemData?.amount) ||
-    0;
+  const sale = Number(props.itemData?.amount) || 0;
   return (Number(lineForm.value.car_total_collect) || 0) - sale;
 });
 
-const saleAmount = computed(
-  () =>
-    Number(props.itemData?.sale_amount) ||
-    Number(props.itemData?.selling_price) ||
-    Number(props.itemData?.amount) ||
-    0,
-);
+const saleAmount = computed(() => Number(props.itemData?.amount) || 0);
 
 // Auto-build LINE message on step 3
 watch(currentStep, (val) => {
@@ -1141,6 +1171,8 @@ const loadDriverData = async () => {
       // Auto-fill from customer_info
       car_customer_contact:
         d?.car_customer_contact || item?.customer_info?.phone_number || "",
+      car_comment: d?.car_comment,
+      is_checked: d?.is_checked == 1 ? true : false,
     };
 
     lineForm.value = {
@@ -1168,6 +1200,8 @@ const resetForm = () => {
     route_plan: "",
     special_request: "",
     car_customer_contact: "",
+    car_comment: "",
+    is_checked: false,
   };
   formData.value = {
     supplier_id: "",
@@ -1203,6 +1237,8 @@ const saveDriver = async () => {
     frmData.append("route_plan", tripForm.value.route_plan || "");
     frmData.append("special_request", tripForm.value.special_request || "");
     frmData.append("pickup_time", tripForm.value.pickup_time || "");
+    frmData.append("is_checked", tripForm.value.is_checked ? 1 : 0);
+    frmData.append("car_comment", tripForm.value.car_comment);
     frmData.append(
       "is_driver_collect",
       lineForm.value.is_driver_collect ? 1 : 0,
@@ -1372,6 +1408,12 @@ const handleSendToLine = async () => {
   } finally {
     sendingLine.value = false;
   }
+};
+
+const checkedAndClose = async () => {
+  tripForm.value.is_checked = true;
+  await saveDriver();
+  emit("close");
 };
 
 // ── Lifecycle ──────────────────────────────────────────

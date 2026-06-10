@@ -461,7 +461,8 @@ const fetchCommissionData = async () => {
           name: sale.created_by?.name || "Unknown",
           initials: getInitials(sale.created_by?.name || "Unknown"),
           amount: sale.total_without_airline / daysToCalculate || 0,
-          total_cash_received: sale.total_cash_received ?? 0,
+          total_cash_received:
+            (sale.total_cash_received ?? 0) / daysToCalculate,
           cash_image_count: sale.cash_image_count ?? 0,
         }))
         .sort((a, b) => b.total_cash_received - a.total_cash_received)

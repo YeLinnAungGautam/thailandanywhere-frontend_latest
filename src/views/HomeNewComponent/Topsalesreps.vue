@@ -47,13 +47,13 @@
             ฿{{ Math.round(rep.total_cash_received).toLocaleString() }}
           </div>
           <!-- Difference indicator -->
-          <div
+          <!-- <div
             v-if="rep.total_cash_received > 0"
             class="text-[10px]"
             :class="getCashDiffClass(rep)"
           >
             {{ getCashDiffText(rep) }}
-          </div>
+          </div> -->
           <!-- Sales amount -->
           <div class="font-semibold text-[#FF613c] text-sm">
             ฿{{ Math.round(rep.amount).toLocaleString() }}

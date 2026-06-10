@@ -5,20 +5,6 @@
       <div class="">
         <!-- Supplier -->
         <div class="flex flex-col gap-1 min-w-[180px] flex-1">
-          <!-- <label class="text-xs font-medium text-gray-500">Supplier</label>
-          <select
-            v-model="selectedSupplierId"
-            class="px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#FF613c] transition-colors bg-white"
-          >
-            <option value="">— Select supplier —</option>
-            <option
-              v-for="supplier in supplierLists"
-              :key="supplier.id"
-              :value="supplier.id"
-            >
-              {{ supplier.name }}
-            </option>
-          </select> -->
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
               <button
@@ -95,6 +81,20 @@
                 />
               </svg>
               Reset
+            </button>
+            <!-- LINE Send button — only show when results loaded -->
+            <button
+              v-if="ledger.length > 0"
+              @click="openLineModal"
+              class="px-4 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 text-white"
+              style="background: #06c755"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"
+                />
+              </svg>
+              Send LINE
             </button>
             <button
               @click="search"
@@ -664,6 +664,83 @@
         </div>
       </transition>
     </Teleport>
+    <transition name="fade">
+      <div
+        v-if="lineModal.open"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+        @click.self="lineModal.open = false"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden"
+        >
+          <!-- Header -->
+          <div class="flex items-center gap-3 p-4" style="background: #06c755">
+            <div
+              class="w-9 h-9 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white">LINE Summary Preview</h3>
+              <p class="text-[11px] text-white/75">
+                {{ supplier?.name }} · {{ dateFrom }} – {{ dateTo }}
+              </p>
+            </div>
+          </div>
+          <!-- Preview -->
+          <div
+            class="mx-4 my-3 bg-[#EFEFE9] rounded-xl p-3 font-mono text-[11px] leading-relaxed text-gray-700 whitespace-pre-wrap max-h-64 overflow-y-auto border border-gray-200"
+          >
+            {{ lineMessage }}
+          </div>
+          <!-- Footer -->
+          <div class="flex gap-2 p-4 border-t border-gray-100">
+            <button
+              @click="lineModal.open = false"
+              class="flex-1 px-4 py-2.5 text-xs font-semibold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="executeSendLine"
+              :disabled="lineModal.sending"
+              class="flex-1 px-4 py-2.5 text-xs font-semibold text-white rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+              style="background: #06c755"
+            >
+              <svg
+                v-if="lineModal.sending"
+                class="w-3.5 h-3.5 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8z"
+                />
+              </svg>
+              {{ lineModal.sending ? "Sending…" : "Confirm Send" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -672,9 +749,11 @@ import { ref, computed, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import { useCarBookingStore } from "../../stores/carbooking";
+import { useMessageStore } from "../../stores/message";
 
 const toast = useToast();
 const carbookingStore = useCarBookingStore();
+const messageStore = useMessageStore();
 
 const { ledger, grandTotal, supplier, loading, error, supplierLists } =
   storeToRefs(carbookingStore);
@@ -858,6 +937,109 @@ const executePay = async () => {
     payModal.value.loading = false;
   }, 3000);
 };
+
+const lineModal = ref({ open: false, sending: false });
+
+const openLineModal = () => {
+  lineModal.value = { open: true, sending: false };
+};
+
+const executeSendLine = async () => {
+  lineModal.value.sending = true;
+  try {
+    await messageStore.sendLineMessage(lineMessage.value);
+    toast.success("LINE message sent successfully!");
+    lineModal.value.open = false;
+  } catch (e) {
+    toast.error("Failed to send LINE message");
+  } finally {
+    lineModal.value.sending = false;
+  }
+};
+
+const lineMessage = computed(() => {
+  if (!ledger.value.length || !supplier.value || !grandTotal.value) return "";
+  const g = grandTotal.value;
+  const lines = [];
+
+  // Header
+  lines.push(`📊 Supplier Ledger Summary`);
+  lines.push(`👨‍💼 Supplier: ${supplier.value.name}`);
+  lines.push(`📅 ${dateFrom.value} ~ ${dateTo.value}`);
+  lines.push(`━━━━━━━━━━━━━━━━━━━━━━`);
+
+  // Day-by-day breakdown
+  for (const day of ledger.value) {
+    lines.push(``);
+    lines.push(`📆 S. Date: ${day.date}`);
+    lines.push(`👨‍💼 Supplier Name: ${supplier.value.name}`);
+    lines.push(`🚙 Total Trip: ${day.total_trips}`);
+    lines.push(``);
+
+    day.items?.forEach((item, index) => {
+      const num = `${index + 1}️⃣`;
+      const isCollect = item.is_driver_collect == 1;
+      const balance = Number(item.balance ?? 0);
+      const balanceSign =
+        balance >= 0
+          ? `+${balance.toLocaleString()}`
+          : balance.toLocaleString();
+
+      lines.push(`${num} CRMID: ${item.crm_id}`);
+      lines.push(`➖ Customer: ${item.customer_name ?? "—"}`);
+      lines.push(`➖ Trip Name: ${item.product_name ?? "—"}`);
+      if (item.pickup_time) lines.push(`➖ Pickup Time: ${item.pickup_time}`);
+      if (item.pickup_location)
+        lines.push(`➖ Pickup: ${item.pickup_location}`);
+      lines.push(`➖ Qty: ${item.qty ?? 1}`);
+      lines.push(`➖ P. Method: ${isCollect ? "Collect" : "Not Collect"}`);
+      lines.push(`➖ Amount: ${Number(item.sale_amount).toLocaleString()} THB`);
+      lines.push(`⭕ (${balanceSign})`);
+      lines.push(``);
+    });
+
+    lines.push(`📊 Day Total`);
+    lines.push(`   💰 Sale   : ${day.total_sale_amount.toLocaleString()} THB`);
+    lines.push(`   💸 Cost   : ${day.total_cost_amount.toLocaleString()} THB`);
+    lines.push(
+      `   📈 P/L    : ${
+        day.total_profit_loss >= 0 ? "+" : ""
+      }${day.total_profit_loss.toLocaleString()} THB`,
+    );
+    lines.push(
+      `   💳 Balance: ${
+        day.total_balance >= 0 ? "+" : ""
+      }${day.total_balance.toLocaleString()} THB`,
+    );
+    lines.push(`~~~~~~~~~~~~~~~~~~~~~~~~`);
+  }
+
+  // Grand total
+  lines.push(``);
+  lines.push(`━━━━━━━━━━━━━━━━━━━━━━`);
+  lines.push(`📋 GRAND TOTAL`);
+  lines.push(`🚙 Total Trips  : ${g.total_trips}`);
+  lines.push(
+    `💰 Sale Amount  : ${Number(g.total_sale_amount).toLocaleString()} THB`,
+  );
+  lines.push(
+    `💸 Cost Amount  : ${Number(g.total_cost_amount).toLocaleString()} THB`,
+  );
+  lines.push(
+    `📈 Profit / Loss: ${g.total_profit_loss >= 0 ? "+" : ""}${Number(
+      g.total_profit_loss,
+    ).toLocaleString()} THB`,
+  );
+  lines.push(
+    `💳 Balance      : ${g.total_balance >= 0 ? "+" : ""}${Number(
+      g.total_balance,
+    ).toLocaleString()} THB`,
+  );
+  lines.push(``);
+  lines.push(`⚠️ Please note: Balance as of ${dateTo.value}`);
+
+  return lines.join("\n");
+});
 
 // ── Init ───────────────────────────────────────────────────────────────────
 onMounted(() => carbookingStore.fetchSupplierLists());

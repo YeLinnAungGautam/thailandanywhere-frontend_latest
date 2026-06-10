@@ -107,7 +107,6 @@
 
             <!-- Step 2: Supplier & Driver -->
             <div
-              v-if="authStore.isSuperAdmin || authStore.isReservation"
               @click="currentStep = 2"
               :class="[
                 'relative flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all duration-300',

@@ -1057,12 +1057,12 @@ const lineMessage = computed(() => {
     });
 
     lines.push(`~~~~~~~~~~~~~~~~~~~~~~~~`);
-    lines.push(`📊 Day Total`);
+    lines.push(`🚙 Total Trip: ${day.total_trips}`);
     lines.push(
-      `   💸 Total Sale Order   : ${day.total_cost_amount.toLocaleString()} THB`,
+      `💸 Total Sale Order: ${day.total_cost_amount.toLocaleString()} THB`,
     );
     lines.push(
-      `   💳 Balance: ${
+      `💳 Balance: ${
         day.total_balance >= 0 ? "+" : ""
       }${day.total_balance.toLocaleString()} THB`,
     );
@@ -1114,10 +1114,10 @@ const lineMessage = computed(() => {
     lines.push(`~~~~~~~~~~~~~~~~~~~~~~~~`);
     lines.push(`📊 Day Total`);
     lines.push(
-      `   💸 Total Sale Order   : ${day.total_cost_amount.toLocaleString()} THB`,
+      `💸 Total Sale Order: ${day.total_cost_amount.toLocaleString()} THB`,
     );
     lines.push(
-      `   💳 Balance: ${
+      `💳 Balance: ${
         day.total_balance >= 0 ? "+" : ""
       }${day.total_balance.toLocaleString()} THB`,
     );
@@ -1127,14 +1127,12 @@ const lineMessage = computed(() => {
   lines.push(``);
   lines.push(`━━━━━━━━━━━━━━━━━━━━━━`);
   lines.push(`📋 GRAND TOTAL`);
-  lines.push(`🚙 Total Trips  : ${g.total_trips}`);
+  lines.push(`🚙 Total Trips: ${g.total_trips}`);
   lines.push(
-    `💸 Total Sale Order  : ${Number(
-      g.total_cost_amount,
-    ).toLocaleString()} THB`,
+    `💸 Total Sale Order: ${Number(g.total_cost_amount).toLocaleString()} THB`,
   );
   lines.push(
-    `💳 Balance      : ${g.total_balance >= 0 ? "+" : ""}${Number(
+    `💳 Balance: ${g.total_balance >= 0 ? "+" : ""}${Number(
       g.total_balance,
     ).toLocaleString()} THB`,
   );

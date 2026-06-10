@@ -319,6 +319,12 @@
                   >
                     {{ item.amount - item.total_cost || "—" }}
                   </p>
+                  <p class="text-xs text-red-600">
+                    M:
+                    {{
+                      ((item.amount - item.total_cost) / item.amount).toFixed(2)
+                    }}
+                  </p>
                 </td>
                 <!-- Collect -->
                 <td class="px-4 py-3">

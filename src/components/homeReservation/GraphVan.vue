@@ -602,7 +602,7 @@ function loadMoreDetail() {
 }
 
 function goToBooking(item) {
-  window.open(`/car-bookings?id=${item.id}`, "_blank");
+  console.log(item);
 }
 
 onMounted(fetchGraph);

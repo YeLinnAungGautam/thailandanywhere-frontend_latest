@@ -1,22 +1,26 @@
 <template>
-  <div class="assign-van-wrapper">
+  <div class="assign-van-wrapper max-w-[95vw]">
     <!-- ── Filter Bar ─────────────────────────────────────────────────────── -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 mb-4">
       <div class="flex flex-wrap items-center gap-3">
         <!-- Status Tabs -->
-        <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+        <div
+          class="flex items-center overflow-x-auto max-w-[40vw] gap-1 bg-gray-100 p-1 rounded-lg"
+        >
           <button
             v-for="tab in statusTabs"
             :key="tab.value"
             @click="filterStatus = tab.value"
-            class="px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150"
+            class="px-3 py-1.5 rounded-md whitespace-nowrap text-xs font-medium transition-all duration-150"
             :class="
               filterStatus === tab.value
                 ? 'bg-[#FF613c] text-white shadow-sm'
                 : 'text-gray-600 hover:text-gray-800'
             "
           >
-            {{ tab.label }}
+            <span :class="tab.have ? '' : 'text-gray-800/50'">{{
+              tab.label
+            }}</span>
           </button>
         </div>
 
@@ -451,11 +455,10 @@ const filterStatus = ref("all");
 const dateFrom = ref("");
 const dateTo = ref("");
 
-const statusTabs = [
-  { value: "all", label: "All" },
-  { value: "unassigned", label: "Unassigned" },
-  { value: "assigned", label: "Assigned" },
-];
+const statusTabs = ref([
+  { value: "all", label: "All", have: true },
+  { value: "unassigned", label: "Unassigned", have: true },
+]);
 
 // ── Day navigator state ────────────────────────────────────────────────────
 const currentDate = ref(new Date());
@@ -513,12 +516,40 @@ const fetchData = async () => {
     second: dateTo.value,
     agent_id: "",
   };
-  if (filterStatus.value === "assigned") {
-    data.assigned_only = true;
-  } else if (filterStatus.value === "unassigned") {
+  if (filterStatus.value === "unassigned") {
     data.supplier_id = "unassigned";
+  } else if (
+    filterStatus.value !== "unassigned" &&
+    filterStatus.value != "" &&
+    filterStatus.value != "all"
+  ) {
+    data.supplier_id = filterStatus.value;
   }
-  await carBookingStore.getListAction(data);
+  const res = await carBookingStore.getListAction(data);
+  console.log(res, "this is accountance");
+  // totalBalance.value = res.total_balance != null ? res.total_balance : 0;
+  statusTabs.value = [
+    { value: "all", label: "All", have: true },
+    { value: "unassigned", label: "Unassigned", have: true },
+  ];
+
+  if (res.supplierLists && Object.keys(res.supplierLists).length > 0) {
+    Object.entries(res.supplierLists).forEach(([id, name]) => {
+      statusTabs.value.push({ value: id, label: name, have: false });
+    });
+  }
+
+  if (res.suppliers && Object.keys(res.suppliers).length > 0) {
+    Object.entries(res.suppliers).forEach(([id, name]) => {
+      const existing = statusTabs.value.find((tab) => tab.value === id);
+      if (existing) {
+        // Update existing entry instead of adding duplicate
+        existing.have = true;
+      } else {
+        statusTabs.value.push({ value: id, label: name, have: true });
+      }
+    });
+  }
 };
 
 const changePage = async (url) => {
@@ -527,12 +558,39 @@ const changePage = async (url) => {
     second: dateTo.value,
     agent_id: "",
   };
-  if (filterStatus.value === "assigned") {
-    data.assigned_only = true;
-  } else if (filterStatus.value === "unassigned") {
+  if (filterStatus.value === "unassigned") {
     data.supplier_id = "unassigned";
+  } else if (
+    filterStatus.value !== "unassigned" &&
+    filterStatus.value != "" &&
+    filterStatus.value != "all"
+  ) {
+    data.supplier_id = filterStatus.value;
   }
-  await carBookingStore.getChangePage(url, data);
+  const res = await carBookingStore.getChangePage(url, data);
+  // totalBalance.value = res.total_balance != null ? res.total_balance : 0;
+  statusTabs.value = [
+    { value: "all", label: "All", have: true },
+    { value: "unassigned", label: "Unassigned", have: true },
+  ];
+
+  if (res.supplierLists && Object.keys(res.supplierLists).length > 0) {
+    Object.entries(res.supplierLists).forEach(([id, name]) => {
+      statusTabs.value.push({ value: id, label: name, have: false });
+    });
+  }
+
+  if (res.suppliers && Object.keys(res.suppliers).length > 0) {
+    Object.entries(res.suppliers).forEach(([id, name]) => {
+      const existing = statusTabs.value.find((tab) => tab.value === id);
+      if (existing) {
+        // Update existing entry instead of adding duplicate
+        existing.have = true;
+      } else {
+        statusTabs.value.push({ value: id, label: name, have: true });
+      }
+    });
+  }
 };
 
 const goToBooking = (id) => {

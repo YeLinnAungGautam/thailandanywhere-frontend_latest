@@ -207,13 +207,14 @@
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
-                Customer Payment
+                C.Status
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
                 Status
               </th>
+
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
@@ -240,7 +241,13 @@
             <template v-for="item in filteredItems" :key="item.id">
               <tr
                 class="hover:bg-gray-50 transition-colors cursor-pointer"
-                :class="item.is_checked == 1 ? 'bg-green-50' : ''"
+                :class="
+                  item.data_completed == 'fill_data_not_completed'
+                    ? 'bg-red-50'
+                    : item.data_completed == 'not_fill_supplier'
+                    ? 'bg-yellow-50'
+                    : 'bg-green-50'
+                "
                 @click="toggleExpand(item.id)"
               >
                 <!-- Service Date -->
@@ -304,7 +311,7 @@
                   <span
                     class="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium w-fit whitespace-nowrap"
                     :class="
-                      item.supplier_name != '-'
+                      item.data_completed != 'fill_data_not_completed'
                         ? 'bg-green-100 text-green-700'
                         : 'bg-yellow-100 text-yellow-700'
                     "
@@ -312,12 +319,16 @@
                     <span
                       class="w-1.5 h-1.5 rounded-full flex-shrink-0"
                       :class="
-                        item.supplier_name != '-'
+                        item.data_completed != 'fill_data_not_completed'
                           ? 'bg-green-500'
                           : 'bg-yellow-500'
                       "
                     ></span>
-                    {{ item.supplier_name != "-" ? "Assigned" : "Pending" }}
+                    {{
+                      item.data_completed != "fill_data_not_completed"
+                        ? "Completed"
+                        : "Pending"
+                    }}
                   </span>
                 </td>
                 <!-- Qty -->
@@ -439,8 +450,11 @@ import { useDriverStore } from "../../stores/driver";
 import Pagination from "../Pagination.vue";
 import AssignDriverModal from "../../views/GroupComponent/ExpensePart/AssignDriverModal.vue";
 import { useAuthStore } from "../../stores/auth.js";
+import { useRoute, useRouter } from "vue-router";
 
 const toast = useToast();
+const route = useRoute();
+const router = useRouter();
 const carBookingStore = useCarBookingStore();
 const supplierStore = useSupplierStore();
 const driverStore = useDriverStore();
@@ -661,8 +675,45 @@ const closeAssignDriverModal = async () => {
   await fetchData();
 };
 
+// ── Auto-open modal from URL params ─────────────────────────────────────
+const checkAndOpenFromParams = async () => {
+  console.log("hello");
+
+  const { id, crm_id } = route.query;
+  if (!id) return;
+
+  // Try to find the item already loaded in the current list
+  let item = flatItems.value.find((i) => String(i.id) === String(id));
+
+  // If not found (e.g. different page/filter), fetch it directly
+  if (!item) {
+    try {
+      const res = await carBookingStore.getCarDetailAction(id); // adjust to your store action
+      console.log(res, "this is response");
+
+      item = res?.result;
+    } catch (e) {
+      console.error("Failed to load booking item from params", e);
+      toast.error("Could not load the requested booking");
+      return;
+    }
+  }
+
+  if (item) {
+    console.log(item);
+
+    openAssignModal(item);
+  }
+
+  // Optional: clean the URL params after opening so refresh doesn't reopen
+  router.replace({ query: {} });
+};
+
 // ── Watch ──────────────────────────────────────────────────────────────────
 watch(filterStatus, () => fetchData());
 
-onMounted(() => selectQuick("today"));
+onMounted(async () => {
+  selectQuick("today");
+  await checkAndOpenFromParams();
+});
 </script>

@@ -9,7 +9,7 @@ export const useMessageStore = defineStore("message", {
   }),
 
   actions: {
-    async sendLineMessage(message) {
+    async sendLineMessage(message, supplierId = "", groupType = "") {
       this.loading = true;
       this.success = false;
       this.error = null;
@@ -18,6 +18,8 @@ export const useMessageStore = defineStore("message", {
         // Node.js server (localhost:5001) → LINE API
         const response = await chatApi.post("/line/send", {
           message: message,
+          supplier_id: supplierId,
+          group_type: groupType,
         });
 
         this.success = true;

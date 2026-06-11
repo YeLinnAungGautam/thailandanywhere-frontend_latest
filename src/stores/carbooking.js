@@ -70,6 +70,11 @@ export const useCarBookingStore = defineStore("carbooking", {
       return response.data;
     },
 
+    async getCarDetailAction(id) {
+      const response = await axios.get(`/car-bookings/${id}/detail`);
+      return response.data;
+    },
+
     async getCarBookingSummary(params) {
       const response = await axios.get(`/car-bookings/summary`, { params });
       return response.data;

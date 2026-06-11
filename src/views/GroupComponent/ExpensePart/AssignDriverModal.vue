@@ -327,8 +327,14 @@
                 <input
                   type="time"
                   v-model="tripForm.pickup_time"
-                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  class="w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  :class="
+                    errors.pickup_time ? 'border-red-400' : 'border-gray-300'
+                  "
                 />
+                <p v-if="errors.pickup_time" class="text-xs text-red-500 mt-1">
+                  {{ errors.pickup_time }}
+                </p>
               </div>
 
               <!-- Customer Contact -->
@@ -355,8 +361,19 @@
                   type="text"
                   v-model="tripForm.car_customer_contact"
                   placeholder="e.g. +66 81 234 5678"
-                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  class="w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  :class="
+                    errors.car_customer_contact
+                      ? 'border-red-400'
+                      : 'border-gray-300'
+                  "
                 />
+                <p
+                  v-if="errors.car_customer_contact"
+                  class="text-xs text-red-500 mt-1"
+                >
+                  {{ errors.car_customer_contact }}
+                </p>
               </div>
 
               <!-- Pickup Location -->
@@ -383,8 +400,19 @@
                   type="text"
                   v-model="tripForm.pickup_location"
                   placeholder="Pickup location"
-                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  class="w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  :class="
+                    errors.pickup_location
+                      ? 'border-red-400'
+                      : 'border-gray-300'
+                  "
                 />
+                <p
+                  v-if="errors.pickup_location"
+                  class="text-xs text-red-500 mt-1"
+                >
+                  {{ errors.pickup_location }}
+                </p>
               </div>
 
               <!-- Dropoff Location -->
@@ -411,8 +439,19 @@
                   type="text"
                   v-model="tripForm.dropoff_location"
                   placeholder="Dropoff location"
-                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  class="w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  :class="
+                    errors.dropoff_location
+                      ? 'border-red-400'
+                      : 'border-gray-300'
+                  "
                 />
+                <p
+                  v-if="errors.dropoff_location"
+                  class="text-xs text-red-500 mt-1"
+                >
+                  {{ errors.dropoff_location }}
+                </p>
               </div>
 
               <!-- Route Plan -->
@@ -439,8 +478,14 @@
                   v-model="tripForm.route_plan"
                   rows="3"
                   placeholder="Describe the route plan"
-                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  class="w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  :class="
+                    errors.route_plan ? 'border-red-400' : 'border-gray-300'
+                  "
                 ></textarea>
+                <p v-if="errors.route_plan" class="text-xs text-red-500 mt-1">
+                  {{ errors.route_plan }}
+                </p>
               </div>
 
               <!-- Special Request -->
@@ -469,6 +514,198 @@
                   placeholder="Any special requests or notes"
                   class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
                 ></textarea>
+              </div>
+
+              <div
+                class="py-3 px-4 border rounded-xl bg-gray-50 mt-2 col-span-2"
+                :class="
+                  errors.is_driver_collect
+                    ? 'border-red-300'
+                    : 'border-gray-200'
+                "
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <p class="text-sm font-medium text-gray-700">
+                      Driver collect payment
+                    </p>
+                    <p class="text-xs text-gray-400 mt-0.5">
+                      Driver collects money from customer on service day
+                    </p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    @click="lineForm.is_driver_collect = null"
+                    :class="[
+                      'py-2 rounded-lg text-xs font-semibold border transition-colors',
+                      lineForm.is_driver_collect === null
+                        ? 'bg-gray-300 border-gray-400 text-gray-800'
+                        : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100',
+                    ]"
+                  >
+                    Not Set
+                  </button>
+                  <button
+                    type="button"
+                    @click="lineForm.is_driver_collect = true"
+                    :class="[
+                      'py-2 rounded-lg text-xs font-semibold border transition-colors',
+                      lineForm.is_driver_collect === true
+                        ? 'bg-purple-500 border-purple-600 text-white'
+                        : 'bg-white border-gray-200 text-gray-500 hover:bg-purple-50',
+                    ]"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    type="button"
+                    @click="lineForm.is_driver_collect = false"
+                    :class="[
+                      'py-2 rounded-lg text-xs font-semibold border transition-colors',
+                      lineForm.is_driver_collect === false
+                        ? 'bg-red-600 border-red-700 text-white'
+                        : 'bg-white border-red-200 text-red-500 hover:bg-red-100',
+                    ]"
+                  >
+                    No
+                  </button>
+                </div>
+
+                <p
+                  v-if="errors.is_driver_collect"
+                  class="text-xs text-red-500 mt-2"
+                >
+                  {{ errors.is_driver_collect }}
+                </p>
+              </div>
+
+              <div
+                v-if="lineForm.is_driver_collect === true"
+                class="bg-purple-50 border col-span-2 border-purple-200 rounded-xl p-4 space-y-3"
+              >
+                <p
+                  class="text-xs font-semibold text-purple-800 uppercase tracking-wide"
+                >
+                  Payment Details
+                </p>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label
+                      class="text-xs font-medium text-gray-700 mb-1.5 block"
+                      >Payment Method</label
+                    >
+                    <input
+                      type="text"
+                      v-model="lineForm.car_payment_method"
+                      placeholder="e.g. Cash, QR, Card"
+                      class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#06C755]/30 focus:border-[#06C755]"
+                    />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label
+                      class="text-xs font-medium text-gray-500 mb-1.5 block"
+                      >Sale Amount (read-only)</label
+                    >
+                    <div class="relative">
+                      <input
+                        :value="saleAmount || 0"
+                        disabled
+                        type="text"
+                        class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed pr-12"
+                      />
+                      <span
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400"
+                        >THB</span
+                      >
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      class="text-xs font-medium text-gray-700 mb-1.5 block"
+                      >Total Collect</label
+                    >
+                    <div class="relative">
+                      <input
+                        v-model.number="lineForm.car_total_collect"
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#06C755]/30 focus:border-[#06C755] pr-12"
+                      />
+                      <span
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400"
+                        >THB</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  :class="[
+                    'flex items-center justify-between rounded-lg px-3 py-2.5 border',
+                    lineForm.is_driver_collect === true &&
+                    computedExtraCollect < 0
+                      ? 'bg-red-50 border-red-200'
+                      : 'bg-white border-gray-200',
+                  ]"
+                >
+                  <div>
+                    <p class="text-xs font-medium text-gray-600">
+                      Extra Collect
+                    </p>
+                    <p class="text-[10px] text-gray-400 mt-0.5">
+                      Total collect − Sale amount (auto)
+                    </p>
+                  </div>
+                  <p
+                    :class="[
+                      'text-xl font-semibold tabular-nums',
+                      lineForm.is_driver_collect === true &&
+                      computedExtraCollect < 0
+                        ? 'text-red-500'
+                        : lineForm.is_driver_collect === true
+                        ? 'text-[#06C755]'
+                        : 'text-gray-400',
+                    ]"
+                  >
+                    {{
+                      lineForm.is_driver_collect === true
+                        ? computedExtraCollect
+                        : "-"
+                    }}
+                    <span class="text-sm font-normal">THB</span>
+                  </p>
+                </div>
+
+                <p
+                  v-if="
+                    lineForm.is_driver_collect === true &&
+                    computedExtraCollect < 0
+                  "
+                  class="text-xs text-red-500 flex items-center gap-1.5"
+                >
+                  <svg
+                    class="w-3.5 h-3.5 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                    />
+                  </svg>
+                  Total collect is less than the sale amount — please verify.
+                </p>
               </div>
             </div>
           </div>
@@ -535,7 +772,10 @@
                 <select
                   v-model="formData.supplier_id"
                   @change="onSupplierChange"
-                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  class="w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                  :class="
+                    errors.supplier_id ? 'border-red-400' : 'border-gray-300'
+                  "
                 >
                   <option value="">Select Supplier</option>
                   <option
@@ -546,6 +786,9 @@
                     {{ supplier.name }}
                   </option>
                 </select>
+                <p v-if="errors.supplier_id" class="text-xs text-red-500 mt-1">
+                  {{ errors.supplier_id }}
+                </p>
               </div>
 
               <div>
@@ -572,53 +815,89 @@
                     type="number"
                     v-model="formData.cost_price"
                     placeholder="0.00"
-                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                    class="w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                    :class="
+                      errors.cost_price ? 'border-red-400' : 'border-gray-300'
+                    "
                   />
                   <span
                     class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500"
                     >THB</span
                   >
                 </div>
+                <p v-if="errors.cost_price" class="text-xs text-red-500 mt-1">
+                  {{ errors.cost_price }}
+                </p>
               </div>
             </div>
 
-            <!-- Driver Collect Toggle -->
+            <!-- Driver Collect: 3-option (Not Set / Yes / No) -->
             <div
-              class="flex items-center justify-between py-3 px-4 border border-gray-200 rounded-xl bg-gray-50 mt-2"
+              class="py-3 px-4 border rounded-xl bg-gray-50 mt-2"
+              :class="
+                errors.is_driver_collect ? 'border-red-300' : 'border-gray-200'
+              "
             >
-              <div>
-                <p class="text-sm font-medium text-gray-700">
-                  Driver collect payment
-                </p>
-                <p class="text-xs text-gray-400 mt-0.5">
-                  Driver collects money from customer on service day
-                </p>
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <p class="text-sm font-medium text-gray-700">
+                    Driver collect payment
+                  </p>
+                  <p class="text-xs text-gray-400 mt-0.5">
+                    Driver collects money from customer on service day
+                  </p>
+                </div>
               </div>
-              <button
-                type="button"
-                @click="
-                  lineForm.is_driver_collect = !lineForm.is_driver_collect
-                "
-                :class="
-                  lineForm.is_driver_collect ? 'bg-purple-500' : 'bg-gray-300'
-                "
-                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1"
-                role="switch"
-                :aria-checked="lineForm.is_driver_collect"
+
+              <div class="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  @click="lineForm.is_driver_collect = null"
+                  :class="[
+                    'py-2 rounded-lg text-xs font-semibold border transition-colors',
+                    lineForm.is_driver_collect === null
+                      ? 'bg-gray-300 border-gray-400 text-gray-800'
+                      : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100',
+                  ]"
+                >
+                  Not Set
+                </button>
+                <button
+                  type="button"
+                  @click="lineForm.is_driver_collect = true"
+                  :class="[
+                    'py-2 rounded-lg text-xs font-semibold border transition-colors',
+                    lineForm.is_driver_collect === true
+                      ? 'bg-purple-500 border-purple-600 text-white'
+                      : 'bg-white border-gray-200 text-gray-500 hover:bg-purple-50',
+                  ]"
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  @click="lineForm.is_driver_collect = false"
+                  :class="[
+                    'py-2 rounded-lg text-xs font-semibold border transition-colors',
+                    lineForm.is_driver_collect === false
+                      ? 'bg-red-600 border-red-700 text-white'
+                      : 'bg-white border-red-200 text-red-500 hover:bg-red-100',
+                  ]"
+                >
+                  No
+                </button>
+              </div>
+
+              <p
+                v-if="errors.is_driver_collect"
+                class="text-xs text-red-500 mt-2"
               >
-                <span
-                  :class="
-                    lineForm.is_driver_collect
-                      ? 'translate-x-5'
-                      : 'translate-x-0'
-                  "
-                  class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                />
-              </button>
-              <!-- Payment Details -->
+                {{ errors.is_driver_collect }}
+              </p>
             </div>
+
             <div
-              v-if="lineForm.is_driver_collect"
+              v-if="lineForm.is_driver_collect === true"
               class="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3"
             >
               <p
@@ -682,7 +961,8 @@
               <div
                 :class="[
                   'flex items-center justify-between rounded-lg px-3 py-2.5 border',
-                  lineForm.is_driver_collect && computedExtraCollect < 0
+                  lineForm.is_driver_collect === true &&
+                  computedExtraCollect < 0
                     ? 'bg-red-50 border-red-200'
                     : 'bg-white border-gray-200',
                 ]"
@@ -696,20 +976,28 @@
                 <p
                   :class="[
                     'text-xl font-semibold tabular-nums',
-                    lineForm.is_driver_collect && computedExtraCollect < 0
+                    lineForm.is_driver_collect === true &&
+                    computedExtraCollect < 0
                       ? 'text-red-500'
-                      : lineForm.is_driver_collect
+                      : lineForm.is_driver_collect === true
                       ? 'text-[#06C755]'
                       : 'text-gray-400',
                   ]"
                 >
-                  {{ lineForm.is_driver_collect ? computedExtraCollect : "-" }}
+                  {{
+                    lineForm.is_driver_collect === true
+                      ? computedExtraCollect
+                      : "-"
+                  }}
                   <span class="text-sm font-normal">THB</span>
                 </p>
               </div>
 
               <p
-                v-if="lineForm.is_driver_collect && computedExtraCollect < 0"
+                v-if="
+                  lineForm.is_driver_collect === true &&
+                  computedExtraCollect < 0
+                "
                 class="text-xs text-red-500 flex items-center gap-1.5"
               >
                 <svg
@@ -815,7 +1103,8 @@
 
             <!-- Send Button -->
             <button
-              @click="handleSendToLine"
+              v-if="authStore.isSaleAdmin || authStore.isAdmin"
+              @click="handleTripSendLine"
               :disabled="sendingLine || !lineMessage.trim()"
               class="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white transition-all"
               :class="
@@ -838,7 +1127,34 @@
                 v-else
                 class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
               />
-              {{ sendingLine ? "Sending to LINE..." : "Send to LINE" }}
+              {{ sendingLine ? "Sending to LINE..." : "Trip Send Line" }}
+            </button>
+            <button
+              v-if="authStore.isSuperAdmin || authStore.isReservation"
+              @click="handleBookingSendLine"
+              :disabled="sendingLine || !lineMessage.trim()"
+              class="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white transition-all"
+              :class="
+                sendingLine || !lineMessage.trim()
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/30 hover:shadow-green-500/50'
+              "
+            >
+              <svg
+                v-if="!sendingLine"
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"
+                />
+              </svg>
+              <div
+                v-else
+                class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
+              />
+              {{ sendingLine ? "Sending to LINE..." : "Booking Send Line" }}
             </button>
           </div>
         </div>
@@ -1012,11 +1328,28 @@ const formData = ref({
 });
 
 // ── LINE-specific form (Step 3) ────────────────────────
+// is_driver_collect: null = not set, true = yes, false = no
 const lineForm = ref({
-  is_driver_collect: false,
+  is_driver_collect: null,
   car_payment_method: "",
   car_total_collect: 0,
 });
+
+// ── Validation ──────────────────────────────────────────
+const errors = ref({
+  car_customer_contact: "",
+  pickup_time: "",
+  pickup_location: "",
+  dropoff_location: "",
+  route_plan: "",
+  is_driver_collect: "",
+  supplier_id: "",
+  cost_price: "",
+});
+
+const clearErrors = () => {
+  Object.keys(errors.value).forEach((k) => (errors.value[k] = ""));
+};
 
 // ── Computed ───────────────────────────────────────────
 const isStep1Complete = computed(
@@ -1057,6 +1390,36 @@ watch(
   ],
   () => {
     if (currentStep.value === 3) buildLineMessage();
+  },
+);
+
+// Clear field-level errors as soon as the user fixes them
+watch(
+  () => [
+    tripForm.value.car_customer_contact,
+    tripForm.value.pickup_time,
+    tripForm.value.pickup_location,
+    tripForm.value.dropoff_location,
+    tripForm.value.route_plan,
+    formData.value.supplier_id,
+    formData.value.cost_price,
+    lineForm.value.is_driver_collect,
+  ],
+  () => {
+    if (tripForm.value.car_customer_contact)
+      errors.value.car_customer_contact = "";
+    if (tripForm.value.pickup_time) errors.value.pickup_time = "";
+    if (tripForm.value.pickup_location) errors.value.pickup_location = "";
+    if (tripForm.value.dropoff_location) errors.value.dropoff_location = "";
+    if (tripForm.value.route_plan) errors.value.route_plan = "";
+    if (formData.value.supplier_id) errors.value.supplier_id = "";
+    if (formData.value.cost_price) errors.value.cost_price = "";
+    if (
+      lineForm.value.is_driver_collect === true ||
+      lineForm.value.is_driver_collect === false
+    ) {
+      errors.value.is_driver_collect = "";
+    }
   },
 );
 
@@ -1175,7 +1538,10 @@ const loadDriverData = async () => {
     };
 
     lineForm.value = {
-      is_driver_collect: d?.is_driver_collect == 1,
+      is_driver_collect:
+        d?.is_driver_collect === null || d?.is_driver_collect === undefined
+          ? null
+          : d.is_driver_collect == 1,
       car_payment_method: d?.car_payment_method || "",
       car_total_collect: Number(d?.car_total_collect) || 0,
     };
@@ -1211,13 +1577,14 @@ const resetForm = () => {
     car_photo: "",
   };
   lineForm.value = {
-    is_driver_collect: false,
+    is_driver_collect: null,
     car_payment_method: "",
     car_total_collect: 0,
   };
   carNumbers.value = [];
   lineMessage.value = "";
   currentStep.value = 1;
+  clearErrors();
 };
 
 // ── Save Assignment ────────────────────────────────────
@@ -1240,14 +1607,18 @@ const saveDriver = async () => {
     frmData.append("car_comment", tripForm.value.car_comment);
     frmData.append(
       "is_driver_collect",
-      lineForm.value.is_driver_collect ? 1 : 0,
+      lineForm.value.is_driver_collect === true
+        ? 1
+        : lineForm.value.is_driver_collect === false
+        ? 0
+        : "",
     );
     frmData.append(
       "car_customer_contact",
       tripForm.value.car_customer_contact || "",
     );
 
-    if (lineForm.value.is_driver_collect) {
+    if (lineForm.value.is_driver_collect === true) {
       frmData.append(
         "car_total_collect",
         lineForm.value.car_total_collect || "",
@@ -1315,12 +1686,13 @@ const buildLineMessage = () => {
     item?.customer_info?.phone_number ||
     "-";
 
-  const paymentBlock = lineForm.value.is_driver_collect
-    ? `\nPayment Method: ${lineForm.value.car_payment_method || "-"}
+  const paymentBlock =
+    lineForm.value.is_driver_collect === true
+      ? `\nPayment Method: ${lineForm.value.car_payment_method || "-"}
 Sale Amount: ${saleAmountValue}
 Total Collect: ${lineForm.value.car_total_collect || 0}
 Extra Collect: ${computedExtraCollect.value}`
-    : `\nPayment Method: xxxx
+      : `\nPayment Method: xxxx
 Sale Amount: xxxx
 Total Collect: xxxx
 Extra Collect: xxxx`;
@@ -1350,16 +1722,19 @@ const handleSendToLine = async () => {
 
   sendingLine.value = true;
   try {
+    const isCollect = lineForm.value.is_driver_collect;
+    const isCollectValue =
+      isCollect === true ? 1 : isCollect === false ? 0 : "";
+
     const payload = {
       pickup_time: tripForm.value.pickup_time || "",
       pickup_location: tripForm.value.pickup_location || "",
       dropoff_location: tripForm.value.dropoff_location || "",
       route_plan: tripForm.value.route_plan || "",
       special_request: tripForm.value.special_request || "",
-      is_driver_collect: lineForm.value.is_driver_collect ? 1 : 0,
-      extra_collect_amount: lineForm.value.is_driver_collect
-        ? computedExtraCollect.value
-        : "0",
+      is_driver_collect: isCollectValue,
+      extra_collect_amount:
+        isCollect === true ? computedExtraCollect.value : "0",
       car_customer_contact: tripForm.value.car_customer_contact || "",
       car_total_collect: lineForm.value.car_total_collect || 0,
       car_payment_method: lineForm.value.car_payment_method || "",
@@ -1376,11 +1751,11 @@ const handleSendToLine = async () => {
         route_plan: tripForm.value.route_plan || "",
         product_variation: props.itemData?.variation_name || "",
         special_request: tripForm.value.special_request || "",
-        is_driver_collect: lineForm.value.is_driver_collect ? 1 : 0,
+        is_driver_collect: isCollectValue,
         car_customer_contact: tripForm.value.car_customer_contact || "",
         car_payment_method: lineForm.value.car_payment_method || "",
         car_total_collect: lineForm.value.car_total_collect || 0,
-        extra_collect: computedExtraCollect.value,
+        extra_collect: isCollect === true ? computedExtraCollect.value : 0,
       },
     };
 
@@ -1413,6 +1788,81 @@ const checkedAndClose = async () => {
   tripForm.value.is_checked = true;
   await saveDriver();
   emit("close");
+};
+
+// Trip Send Line (SaleAdmin / Admin) → validates Step 1 fields
+const validateTripFields = () => {
+  clearErrors();
+  let valid = true;
+
+  if (!tripForm.value.car_customer_contact) {
+    errors.value.car_customer_contact = "Customer contact is required";
+    valid = false;
+  }
+  if (!tripForm.value.pickup_time) {
+    errors.value.pickup_time = "Pickup time is required";
+    valid = false;
+  }
+  if (!tripForm.value.pickup_location) {
+    errors.value.pickup_location = "Pickup location is required";
+    valid = false;
+  }
+  if (!tripForm.value.dropoff_location) {
+    errors.value.dropoff_location = "Dropoff location is required";
+    valid = false;
+  }
+  if (!tripForm.value.route_plan) {
+    errors.value.route_plan = "Route plan is required";
+    valid = false;
+  }
+  if (
+    lineForm.value.is_driver_collect === null ||
+    lineForm.value.is_driver_collect === undefined
+  ) {
+    errors.value.is_driver_collect =
+      "Please select Driver Collect option (Yes/No)";
+    valid = false;
+  }
+
+  if (!valid) currentStep.value = 1;
+  return valid;
+};
+
+// Booking Send Line (SuperAdmin / Reservation) → validates Step 2 fields
+const validateSupplierFields = () => {
+  clearErrors();
+  let valid = true;
+
+  if (!formData.value.supplier_id) {
+    errors.value.supplier_id = "Supplier is required";
+    valid = false;
+  }
+  if (!formData.value.cost_price) {
+    errors.value.cost_price = "Cost price is required";
+    valid = false;
+  }
+  if (
+    lineForm.value.is_driver_collect === null ||
+    lineForm.value.is_driver_collect === undefined
+  ) {
+    errors.value.is_driver_collect =
+      "Please select Driver Collect option (Yes/No)";
+    valid = false;
+  }
+
+  if (!valid) currentStep.value = 2;
+  return valid;
+};
+
+// Wrapper handlers used by the two Send to LINE buttons
+const handleTripSendLine = async () => {
+  if (!validateTripFields()) return;
+  await handleSendToLine();
+};
+
+const handleBookingSendLine = async () => {
+  if (!validateSupplierFields()) return;
+  await handleSendToLine();
 };
 
 // ── Lifecycle ──────────────────────────────────────────

@@ -95,12 +95,14 @@ import { storeToRefs } from "pinia";
 import AssignVan from "../components/homeReservation/AssignVan.vue";
 import { useSidebarStore } from "../stores/sidebar";
 import Layout from "./Layout.vue";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import GraphVan from "../components/homeReservation/GraphVan.vue";
 import VanAccountance from "../components/homeReservation/VanAccountance.vue";
 import VanAccountanceGroup from "../components/homeReservation/VanAccountanceGroup.vue";
+import { useRoute } from "vue-router";
 
 const sidebarStore = useSidebarStore();
+const route = useRoute();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 
 const part = ref("graph");
@@ -111,4 +113,10 @@ const handleRouteToDate = ({ supplier_id, date }) => {
   assignFilter.value = { supplier_id, date };
   part.value = "accountance";
 };
+
+onMounted(() => {
+  if (route.query.id) {
+    part.value = "assign";
+  }
+});
 </script>

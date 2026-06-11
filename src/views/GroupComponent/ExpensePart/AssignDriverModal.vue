@@ -1769,9 +1769,18 @@ const handleSendToLine = async () => {
       return;
     }
 
-    await messageStore.sendLineMessage(
-      saveRes.result?.sent_message ?? lineMessage.value,
-    );
+    if (authStore.isSaleAdmin || authStore.isAdmin) {
+      await messageStore.sendLineMessage(
+        saveRes.result?.sent_message ?? lineMessage.value,
+      );
+    } else if (authStore.isReservation) {
+      console.log(formData.value.supplier_id, "this is supplier id");
+      await messageStore.sendLineMessage(
+        saveRes.result?.sent_message ?? lineMessage.value,
+        formData.value.supplier_id,
+        "car_order",
+      );
+    }
 
     toast.success("Saved & sent to LINE successfully");
     emit("refresh");

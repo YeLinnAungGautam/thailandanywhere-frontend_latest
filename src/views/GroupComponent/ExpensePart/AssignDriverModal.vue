@@ -1688,11 +1688,13 @@ const buildLineMessage = () => {
 
   const paymentBlock =
     lineForm.value.is_driver_collect === true
-      ? `\nPayment Method: ${lineForm.value.car_payment_method || "-"}
-Sale Amount: ${saleAmountValue}
+      ? `\nDriver Collect: ${
+          lineForm.value.is_driver_collect == true ? "Yes" : "No" || "-"
+        }
+Cost Amount: ${formData.value.cost_price * props.itemData?.qty}
 Total Collect: ${lineForm.value.car_total_collect || 0}
 Extra Collect: ${computedExtraCollect.value}`
-      : `\nPayment Method: xxxx
+      : `\nDriver Collect: xxxx
 Sale Amount: xxxx
 Total Collect: xxxx
 Extra Collect: xxxx`;
@@ -1706,9 +1708,10 @@ Pickup Time: ${tripForm.value.pickup_time || "-"}
 Pickup Location: ${tripForm.value.pickup_location || "-"}
 Dropoff Location: ${tripForm.value.dropoff_location || "-"}
 
+Product Name: ${props.itemData?.product_name}
 Routeplan: ${tripForm.value.route_plan || "-"}
 
-Product Variation: ${item?.variation_name || "-"}${paymentBlock}
+Product Variation: ${item?.variation_name || "-"}\n${paymentBlock}
 
 Special Request: ${tripForm.value.special_request || "-"}`;
 };
@@ -1739,6 +1742,7 @@ const handleSendToLine = async () => {
       car_total_collect: lineForm.value.car_total_collect || 0,
       car_payment_method: lineForm.value.car_payment_method || "",
       message: lineMessage.value,
+      is_reservation: authStore.isReservation,
       edited_data: {
         crm_id: props.itemData?.crm_id || "",
         customer_name:
@@ -1773,7 +1777,7 @@ const handleSendToLine = async () => {
       await messageStore.sendLineMessage(
         saveRes.result?.sent_message ?? lineMessage.value,
       );
-    } else if (authStore.isReservation) {
+    } else if (authStore.isReservation || authStore.isSuperAdmin) {
       console.log(formData.value.supplier_id, "this is supplier id");
       await messageStore.sendLineMessage(
         saveRes.result?.sent_message ?? lineMessage.value,

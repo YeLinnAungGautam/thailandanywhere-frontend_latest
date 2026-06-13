@@ -1056,7 +1056,9 @@ const lineMessage = computed(() => {
         lines.push(`➖ Pickup: ${item.pickup_location}`);
       lines.push(`➖ Qty: ${item.qty ?? 1}`);
       lines.push(`➖ P. Method: ${isCollect ? "Collect" : "Not Collect"}`);
-      lines.push(`➖ Amount: ${Number(item.sale_amount).toLocaleString()} THB`);
+      lines.push(
+        `➖ Collect Amount: ${Number(item.sale_amount).toLocaleString()} THB`,
+      );
       lines.push(`➖ Cost: ${Number(item.cost_amount).toLocaleString()} THB`);
       lines.push(`⭕ (${balanceSign})`);
       lines.push(``);
@@ -1111,7 +1113,9 @@ const lineMessage = computed(() => {
         lines.push(`➖ Pickup: ${item.pickup_location}`);
       lines.push(`➖ Qty: ${item.qty ?? 1}`);
       lines.push(`➖ P. Method: ${isCollect ? "Collect" : "Not Collect"}`);
-      lines.push(`➖ Amount: ${Number(item.sale_amount).toLocaleString()} THB`);
+      lines.push(
+        `➖ Collect Amount: ${Number(item.sale_amount).toLocaleString()} THB`,
+      );
       lines.push(`➖ Cost: ${Number(item.cost_amount).toLocaleString()} THB`);
       lines.push(`⭕ (${balanceSign})`);
       lines.push(``);

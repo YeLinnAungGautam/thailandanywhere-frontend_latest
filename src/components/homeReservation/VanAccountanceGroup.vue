@@ -996,7 +996,13 @@ const openLineModal = () => {
 const executeSendLine = async () => {
   lineModal.value.sending = true;
   try {
-    await messageStore.sendLineMessage(lineMessage.value);
+    await messageStore.sendLineMessage(
+      lineMessage.value,
+      selectedSupplierId.value,
+      "accounting",
+    );
+    // console.log(lineMessage.value, selectedSupplierId.value, "accounting");
+
     toast.success("LINE message sent successfully!");
     lineModal.value.open = false;
   } catch (e) {

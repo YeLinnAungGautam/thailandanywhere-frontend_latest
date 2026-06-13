@@ -204,11 +204,7 @@
               >
                 Customer
               </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
-              >
-                C.Status
-              </th>
+
               <th
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
@@ -229,6 +225,11 @@
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
               >
                 Collect?
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap"
+              >
+                C.Status
               </th>
               <th
                 class="px-4 py-3 text-right text-xs font-semibold text-gray-600 whitespace-nowrap"
@@ -285,27 +286,7 @@
                     {{ item.customer_name || "—" }}
                   </p>
                 </td>
-                <!-- customer payment -->
-                <td class="px-4 py-3">
-                  <span
-                    class="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium w-fit whitespace-nowrap"
-                    :class="
-                      item.customer_payment == 'fully_paid'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-yellow-100 text-yellow-700'
-                    "
-                  >
-                    <span
-                      class="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      :class="
-                        item.customer_payment == 'fully_paid'
-                          ? 'bg-green-500'
-                          : 'bg-yellow-500'
-                      "
-                    ></span>
-                    {{ item.customer_payment }}
-                  </span>
-                </td>
+
                 <!-- Status -->
                 <td class="px-4 py-3">
                   <span
@@ -384,6 +365,27 @@
                     >No</span
                   >
                   <span v-else class="text-xs text-gray-300">—</span>
+                </td>
+                <!-- customer payment -->
+                <td class="px-4 py-3">
+                  <span
+                    class="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium w-fit whitespace-nowrap"
+                    :class="
+                      item.customer_payment == 'fully_paid'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    "
+                  >
+                    <span
+                      class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                      :class="
+                        item.customer_payment == 'fully_paid'
+                          ? 'bg-green-500'
+                          : 'bg-yellow-500'
+                      "
+                    ></span>
+                    {{ item.customer_payment }}
+                  </span>
                 </td>
                 <!-- Actions -->
                 <td class="px-4 py-3 text-right">

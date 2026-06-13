@@ -722,207 +722,55 @@
               </p>
             </div>
 
-            <!-- Car Info Display -->
-            <div
-              class="bg-gradient-to-r from-purple-50 to-indigo-100 rounded-xl p-4 mb-4 border border-purple-200"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm"
-                >
-                  <TruckIcon class="w-6 h-6 text-purple-600" />
-                </div>
-                <div class="flex-1">
-                  <p class="text-sm font-semibold text-gray-900">
-                    {{ itemData?.car?.name || "Vehicle" }}
-                  </p>
-                  <p class="text-xs text-gray-600">
-                    {{ formatDate(itemData?.service_date) }}
-                  </p>
-                </div>
-                <div class="px-3 py-1 bg-white rounded-full">
-                  <p class="text-xs font-medium text-purple-600">
-                    {{ itemData?.crm_id }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Supplier + Cost Price side by side -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label
-                  class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
-                >
-                  <svg
-                    class="w-4 h-4 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  Supplier *
-                </label>
-                <select
-                  v-model="formData.supplier_id"
-                  @change="onSupplierChange"
-                  class="w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
-                  :class="
-                    errors.supplier_id ? 'border-red-400' : 'border-gray-300'
-                  "
-                >
-                  <option value="">Select Supplier</option>
-                  <option
-                    v-for="supplier in suppliers?.data"
-                    :key="supplier.id"
-                    :value="supplier.id"
-                  >
-                    {{ supplier.name }}
-                  </option>
-                </select>
-                <p v-if="errors.supplier_id" class="text-xs text-red-500 mt-1">
-                  {{ errors.supplier_id }}
-                </p>
-              </div>
-
-              <div>
-                <label
-                  class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
-                >
-                  <svg
-                    class="w-4 h-4 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  Cost Price *
-                </label>
-                <div class="relative">
-                  <input
-                    type="number"
-                    v-model="formData.cost_price"
-                    placeholder="0.00"
-                    class="w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
-                    :class="
-                      errors.cost_price ? 'border-red-400' : 'border-gray-300'
-                    "
-                  />
-                  <span
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500"
-                    >THB</span
-                  >
-                </div>
-                <p v-if="errors.cost_price" class="text-xs text-red-500 mt-1">
-                  {{ errors.cost_price }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Driver Collect: 3-option (Not Set / Yes / No) -->
-            <div
-              class="py-3 px-4 border rounded-xl bg-gray-50 mt-2"
-              :class="
-                errors.is_driver_collect ? 'border-red-300' : 'border-gray-200'
-              "
-            >
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <p class="text-sm font-medium text-gray-700">
-                    Driver collect payment
-                  </p>
-                  <p class="text-xs text-gray-400 mt-0.5">
-                    Driver collects money from customer on service day
-                  </p>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  @click="lineForm.is_driver_collect = null"
-                  :class="[
-                    'py-2 rounded-lg text-xs font-semibold border transition-colors',
-                    lineForm.is_driver_collect === null
-                      ? 'bg-gray-300 border-gray-400 text-gray-800'
-                      : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100',
-                  ]"
-                >
-                  Not Set
-                </button>
-                <button
-                  type="button"
-                  @click="lineForm.is_driver_collect = true"
-                  :class="[
-                    'py-2 rounded-lg text-xs font-semibold border transition-colors',
-                    lineForm.is_driver_collect === true
-                      ? 'bg-purple-500 border-purple-600 text-white'
-                      : 'bg-white border-gray-200 text-gray-500 hover:bg-purple-50',
-                  ]"
-                >
-                  Yes
-                </button>
-                <button
-                  type="button"
-                  @click="lineForm.is_driver_collect = false"
-                  :class="[
-                    'py-2 rounded-lg text-xs font-semibold border transition-colors',
-                    lineForm.is_driver_collect === false
-                      ? 'bg-red-600 border-red-700 text-white'
-                      : 'bg-white border-red-200 text-red-500 hover:bg-red-100',
-                  ]"
-                >
-                  No
-                </button>
-              </div>
-
-              <p
-                v-if="errors.is_driver_collect"
-                class="text-xs text-red-500 mt-2"
+            <div class="p-4 border border-gray-100 rounded-xl shadow-md">
+              <!-- Car Info Display -->
+              <div
+                class="bg-gradient-to-r from-purple-50 to-indigo-100 rounded-xl p-4 mb-4 border border-purple-200"
               >
-                {{ errors.is_driver_collect }}
-              </p>
-            </div>
-
-            <div
-              v-if="lineForm.is_driver_collect === true"
-              class="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3"
-            >
-              <p
-                class="text-xs font-semibold text-purple-800 uppercase tracking-wide"
-              >
-                Payment Details
-              </p>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="text-xs font-medium text-gray-700 mb-1.5 block"
-                    >Payment Method</label
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm"
                   >
-                  <input
-                    type="text"
-                    v-model="lineForm.car_payment_method"
-                    placeholder="e.g. Cash, QR, Card"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#06C755]/30 focus:border-[#06C755]"
-                  />
+                    <TruckIcon class="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-base font-semibold text-gray-900">
+                      Supplier Assign
+                    </p>
+                    <div class="px-3 py-1 inline-block bg-white rounded-full">
+                      <p class="text-xs font-medium text-purple-600">
+                        {{ itemData?.crm_id }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="px-3 py-1">
+                    <select
+                      v-model="formData.supplier_id"
+                      @change="onSupplierChange"
+                      class="w-full px-4 py-2.5 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                      :class="
+                        errors.supplier_id
+                          ? 'border-red-400'
+                          : 'border-gray-300'
+                      "
+                    >
+                      <option value="">Select Supplier</option>
+                      <option
+                        v-for="supplier in suppliers?.data"
+                        :key="supplier.id"
+                        :value="supplier.id"
+                      >
+                        {{ supplier.name }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              <div class="grid grid-cols-2 gap-3">
+              <!-- Supplier + Cost Price side by side -->
+              <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="text-xs font-medium text-gray-500 mb-1.5 block"
+                  <label class="text-xs font-medium text-gray-700 mb-2 block"
                     >Sale Amount (read-only)</label
                   >
                   <div class="relative">
@@ -938,110 +786,297 @@
                     >
                   </div>
                 </div>
+
                 <div>
-                  <label class="text-xs font-medium text-gray-700 mb-1.5 block"
-                    >Total Collect</label
+                  <label
+                    class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
                   >
+                    <svg
+                      class="w-4 h-4 text-purple-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    Cost Price *
+                  </label>
                   <div class="relative">
                     <input
-                      v-model.number="lineForm.car_total_collect"
                       type="number"
-                      min="0"
-                      placeholder="0"
-                      class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#06C755]/30 focus:border-[#06C755] pr-12"
+                      v-model="formData.cost_price"
+                      placeholder="0.00"
+                      class="w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                      :class="
+                        errors.cost_price ? 'border-red-400' : 'border-gray-300'
+                      "
                     />
                     <span
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500"
                       >THB</span
                     >
                   </div>
-                </div>
-              </div>
-
-              <div
-                :class="[
-                  'flex items-center justify-between rounded-lg px-3 py-2.5 border',
-                  lineForm.is_driver_collect === true &&
-                  computedExtraCollect < 0
-                    ? 'bg-red-50 border-red-200'
-                    : 'bg-white border-gray-200',
-                ]"
-              >
-                <div>
-                  <p class="text-xs font-medium text-gray-600">Extra Collect</p>
-                  <p class="text-[10px] text-gray-400 mt-0.5">
-                    Total collect − Sale amount (auto)
+                  <p v-if="errors.cost_price" class="text-xs text-red-500 mt-1">
+                    {{ errors.cost_price }}
                   </p>
                 </div>
-                <p
+
+                <div
+                  class="col-span-2"
                   :class="[
-                    'text-xl font-semibold tabular-nums',
-                    lineForm.is_driver_collect === true &&
-                    computedExtraCollect < 0
-                      ? 'text-red-500'
-                      : lineForm.is_driver_collect === true
-                      ? 'text-[#06C755]'
-                      : 'text-gray-400',
+                    'flex items-center justify-between rounded-lg px-3 py-2.5 border',
+                    saleAmount - formData.cost_price < 0
+                      ? 'bg-red-50 border-red-200'
+                      : 'bg-green-50 border-gray-200',
                   ]"
                 >
-                  {{
-                    lineForm.is_driver_collect === true
-                      ? computedExtraCollect
-                      : "-"
-                  }}
-                  <span class="text-sm font-normal">THB</span>
+                  <div>
+                    <p class="text-xs font-medium text-gray-600">Profit/Loss</p>
+                    <p class="text-[10px] text-gray-400 mt-0.5">
+                      Total profit calculate (auto)
+                    </p>
+                  </div>
+                  <p
+                    :class="[
+                      'text-xl font-semibold tabular-nums',
+                      saleAmount - formData.cost_price < 0
+                        ? 'text-red-500'
+                        : 'text-[#06C755]',
+                    ]"
+                  >
+                    {{ saleAmount - formData.cost_price }}
+                    <span class="text-sm font-normal">THB</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="p-4 border border-gray-100 rounded-xl shadow-md space-y-4"
+            >
+              <!-- Driver Collect: 3-option (Not Set / Yes / No) -->
+              <div
+                class="py-3 px-4 border rounded-xl bg-gray-50"
+                :class="
+                  errors.is_driver_collect
+                    ? 'border-red-300'
+                    : 'border-gray-200'
+                "
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <p class="text-sm font-medium text-gray-700">
+                      Driver collect payment
+                    </p>
+                    <p class="text-xs text-gray-400 mt-0.5">
+                      Driver collects money from customer on service day
+                    </p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    @click="lineForm.is_driver_collect = null"
+                    :class="[
+                      'py-2 rounded-lg text-xs font-semibold border transition-colors',
+                      lineForm.is_driver_collect === null
+                        ? 'bg-gray-300 border-gray-400 text-gray-800'
+                        : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100',
+                    ]"
+                  >
+                    Not Set
+                  </button>
+                  <button
+                    type="button"
+                    @click="lineForm.is_driver_collect = true"
+                    :class="[
+                      'py-2 rounded-lg text-xs font-semibold border transition-colors',
+                      lineForm.is_driver_collect === true
+                        ? 'bg-purple-500 border-purple-600 text-white'
+                        : 'bg-white border-gray-200 text-gray-500 hover:bg-purple-50',
+                    ]"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    type="button"
+                    @click="lineForm.is_driver_collect = false"
+                    :class="[
+                      'py-2 rounded-lg text-xs font-semibold border transition-colors',
+                      lineForm.is_driver_collect === false
+                        ? 'bg-red-600 border-red-700 text-white'
+                        : 'bg-white border-red-200 text-red-500 hover:bg-red-100',
+                    ]"
+                  >
+                    No
+                  </button>
+                </div>
+
+                <p
+                  v-if="errors.is_driver_collect"
+                  class="text-xs text-red-500 mt-2"
+                >
+                  {{ errors.is_driver_collect }}
                 </p>
               </div>
 
-              <p
-                v-if="
-                  lineForm.is_driver_collect === true &&
-                  computedExtraCollect < 0
-                "
-                class="text-xs text-red-500 flex items-center gap-1.5"
+              <div
+                v-if="lineForm.is_driver_collect === true"
+                class="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3"
               >
-                <svg
-                  class="w-3.5 h-3.5 flex-shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <p
+                  class="text-xs font-semibold text-purple-800 uppercase tracking-wide"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-                  />
-                </svg>
-                Total collect is less than the sale amount — please verify.
-              </p>
-            </div>
+                  Payment Details
+                </p>
 
-            <div class="">
-              <label
-                class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
-              >
-                <svg
-                  class="w-4 h-4 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <!-- <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs font-medium text-gray-700 mb-1.5 block"
+                      >Payment Method</label
+                    >
+                    <input
+                      type="text"
+                      v-model="lineForm.car_payment_method"
+                      placeholder="e.g. Cash, QR, Card"
+                      class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#06C755]/30 focus:border-[#06C755]"
+                    />
+                  </div>
+                </div> -->
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label
+                      class="text-xs font-medium text-gray-500 mb-1.5 block"
+                      >Balance Due (read-only)</label
+                    >
+                    <div class="relative">
+                      <input
+                        :value="itemData?.balance_due || 0"
+                        disabled
+                        type="text"
+                        class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed pr-12"
+                      />
+                      <span
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400"
+                        >THB</span
+                      >
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      class="text-xs font-medium text-gray-700 mb-1.5 block"
+                      >Total Collect</label
+                    >
+                    <div class="relative">
+                      <input
+                        v-model.number="lineForm.car_total_collect"
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#06C755]/30 focus:border-[#06C755] pr-12"
+                      />
+                      <span
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400"
+                        >THB</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  :class="[
+                    'flex items-center justify-between rounded-lg px-3 py-2.5 border',
+                    lineForm.is_driver_collect === true &&
+                    computedExtraCollect < 0
+                      ? 'bg-red-50 border-red-200'
+                      : 'bg-white border-gray-200',
+                  ]"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                Car Collect Comment (Note)
-              </label>
-              <textarea
-                v-model="tripForm.car_comment"
-                rows="2"
-                placeholder="Any special requests or notes"
-                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
-              ></textarea>
+                  <div>
+                    <p class="text-xs font-medium text-gray-600">
+                      Extra Collect
+                    </p>
+                    <p class="text-[10px] text-gray-400 mt-0.5">
+                      Total collect − Sale amount (auto)
+                    </p>
+                  </div>
+                  <p
+                    :class="[
+                      'text-xl font-semibold tabular-nums',
+                      lineForm.is_driver_collect === true &&
+                      computedExtraCollect < 0
+                        ? 'text-red-500'
+                        : lineForm.is_driver_collect === true
+                        ? 'text-[#06C755]'
+                        : 'text-gray-400',
+                    ]"
+                  >
+                    {{
+                      lineForm.is_driver_collect === true
+                        ? computedExtraCollect
+                        : "-"
+                    }}
+                    <span class="text-sm font-normal">THB</span>
+                  </p>
+                </div>
+
+                <p
+                  v-if="
+                    lineForm.is_driver_collect === true &&
+                    computedExtraCollect < 0
+                  "
+                  class="text-xs text-red-500 flex items-center gap-1.5"
+                >
+                  <svg
+                    class="w-3.5 h-3.5 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                    />
+                  </svg>
+                  Total collect is less than the sale amount — please verify.
+                </p>
+              </div>
+
+              <div class="">
+                <label
+                  class="text-xs font-medium text-gray-700 mb-1.5 flex items-center gap-1"
+                >
+                  <svg
+                    class="w-4 h-4 text-purple-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                  Car Collect Comment (Note)
+                </label>
+                <textarea
+                  v-model="tripForm.car_comment"
+                  rows="2"
+                  placeholder="Any special requests or notes"
+                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600"
+                ></textarea>
+              </div>
             </div>
           </div>
 

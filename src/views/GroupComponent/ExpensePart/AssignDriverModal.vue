@@ -1729,10 +1729,12 @@ const buildLineMessage = () => {
 Cost Amount: ${formData.value.cost_price * props.itemData?.qty}
 Total Collect: ${lineForm.value.car_total_collect || 0}
 Extra Collect: ${computedExtraCollect.value}`
-      : `\nDriver Collect: xxxx
-Sale Amount: xxxx
-Total Collect: xxxx
-Extra Collect: xxxx`;
+      : `\nDriver Collect: ${
+          lineForm.value.is_driver_collect == true ? "Yes" : "No" || "-"
+        }
+Cost Amount: ${formData.value.cost_price * props.itemData?.qty}
+Total Collect: ${lineForm.value.car_total_collect || 0}
+Extra Collect: 0`;
 
   lineMessage.value = `CRMID: ${item?.crm_id || "-"}
 C. Name: ${group?.customer_name || item?.customer_name || "-"}

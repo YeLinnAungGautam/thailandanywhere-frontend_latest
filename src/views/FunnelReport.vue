@@ -123,7 +123,11 @@
           </div>
 
           <!-- Product Type Filter for Graph -->
-          <div class="flex flex-wrap gap-2 mb-6">
+          <!-- Product Type Filter for Graph (hidden for QR scans) -->
+          <div
+            v-if="selectedEvent !== 'qr_scan'"
+            class="flex flex-wrap gap-2 mb-6"
+          >
             <button
               @click="selectedGraphProductType = null"
               :class="[
@@ -147,6 +151,36 @@
               ]"
             >
               {{ type.icon }} {{ type.label }}
+            </button>
+          </div>
+
+          <!-- CRM ID Filter for QR Scans -->
+          <div v-else class="flex flex-wrap gap-2 mb-6 items-center">
+            <label class="text-xs font-semibold text-gray-700"
+              >Filter by CRM ID:</label
+            >
+            <input
+              v-model="selectedCrmId"
+              type="text"
+              placeholder="e.g. 18810"
+              class="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition w-48"
+              @keyup.enter="loadTimeSeriesData"
+            />
+            <button
+              @click="loadTimeSeriesData"
+              class="px-4 py-2 bg-purple-500 text-white text-sm font-semibold rounded-lg hover:bg-purple-600 transition"
+            >
+              Apply
+            </button>
+            <button
+              v-if="selectedCrmId"
+              @click="
+                selectedCrmId = '';
+                loadTimeSeriesData();
+              "
+              class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900"
+            >
+              Clear
             </button>
           </div>
 
@@ -193,6 +227,7 @@ const eventTypes = [
   { type: "go_checkout", label: "Checkout", icon: "💳" },
   { type: "complete_purchase", label: "Purchase", icon: "✅" },
   { type: "messenger_click", label: "Messenger", icon: "💬" },
+  { type: "qr_scan", label: "QR Scan", icon: "📱" },
 ];
 
 const granularities = [
@@ -240,6 +275,8 @@ const loadFunnelData = async () => {
     alert("Failed to load funnel data. Please try again.");
   }
 };
+
+const selectedCrmId = ref("");
 
 const funnelStages = computed(() => {
   if (!funnelStore.funnel || !funnelStore.funnel.total_counts) return [];
@@ -300,12 +337,18 @@ const getEventCount = (eventType) => {
     go_checkout: "go_checkout",
     complete_purchase: "complete_purchase",
     messenger_click: "messenger_click",
+    qr_scan: "qr_scan", // NEW
   };
   return funnelStore.funnel.total_counts[mapping[eventType]] || 0;
 };
 
 const selectEvent = async (eventType) => {
   selectedEvent.value = eventType;
+  if (eventType === "qr_scan") {
+    selectedGraphProductType.value = null;
+  } else {
+    selectedCrmId.value = "";
+  }
   await loadTimeSeriesData();
 };
 
@@ -320,7 +363,12 @@ const loadTimeSeriesData = async () => {
       end_date: dates.end,
       event_type: selectedEvent.value,
       granularity: selectedGranularity.value,
-      product_type: selectedGraphProductType.value,
+      product_type:
+        selectedEvent.value === "qr_scan"
+          ? null
+          : selectedGraphProductType.value,
+      booking_id:
+        selectedEvent.value === "qr_scan" ? selectedCrmId.value || null : null,
     });
     renderChart();
   } catch (error) {

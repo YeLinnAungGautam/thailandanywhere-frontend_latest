@@ -848,6 +848,7 @@ const searchParams = computed(() => {
 
   params.interact_bank = "company";
   params.relatable_type = "App\\Models\\Booking";
+  params.bank_verify = 1;
   params.limit = per_page.value ? per_page.value : 100;
   params.location = selectedLocation.value;
 

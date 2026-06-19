@@ -16,6 +16,8 @@ import {
   UserGroupIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
+  ArrowPathIcon,
+  ArchiveBoxXMarkIcon,
 } from "@heroicons/vue/24/outline";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
@@ -79,6 +81,39 @@ const onDeleteHandler = async (id) => {
   });
 };
 
+// replace deleteAction with destroyAdminAction in onDeleteHandler
+const onDestoryHandler = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "This admin will be deactivated and logged out everywhere.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, deactivate it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await adminStore.destroyAdminAction(id);
+        toast.success(response.message);
+      } catch (error) {
+        toast.error(error.response.data.message);
+      }
+      await adminStore.getListAction();
+    }
+  });
+};
+
+const onReactivateHandler = async (id) => {
+  try {
+    const response = await adminStore.reactivateAction(id);
+    toast.success(response.message);
+    await adminStore.getListAction();
+  } catch (error) {
+    toast.error(error.response.data.message);
+  }
+};
+
 const search = ref("");
 
 const member = ref([]);
@@ -136,7 +171,7 @@ const updateHandler = async () => {
     frmData.append("password", formData.value.password);
     frmData.append(
       "password_confirmation",
-      formData.value.password_confirmation
+      formData.value.password_confirmation,
     );
   }
   frmData.append("_method", "PUT");
@@ -252,7 +287,7 @@ watch(
   search,
   debounce(async (newValue) => {
     await adminStore.getListAction({ search: search.value });
-  }, 500)
+  }, 500),
 );
 </script>
 
@@ -490,6 +525,20 @@ watch(
                     class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                   >
                     <TrashIcon class="w-5 h-5" />
+                  </button>
+                  <button
+                    v-if="r.is_active"
+                    @click.prevent="onDestoryHandler(r.id)"
+                    class="p-2 text-white transition bg-red-400 rounded shadow hover:bg-red-500 hover:text-white"
+                  >
+                    <ArchiveBoxXMarkIcon class="w-5 h-5" />
+                  </button>
+                  <button
+                    v-else
+                    @click.prevent="onReactivateHandler(r.id)"
+                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-green-500 hover:text-white"
+                  >
+                    <ArrowPathIcon class="w-5 h-5" />
                   </button>
                 </div>
               </td>

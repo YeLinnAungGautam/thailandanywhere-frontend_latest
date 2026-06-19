@@ -41,7 +41,7 @@
         />
       </div>
       <div class="flex justify-end items-center gap-4">
-        <Button
+        <!-- <Button
           :leftIcon="DocumentPlusIcon"
           intent="text"
           @click="importHandler"
@@ -50,13 +50,20 @@
         </Button>
         <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
           Export
-        </Button>
+        </Button> -->
         <Button
           :leftIcon="PlusIcon"
           @click="VantourCreate"
           v-if="!authStore.isAgent"
         >
           Create
+        </Button>
+        <Button
+          :leftIcon="PlusIcon"
+          @click="VantourCreateV2"
+          v-if="!authStore.isAgent"
+        >
+          Create V2
         </Button>
       </div>
     </div>
@@ -140,13 +147,6 @@
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
-                <router-link :to="'/vantour/view/' + r.id + '/view'">
-                  <button
-                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
-                  >
-                    <EyeIcon class="w-5 h-5" />
-                  </button>
-                </router-link>
                 <router-link
                   :to="'/vantour/view/' + r.id + '/edit'"
                   v-if="!authStore.isAgent"
@@ -155,6 +155,16 @@
                     class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                   >
                     <PencilSquareIcon class="w-5 h-5" />
+                  </button>
+                </router-link>
+                <router-link
+                  :to="'/vantour-v2?id=' + r.id"
+                  v-if="!authStore.isAgent"
+                >
+                  <button
+                    class="p-2 text-blue-500 flex justify-start items-center transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                  >
+                    <PencilSquareIcon class="w-5 h-5" /> V2
                   </button>
                 </router-link>
                 <button
@@ -282,6 +292,9 @@ const importActionHandler = async () => {
 const VantourCreate = () => {
   router.push("/vantour/edit");
 };
+const VantourCreateV2 = () => {
+  router.push("/vantour-v2");
+};
 
 const changePage = async (url) => {
   console.log(url);
@@ -317,7 +330,7 @@ const onDeleteHandler = async (id) => {
       } catch (error) {
         console.log(
           "🚀 ~ file: BlogView.vue:65 ~ onDeleteHandler ~ error:",
-          error
+          error,
         );
         if (error.response.data.errors) {
           errors.value = error.response.data.errors;
@@ -381,7 +394,7 @@ watch(
         },
       });
     }
-  }, 500)
+  }, 500),
 );
 
 watch(forSale, async (newValue) => {

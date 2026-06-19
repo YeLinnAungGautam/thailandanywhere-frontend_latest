@@ -126,6 +126,9 @@ import ExternalPDF from "../views/ExternalPDF.vue";
 import RemaindTaxReceiptOutput from "../views/TaxReceiptComponent/RemaindTaxReceiptOutput.vue";
 import ProductGraphReport from "../views/ProductGraphReport.vue";
 import VantourManagement from "../views/VantourManagement.vue";
+import PrivateVanV2 from "../views/PrivateVanV2.vue";
+import RoutePlanList from "../views/RoutePlanList.vue";
+import RoutePlanEdit from "../views/RoutePlanEdit.vue";
 
 const routes = [
   {
@@ -247,6 +250,16 @@ const routes = [
     path: "/hotel-v2/",
     name: "hotel-v2",
     component: HotelViewVersion2,
+  },
+  {
+    path: "/route-plan",
+    name: "routeplan",
+    component: RoutePlanList,
+  },
+  {
+    path: "/route-plan-form",
+    name: "routeplanForm",
+    component: RoutePlanEdit,
   },
   {
     path: "/attraction-v2/",
@@ -383,6 +396,11 @@ const routes = [
     path: "/vantour",
     name: "vantour",
     component: VantourlistView,
+  },
+  {
+    path: "/vantour-v2",
+    name: "vantourV2",
+    component: PrivateVanV2,
   },
   {
     path: "/grouptour",

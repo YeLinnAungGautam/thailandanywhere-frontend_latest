@@ -92,5 +92,21 @@ export const useAdminStore = defineStore("admin", {
         throw error;
       }
     },
+    async destroyAdminAction(id) {
+      try {
+        const response = await axios.post("/admins/" + id + "/destroyAdmin");
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async reactivateAction(id) {
+      try {
+        const response = await axios.post("/admins/" + id + "/reactivate");
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

@@ -57,8 +57,31 @@ const formData = ref({
   destination: [],
   images: [],
   prices: [],
+  is_show: true,
+  supplier_cost: [],
   feature_image: "",
 });
+
+const formSupplierCost = ref({
+  supplier_id: "",
+  car_id: "",
+  cost: "",
+  extra_mile_price: "",
+});
+
+const addNewSupplierCost = () => {
+  formData.value.supplier_cost.push(formSupplierCost.value);
+  formSupplierCost.value = {
+    supplier_id: "",
+    car_id: "",
+    cost: "",
+    extra_mile_price: "",
+  };
+};
+
+const removeFromSupplierCost = (index) => {
+  formData.value.supplier_cost.splice(index, 1);
+};
 
 const formPrice = ref({
   car: "",
@@ -165,7 +188,18 @@ const onSubmitHandler = async () => {
   for (var x = 0; x < formData.value.prices.length; x++) {
     frmData.append(
       "agent_prices[" + x + "]" + [x],
-      formData.value.prices[x].agent_price
+      formData.value.prices[x].agent_price,
+    );
+  }
+  frmData.append("is_show", formData.value.is_show ? 1 : 0);
+  for (let x = 0; x < formData.value.supplier_cost.length; x++) {
+    const sc = formData.value.supplier_cost[x];
+    frmData.append(`supplier_cost[${x}][supplier_id]`, sc.supplier_id);
+    frmData.append(`supplier_cost[${x}][car_id]`, sc.car_id);
+    frmData.append(`supplier_cost[${x}][cost]`, sc.cost);
+    frmData.append(
+      `supplier_cost[${x}][extra_mile_price]`,
+      sc.extra_mile_price,
     );
   }
   try {
@@ -193,7 +227,7 @@ const onSubmitHandler = async () => {
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
-      error
+      error,
     );
     if (error.response.data.errors) {
       errors.value = error.response.data.errors;
@@ -230,7 +264,7 @@ watch(
       await destinationStore.getSimpleListAction();
       destlist.value = dests?.value.data;
     }
-  }
+  },
 );
 
 onMounted(async () => {
@@ -370,6 +404,88 @@ onMounted(async () => {
               {{ errors.ticket_price[0] }}
             </p>
           </div>
+          <!-- <div class="flex items-center gap-2 mt-2">
+            <input
+              type="checkbox"
+              v-model="formData.is_show"
+              id="is_show"
+              class="w-4 h-4"
+            />
+            <label for="is_show" class="text-gray-800 text-sm">Show on</label>
+          </div>
+          <div class="col-span-2">
+            <div class="flex items-center justify-start mb-2">
+              <label class="text-sm block text-gray-600 mr-3"
+                >Supplier Cost</label
+              >
+            </div>
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <input
+                v-model="formSupplierCost.supplier_id"
+                type="text"
+                placeholder="supplier id"
+                class="h-12 flex-1 bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <input
+                v-model="formSupplierCost.car_id"
+                type="text"
+                placeholder="van price"
+                class="h-12 flex-1 bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <input
+                v-model="formSupplierCost.cost"
+                type="number"
+                placeholder="suv price"
+                class="h-12 flex-1 bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <input
+                v-model="formSupplierCost.extra_mile_price"
+                type="text"
+                placeholder="extra mile price"
+                class="h-12 flex-1 bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <button @click.prevent="addNewSupplierCost">
+                <i
+                  class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
+                ></i>
+              </button>
+            </div>
+            <div
+              v-for="(sc, index) in formData.supplier_cost"
+              :key="index"
+              class="flex items-center justify-between gap-3 mb-3"
+            >
+              <input
+                v-model="sc.supplier_id"
+                type="text"
+                placeholder="supplier id"
+                class="h-12 flex-1 bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <input
+                v-model="sc.car_id"
+                type="text"
+                placeholder="van price"
+                class="h-12 flex-1 bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <input
+                v-model="sc.cost"
+                type="number"
+                placeholder="suv price"
+                class="h-12 flex-1 bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <input
+                v-model="sc.extra_mile_price"
+                type="text"
+                placeholder="extra mile price"
+                class="h-12 flex-1 bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <button @click.prevent="removeFromSupplierCost(index)">
+                <i
+                  class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
+                ></i>
+              </button>
+            </div>
+          </div> -->
           <div class="col-span-2">
             <div class="col-span-2">
               <div class="flex items-center justify-start mb-2">

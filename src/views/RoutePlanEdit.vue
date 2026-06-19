@@ -3,7 +3,7 @@ import Layout from "./Layout.vue";
 import { ref, computed, onMounted } from "vue";
 import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";
-import { useRoutePlanStore } from "../stores/routeplan";
+import { useRoutePlanStore } from "../stores/routePlan.js";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import axios from "axios";

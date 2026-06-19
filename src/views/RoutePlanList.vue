@@ -3,9 +3,10 @@ import Layout from "./Layout.vue";
 import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
-import { useRoutePlanStore } from "../stores/routeplan";
+
 import Swal from "sweetalert2";
 import Pagination from "../components/Pagination.vue";
+import { useRoutePlanStore } from "../stores/routePlan.js";
 
 const router = useRouter();
 const toast = useToast();

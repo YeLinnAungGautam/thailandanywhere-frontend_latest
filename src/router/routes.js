@@ -129,6 +129,7 @@ import VantourManagement from "../views/VantourManagement.vue";
 import PrivateVanV2 from "../views/PrivateVanV2.vue";
 import RoutePlanList from "../views/RoutePlanList.vue";
 import RoutePlanEdit from "../views/RoutePlanEdit.vue";
+import ChatMain from "../views/ChatMain.vue";
 
 const routes = [
   {
@@ -777,7 +778,7 @@ const routes = [
   {
     path: "/chat",
     name: "chat",
-    component: ChatView,
+    component: ChatMain,
   },
 ];
 

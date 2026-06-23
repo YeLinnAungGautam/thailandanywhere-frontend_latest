@@ -1,75 +1,69 @@
 <template>
   <div>
-    <Layout>
-      <div class="h-[85vh] flex flex-col bg-gray-50">
-        <!-- Loading State -->
-        <div
-          v-if="chatStore.loading"
-          class="flex-1 flex items-center justify-center"
-        >
-          <div class="text-center">
-            <div
-              class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"
-            ></div>
-            <p class="text-gray-600">Loading conversations...</p>
-          </div>
+    <div class="h-[85vh] flex flex-col bg-gray-50">
+      <!-- Loading State -->
+      <div
+        v-if="chatStore.loading"
+        class="flex-1 flex items-center justify-center"
+      >
+        <div class="text-center">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"
+          ></div>
+          <p class="text-gray-600">Loading conversations...</p>
         </div>
+      </div>
 
-        <!-- Error State -->
-        <div
-          v-else-if="chatStore.error"
-          class="flex-1 flex items-center justify-center"
-        >
-          <div class="text-center">
-            <div class="text-red-600 text-4xl mb-4">⚠️</div>
-            <p class="text-gray-900 font-semibold mb-2">Failed to load chat</p>
-            <p class="text-gray-600 mb-4">{{ chatStore.error }}</p>
-            <button
-              @click="retry"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Retry
-            </button>
-          </div>
+      <!-- Error State -->
+      <div
+        v-else-if="chatStore.error"
+        class="flex-1 flex items-center justify-center"
+      >
+        <div class="text-center">
+          <div class="text-red-600 text-4xl mb-4">⚠️</div>
+          <p class="text-gray-900 font-semibold mb-2">Failed to load chat</p>
+          <p class="text-gray-600 mb-4">{{ chatStore.error }}</p>
+          <button
+            @click="retry"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Retry
+          </button>
         </div>
+      </div>
 
-        <!-- Main Chat UI -->
-        <template v-else>
-          <!-- Navbar -->
-          <Navbar />
+      <!-- Main Chat UI -->
+      <template v-else>
+        <!-- Navbar -->
+        <Navbar />
 
-          <!-- Main Chat Container -->
-          <div class="flex-1 flex overflow-hidden">
-            <!-- Conversation List Sidebar -->
-            <ConversationList />
+        <!-- Main Chat Container -->
+        <div class="flex-1 flex overflow-hidden">
+          <!-- Conversation List Sidebar -->
+          <ConversationList />
 
-            <!-- Chat Window -->
-            <ChatWindow v-if="chatStore.currentConversation" />
+          <!-- Chat Window -->
+          <ChatWindow v-if="chatStore.currentConversation" />
 
-            <!-- Empty State -->
-            <div
-              v-else
-              class="flex-1 flex items-center justify-center bg-white"
-            >
-              <div class="text-center">
-                <div class="text-6xl mb-4">💬</div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">
-                  Select a conversation
-                </h3>
-                <p class="text-gray-600">
-                  Choose a conversation from the list to start chatting
-                </p>
-              </div>
+          <!-- Empty State -->
+          <div v-else class="flex-1 flex items-center justify-center bg-white">
+            <div class="text-center">
+              <div class="text-6xl mb-4">💬</div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                Select a conversation
+              </h3>
+              <p class="text-gray-600">
+                Choose a conversation from the list to start chatting
+              </p>
             </div>
           </div>
-        </template>
-      </div>
-    </Layout>
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 
 <script setup>
-import Layout from "./Layout.vue";
 import { onMounted, onBeforeUnmount } from "vue";
 import { useChatStore } from "../stores/chat";
 import { useSocketStore } from "../stores/socket";

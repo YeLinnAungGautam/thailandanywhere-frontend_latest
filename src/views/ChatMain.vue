@@ -101,7 +101,7 @@ import { useFacebookMessageStore } from "../stores/facebookMessage.js";
 import ChatView from "./ChatView.vue";
 import ChatGraph from "./ChatGraph.vue";
 
-const activeTab = ref("facebook");
+const activeTab = ref("graph");
 const fbStore = useFacebookMessageStore();
 const pendingConvId = ref(null); // ← new
 

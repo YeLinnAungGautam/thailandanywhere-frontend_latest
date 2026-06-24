@@ -99,6 +99,13 @@ export const useFacebookMessageStore = defineStore("facebookMessage", {
       }
     },
 
+    async analysics(start, end) {
+      const res = await fbApi.get(
+        `/facebook/analytics?start=${start}&end=${end}`,
+      );
+      return res;
+    },
+
     clearSelection() {
       this.selectedConversation = null;
       this.messages = [];

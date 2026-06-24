@@ -294,13 +294,18 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from "vue";
+import { ref, computed, watch, nextTick, defineProps, defineEmits } from "vue";
 import { useFacebookMessageStore } from "../stores/facebookMessage";
 
 const store = useFacebookMessageStore();
 const search = ref("");
 const input = ref("");
 const messagesEl = ref(null);
+
+const props = defineProps({
+  pendingConvId: { type: String, default: null },
+});
+const emit = defineEmits(["conv-opened"]);
 
 // Load on mount
 store.fetchConversations();
@@ -361,6 +366,25 @@ watch(
     await nextTick();
     if (messagesEl.value)
       messagesEl.value.scrollTop = messagesEl.value.scrollHeight;
+  },
+);
+
+watch(
+  () => props.pendingConvId,
+  async (id) => {
+    if (!id) return;
+
+    // Make sure conversations are loaded first
+    if (!store.conversations?.length) {
+      await store.fetchConversations();
+    }
+
+    const conv = store.conversations.find((c) => String(c._id) === String(id));
+    if (conv) {
+      store.selectConversation(conv);
+    }
+
+    emit("conv-opened"); // tell parent to clear pendingConvId
   },
 );
 </script>

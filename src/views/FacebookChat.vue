@@ -16,8 +16,6 @@
             >Facebook Messenger</span
           >
         </div>
-
-        <!-- Stats -->
         <div v-if="store.stats" class="grid grid-cols-3 gap-1.5">
           <div class="bg-white rounded-lg p-2 text-center">
             <div class="text-gray-800 font-bold text-base leading-none">
@@ -51,7 +49,6 @@
 
       <!-- List -->
       <div class="flex-1 overflow-y-auto">
-        <!-- Loading -->
         <template v-if="store.conversationsLoading">
           <div
             v-for="i in 5"
@@ -67,8 +64,6 @@
             </div>
           </div>
         </template>
-
-        <!-- Error -->
         <div
           v-else-if="store.conversationsError"
           class="p-4 text-center text-red-400 text-sm"
@@ -81,8 +76,6 @@
             Retry
           </button>
         </div>
-
-        <!-- Conversations -->
         <template v-else>
           <button
             v-for="conv in filteredConversations"
@@ -121,7 +114,6 @@
               </div>
             </div>
           </button>
-
           <div
             v-if="filteredConversations.length === 0"
             class="text-center text-gray-600 text-sm py-10"
@@ -205,14 +197,12 @@
                 msg.type === 'admin' ? 'justify-end' : 'justify-start',
               ]"
             >
-              <!-- User avatar -->
               <div
                 v-if="msg.type !== 'admin'"
                 class="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold mr-2 mt-1 flex-shrink-0"
               >
                 {{ initials(store.selectedConversation.sender_name) }}
               </div>
-
               <div
                 :class="[
                   'max-w-xs lg:max-w-md px-3 py-2 rounded-2xl text-sm',
@@ -221,7 +211,6 @@
                     : 'bg-orange-100 text-gray-800 rounded-bl-sm',
                 ]"
               >
-                <!-- Image -->
                 <img
                   v-if="
                     msg.content_type === 'image' ||
@@ -230,23 +219,19 @@
                   :src="msg.attachment_url"
                   class="max-w-full rounded-lg"
                 />
-                <!-- Video -->
                 <video
                   v-else-if="msg.content_type === 'video'"
                   :src="msg.attachment_url"
                   controls
                   class="max-w-full rounded-lg"
                 />
-                <!-- Audio -->
                 <audio
                   v-else-if="msg.content_type === 'audio'"
                   :src="msg.attachment_url"
                   controls
                   class="w-48"
                 />
-                <!-- Text / fallback -->
                 <span v-else>{{ msg.message_text }}</span>
-
                 <div
                   :class="[
                     'text-xs mt-1',
@@ -256,6 +241,74 @@
                   {{ formatFullTime(msg.fb_timestamp) }}
                   <span v-if="msg.type === 'admin'" class="ml-1">· Admin</span>
                 </div>
+              </div>
+            </div>
+
+            <!-- AI Suggestion inline row (left side, after last message) -->
+            <div v-if="aiSuggestion" class="flex justify-start items-end gap-2">
+              <!-- i button -->
+              <button
+                @click="toggleSuggestion"
+                :class="[
+                  'w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 transition-colors',
+                  showSuggestion
+                    ? 'bg-indigo-700'
+                    : 'bg-indigo-500 hover:bg-indigo-600',
+                ]"
+                title="View AI suggested reply"
+              >
+                i
+              </button>
+
+              <!-- Suggestion bubble or hint -->
+              <div v-if="showSuggestion" class="max-w-xs lg:max-w-md">
+                <div
+                  class="bg-indigo-50 border border-indigo-200 rounded-2xl rounded-bl-sm px-3 py-2"
+                >
+                  <div
+                    class="text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-1"
+                  >
+                    Suggested reply
+                  </div>
+                  <p
+                    class="text-sm text-indigo-900 leading-relaxed whitespace-pre-wrap"
+                  >
+                    {{ aiSuggestion.suggestedMessage }}
+                  </p>
+                  <div
+                    v-if="aiSuggestion.rate !== undefined"
+                    class="mt-2 flex items-center gap-2"
+                  >
+                    <div
+                      class="h-1.5 flex-1 bg-indigo-100 rounded-full overflow-hidden"
+                    >
+                      <div
+                        :class="[
+                          'h-full rounded-full transition-all',
+                          aiSuggestion.rate >= 70
+                            ? 'bg-green-500'
+                            : aiSuggestion.rate >= 40
+                            ? 'bg-yellow-500'
+                            : 'bg-red-400',
+                        ]"
+                        :style="{ width: aiSuggestion.rate + '%' }"
+                      />
+                    </div>
+                    <span class="text-xs font-semibold text-indigo-600"
+                      >{{ aiSuggestion.rate }}%</span
+                    >
+                  </div>
+                  <button
+                    @click="useAiSuggestion"
+                    class="mt-2 text-xs text-indigo-600 hover:text-indigo-800 border border-indigo-200 hover:border-indigo-400 rounded px-2 py-1 transition-colors"
+                  >
+                    Copy to compose
+                  </button>
+                </div>
+              </div>
+              <div v-else class="text-xs text-gray-400 italic">
+                AI suggestion ready — tap
+                <strong class="font-medium text-indigo-500">i</strong>
               </div>
             </div>
           </template>
@@ -269,72 +322,202 @@
           Failed to send: {{ store.sendError }}
         </div>
 
-        <!-- Compose -->
-        <div
-          class="flex gap-2 px-4 py-3 border-t border-gray-100 bg-white flex-shrink-0"
-        >
-          <input
-            v-model="input"
-            @keydown.enter.exact.prevent="send"
-            placeholder="Reply on Messenger…"
-            class="flex-1 bg-white text-sm text-gray-800 placeholder-gray-500 rounded-xl px-4 py-2.5 outline-none focus:ring-1 focus:ring-orange-600"
-            :disabled="store.sending"
-          />
-          <button
-            @click="send"
-            :disabled="!input.trim() || store.sending"
-            class="bg-orange-600 hover:bg-orange-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
-          >
-            {{ store.sending ? "…" : "Send" }}
-          </button>
-          <button
-            @click="openAiTrainer(store.messages)"
-            class="text-sm border border-purple-500 rounded-xl text-white bg-purple-700 px-4"
-          >
-            ✦ Sales AI Trainer
-          </button>
+        <!-- Compose + AI panel wrapper -->
+        <div class="flex-shrink-0 border-t border-gray-100">
+          <!-- Compose bar -->
+          <div class="flex gap-2 px-4 py-3 bg-white items-center">
+            <input
+              v-model="input"
+              @keydown.enter.exact.prevent="send"
+              placeholder="Reply on Messenger…"
+              class="flex-1 bg-white text-sm text-gray-800 placeholder-gray-500 rounded-xl px-4 py-2.5 outline-none focus:ring-1 focus:ring-orange-600"
+              :disabled="store.sending"
+            />
+            <button
+              @click="send"
+              :disabled="!input.trim() || store.sending"
+              class="bg-orange-600 hover:bg-orange-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+            >
+              {{ store.sending ? "…" : "Send" }}
+            </button>
+
+            <!-- Settings icon -->
+            <button
+              class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors flex-shrink-0"
+              title="Settings"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                />
+              </svg>
+            </button>
+
+            <!-- AI Trainer toggle button -->
+            <button
+              @click="toggleAiPanel"
+              :class="[
+                'w-9 h-9 flex items-center justify-center rounded-xl border transition-colors flex-shrink-0 text-sm font-bold',
+                showAiPanel
+                  ? 'bg-purple-700 border-purple-700 text-white'
+                  : 'border-purple-400 text-purple-600 hover:bg-purple-50',
+              ]"
+              title="Sales AI Trainer"
+            >
+              ✦
+            </button>
+          </div>
+
+          <!-- AI Trainer inline panel -->
+          <transition name="slide">
+            <div v-if="showAiPanel" class="border-t border-gray-100 bg-white">
+              <!-- Panel tabs -->
+              <div class="flex border-b border-gray-100">
+                <button
+                  @click="aiTab = 'messages'"
+                  :class="[
+                    'flex-1 py-2 text-xs font-semibold transition-colors',
+                    aiTab === 'messages'
+                      ? 'text-purple-700 border-b-2 border-purple-600'
+                      : 'text-gray-500 hover:text-gray-700',
+                  ]"
+                >
+                  Messages
+                </button>
+                <button
+                  @click="aiTab = 'context'"
+                  :class="[
+                    'flex-1 py-2 text-xs font-semibold transition-colors',
+                    aiTab === 'context'
+                      ? 'text-purple-700 border-b-2 border-purple-600'
+                      : 'text-gray-500 hover:text-gray-700',
+                  ]"
+                >
+                  Extra context
+                </button>
+              </div>
+
+              <div class="px-4 py-3">
+                <!-- Messages tab -->
+                <template v-if="aiTab === 'messages'">
+                  <div class="max-h-36 overflow-y-auto space-y-1.5 mb-3">
+                    <div
+                      v-for="(msg, i) in editableMessages"
+                      :key="i"
+                      class="flex gap-2 items-start"
+                    >
+                      <button
+                        @click="toggleMsgRole(i)"
+                        :class="[
+                          'flex-shrink-0 text-[10px] font-semibold px-2 py-1 rounded-md w-16 text-center transition-colors',
+                          msg.role === 'customer'
+                            ? 'bg-orange-100 text-orange-700'
+                            : 'bg-blue-100 text-blue-700',
+                        ]"
+                      >
+                        {{ msg.role === "customer" ? "Customer" : "Admin" }}
+                      </button>
+                      <textarea
+                        v-model="msg.text"
+                        rows="1"
+                        class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-xs text-gray-800 outline-none focus:ring-1 focus:ring-purple-400 resize-none overflow-hidden"
+                        @input="autoResize($event)"
+                      />
+                      <button
+                        @click="editableMessages.splice(i, 1)"
+                        class="text-gray-300 hover:text-red-400 text-base leading-none mt-1"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <div
+                      v-if="editableMessages.length === 0"
+                      class="text-xs text-gray-400 text-center py-2"
+                    >
+                      No messages — add one below
+                    </div>
+                  </div>
+                  <button
+                    @click="
+                      editableMessages.push({ role: 'customer', text: '' })
+                    "
+                    class="text-xs text-purple-600 hover:text-purple-800 mb-2"
+                  >
+                    + Add line
+                  </button>
+                </template>
+
+                <!-- Context tab -->
+                <template v-else>
+                  <textarea
+                    v-model="aiContext"
+                    rows="4"
+                    placeholder="e.g. Family of 4, budget ~3000 THB/night, looking for pool villa near BNH hospital…"
+                    class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-800 placeholder-gray-400 outline-none focus:ring-1 focus:ring-purple-400 resize-none mb-2"
+                  />
+                </template>
+
+                <!-- Analyze button -->
+                <button
+                  @click="runAnalysis"
+                  :disabled="
+                    aiLoading ||
+                    (editableMessages.length === 0 && aiContext.length === 0)
+                  "
+                  class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2"
+                >
+                  <span v-if="aiLoading" class="animate-spin inline-block"
+                    >⟳</span
+                  >
+                  <span>{{
+                    aiLoading ? "Analyzing…" : "✦ Get Sales Strategy"
+                  }}</span>
+                </button>
+
+                <div v-if="aiError" class="mt-2 text-xs text-red-500">
+                  {{ aiError }}
+                </div>
+              </div>
+            </div>
+          </transition>
         </div>
       </template>
     </div>
-
-    <Teleport to="body">
-      <SalesAiTrainer
-        v-if="showAiTrainer"
-        :messages="aiTrainerMessages"
-        :sender-name="aiTrainerSenderName"
-        @close="showAiTrainer = false"
-      />
-    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, defineProps, defineEmits } from "vue";
+import { ref, computed, watch, nextTick, onMounted } from "vue";
 import { useFacebookMessageStore } from "../stores/facebookMessage";
-import SalesAiTrainer from "./GenerateAI/SaleAiTrainer.vue";
-
-// Sales AI Trainer state
-const showAiTrainer = ref(false);
-const aiTrainerMessages = ref([]);
-const aiTrainerSenderName = ref("");
-
-function openAiTrainer(triggerMsg) {
-  console.log(triggerMsg);
-
-  const idx = store.messages.findIndex((m) => m._id === triggerMsg._id);
-  aiTrainerMessages.value =
-    idx >= 0 ? store.messages.slice(0, idx + 1) : store.messages;
-  aiTrainerSenderName.value =
-    store.selectedConversation?.sender_name || "Customer";
-  showAiTrainer.value = true;
-}
 
 const store = useFacebookMessageStore();
 const search = ref("");
 const input = ref("");
 const messagesEl = ref(null);
-// Track whether a conversation is "open" on mobile
-const selectedOnMobile = ref(false);
+
+// AI Trainer state (inline panel)
+const showAiPanel = ref(false);
+const aiTab = ref("messages");
+const aiContext = ref("");
+const aiLoading = ref(false);
+const aiError = ref(null);
+const editableMessages = ref([]);
+const aiSuggestion = ref(null);
+const showSuggestion = ref(false);
+
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash";
 
 const props = defineProps({
   pendingConvId: { type: String, default: null },
@@ -378,16 +561,6 @@ function formatFullTime(ts) {
   });
 }
 
-function selectConv(conv) {
-  store.selectConversation(conv);
-  selectedOnMobile.value = true;
-}
-
-function goBack() {
-  store.clearSelection();
-  selectedOnMobile.value = false;
-}
-
 async function send() {
   if (!input.value.trim() || store.sending) return;
   const text = input.value;
@@ -401,6 +574,206 @@ async function send() {
     input.value = text;
   }
 }
+
+function toggleAiPanel() {
+  showAiPanel.value = !showAiPanel.value;
+  if (showAiPanel.value) {
+    // Seed editable messages from current conversation
+    editableMessages.value = store.messages
+      .map((m) => ({
+        role: m.type === "admin" ? "admin" : "customer",
+        text: m.message_text || "",
+      }))
+      .filter((m) => m.text.trim());
+  }
+}
+
+function toggleSuggestion() {
+  showSuggestion.value = !showSuggestion.value;
+}
+
+function useAiSuggestion() {
+  if (aiSuggestion.value?.suggestedMessage) {
+    input.value = aiSuggestion.value.suggestedMessage;
+    showSuggestion.value = false;
+  }
+}
+
+function toggleMsgRole(i) {
+  editableMessages.value[i].role =
+    editableMessages.value[i].role === "customer" ? "admin" : "customer";
+}
+
+function autoResize(e) {
+  const el = e.target;
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
+
+function buildPlainText() {
+  return editableMessages.value
+    .map(
+      (m) =>
+        `${
+          m.role === "customer"
+            ? store.selectedConversation?.sender_name || "Customer"
+            : "Admin"
+        }: ${m.text}`,
+    )
+    .join("\n");
+}
+
+async function runAnalysis() {
+  if (aiLoading.value) return;
+  aiLoading.value = true;
+  aiError.value = null;
+
+  const conversationText = buildPlainText();
+  const contextNote = aiContext.value.trim()
+    ? `\n\nExtra context: ${aiContext.value.trim()}`
+    : "";
+
+  const promptText = aiContext.value ? contextNote : conversationText;
+
+  const prompt = `You are an expert hotel/travel sales coach. Analyze this customer conversation and help the sales admin close the sale.
+
+Conversation:
+${promptText}
+
+Rules:
+- suggestedMessage: max 3 sentences, warm and helpful tone matching the customer's language
+- reason: MUST be written in Myanmar (Burmese) language only, max 2 sentences
+- rateReason: MUST be written in Myanmar (Burmese) language only, 1 sentence
+- tips: MUST be written in Myanmar (Burmese) language only, exactly 2 items, each max 15 words
+
+Respond ONLY with raw JSON, no markdown fences, no extra text:
+{"suggestedMessage":"...","reason":"...","rate":0,"rateReason":"...","tips":["...","..."]}`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2048,
+            responseMimeType: "application/json",
+          },
+        }),
+      },
+    );
+
+    const data = await res.json();
+    const finishReason = data?.candidates?.[0]?.finishReason;
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    if (!raw) {
+      aiError.value =
+        data?.error?.message || "Empty response from Gemini. Try again.";
+      return;
+    }
+
+    let clean = raw
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/```\s*$/i, "")
+      .trim();
+    if (finishReason === "MAX_TOKENS") clean = repairTruncatedJson(clean);
+
+    try {
+      aiSuggestion.value = JSON.parse(clean);
+    } catch {
+      aiSuggestion.value = extractFieldsFallback(clean);
+      if (!aiSuggestion.value) {
+        aiError.value = "Could not parse AI response. Please try again.";
+        return;
+      }
+    }
+
+    // Close panel, show i-button
+    showAiPanel.value = false;
+    showSuggestion.value = false;
+
+    await nextTick();
+    if (messagesEl.value)
+      messagesEl.value.scrollTop = messagesEl.value.scrollHeight;
+  } catch (e) {
+    aiError.value = "Network error. Check your connection and API key.";
+    console.error(e);
+  } finally {
+    aiLoading.value = false;
+  }
+}
+
+function repairTruncatedJson(str) {
+  let obj = 0,
+    arr = 0,
+    inStr = false,
+    esc = false;
+  for (const ch of str) {
+    if (esc) {
+      esc = false;
+      continue;
+    }
+    if (ch === "\\" && inStr) {
+      esc = true;
+      continue;
+    }
+    if (ch === '"' && !esc) {
+      inStr = !inStr;
+      continue;
+    }
+    if (inStr) continue;
+    if (ch === "{") obj++;
+    if (ch === "}") obj--;
+    if (ch === "[") arr++;
+    if (ch === "]") arr--;
+  }
+  if (inStr) str += '"';
+  str += "]".repeat(Math.max(0, arr));
+  str += "}".repeat(Math.max(0, obj));
+  return str;
+}
+
+function extractFieldsFallback(str) {
+  try {
+    const get = (key) => {
+      const m = str.match(
+        new RegExp(`"${key}"\\s*:\\s*"((?:[^"\\\\]|\\\\[\\s\\S])*)"`, "s"),
+      );
+      return m ? m[1].replace(/\\n/g, "\n").replace(/\\"/g, '"') : "";
+    };
+    const getNum = (key) => {
+      const m = str.match(new RegExp(`"${key}"\\s*:\\s*(\\d+)`));
+      return m ? parseInt(m[1]) : 50;
+    };
+    return {
+      suggestedMessage:
+        get("suggestedMessage") || "Could not extract suggestion.",
+      reason: get("reason") || "",
+      rate: getNum("rate"),
+      rateReason: get("rateReason") || "",
+      tips: [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+// Reset AI suggestion when conversation changes
+watch(
+  () => store.selectedConversation?._id,
+  () => {
+    aiSuggestion.value = null;
+    showSuggestion.value = false;
+    showAiPanel.value = false;
+    editableMessages.value = [];
+    aiContext.value = "";
+  },
+);
 
 watch(
   () => store.messages.length,
@@ -419,9 +792,26 @@ watch(
     const conv = store.conversations.find((c) => String(c._id) === String(id));
     if (conv) {
       store.selectConversation(conv);
-      selectedOnMobile.value = true;
     }
     emit("conv-opened");
   },
 );
 </script>
+
+<style scoped>
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+.slide-enter-from,
+.slide-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+.slide-enter-to,
+.slide-leave-from {
+  max-height: 400px;
+  opacity: 1;
+}
+</style>

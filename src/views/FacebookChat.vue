@@ -287,27 +287,60 @@
           >
             {{ store.sending ? "…" : "Send" }}
           </button>
+          <button
+            @click="openAiTrainer(store.messages)"
+            class="text-sm border border-purple-500 rounded-xl text-white bg-purple-700 px-4"
+          >
+            ✦ Sales AI Trainer
+          </button>
         </div>
       </template>
     </div>
+
+    <Teleport to="body">
+      <SalesAiTrainer
+        v-if="showAiTrainer"
+        :messages="aiTrainerMessages"
+        :sender-name="aiTrainerSenderName"
+        @close="showAiTrainer = false"
+      />
+    </Teleport>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, nextTick, defineProps, defineEmits } from "vue";
 import { useFacebookMessageStore } from "../stores/facebookMessage";
+import SalesAiTrainer from "./GenerateAI/SaleAiTrainer.vue";
+
+// Sales AI Trainer state
+const showAiTrainer = ref(false);
+const aiTrainerMessages = ref([]);
+const aiTrainerSenderName = ref("");
+
+function openAiTrainer(triggerMsg) {
+  console.log(triggerMsg);
+
+  const idx = store.messages.findIndex((m) => m._id === triggerMsg._id);
+  aiTrainerMessages.value =
+    idx >= 0 ? store.messages.slice(0, idx + 1) : store.messages;
+  aiTrainerSenderName.value =
+    store.selectedConversation?.sender_name || "Customer";
+  showAiTrainer.value = true;
+}
 
 const store = useFacebookMessageStore();
 const search = ref("");
 const input = ref("");
 const messagesEl = ref(null);
+// Track whether a conversation is "open" on mobile
+const selectedOnMobile = ref(false);
 
 const props = defineProps({
   pendingConvId: { type: String, default: null },
 });
 const emit = defineEmits(["conv-opened"]);
 
-// Load on mount
 store.fetchConversations();
 
 const filteredConversations = computed(() => {
@@ -345,6 +378,16 @@ function formatFullTime(ts) {
   });
 }
 
+function selectConv(conv) {
+  store.selectConversation(conv);
+  selectedOnMobile.value = true;
+}
+
+function goBack() {
+  store.clearSelection();
+  selectedOnMobile.value = false;
+}
+
 async function send() {
   if (!input.value.trim() || store.sending) return;
   const text = input.value;
@@ -359,7 +402,6 @@ async function send() {
   }
 }
 
-// Auto-scroll when messages load
 watch(
   () => store.messages.length,
   async () => {
@@ -373,18 +415,13 @@ watch(
   () => props.pendingConvId,
   async (id) => {
     if (!id) return;
-
-    // Make sure conversations are loaded first
-    if (!store.conversations?.length) {
-      await store.fetchConversations();
-    }
-
+    if (!store.conversations?.length) await store.fetchConversations();
     const conv = store.conversations.find((c) => String(c._id) === String(id));
     if (conv) {
       store.selectConversation(conv);
+      selectedOnMobile.value = true;
     }
-
-    emit("conv-opened"); // tell parent to clear pendingConvId
+    emit("conv-opened");
   },
 );
 </script>

@@ -299,10 +299,17 @@
                     >
                   </div>
                   <button
-                    @click="useAiSuggestion"
+                    @click="send"
+                    :disabled="!input.trim() || store.sending"
                     class="mt-2 text-xs text-indigo-600 hover:text-indigo-800 border border-indigo-200 hover:border-indigo-400 rounded px-2 py-1 transition-colors"
                   >
-                    Copy to compose
+                    Send
+                  </button>
+                  <button
+                    @click="showLearnFromAi = true"
+                    class="mt-2 text-xs ml-3 text-indigo-600 hover:text-indigo-800 border border-indigo-200 hover:border-indigo-400 rounded px-2 py-1 transition-colors"
+                  >
+                    Learn From AI
                   </button>
                 </div>
               </div>
@@ -313,6 +320,95 @@
             </div>
           </template>
         </div>
+
+        <Teleport to="body">
+          <div v-if="showLearnFromAi">
+            <div
+              class="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 p-0 md:p-4"
+              @click.self="showLearnFromAi = false"
+            >
+              <div
+                class="bg-white w-[500px] min-h-[500px] rounded-2xl flex flex-col max-h-[92dvh] md:max-h-[90vh] overflow-hidden shadow-2xl"
+              >
+                <div v-if="aiSuggestion" class="px-4 pb-6 space-y-3">
+                  <div class="border-t border-gray-100 mb-4" />
+
+                  <!-- Success Rate -->
+                  <div class="bg-gray-50 rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                      <p
+                        class="text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                      >
+                        Sale Success Rate
+                      </p>
+                      <span
+                        :class="[
+                          'text-sm font-bold px-3 py-1 rounded-full',
+                          aiSuggestion.rate >= 70
+                            ? 'bg-green-100 text-green-700'
+                            : aiSuggestion.rate >= 40
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-red-100 text-red-700',
+                        ]"
+                        >{{ aiSuggestion.rate }}%</span
+                      >
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        :class="[
+                          'h-2 rounded-full transition-all duration-700',
+                          aiSuggestion.rate >= 70
+                            ? 'bg-green-500'
+                            : aiSuggestion.rate >= 40
+                            ? 'bg-yellow-500'
+                            : 'bg-red-500',
+                        ]"
+                        :style="{ width: aiSuggestion.rate + '%' }"
+                      />
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">
+                      {{ aiSuggestion.rateReason }}
+                    </p>
+                  </div>
+
+                  <!-- Reason -->
+                  <div class="bg-white border border-gray-200 rounded-xl p-4">
+                    <p
+                      class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2"
+                    >
+                      Why This Works
+                    </p>
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                      {{ aiSuggestion.reason }}
+                    </p>
+                  </div>
+
+                  <!-- Tips -->
+                  <div
+                    v-if="aiSuggestion.tips && aiSuggestion.tips.length"
+                    class="bg-white border border-gray-200 rounded-xl p-4"
+                  >
+                    <p
+                      class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2"
+                    >
+                      Quick Tips
+                    </p>
+                    <ul class="space-y-1.5">
+                      <li
+                        v-for="(tip, i) in aiSuggestion.tips"
+                        :key="i"
+                        class="flex gap-2 text-sm text-gray-700"
+                      >
+                        <span class="text-indigo-400 flex-shrink-0">•</span>
+                        <span>{{ tip }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Teleport>
 
         <!-- Send error -->
         <div
@@ -326,8 +422,9 @@
         <div class="flex-shrink-0 border-t border-gray-100">
           <!-- Compose bar -->
           <div class="flex gap-2 px-4 py-3 bg-white items-center">
-            <input
+            <textarea
               v-model="input"
+              :rows="input ? '3' : '1'"
               @keydown.enter.exact.prevent="send"
               placeholder="Reply on Messenger…"
               class="flex-1 bg-white text-sm text-gray-800 placeholder-gray-500 rounded-xl px-4 py-2.5 outline-none focus:ring-1 focus:ring-orange-600"
@@ -343,39 +440,53 @@
 
             <!-- Settings icon -->
             <button
-              class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors flex-shrink-0"
-              title="Settings"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <circle cx="12" cy="12" r="3" />
-                <path
-                  d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-                />
-              </svg>
-            </button>
-
-            <!-- AI Trainer toggle button -->
-            <button
               @click="toggleAiPanel"
+              class="w-9 h-9 flex items-center justify-center rounded-xl transition-colors flex-shrink-0"
               :class="[
                 'w-9 h-9 flex items-center justify-center rounded-xl border transition-colors flex-shrink-0 text-sm font-bold',
                 showAiPanel
                   ? 'bg-purple-700 border-purple-700 text-white'
                   : 'border-purple-400 text-purple-600 hover:bg-purple-50',
               ]"
+              title="Settings"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-settings-icon lucide-settings"
+              >
+                <path
+                  d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"
+                />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+
+            <!-- AI Trainer toggle button -->
+            <button
+              @click="runAnalysis"
+              :disabled="
+                aiLoading ||
+                (editableMessages.length === 0 && aiContext.length === 0)
+              "
+              :class="[
+                'min-w-9 h-9 flex items-center justify-center px-2 rounded-xl border transition-colors flex-shrink-0 text-sm font-bold',
+                aiLoading ||
+                (editableMessages.length === 0 && aiContext.length === 0)
+                  ? 'bg-purple-700 border-purple-700 text-white'
+                  : 'border-purple-400 text-purple-600 hover:bg-purple-50',
+              ]"
               title="Sales AI Trainer"
             >
-              ✦
+              <span v-if="aiLoading" class="animate-spin inline-block">⟳</span>
+              <span>{{ aiLoading ? "Analyzing..." : "✦" }}</span>
             </button>
           </div>
 
@@ -516,6 +627,8 @@ const editableMessages = ref([]);
 const aiSuggestion = ref(null);
 const showSuggestion = ref(false);
 
+const showLearnFromAi = ref(false);
+
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash";
 
@@ -628,6 +741,13 @@ async function runAnalysis() {
   aiLoading.value = true;
   aiError.value = null;
 
+  // editableMessages.value = store.messages
+  //   .map((m) => ({
+  //     role: m.type === "admin" ? "admin" : "customer",
+  //     text: m.message_text || "",
+  //   }))
+  //   .filter((m) => m.text.trim());
+
   const conversationText = buildPlainText();
   const contextNote = aiContext.value.trim()
     ? `\n\nExtra context: ${aiContext.value.trim()}`
@@ -696,6 +816,7 @@ Respond ONLY with raw JSON, no markdown fences, no extra text:
     // Close panel, show i-button
     showAiPanel.value = false;
     showSuggestion.value = false;
+    useAiSuggestion();
 
     await nextTick();
     if (messagesEl.value)
@@ -779,8 +900,16 @@ watch(
   () => store.messages.length,
   async () => {
     await nextTick();
-    if (messagesEl.value)
+    if (messagesEl.value) {
       messagesEl.value.scrollTop = messagesEl.value.scrollHeight;
+      editableMessages.value = store.messages
+        .map((m) => ({
+          role: m.type === "admin" ? "admin" : "customer",
+          text: m.message_text || "",
+        }))
+        .filter((m) => m.text.trim());
+    }
+    aiSuggestion.value = null;
   },
 );
 

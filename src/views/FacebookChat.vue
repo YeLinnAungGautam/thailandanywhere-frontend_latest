@@ -784,19 +784,22 @@ async function runAnalysis() {
   // const promptText = aiContext.value ? contextNote : conversationText;
   const promptText = conversationText + contextNote;
 
-  const prompt = `You are an expert hotel/travel sales coach. Analyze this customer conversation and help the sales admin close the sale.
+  const prompt = `You are the sales coach for Thailand Anywhere, a travel agency serving Myanmar customers. Your job is to analyze the conversation between the customer (C) and sales agent (A), then help the sales agent send the NEXT best message to increase the chance of closing the sale.
 
-Conversation:
-${promptText}
+  Principles:
+  Focus ONLY on the latest stage of the conversation. The suggested message should feel like it was written by an experienced Myanmar travel sales agent. Never repeat information the customer already knows. Ask at most ONE question, and only if it helps move the booking forward. If the customer has already shown buying intent, move naturally toward booking instead of asking unnecessary questions. Be specific to THIS conversation. Never generate generic follow-ups. Keep every reply short, natural and conversational. Avoid long greetings, unnecessary thanks, or salesy wording.
 
-Rules:
-- suggestedMessage: max 3 sentences, warm and helpful tone matching the customer's language
-- reason: MUST be written in Myanmar (Burmese) language only, max 2 sentences
-- rateReason: MUST be written in Myanmar (Burmese) language only, 1 sentence
-- tips: MUST be written in Myanmar (Burmese) language only, exactly 2 items, each max 15 words
+  Scoring Guide:
+  10 = Excellent sales handling, likely to convert.
+  8-9 = Good but could improve.
+  5-7 = Missed opportunities.
+  0-4 = Poor sales handling or likely to lose the customer.
 
-Respond ONLY with raw JSON, no markdown fences, no extra text:
-{"suggestedMessage":"...","reason":"...","rate":0,"rateReason":"...","tips":["...","..."]}`;
+  Conversation:
+  ${promptText}
+
+  Return JSON only:
+  {"suggestedMessage":"Maximum 2 short sentences (under 35 words total).","reason":"Myanmar language only. Explain briefly why the score was given. Maximum 20 words.","rate":0,"rateReason":"Myanmar language only. Maximum 10 words.","tips":["Myanmar only. Maximum 8 words.","Myanmar only. Maximum 8 words."]}`;
 
   try {
     const res = await fetch(

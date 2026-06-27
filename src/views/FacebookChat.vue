@@ -470,7 +470,7 @@
             </button>
 
             <!-- AI Trainer toggle button -->
-            <button
+            <!-- <button
               @click="runAnalysis"
               :disabled="
                 aiLoading ||
@@ -487,7 +487,100 @@
             >
               <span v-if="aiLoading" class="animate-spin inline-block">⟳</span>
               <span>{{ aiLoading ? "Analyzing..." : "✦" }}</span>
-            </button>
+            </button> -->
+
+            <!-- AI selector + run button -->
+            <div class="relative flex-shrink-0">
+              <div
+                class="flex items-center rounded-xl border border-purple-400 overflow-hidden"
+              >
+                <button
+                  @click="runAnalysis"
+                  :disabled="
+                    aiLoading ||
+                    (editableMessages.length === 0 && aiContext.length === 0)
+                  "
+                  :class="[
+                    'h-9 px-2 flex items-center gap-1 text-sm font-bold transition-colors',
+                    aiLoading ||
+                    (editableMessages.length === 0 && aiContext.length === 0)
+                      ? 'bg-purple-700 text-white'
+                      : 'text-purple-600 hover:bg-purple-50',
+                  ]"
+                  title="Run AI Analysis"
+                >
+                  <span v-if="aiLoading" class="animate-spin inline-block"
+                    >⟳</span
+                  >
+                  <span>{{ aiLoading ? "" : "✦" }}</span>
+                </button>
+                <button
+                  @click="showAiDropdown = !showAiDropdown"
+                  class="h-9 px-1.5 border-l border-purple-400 text-purple-600 hover:bg-purple-50 flex items-center text-xs"
+                >
+                  <span class="font-medium">{{
+                    selectedAi === "gemini" ? "G" : "C"
+                  }}</span>
+                  <svg
+                    class="w-3 h-3 ml-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <!-- Dropdown -->
+              <div
+                v-if="showAiDropdown"
+                class="absolute bottom-11 right-0 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50 w-36"
+              >
+                <button
+                  @click="
+                    selectedAi = 'gemini';
+                    showAiDropdown = false;
+                  "
+                  :class="[
+                    'w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left hover:bg-gray-50 transition-colors',
+                    selectedAi === 'gemini'
+                      ? 'text-purple-700 font-semibold bg-purple-50'
+                      : 'text-gray-700',
+                  ]"
+                >
+                  <span class="text-base">✦</span> Gemini
+                  <span
+                    v-if="selectedAi === 'gemini'"
+                    class="ml-auto text-purple-500"
+                    >✓</span
+                  >
+                </button>
+                <button
+                  @click="
+                    selectedAi = 'chatgpt';
+                    showAiDropdown = false;
+                  "
+                  :class="[
+                    'w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left hover:bg-gray-50 transition-colors',
+                    selectedAi === 'chatgpt'
+                      ? 'text-green-700 font-semibold bg-green-50'
+                      : 'text-gray-700',
+                  ]"
+                >
+                  <span class="text-base">⊕</span> ChatGPT
+                  <span
+                    v-if="selectedAi === 'chatgpt'"
+                    class="ml-auto text-green-500"
+                    >✓</span
+                  >
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- AI Trainer inline panel -->
@@ -579,23 +672,6 @@
                   />
                 </template>
 
-                <!-- Analyze button -->
-                <button
-                  @click="runAnalysis"
-                  :disabled="
-                    aiLoading ||
-                    (editableMessages.length === 0 && aiContext.length === 0)
-                  "
-                  class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2"
-                >
-                  <span v-if="aiLoading" class="animate-spin inline-block"
-                    >⟳</span
-                  >
-                  <span>{{
-                    aiLoading ? "Analyzing…" : "✦ Get Sales Strategy"
-                  }}</span>
-                </button>
-
                 <div v-if="aiError" class="mt-2 text-xs text-red-500">
                   {{ aiError }}
                 </div>
@@ -638,6 +714,9 @@ const props = defineProps({
 const emit = defineEmits(["conv-opened"]);
 
 store.fetchConversations();
+
+const selectedAi = ref("gemini"); // 'gemini' | 'chatgpt'
+const showAiDropdown = ref(false);
 
 const filteredConversations = computed(() => {
   const q = search.value.toLowerCase();
@@ -768,20 +847,12 @@ async function runAnalysis() {
   if (aiLoading.value) return;
   aiLoading.value = true;
   aiError.value = null;
-
-  // editableMessages.value = store.messages
-  //   .map((m) => ({
-  //     role: m.type === "admin" ? "admin" : "customer",
-  //     text: m.message_text || "",
-  //   }))
-  //   .filter((m) => m.text.trim());
+  showAiDropdown.value = false;
 
   const conversationText = buildPlainText();
   const contextNote = aiContext.value.trim()
     ? `\n\nExtra context: ${aiContext.value.trim()}`
     : "";
-
-  // const promptText = aiContext.value ? contextNote : conversationText;
   const promptText = conversationText + contextNote;
 
   const prompt = `You are the sales coach for Thailand Anywhere, a travel agency serving Myanmar customers. Your job is to analyze the conversation between the customer (C) and sales agent (A), then help the sales agent send the NEXT best message to increase the chance of closing the sale.
@@ -802,32 +873,62 @@ async function runAnalysis() {
   {"suggestedMessage":"Maximum 2 short sentences (under 35 words total).","reason":"Myanmar language only. Explain briefly why the score was given. Maximum 20 words.","rate":0,"rateReason":"Myanmar language only. Maximum 10 words.","tips":["Myanmar only. Maximum 8 words.","Myanmar only. Maximum 8 words."]}`;
 
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 180,
-            responseMimeType: "application/json",
-            thinkingConfig: {
-              thinkingBudget: 0,
-            },
-          },
-        }),
-      },
-    );
+    let raw = "";
 
-    const data = await res.json();
-    const finishReason = data?.candidates?.[0]?.finishReason;
-    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    if (selectedAi.value === "chatgpt") {
+      const CHATGPT_API_KEY = import.meta.env.VITE_CHATGPT_API_KEY;
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${CHATGPT_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          temperature: 0.2,
+          max_tokens: 300,
+          response_format: { type: "json_object" },
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+      const data = await res.json();
+      if (data?.error) {
+        aiError.value = data.error.message;
+        return;
+      }
+      raw = data?.choices?.[0]?.message?.content || "";
+    } else {
+      const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+      const GEMINI_MODEL =
+        import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash-lite";
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 300,
+              responseMimeType: "application/json",
+              thinkingConfig: { thinkingBudget: 0 },
+            },
+          }),
+        },
+      );
+      const data = await res.json();
+      const finishReason = data?.candidates?.[0]?.finishReason;
+      raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      if (!raw) {
+        aiError.value = data?.error?.message || "Empty response from Gemini.";
+        return;
+      }
+      if (finishReason === "MAX_TOKENS") raw = repairTruncatedJson(raw);
+    }
 
     if (!raw) {
-      aiError.value =
-        data?.error?.message || "Empty response from Gemini. Try again.";
+      aiError.value = "Empty AI response. Try again.";
       return;
     }
 
@@ -836,7 +937,6 @@ async function runAnalysis() {
       .replace(/^```\s*/i, "")
       .replace(/```\s*$/i, "")
       .trim();
-    if (finishReason === "MAX_TOKENS") clean = repairTruncatedJson(clean);
 
     try {
       aiSuggestion.value = JSON.parse(clean);
@@ -848,7 +948,6 @@ async function runAnalysis() {
       }
     }
 
-    // Close panel, show i-button
     showAiPanel.value = false;
     showSuggestion.value = false;
     useAiSuggestion();

@@ -630,7 +630,7 @@ const showSuggestion = ref(false);
 const showLearnFromAi = ref(false);
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
 const props = defineProps({
   pendingConvId: { type: String, default: null },
@@ -688,16 +688,30 @@ async function send() {
   }
 }
 
+// FIX 3: In toggleAiPanel — also limit + clean
 function toggleAiPanel() {
   showAiPanel.value = !showAiPanel.value;
   if (showAiPanel.value) {
-    // Seed editable messages from current conversation
+    const seen = new Set();
     editableMessages.value = store.messages
+      .slice(-15)
       .map((m) => ({
         role: m.type === "admin" ? "admin" : "customer",
         text: m.message_text || "",
       }))
-      .filter((m) => m.text.trim());
+      .filter((m) => {
+        if (!m.text.trim()) return false;
+        if (
+          m.text === "[image]" ||
+          m.text === "[video]" ||
+          m.text === "[audio]"
+        )
+          return false;
+        const key = `${m.role}:${m.text}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
   }
 }
 
@@ -723,17 +737,31 @@ function autoResize(e) {
   el.style.height = el.scrollHeight + "px";
 }
 
+// FIX 6: Cap input in buildPlainText to avoid huge prompts
+// Deduplicate + simplify role labels
 function buildPlainText() {
+  const seen = new Set();
   return editableMessages.value
-    .map(
-      (m) =>
-        `${
-          m.role === "customer"
-            ? store.selectedConversation?.sender_name || "Customer"
-            : "Admin"
-        }: ${m.text}`,
-    )
-    .join("\n");
+    .filter((m) => {
+      const key = `${m.role}:${m.text}`;
+      if (seen.has(key)) return false; // ← skip duplicates
+      seen.add(key);
+      return true;
+    })
+    .map((m) => `${m.role === "customer" ? "C" : "A"}: ${m.text}`) // ← short labels save tokens
+    .join("\n")
+    .slice(0, 2000);
+}
+
+// FIX 1: Clean pasted text helper
+function cleanText(text) {
+  return text
+    .replace(/Sent by \[.*?\]\(.*?\)/g, "") // remove "Sent by [name](url)"
+    .replace(/https?:\/\/\S+/g, "") // remove URLs
+    .replace(/\w[\w\s]+ assigned this conversation.*$/gm, "") // remove system events
+    .replace(/replied to (an ad|You)\./g, "") // remove metadata
+    .replace(/\n{3,}/g, "\n\n") // collapse blank lines
+    .trim();
 }
 
 async function runAnalysis() {
@@ -753,7 +781,8 @@ async function runAnalysis() {
     ? `\n\nExtra context: ${aiContext.value.trim()}`
     : "";
 
-  const promptText = aiContext.value ? contextNote : conversationText;
+  // const promptText = aiContext.value ? contextNote : conversationText;
+  const promptText = conversationText + contextNote;
 
   const prompt = `You are an expert hotel/travel sales coach. Analyze this customer conversation and help the sales admin close the sale.
 
@@ -778,9 +807,12 @@ Respond ONLY with raw JSON, no markdown fences, no extra text:
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2048,
+            temperature: 0.2,
+            maxOutputTokens: 180,
             responseMimeType: "application/json",
+            thinkingConfig: {
+              thinkingBudget: 0,
+            },
           },
         }),
       },
@@ -896,20 +928,31 @@ watch(
   },
 );
 
+// FIX 2: In the messages watch — limit to last 15 messages only
+// Also deduplicate when seeding editableMessages
 watch(
   () => store.messages.length,
   async () => {
-    await nextTick();
-    if (messagesEl.value) {
-      messagesEl.value.scrollTop = messagesEl.value.scrollHeight;
-      editableMessages.value = store.messages
-        .map((m) => ({
-          role: m.type === "admin" ? "admin" : "customer",
-          text: m.message_text || "",
-        }))
-        .filter((m) => m.text.trim());
-    }
-    aiSuggestion.value = null;
+    const seen = new Set();
+    editableMessages.value = store.messages
+      .slice(-15)
+      .map((m) => ({
+        role: m.type === "admin" ? "admin" : "customer",
+        text: m.message_text || "",
+      }))
+      .filter((m) => {
+        if (!m.text.trim()) return false;
+        if (
+          m.text === "[image]" ||
+          m.text === "[video]" ||
+          m.text === "[audio]"
+        )
+          return false; // ← skip attachments
+        const key = `${m.role}:${m.text}`;
+        if (seen.has(key)) return false; // ← skip duplicates
+        seen.add(key);
+        return true;
+      });
   },
 );
 

@@ -283,6 +283,45 @@ const openAddItemModalAction = () => {
   addItemModal.value = true;
 };
 
+// const selectAction = (item) => {
+//   formitem.value.car_id = item.id;
+//   if (formitem.value.product_type != 7) {
+//     formitem.value.item_name = item.name;
+//     if (formitem.value.product_type == 1) {
+//       let des = formitem.value.comment.replace(/^[^;]*;\s*/, "");
+//       formitem.value.comment = `Car Type : ${item.name} ; ${des}`;
+//     }
+//     formitem.value.selling_price = item.price ? item.price : item.room_price;
+//     if (formitem.value.product_type == 6) {
+//       formitem.value.cost_price = item.cost ? item.cost : 0;
+//       formitem.value.selling_price = item.room_price
+//         ? item.room_price
+//         : item.price;
+//     }
+//     if (formitem.value.product_type == 4) {
+//       formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
+//       formitem.value.comment = `Variation : ${formitem.value.item_name}`;
+//       formitem.value.child_info = item.child_info
+//         ? JSON.parse(item.child_info)
+//         : [];
+//       if (formitem.value.child_info.length == 0) {
+//         formitem.value.individual_pricing.child = {
+//           quantity: 0,
+//           selling_price: 0,
+//           cost_price: 0,
+//           total_cost_price: 0,
+//           amount: 0,
+//         };
+//       }
+//     }
+//   }
+//   if (formitem.value.product_type == 7) {
+//     formitem.value.item_name = item.description;
+//     formitem.value.comment = `Ticket : ${formitem.value.item_name}`;
+//   }
+//   getFunction();
+// };
+
 const selectAction = (item) => {
   formitem.value.car_id = item.id;
   if (formitem.value.product_type != 7) {
@@ -294,23 +333,16 @@ const selectAction = (item) => {
     formitem.value.selling_price = item.price ? item.price : item.room_price;
     if (formitem.value.product_type == 6) {
       formitem.value.cost_price = item.cost ? item.cost : 0;
-      formitem.value.selling_price = item.room_price
-        ? item.room_price
-        : item.price;
+      formitem.value.selling_price = item.room_price ? item.room_price : item.price;
     }
     if (formitem.value.product_type == 4) {
       formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
       formitem.value.comment = `Variation : ${formitem.value.item_name}`;
-      formitem.value.child_info = item.child_info
-        ? JSON.parse(item.child_info)
-        : [];
+      formitem.value.child_info = item.child_info ? JSON.parse(item.child_info) : [];
       if (formitem.value.child_info.length == 0) {
         formitem.value.individual_pricing.child = {
-          quantity: 0,
-          selling_price: 0,
-          cost_price: 0,
-          total_cost_price: 0,
-          amount: 0,
+          quantity: 0, selling_price: 0, cost_price: 0,
+          total_cost_price: 0, amount: 0,
         };
       }
     }
@@ -320,6 +352,14 @@ const selectAction = (item) => {
     formitem.value.comment = `Ticket : ${formitem.value.item_name}`;
   }
   getFunction();
+
+  // ✅ ADD THIS: immediately reflect new price in itemList too
+  if (editIndex.value !== "") {
+    itemList.value[editIndex.value] = {
+      ...itemList.value[editIndex.value],
+      ...formitem.value,
+    };
+  }
 };
 
 const addOnList = ref([]);
@@ -411,13 +451,15 @@ const getFunction = () => {
   const costPrice = parseFloat(formitem.value.cost_price) || 0;
   const discount = parseFloat(formitem.value.discount) || 0;
   const days = parseFloat(formitem.value.days) || 1;
-  const childAmount = formitem.value.child_total_selling_price || 0;
-  const childCostPrice = formitem.value.child_total_cost || 0;
+  const childAmount = formitem.value.child_total_selling_price * 1 || 0;
+  const childCostPrice = formitem.value.child_total_cost * 1 || 0;
 
   if (days > 1) {
     formitem.value.total_amount = quantity * sellingPrice - discount;
     formitem.value.total_cost_price = quantity * costPrice;
   } else {
+    console.log('this is where', sellingPrice , quantity , childAmount);
+    
     formitem.value.total_amount =
       sellingPrice * quantity - discount + childAmount;
     formitem.value.total_cost_price = quantity * costPrice + childCostPrice;
@@ -427,9 +469,26 @@ const getFunction = () => {
   
 };
 
+// const cancelAction = () => {
+//   roomRates.value = {} 
+//   getFunction();
+//   closeModalAction();
+//   addItemModal.value = false;
+//   addInfoModal.value = false;
+// };
+
 const cancelAction = () => {
-  roomRates.value = {} 
-  getFunction();
+  roomRates.value = {};
+  getFunction(); // recalculates total_amount on formitem
+
+  // ✅ ADD THIS: sync back to itemList
+  if (editIndex.value !== "") {
+    itemList.value[editIndex.value] = { 
+      ...itemList.value[editIndex.value], 
+      ...formitem.value 
+    };
+  }
+
   closeModalAction();
   addItemModal.value = false;
   addInfoModal.value = false;
@@ -1234,7 +1293,7 @@ onMounted(() => {
           </button>
           <button
             @click="!isOutOfStock && cancelAction()"
-            :disabled="isOutOfStock || !todayVali || (!formitem.product_id)""
+            :disabled="isOutOfStock || (!formitem.product_id)""
             class="px-3 py-2.5 rounded-lg text-xs text-white transition-colors"
             :class="(isOutOfStock || !todayVali || !formitem.product_id)
               ? 'bg-gray-300 cursor-not-allowed'

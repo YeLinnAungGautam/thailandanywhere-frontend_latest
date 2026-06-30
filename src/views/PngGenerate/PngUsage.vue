@@ -109,6 +109,15 @@ const formatNumber = (value) => {
   });
 };
 
+const getDateDifference = (checkIn, checkOut) => {
+  if (!checkIn || !checkOut) return 0;
+  const date1 = new Date(checkIn);
+  const date2 = new Date(checkOut);
+  const diffTime = date2.getTime() - date1.getTime();
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+  return Math.max(1, diffDays);
+};
+
 const getDetailAction = async () => {
   const response = await bookingStore.getDetailAction(props.invoice_id);
   console.log(response);
@@ -138,6 +147,10 @@ const getDetailAction = async () => {
 
   for (let i = 0; i <= response.result.items.length; i++) {
     if (response.result.items[i]?.product_type == "App\\Models\\Hotel") {
+      let qtyText = `${getDateDifference(
+        response.result.items[i]?.checkin_date,
+        response.result.items[i]?.checkout_date,
+      )} D ${response.result.items[i]?.quantity} N`;
       invoice.value.items.push({
         image:
           response.result.items[i]?.product?.images[0]?.image || defaultImage,
@@ -154,12 +167,21 @@ const getDetailAction = async () => {
         }`,
         discount: response.result.items[i]?.discount,
         amount: formatNumber(response.result.items[i]?.amount),
+        qty: qtyText,
       });
     }
     if (
       response.result.items[i]?.product_type == "App\\Models\\EntranceTicket"
     ) {
       let detailsText = `${response.result.items[i].quantity} Adult x ${response.result.items[i].selling_price}`;
+      let qtyText = `${response.result.items[i].quantity} Adult`;
+      if (
+        response.result.items[i]?.child_quantity &&
+        response.result.items[i]?.child_price &&
+        response.result.items[i]?.child_quantity != "0"
+      ) {
+        qtyText += ` / ${response.result.items[i]?.child_quantity} Child`;
+      }
 
       // Check if individual_pricing exists and if it has child data with both quantity and selling_price
       if (
@@ -177,6 +199,7 @@ const getDetailAction = async () => {
         details: detailsText,
         discount: response.result.items[i]?.discount,
         amount: formatNumber(response.result.items[i]?.amount),
+        qty: qtyText,
       });
     }
     if (
@@ -191,6 +214,7 @@ const getDetailAction = async () => {
         details: ` ${response.result.items[i]?.quantity} Qty x ${response.result.items[i]?.selling_price}`,
         discount: response.result.items[i]?.discount,
         amount: formatNumber(response.result.items[i]?.amount),
+        qty: response.result.items[i]?.quantity,
       });
     }
     if (response.result.items[i]?.product_type == "App\\Models\\Airline") {
@@ -202,6 +226,7 @@ const getDetailAction = async () => {
         details: ` ${response.result.items[i]?.quantity} Qty x ${response.result.items[i]?.selling_price}`,
         discount: response.result.items[i]?.discount,
         amount: formatNumber(response.result.items[i]?.amount),
+        qty: response.result.items[i]?.quantity,
       });
     }
   }

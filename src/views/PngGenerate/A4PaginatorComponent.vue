@@ -62,11 +62,7 @@
     </div>
 
     <template v-for="(page, index) in pages" :key="index">
-      <div
-        class="max-w-4xl mx-auto bg-white shadow-lg mb-10"
-        ref="pageRefs"
-        v-if="!items.isInclusive || index === 0"
-      >
+      <div class="max-w-4xl mx-auto bg-white shadow-lg mb-10" ref="pageRefs">
         <!-- Header -->
         <div
           class="bg-orange-500 text-white py-6 px-8 flex justify-between items-center"
@@ -110,12 +106,11 @@
         </div>
 
         <!-- Items List -->
-
         <div class="p-4 mt-4 h-[510px]">
           <!-- ══ INCLUSIVE LAYOUT ══ -->
           <template v-if="items.isInclusive">
+            <!-- Group summary — page 1 only -->
             <div class="flex items-center mb-6 px-2">
-              <!-- Icon placeholder -->
               <div class="flex-shrink-0">
                 <div
                   class="w-24 h-24 rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center"
@@ -136,8 +131,6 @@
                   </svg>
                 </div>
               </div>
-
-              <!-- Info -->
               <div class="flex-1 pl-6">
                 <h3 class="text-lg font-bold text-gray-900 leading-tight">
                   {{ items.inclusiveName }}
@@ -152,16 +145,14 @@
                   {{ items.inclusiveQty }} Qty x {{ items.inclusiveRate }}
                 </p>
               </div>
-
-              <!-- Pricing -->
               <div class="flex-shrink-0 text-right min-w-[200px]">
-                <div class="flex items-center justify-end mb-1">
+                <div class="flex items-center justify-end mb-1 pr-5">
                   <span class="text-sm text-gray-500 mr-6">Discount:</span>
                   <span class="text-lg font-bold text-gray-800 w-24 text-right"
                     >0 ฿</span
                   >
                 </div>
-                <div class="flex items-center justify-end">
+                <div class="flex items-center justify-end pr-5">
                   <span class="text-sm text-gray-500 mr-6">Amount:</span>
                   <span
                     class="text-2xl font-extrabold whitespace-nowrap text-gray-900 w-24 text-right"
@@ -170,9 +161,40 @@
                 </div>
               </div>
             </div>
+
+            <!-- Item table — every page, continuing rows -->
+            <div class="px-2" :class="index === 0 ? 'mt-4' : 'mt-2'">
+              <div
+                class="flex bg-orange-100 text-orange-600 text-xs font-semibold uppercase tracking-wide py-2 px-3 rounded-t"
+              >
+                <span class="w-1/4">Service Date</span>
+                <span class="w-1/4">Service</span>
+                <span class="w-2/5">Description</span>
+                <span class="w-[10%] text-right">Qty</span>
+              </div>
+              <div
+                v-for="(item, itemIndex) in page"
+                :key="itemIndex"
+                class="flex items-start py-3 px-3 border-b border-gray-200 last:border-b-0"
+              >
+                <span class="w-1/4 text-sm text-gray-700">{{
+                  item.period
+                }}</span>
+                <span class="w-1/4 text-sm font-medium text-gray-800">{{
+                  item.name
+                }}</span>
+                <span class="w-2/5 text-sm text-gray-600 pr-2">{{
+                  item.description
+                }}</span>
+                <span
+                  class="w-[10%] text-right text-sm font-semibold text-gray-800"
+                  >{{ item.qty }}</span
+                >
+              </div>
+            </div>
           </template>
 
-          <!-- ══ NORMAL ITEMS LAYOUT ══ -->
+          <!-- ══ NORMAL ITEMS LAYOUT ══ (unchanged) -->
           <template v-else>
             <div
               v-for="(item, itemIndex) in page"
@@ -237,17 +259,16 @@
             </div>
             <div class="w-3/5 pr-5 pl-16 py-2">
               <p class="font-semibold text-sm mb-2">
-                Validate your tickets on our official website:
+                Validate your invoice on our official website:
               </p>
               <ul class="list-disc pl-5 text-xs">
                 <li>Scan the above QR</li>
-                <li>Login / Signup to thanywhere.com</li>
-                <li>Confirm to connect invoice to profile.</li>
-                <li>View tickets, booking status and a lot more!</li>
+                <li>Instantly view your invice</li>
+                <li>Compare invoice with details on our website.</li>
               </ul>
               <p class="mt-4 text-xs">
-                Note QR can only be connected once. Please protect your invoice
-                by connecting to your profile as soon as possible.
+                Thailand Anywhere guarantees all its booking shown on our
+                offical website.
               </p>
             </div>
           </div>
@@ -630,18 +651,17 @@ const isGenerating = ref(false);
 // Generate PNG for each page
 const generatePNGs = async () => {
   isGenerating.value = true;
-  // Clear previous PNGs
   pngUrls.value = [];
 
-  // For each page, generate a PNG
-  const totalPages = props.items.isInclusive ? 1 : pages.value.length;
+  const totalPages = pages.value.length; // ← was: props.items.isInclusive ? 1 : pages.value.length
+
   for (let i = 0; i < totalPages; i++) {
     const pageElement = pageRefs.value[i];
     if (!pageElement) continue;
 
     try {
       const canvas = await html2canvas(pageElement, {
-        scale: 2, // Higher resolution
+        scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
@@ -650,8 +670,7 @@ const generatePNGs = async () => {
       const pngUrl = canvas.toDataURL("image/png");
       pngUrls.value.push(pngUrl);
 
-      const expectedPages = props.items.isInclusive ? 1 : pages.value.length;
-      if (pngUrls.value.length === expectedPages) {
+      if (pngUrls.value.length === totalPages) {
         await downloadAsSinglePage();
       }
     } catch (error) {

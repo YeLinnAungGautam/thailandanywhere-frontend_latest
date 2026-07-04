@@ -217,7 +217,6 @@ onMounted(async () => {
           </div>
           <div class="pt-4 flex px-5 justify-center flex-col items-center">
             <QrCode :id="route.params.id" />
-            <p>{{ route.query.invoice_code }}</p>
           </div>
 
           <p

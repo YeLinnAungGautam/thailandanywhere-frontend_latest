@@ -664,7 +664,9 @@
             <!-- Feature Image -->
             <div>
               <div class="flex items-center justify-between mb-3">
-                <p class="text-sm font-medium text-gray-800">Feature Image</p>
+                <p class="text-sm font-medium text-gray-800">
+                  Feature Image ( For Search )
+                </p>
                 <button
                   v-if="featureImagePreview || editData.cover_image"
                   type="button"
@@ -724,6 +726,69 @@
               <p v-if="errors?.image" class="mt-2 text-xs text-red-600">
                 {{ errors.image[0] }}
               </p>
+            </div>
+
+            <!-- Feature Image 2 -->
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-medium text-gray-800">
+                  Feature Image (For Home)
+                </p>
+                <button
+                  v-if="featureImagePreview2 || editData.feature_image"
+                  type="button"
+                  @click="removeFeatureSelectImage2"
+                  class="text-sm text-red-600 hover:text-red-700"
+                >
+                  <XCircleIcon class="w-6 h-6" />
+                </button>
+              </div>
+              <input
+                type="file"
+                ref="featureImageInput2"
+                class="hidden"
+                @change="handlerFeatureFileChange2"
+                accept="image/*"
+              />
+
+              <!-- New feature image preview -->
+              <div v-if="featureImagePreview2" class="relative group">
+                <img
+                  class="h-auto w-full rounded"
+                  :src="featureImagePreview2"
+                  alt=""
+                />
+              </div>
+
+              <!-- Existing feature image -->
+              <div
+                v-else-if="editData.feature_image"
+                @click="openFileFeaturePicker2"
+                class="relative group cursor-pointer"
+              >
+                <img
+                  class="h-auto w-full rounded"
+                  :src="editData.feature_image"
+                  alt=""
+                />
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition flex items-center justify-center"
+                >
+                  <span
+                    class="text-white opacity-0 group-hover:opacity-100 transition"
+                    >Click to change</span
+                  >
+                </div>
+              </div>
+
+              <!-- Empty state -->
+              <div
+                v-else
+                @click="openFileFeaturePicker2"
+                class="cursor-pointer w-full h-[200px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center hover:border-[#FF613c] transition"
+              >
+                <PlusIcon class="w-12 h-12 text-gray-400" />
+              </div>
             </div>
           </div>
         </div>
@@ -813,6 +878,7 @@ const formData = ref({
   description: "",
   full_description_en: "",
   cover_image: "",
+  feature_image: "",
   city_id: [],
   category_id: [],
   vat_inclusion: "",
@@ -850,6 +916,7 @@ const formData = ref({
 
 const editData = ref({
   cover_image: "",
+  feature_image: "",
   images: [],
   city_id: [],
   category_id: [],
@@ -927,6 +994,25 @@ const removeFeatureSelectImage = () => {
   formData.value.cover_image = "";
   featureImagePreview.value = null;
   editData.value.cover_image = "";
+};
+
+// Feature Image2
+const featureImageInput2 = ref(null);
+const featureImagePreview2 = ref(null);
+const openFileFeaturePicker2 = () => {
+  featureImageInput2.value.click();
+};
+const handlerFeatureFileChange2 = (e) => {
+  let selectedFile = e.target.files[0];
+  if (selectedFile) {
+    formData.value.feature_image = selectedFile;
+    featureImagePreview2.value = URL.createObjectURL(selectedFile);
+  }
+};
+const removeFeatureSelectImage2 = () => {
+  formData.value.feature_image = "";
+  featureImagePreview2.value = null;
+  editData.value.feature_image = "";
 };
 
 // Gallery Images
@@ -1028,6 +1114,7 @@ const loadAttractionData = async () => {
       images: [],
       contracts: [],
       cover_image: "",
+      feature_image: "",
       good_to_knows: data.good_to_knows || [],
       key_highlights: data.key_highlights || [],
       cities: data.cities || [],
@@ -1038,6 +1125,7 @@ const loadAttractionData = async () => {
 
     editData.value = {
       cover_image: data.cover_image || "",
+      feature_image: data.feature_image || "",
       images: data.images || [],
       city_id: data.cities || [],
       category_id: data.categories || [],
@@ -1120,6 +1208,10 @@ const onSubmitHandler = async () => {
 
   if (formData.value.cover_image) {
     frmData.append("cover_image", formData.value.cover_image);
+  }
+
+  if (formData.value.feature_image) {
+    frmData.append("feature_image", formData.value.feature_image);
   }
 
   // City IDs

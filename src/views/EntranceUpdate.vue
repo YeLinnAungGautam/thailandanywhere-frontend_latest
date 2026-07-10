@@ -730,7 +730,7 @@
 
             <!-- Feature Image 2 -->
             <div>
-              <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center justify-between mb-3 pt-4">
                 <p class="text-sm font-medium text-gray-800">
                   Feature Image (For Home)
                 </p>

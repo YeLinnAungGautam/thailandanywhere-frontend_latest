@@ -6,6 +6,12 @@
 
     <div class="">
       <div class="flex justify-end items-center space-x-6 cursor-pointer">
+        <div
+          @click="router.push('/promo')"
+          class="bg-white space-x-2 shadow pl-2.5 py-2 pr-2.5 rounded-full flex justify-center items-center hover:shadow-md transition-shadow"
+        >
+          <TagIcon class="w-5 h-5" />
+        </div>
         <!-- ✅ ORDERS NOTIFICATION (Keep existing) -->
         <div class="relative">
           <div class="relative" @click="showOrder = !showOrder">
@@ -374,7 +380,7 @@
 </template>
 
 <script setup>
-import { ChevronDownIcon } from "@heroicons/vue/24/outline";
+import { ChevronDownIcon, TagIcon } from "@heroicons/vue/24/outline";
 import { useSidebarStore } from "../stores/sidebar";
 import { useAuthStore } from "../stores/auth";
 import { useNotificationStore } from "../stores/notification"; // ✅ ADD THIS

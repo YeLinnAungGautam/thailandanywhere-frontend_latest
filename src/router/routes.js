@@ -130,6 +130,7 @@ import PrivateVanV2 from "../views/PrivateVanV2.vue";
 import RoutePlanList from "../views/RoutePlanList.vue";
 import RoutePlanEdit from "../views/RoutePlanEdit.vue";
 import ChatMain from "../views/ChatMain.vue";
+import PromoPage from "../views/PromoPage.vue";
 
 const routes = [
   {
@@ -144,6 +145,11 @@ const routes = [
     path: "/",
     name: "home",
     component: HomeView,
+  },
+  {
+    path: "/promo",
+    name: "Promo",
+    component: PromoPage,
   },
   {
     path: "/home/generate-inclusive",

@@ -1205,28 +1205,28 @@ const findBangkokId = () => {
 const availableAreas = computed(() => {
   if (!cities.value?.data) return [];
 
-  if (!selectedCity.value) {
-    const allPlaces = new Set();
-    cities.value.data.forEach((city) => {
+  const collectPlaces = (citiesArr) => {
+    const uniquePlaces = new Set();
+    citiesArr.forEach((city) => {
       if (city.places && Array.isArray(city.places)) {
         city.places.forEach((place) => {
-          if (place && place.trim()) allPlaces.add(place.trim());
+          if (typeof place === "string" && place.trim()) {
+            uniquePlaces.add(place.trim());
+          }
         });
       }
     });
-    return Array.from(allPlaces).sort();
+    return Array.from(uniquePlaces).sort();
+  };
+
+  if (!selectedCity.value) {
+    return collectPlaces(cities.value.data);
   }
 
   const city = cities.value.data.find((c) => c.id == selectedCity.value);
-  if (!city || !city.places || !Array.isArray(city.places)) return [];
-
-  const uniquePlaces = new Set();
-  city.places.forEach((place) => {
-    if (place && place.trim()) uniquePlaces.add(place.trim());
-  });
-  return Array.from(uniquePlaces).sort();
+  if (!city) return [];
+  return collectPlaces([city]);
 });
-
 const allAmenities = computed(() => {
   return facilities.value?.data || [];
 });

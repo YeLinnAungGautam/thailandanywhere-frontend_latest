@@ -65,7 +65,7 @@ const loadVanTours = async () => {
   if (vanTourList.value.length || vtLoading.value) return;
   vtLoading.value = true;
   try {
-    const r = await axios.get("/private-van-tours?limit=1000");
+    const r = await axios.get("/vantours?limit=1000");
     vanTourList.value = r.data.result?.data ?? [];
   } finally {
     vtLoading.value = false;

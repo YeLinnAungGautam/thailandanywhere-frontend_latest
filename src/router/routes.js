@@ -131,6 +131,7 @@ import RoutePlanList from "../views/RoutePlanList.vue";
 import RoutePlanEdit from "../views/RoutePlanEdit.vue";
 import ChatMain from "../views/ChatMain.vue";
 import PromoPage from "../views/PromoPage.vue";
+import VantourV2 from "../views/VantourV2.vue";
 
 const routes = [
   {
@@ -252,6 +253,11 @@ const routes = [
     path: "/products-v2/",
     name: "products-v2",
     component: ProductVersion2View,
+  },
+  {
+    path: "/vantour-v2-list/",
+    name: "vantourv2list",
+    component: VantourV2,
   },
   {
     path: "/hotel-v2/",

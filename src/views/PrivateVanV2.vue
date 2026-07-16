@@ -7,7 +7,7 @@ import { storeToRefs } from "pinia";
 import { useCityStore } from "../stores/city";
 import { useCarStore } from "../stores/car";
 import { useSupplierStore } from "../stores/supplier";
-import { useVantourStore } from "../stores/vantour";
+import { useVantourV2Store } from "../stores/vantourv2.js";
 
 const props = defineProps({
   id: { type: [String, Number], default: null },
@@ -20,7 +20,7 @@ const route = useRoute();
 const cityStore = useCityStore();
 const carStore = useCarStore();
 const supplierStore = useSupplierStore();
-const vantourStore = useVantourStore();
+const vantourStore = useVantourV2Store();
 
 const { cities } = storeToRefs(cityStore);
 const { cars } = storeToRefs(carStore);
@@ -99,12 +99,16 @@ const addSupplierCost = () => {
 };
 const removeSupplierCost = (i) => supplierCosts.value.splice(i, 1);
 
+const routePlanLists = ref([]);
+
 // ── Load detail for edit mode ─────────────────────────────────────────────────
 const loadDetail = async () => {
   pageLoading.value = true;
   try {
     const res = await vantourStore.getDetailAction(recordId.value);
     const d = res.result;
+
+    routePlanLists.value = d.route_plans ?? [];
 
     form.value = {
       name: d.name ?? "",
@@ -222,418 +226,458 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div v-else class="max-w-3xl mx-auto py-8 px-4">
-      <!-- Header -->
-      <div class="mb-8 flex items-center justify-between">
-        <div>
-          <p
-            class="text-xs font-semibold uppercase tracking-widest text-[#FF613c] mb-1"
-          >
-            {{ isEdit ? "Edit Product" : "New Product" }}
-          </p>
-          <h1 class="text-2xl font-semibold text-gray-800">
-            {{ isEdit ? "Update Van Tour" : "Create Van Tour" }}
-          </h1>
-        </div>
-        <button
-          @click.prevent="onSubmit"
-          :disabled="submitting"
-          class="inline-flex items-center gap-2 bg-[#FF613c] hover:bg-[#e5522f] disabled:opacity-60 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
-        >
-          <svg
-            v-if="submitting"
-            class="w-4 h-4 animate-spin"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
-          </svg>
-          {{ submitting ? "Saving…" : isEdit ? "Update" : "Save" }}
-        </button>
-      </div>
-
-      <div class="space-y-5">
-        <!-- ── Basic Info ── -->
-        <section
-          class="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
-        >
-          <h2
-            class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5"
-          >
-            Basic Info
-          </h2>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div class="col-span-2">
-              <label class="field-label"
-                >Name <span class="text-red-500">*</span></label
+    <div v-else class="max-w-full mx-auto py-8 px-4">
+      <div class="grid grid-cols-3 gap-x-2">
+        <div class="col-span-2">
+          <!-- Header -->
+          <div class="mb-8 flex items-center justify-between">
+            <div>
+              <p
+                class="text-xs font-semibold uppercase tracking-widest text-[#FF613c] mb-1"
               >
-              <input
-                v-model="form.name"
-                type="text"
-                placeholder="e.g. Bangkok City Tour"
-                class="input-field"
-                :class="errors.name ? 'border-red-400' : 'border-gray-200'"
-              />
-              <p v-if="errors.name" class="mt-1 text-xs text-red-500">
-                {{ errors.name }}
+                {{ isEdit ? "Edit Product" : "New Product" }}
+              </p>
+              <h1 class="text-2xl font-semibold text-gray-800">
+                {{ isEdit ? "Update Van Tour" : "Create Van Tour" }}
+              </h1>
+            </div>
+            <button
+              @click.prevent="onSubmit"
+              :disabled="submitting"
+              class="inline-flex items-center gap-2 bg-[#FF613c] hover:bg-[#e5522f] disabled:opacity-60 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+            >
+              <svg
+                v-if="submitting"
+                class="w-4 h-4 animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
+              </svg>
+              {{ submitting ? "Saving…" : isEdit ? "Update" : "Save" }}
+            </button>
+          </div>
+
+          <div class="space-y-5">
+            <!-- ── Basic Info ── -->
+            <section
+              class="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
+            >
+              <h2
+                class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5"
+              >
+                Basic Info
+              </h2>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                  <label class="field-label"
+                    >Name <span class="text-red-500">*</span></label
+                  >
+                  <input
+                    v-model="form.name"
+                    type="text"
+                    placeholder="e.g. Bangkok City Tour"
+                    class="input-field"
+                    :class="errors.name ? 'border-red-400' : 'border-gray-200'"
+                  />
+                  <p v-if="errors.name" class="mt-1 text-xs text-red-500">
+                    {{ errors.name }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <label class="field-label">Cities</label>
+                <v-select
+                  v-model="form.city_ids"
+                  :options="cityList"
+                  label="name"
+                  :reduce="(c) => c.id"
+                  multiple
+                  :clearable="false"
+                  placeholder="Select cities…"
+                  class="style-chooser"
+                />
+              </div>
+
+              <div class="mt-5 flex items-center gap-3">
+                <button
+                  type="button"
+                  @click="form.is_show = !form.is_show"
+                  class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none"
+                  :class="form.is_show ? 'bg-[#FF613c]' : 'bg-gray-200'"
+                >
+                  <span
+                    class="inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform"
+                    :class="form.is_show ? 'translate-x-4' : 'translate-x-1'"
+                  />
+                </button>
+                <span class="text-sm text-gray-700">Visible on website</span>
+              </div>
+            </section>
+
+            <!-- ── Prices ── -->
+            <section
+              class="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
+            >
+              <h2
+                class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5"
+              >
+                Selling Price
+              </h2>
+
+              <div class="grid grid-cols-4 gap-3 mb-2">
+                <div>
+                  <label class="field-label">Car</label>
+                  <v-select
+                    v-model="priceRow.car_id"
+                    :options="carList"
+                    label="name"
+                    :reduce="(c) => c.id"
+                    :clearable="false"
+                    placeholder="Select"
+                    class="style-chooser"
+                  />
+                </div>
+                <div>
+                  <label class="field-label">Selling Price</label>
+                  <input
+                    v-model="priceRow.price"
+                    type="number"
+                    placeholder="0"
+                    class="input-field border-gray-200"
+                  />
+                </div>
+                <div>
+                  <label class="field-label">Agent Price</label>
+                  <input
+                    v-model="priceRow.agent_price"
+                    type="number"
+                    placeholder="0"
+                    class="input-field border-gray-200"
+                  />
+                </div>
+                <div>
+                  <label class="field-label">Cost</label>
+                  <input
+                    v-model="priceRow.cost"
+                    type="number"
+                    placeholder="0"
+                    class="input-field border-gray-200"
+                  />
+                </div>
+              </div>
+
+              <button
+                @click.prevent="addPrice"
+                :disabled="!priceRow.car_id"
+                class="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-[#FF613c] disabled:opacity-40 hover:text-[#e5522f]"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Add row
+              </button>
+
+              <div
+                v-if="prices.length"
+                class="border border-gray-100 rounded-lg overflow-hidden"
+              >
+                <table class="w-full text-sm">
+                  <thead
+                    class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide"
+                  >
+                    <tr>
+                      <th class="px-4 py-2.5 text-left">Car</th>
+                      <th class="px-4 py-2.5 text-right">Selling</th>
+                      <th class="px-4 py-2.5 text-right">Agent</th>
+                      <th class="px-4 py-2.5 text-right">Cost</th>
+                      <th class="px-4 py-2.5 w-8"></th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-50">
+                    <tr
+                      v-for="(p, i) in prices"
+                      :key="i"
+                      class="hover:bg-gray-50/50"
+                    >
+                      <td class="px-4 py-2.5 font-medium text-gray-700">
+                        {{ p.car_name }}
+                      </td>
+                      <td class="px-4 py-2.5 text-right text-gray-600">
+                        {{ p.price || "—" }}
+                      </td>
+                      <td class="px-4 py-2.5 text-right text-gray-600">
+                        {{ p.agent_price || "—" }}
+                      </td>
+                      <td class="px-4 py-2.5 text-right text-gray-600">
+                        {{ p.cost || "—" }}
+                      </td>
+                      <td class="px-4 py-2.5 text-right">
+                        <button
+                          @click="removePrice(i)"
+                          class="text-gray-300 hover:text-red-400 transition-colors"
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p v-else class="text-xs text-gray-400 italic">
+                No price rows yet.
+              </p>
+            </section>
+
+            <!-- ── Supplier Cost ── -->
+            <section
+              class="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
+            >
+              <h2
+                class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5"
+              >
+                Supplier Cost
+              </h2>
+
+              <div class="grid grid-cols-4 gap-3 mb-2">
+                <div>
+                  <label class="field-label">Supplier</label>
+                  <v-select
+                    v-model="supplierRow.supplier_id"
+                    :options="supplierList"
+                    label="name"
+                    :reduce="(s) => s.id"
+                    :clearable="false"
+                    placeholder="Select"
+                    class="style-chooser"
+                  />
+                </div>
+                <div>
+                  <label class="field-label">Car</label>
+                  <v-select
+                    v-model="supplierRow.car_id"
+                    :options="carList"
+                    label="name"
+                    :reduce="(c) => c.id"
+                    :clearable="false"
+                    placeholder="Select"
+                    class="style-chooser"
+                  />
+                </div>
+                <div>
+                  <label class="field-label">Cost</label>
+                  <input
+                    v-model="supplierRow.cost"
+                    type="number"
+                    placeholder="0"
+                    class="input-field border-gray-200"
+                  />
+                </div>
+                <div>
+                  <label class="field-label">Extra Mile</label>
+                  <input
+                    v-model="supplierRow.extra_mile_price"
+                    type="number"
+                    placeholder="0"
+                    class="input-field border-gray-200"
+                  />
+                </div>
+              </div>
+
+              <button
+                @click.prevent="addSupplierCost"
+                :disabled="!supplierRow.supplier_id || !supplierRow.car_id"
+                class="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-[#FF613c] disabled:opacity-40 hover:text-[#e5522f]"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Add row
+              </button>
+
+              <div
+                v-if="supplierCosts.length"
+                class="border border-gray-100 rounded-lg overflow-hidden"
+              >
+                <table class="w-full text-sm">
+                  <thead
+                    class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide"
+                  >
+                    <tr>
+                      <th class="px-4 py-2.5 text-left">Supplier</th>
+                      <th class="px-4 py-2.5 text-left">Car</th>
+                      <th class="px-4 py-2.5 text-right">Cost</th>
+                      <th class="px-4 py-2.5 text-right">Extra Mile</th>
+                      <th class="px-4 py-2.5 w-8"></th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-50">
+                    <tr
+                      v-for="(sc, i) in supplierCosts"
+                      :key="i"
+                      class="hover:bg-gray-50/50"
+                    >
+                      <td class="px-4 py-2.5 text-gray-700">
+                        {{ sc.supplier_name }}
+                      </td>
+                      <td class="px-4 py-2.5 text-gray-700">
+                        {{ sc.car_name }}
+                      </td>
+                      <td class="px-4 py-2.5 text-right text-gray-600">
+                        {{ sc.cost || "—" }}
+                      </td>
+                      <td class="px-4 py-2.5 text-right text-gray-600">
+                        {{ sc.extra_mile_price || "—" }}
+                      </td>
+                      <td class="px-4 py-2.5 text-right">
+                        <button
+                          @click="removeSupplierCost(i)"
+                          class="text-gray-300 hover:text-red-400 transition-colors"
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p v-else class="text-xs text-gray-400 italic">
+                No supplier costs yet.
+              </p>
+            </section>
+
+            <!-- Bottom save -->
+            <!-- <div class="flex justify-end pt-2 pb-8">
+              <button
+                @click.prevent="onSubmit"
+                :disabled="submitting"
+                class="inline-flex items-center gap-2 bg-[#FF613c] hover:bg-[#e5522f] disabled:opacity-60 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
+              >
+                {{
+                  submitting
+                    ? "Saving…"
+                    : isEdit
+                    ? "Update Van Tour"
+                    : "Save Van Tour"
+                }}
+              </button>
+            </div> -->
+          </div>
+        </div>
+        <div>
+          <!-- change grid-cols-4 to grid-cols-5, add new col-span-1 panel after the existing col-span-3 -->
+
+          <!-- existing nav col-span-1 -->
+          <!-- existing tab content: change class from col-span-3 to col-span-3 (unchanged) -->
+
+          <!-- ── NEW: RIGHT PANEL - Linked Route Plans ── -->
+          <div
+            v-if="routePlanLists.length"
+            class="col-span-1 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden"
+          >
+            <div class="px-4 py-3 border-b border-gray-50">
+              <p
+                class="text-xs font-semibold uppercase tracking-widest text-gray-400"
+              >
+                Used in Routes
               </p>
             </div>
-
-            <div>
-              <label class="field-label"
-                >SKU Code
-                <span class="text-gray-400 font-normal">(optional)</span></label
+            <div class="p-3 space-y-2 max-h-[500px] overflow-y-auto">
+              <div
+                v-for="rp in routePlanLists"
+                :key="rp.route_id"
+                class="p-3 rounded-lg border border-gray-100 hover:border-[#FF613c]/40 cursor-pointer transition-colors"
+                @click="router.push(`route-plan-form?id=${rp.route_id}`)"
               >
-              <input
-                v-model="form.sku_code"
-                type="text"
-                placeholder="e.g. BKK-001"
-                class="input-field border-gray-200"
-              />
-            </div>
+                <p class="text-xs font-medium text-gray-700 line-clamp-2">
+                  {{ rp.route }}
+                </p>
 
-            <div>
-              <label class="field-label">Type</label>
-              <select
-                v-model="form.type"
-                class="input-field border-gray-200 bg-white"
-              >
-                <option v-for="t in typeList" :key="t.value" :value="t.value">
-                  {{ t.label }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <div class="mt-4">
-            <label class="field-label">Cities</label>
-            <v-select
-              v-model="form.city_ids"
-              :options="cityList"
-              label="name"
-              :reduce="(c) => c.id"
-              multiple
-              :clearable="false"
-              placeholder="Select cities…"
-              class="style-chooser"
-            />
-          </div>
-
-          <div class="mt-5 flex items-center gap-3">
-            <button
-              type="button"
-              @click="form.is_show = !form.is_show"
-              class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none"
-              :class="form.is_show ? 'bg-[#FF613c]' : 'bg-gray-200'"
-            >
-              <span
-                class="inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform"
-                :class="form.is_show ? 'translate-x-4' : 'translate-x-1'"
-              />
-            </button>
-            <span class="text-sm text-gray-700">Visible on website</span>
-          </div>
-        </section>
-
-        <!-- ── Prices ── -->
-        <section
-          class="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
-        >
-          <h2
-            class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5"
-          >
-            Pricing by Car Type
-          </h2>
-
-          <div class="grid grid-cols-4 gap-3 mb-2">
-            <div>
-              <label class="field-label">Car</label>
-              <v-select
-                v-model="priceRow.car_id"
-                :options="carList"
-                label="name"
-                :reduce="(c) => c.id"
-                :clearable="false"
-                placeholder="Select"
-                class="style-chooser"
-              />
-            </div>
-            <div>
-              <label class="field-label">Selling Price</label>
-              <input
-                v-model="priceRow.price"
-                type="number"
-                placeholder="0"
-                class="input-field border-gray-200"
-              />
-            </div>
-            <div>
-              <label class="field-label">Agent Price</label>
-              <input
-                v-model="priceRow.agent_price"
-                type="number"
-                placeholder="0"
-                class="input-field border-gray-200"
-              />
-            </div>
-            <div>
-              <label class="field-label">Cost</label>
-              <input
-                v-model="priceRow.cost"
-                type="number"
-                placeholder="0"
-                class="input-field border-gray-200"
-              />
-            </div>
-          </div>
-
-          <button
-            @click.prevent="addPrice"
-            :disabled="!priceRow.car_id"
-            class="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-[#FF613c] disabled:opacity-40 hover:text-[#e5522f]"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Add row
-          </button>
-
-          <div
-            v-if="prices.length"
-            class="border border-gray-100 rounded-lg overflow-hidden"
-          >
-            <table class="w-full text-sm">
-              <thead
-                class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide"
-              >
-                <tr>
-                  <th class="px-4 py-2.5 text-left">Car</th>
-                  <th class="px-4 py-2.5 text-right">Selling</th>
-                  <th class="px-4 py-2.5 text-right">Agent</th>
-                  <th class="px-4 py-2.5 text-right">Cost</th>
-                  <th class="px-4 py-2.5 w-8"></th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-50">
-                <tr
-                  v-for="(p, i) in prices"
-                  :key="i"
-                  class="hover:bg-gray-50/50"
+                <p class="text-[11px] text-gray-400 mt-1">
+                  {{ rp.city_ids?.length ?? 0 }} cities ·
+                  {{ rp.destination_ids?.length ?? 0 }} destinations
+                </p>
+                <div class="flex justify-start pt-2 items-center gap-x-1">
+                  <p
+                    v-for="c in rp.cities"
+                    :key="c"
+                    class="text-[10px] bg-[#FF613c] inline-block text-white px-1 py-0.5 rounded-sm"
+                  >
+                    {{ c.name }}
+                  </p>
+                </div>
+                <div
+                  class="flex justify-start pt-2 flex-wrap items-center gap-1"
                 >
-                  <td class="px-4 py-2.5 font-medium text-gray-700">
-                    {{ p.car_name }}
-                  </td>
-                  <td class="px-4 py-2.5 text-right text-gray-600">
-                    {{ p.price || "—" }}
-                  </td>
-                  <td class="px-4 py-2.5 text-right text-gray-600">
-                    {{ p.agent_price || "—" }}
-                  </td>
-                  <td class="px-4 py-2.5 text-right text-gray-600">
-                    {{ p.cost || "—" }}
-                  </td>
-                  <td class="px-4 py-2.5 text-right">
-                    <button
-                      @click="removePrice(i)"
-                      class="text-gray-300 hover:text-red-400 transition-colors"
-                    >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p v-else class="text-xs text-gray-400 italic">No price rows yet.</p>
-        </section>
-
-        <!-- ── Supplier Cost ── -->
-        <section
-          class="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
-        >
-          <h2
-            class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5"
-          >
-            Supplier Cost
-          </h2>
-
-          <div class="grid grid-cols-4 gap-3 mb-2">
-            <div>
-              <label class="field-label">Supplier</label>
-              <v-select
-                v-model="supplierRow.supplier_id"
-                :options="supplierList"
-                label="name"
-                :reduce="(s) => s.id"
-                :clearable="false"
-                placeholder="Select"
-                class="style-chooser"
-              />
-            </div>
-            <div>
-              <label class="field-label">Car</label>
-              <v-select
-                v-model="supplierRow.car_id"
-                :options="carList"
-                label="name"
-                :reduce="(c) => c.id"
-                :clearable="false"
-                placeholder="Select"
-                class="style-chooser"
-              />
-            </div>
-            <div>
-              <label class="field-label">Cost</label>
-              <input
-                v-model="supplierRow.cost"
-                type="number"
-                placeholder="0"
-                class="input-field border-gray-200"
-              />
-            </div>
-            <div>
-              <label class="field-label">Extra Mile</label>
-              <input
-                v-model="supplierRow.extra_mile_price"
-                type="number"
-                placeholder="0"
-                class="input-field border-gray-200"
-              />
+                  <p
+                    v-for="c in rp.destinations"
+                    :key="c"
+                    class="text-[10px] whitespace-nowrap bg-[#004fb7] inline-block text-white px-1 py-0.5 rounded-sm"
+                  >
+                    {{ c.name }}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-
-          <button
-            @click.prevent="addSupplierCost"
-            :disabled="!supplierRow.supplier_id || !supplierRow.car_id"
-            class="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-[#FF613c] disabled:opacity-40 hover:text-[#e5522f]"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Add row
-          </button>
-
-          <div
-            v-if="supplierCosts.length"
-            class="border border-gray-100 rounded-lg overflow-hidden"
-          >
-            <table class="w-full text-sm">
-              <thead
-                class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide"
-              >
-                <tr>
-                  <th class="px-4 py-2.5 text-left">Supplier</th>
-                  <th class="px-4 py-2.5 text-left">Car</th>
-                  <th class="px-4 py-2.5 text-right">Cost</th>
-                  <th class="px-4 py-2.5 text-right">Extra Mile</th>
-                  <th class="px-4 py-2.5 w-8"></th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-50">
-                <tr
-                  v-for="(sc, i) in supplierCosts"
-                  :key="i"
-                  class="hover:bg-gray-50/50"
-                >
-                  <td class="px-4 py-2.5 text-gray-700">
-                    {{ sc.supplier_name }}
-                  </td>
-                  <td class="px-4 py-2.5 text-gray-700">{{ sc.car_name }}</td>
-                  <td class="px-4 py-2.5 text-right text-gray-600">
-                    {{ sc.cost || "—" }}
-                  </td>
-                  <td class="px-4 py-2.5 text-right text-gray-600">
-                    {{ sc.extra_mile_price || "—" }}
-                  </td>
-                  <td class="px-4 py-2.5 text-right">
-                    <button
-                      @click="removeSupplierCost(i)"
-                      class="text-gray-300 hover:text-red-400 transition-colors"
-                    >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p v-else class="text-xs text-gray-400 italic">
-            No supplier costs yet.
-          </p>
-        </section>
-
-        <!-- Bottom save -->
-        <div class="flex justify-end pt-2 pb-8">
-          <button
-            @click.prevent="onSubmit"
-            :disabled="submitting"
-            class="inline-flex items-center gap-2 bg-[#FF613c] hover:bg-[#e5522f] disabled:opacity-60 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
-          >
-            {{
-              submitting
-                ? "Saving…"
-                : isEdit
-                ? "Update Van Tour"
-                : "Save Van Tour"
-            }}
-          </button>
         </div>
       </div>
     </div>

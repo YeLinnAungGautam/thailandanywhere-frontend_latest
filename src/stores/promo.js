@@ -100,7 +100,7 @@ export const usePromoStore = defineStore("promo", {
       this.saving = true;
       this.error = null;
       try {
-        const response = await axios.put("/promos/" + promoId, payload);
+        const response = await axios.post("/promo-update/" + promoId, payload);
         await this.fetchPromos(this.meta.current_page);
         return { success: true, data: response.data };
       } catch (error) {

@@ -65,6 +65,53 @@
 
           <!-- name + code -->
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <!-- image -->
+            <div>
+              <label class="mb-1 block text-sm font-medium text-slate-700"
+                >Promo image</label
+              >
+              <div class="flex items-center gap-4">
+                <div
+                  v-if="imagePreview"
+                  class="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200"
+                >
+                  <img
+                    :src="imagePreview"
+                    class="h-full w-full object-cover"
+                    alt=""
+                  />
+                  <button
+                    type="button"
+                    class="absolute right-1 top-1 rounded-full bg-white/90 p-0.5 text-slate-500 hover:text-rose-500"
+                    @click="clearImage"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      class="h-3.5 w-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M6 6l12 12M18 6 6 18"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <input
+                  ref="fileInputRef"
+                  type="file"
+                  accept="image/*"
+                  class="block w-full text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-indigo-600 hover:file:bg-indigo-100"
+                  @change="handleImageChange"
+                />
+              </div>
+              <p v-if="errors.image" class="mt-1 text-xs text-rose-500">
+                {{ errors.image[0] }}
+              </p>
+            </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-slate-700"
                 >Promo name</label
@@ -390,11 +437,51 @@ const specificSelectionError = computed(() => {
     : "Select at least one product type or enter product IDs.";
 });
 
+const fileInputRef = ref(null);
+const imageFile = ref(null); // newly selected File, or null
+const imagePreview = ref(""); // existing image URL or local object URL
+const removeExistingImage = ref(false); // true if user clears an existing image
+
+function handleImageChange(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  imageFile.value = file;
+  removeExistingImage.value = false;
+  // revoke any previous blob preview to avoid leaks
+  if (imagePreview.value?.startsWith("blob:")) {
+    URL.revokeObjectURL(imagePreview.value);
+  }
+  imagePreview.value = URL.createObjectURL(file);
+}
+
+function clearImage() {
+  imageFile.value = null;
+  if (imagePreview.value?.startsWith("blob:")) {
+    URL.revokeObjectURL(imagePreview.value);
+  }
+  imagePreview.value = "";
+  removeExistingImage.value = true;
+  if (fileInputRef.value) fileInputRef.value.value = "";
+}
+
 function resetForm() {
   Object.assign(form, defaultForm());
   productTypes.forEach((t) => (t.idsInput.value = ""));
   generalError.value = "";
+  imageFile.value = null;
+  if (imagePreview.value?.startsWith("blob:")) {
+    URL.revokeObjectURL(imagePreview.value);
+  }
+  imagePreview.value = "";
+  removeExistingImage.value = false;
+  if (fileInputRef.value) fileInputRef.value.value = "";
 }
+
+// function resetForm() {
+//   Object.assign(form, defaultForm());
+//   productTypes.forEach((t) => (t.idsInput.value = ""));
+//   generalError.value = "";
+// }
 
 function toDatetimeLocal(value) {
   if (!value) return "";
@@ -430,6 +517,10 @@ watch(
       all_vantours: false,
       all_inclusive: false,
     });
+
+    imageFile.value = null;
+    removeExistingImage.value = false;
+    imagePreview.value = promo.image_url || promo.image || "";
 
     const ap = promo.applicable_products || {};
     productTypes.forEach((t) => {
@@ -480,43 +571,60 @@ function submit() {
     return;
   }
 
-  const payload = {
-    promo_name: form.promo_name,
-    promo_des: form.promo_des || null,
-    promo_code: form.promo_code,
-    promo_type: form.promo_type,
-    promo_amount: form.promo_amount,
-    promo_count: form.promo_count,
-    promo_active: form.promo_active,
-    promo_start_date: form.promo_start_date
-      ? form.promo_start_date.replace("T", " ") + ":00"
-      : null,
-    promo_end_date: form.promo_end_date
-      ? form.promo_end_date.replace("T", " ") + ":00"
-      : null,
-    promo_applies_to: form.promo_applies_to,
-  };
+  const fd = new FormData();
+
+  fd.append("promo_name", form.promo_name);
+  if (form.promo_des) fd.append("promo_des", form.promo_des);
+  fd.append("promo_code", form.promo_code);
+  fd.append("promo_type", form.promo_type);
+  fd.append("promo_amount", form.promo_amount);
+  fd.append("promo_count", form.promo_count);
+  fd.append("promo_active", form.promo_active ? "1" : "0");
+  if (form.promo_start_date) {
+    fd.append(
+      "promo_start_date",
+      form.promo_start_date.replace("T", " ") + ":00",
+    );
+  }
+  if (form.promo_end_date) {
+    fd.append("promo_end_date", form.promo_end_date.replace("T", " ") + ":00");
+  }
+  fd.append("promo_applies_to", form.promo_applies_to);
 
   if (form.promo_applies_to === "specific") {
-    payload.all_hotels = form.all_hotels;
-    payload.all_entrance_tickets = form.all_entrance_tickets;
-    payload.all_vantours = form.all_vantours;
-    payload.all_inclusive = form.all_inclusive;
+    fd.append("all_hotels", form.all_hotels ? "1" : "0");
+    fd.append("all_entrance_tickets", form.all_entrance_tickets ? "1" : "0");
+    fd.append("all_vantours", form.all_vantours ? "1" : "0");
+    fd.append("all_inclusive", form.all_inclusive ? "1" : "0");
 
-    payload.hotel_ids = form.all_hotels
-      ? []
-      : parseIds(productTypes[0].idsInput.value);
-    payload.entrance_ticket_ids = form.all_entrance_tickets
-      ? []
-      : parseIds(productTypes[1].idsInput.value);
-    payload.vantour_ids = form.all_vantours
-      ? []
-      : parseIds(productTypes[2].idsInput.value);
-    payload.inclusive_ids = form.all_inclusive
-      ? []
-      : parseIds(productTypes[3].idsInput.value);
+    const idFields = [
+      ["hotel_ids", 0, form.all_hotels],
+      ["entrance_ticket_ids", 1, form.all_entrance_tickets],
+      ["vantour_ids", 2, form.all_vantours],
+      ["inclusive_ids", 3, form.all_inclusive],
+    ];
+    idFields.forEach(([fieldName, idx, allFlag]) => {
+      const ids = allFlag ? [] : parseIds(productTypes[idx].idsInput.value);
+      ids.forEach((id) => fd.append(`${fieldName}[]`, id));
+    });
   }
 
-  emit("submit", payload);
+  // image: only append if a new file was picked
+  if (imageFile.value) {
+    fd.append("image", imageFile.value);
+  }
+  // let the backend know to clear an existing image, if you support that
+  if (removeExistingImage.value) {
+    fd.append("remove_image", "1");
+  }
+
+  // Laravel needs a method override when sending FormData via PUT/PATCH
+  // if (isEdit.value) {
+  //   fd.append("_method", "PUT");
+  // }
+
+  // console.log(imageFile.value);
+
+  emit("submit", fd);
 }
 </script>

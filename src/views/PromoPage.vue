@@ -139,7 +139,7 @@
                   <span v-if="promo.promo_type === 'percent'"
                     >{{ promo.promo_amount }}% off</span
                   >
-                  <span v-else>${{ promo.promo_amount }} off</span>
+                  <span v-else>{{ promo.promo_amount }} THB off</span>
                 </td>
 
                 <!-- usage -->
@@ -334,6 +334,7 @@ function closeFormModal() {
 
 async function handleSubmit(payload) {
   formErrors.value = {};
+  console.log(payload);
 
   const result = editingPromo.value
     ? await promoStore.updatePromo(editingPromo.value.promo_id, payload)

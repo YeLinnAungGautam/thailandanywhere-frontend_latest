@@ -132,6 +132,7 @@ import RoutePlanEdit from "../views/RoutePlanEdit.vue";
 import ChatMain from "../views/ChatMain.vue";
 import PromoPage from "../views/PromoPage.vue";
 import VantourV2 from "../views/VantourV2.vue";
+import OrderDetail from "../views/Order/OrderDetail.vue";
 
 const routes = [
   {
@@ -695,6 +696,11 @@ const routes = [
     path: "/order",
     name: "order",
     component: OrderView,
+  },
+  {
+    path: "/orders/:id",
+    name: "order-detail",
+    component: OrderDetail,
   },
   {
     path: "/tax_receipt",

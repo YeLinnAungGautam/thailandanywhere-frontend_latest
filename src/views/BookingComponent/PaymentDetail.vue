@@ -248,7 +248,7 @@ watch(
   ],
   (newVal) => {
     changeGetInclusiveForm();
-  }
+  },
 );
 
 onMounted(() => {

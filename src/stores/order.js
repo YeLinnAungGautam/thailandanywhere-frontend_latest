@@ -75,11 +75,21 @@ export const useOrderStore = defineStore("order", {
       }
     },
 
-    async changeToBooking(id) {
+    async changeToBooking(id, data) {
       try {
         const response = await axios.post(
           "/orders/" + id + "/change-to-booking",
+          data,
         );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async getDetail(id) {
+      try {
+        const response = await axios.get("/orders/" + id);
         return response.data;
       } catch (error) {
         throw error;

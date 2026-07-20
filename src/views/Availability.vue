@@ -949,8 +949,14 @@ onMounted(async () => {
 
                 <!-- Checkin/Service Date -->
                 <td class="px-2 md:px-4 py-4 min-w-[120px]">
-                  <div v-if="!r.date" class="text-sm text-gray-700">
-                    <div>{{ formatDate(r.checkin_date) }}</div>
+                  <div class="text-sm text-gray-700">
+                    <div v-if="product_type == 'hotel'">
+                      {{ formatDate(r.checkin_date) }}
+                    </div>
+                    <div v-if="product_type != 'hotel'">
+                      {{ formatDate(r.checkin_date) }}
+                    </div>
+
                     <div
                       v-if="product_type == 'hotel'"
                       class="text-xs text-gray-500"

@@ -4,7 +4,11 @@ import { ref, defineProps, defineEmits, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useCustomerStore } from "../../stores/customer";
 import debounce from "lodash/debounce";
-import { MagnifyingGlassIcon, UserIcon } from "@heroicons/vue/24/outline";
+import {
+  MagnifyingGlassIcon,
+  PencilSquareIcon,
+  UserIcon,
+} from "@heroicons/vue/24/outline";
 import { useSidebarStore } from "../../stores/sidebar";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -96,10 +100,59 @@ const changeSoldFrom = () => {
   emit("checked", data);
 };
 
+// Edit modal state
+const isOpenCustomerEdit = ref(false);
+const editName = ref("");
+const editPhone = ref("");
+const editLoading = ref(false);
+
 // const customerOpen = ref(false);
-const customerOpenH = () => {
-  sidebar.toggleCustomerCreate();
+const customerOpenH = (id) => {
+  if (!id) {
+    sidebar.toggleCustomerCreate();
+  } else {
+    // Pre-fill with current values, then open edit modal
+    editName.value = customerName.value;
+    editPhone.value = customerPhone.value;
+    isOpenCustomerEdit.value = true;
+  }
 };
+
+const customerEditClose = () => {
+  isOpenCustomerEdit.value = false;
+};
+
+const customerEditSubmit = async () => {
+  editLoading.value = true;
+  try {
+    const frmData = new FormData();
+    frmData.append("_method", "PUT");
+    frmData.append("name", editName.value);
+    frmData.append("phone_number", editPhone.value);
+
+    const response = await customerStore.updateAction(
+      frmData,
+      checkValue.value,
+    );
+
+    // reflect changes locally
+    customerName.value = editName.value;
+    customerPhone.value = editPhone.value;
+
+    // keep parent in sync via existing emit pattern
+    changeSoldFrom();
+
+    // refresh the search list so it reflects the new name/phone
+    await customerStore.getSimpleListAction();
+
+    isOpenCustomerEdit.value = false;
+  } catch (error) {
+    console.log(error);
+  } finally {
+    editLoading.value = false;
+  }
+};
+
 const customerClose = async () => {
   sidebar.toggleCustomerCreate();
   await customerStore.getSimpleListAction();
@@ -122,7 +175,7 @@ watch(
   ],
   () => {
     changeSoldFrom();
-  }
+  },
 );
 
 const getAdmin = async () => {
@@ -154,7 +207,7 @@ watch(
   search,
   debounce(async (newValue) => {
     await customerStore.getListAction({ search: search.value, limit: 300 });
-  }, 500)
+  }, 500),
 );
 </script>
 
@@ -169,7 +222,7 @@ watch(
         </h1>
         <div
           class="bg-[#ff613c] cursor-pointer px-1.5 text-white rounded-full"
-          @click="customerOpenH"
+          @click="customerOpenH()"
         >
           +
         </div>
@@ -222,10 +275,10 @@ watch(
           Contact Detail
         </h1>
         <div
-          class="bg-[#ff613c] cursor-pointer px-1.5 text-white rounded-full"
-          @click="customerOpenH"
+          class="bg-[#ff613c] cursor-pointer p-1.5 text-white rounded-full"
+          @click="customerOpenH(checkValue)"
         >
-          +
+          <PencilSquareIcon class="w-4 h-4" />
         </div>
       </div>
       <div class="grid grid-cols-2 gap-2">
@@ -364,6 +417,51 @@ watch(
         <!-- <div class="flex items-center justify-end">
           <button @click="customerClose" class="text-sm">close</button>
         </div> -->
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="isOpenCustomerEdit" @closeModal="customerEditClose">
+      <DialogPanel
+        class="w-full max-w-[500px] transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle class="text-sm font-medium text-[#ff613c] mb-4">
+          Edit Customer
+        </DialogTitle>
+
+        <div class="space-y-3">
+          <div class="space-y-1">
+            <label class="text-gray-800 text-[10px]">Customer Name</label>
+            <input
+              type="text"
+              v-model="editName"
+              class="w-full text-xs px-4 py-2 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-gray-800 text-[10px]">Phone Number</label>
+            <input
+              type="text"
+              v-model="editPhone"
+              class="w-full text-xs px-4 py-2 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-4">
+          <button
+            @click="customerEditClose"
+            class="text-xs px-4 py-2 rounded-lg border border-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            @click="customerEditSubmit"
+            :disabled="editLoading"
+            class="text-xs px-4 py-2 rounded-lg bg-[#ff613c] text-white disabled:opacity-50"
+          >
+            {{ editLoading ? "Saving..." : "Update" }}
+          </button>
+        </div>
       </DialogPanel>
     </Modal>
   </div>

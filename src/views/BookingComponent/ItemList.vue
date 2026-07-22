@@ -29,6 +29,7 @@ import ItemSummaryTable from "./ItemSummaryTable.vue";
 const props = defineProps({
   data: Object,
   grand: Number || String,
+  allowBackDate: { type: Boolean, default: false },
 });
 const emit = defineEmits(["remove"]);
 const route = useRoute();
@@ -389,12 +390,21 @@ const isAfterToday = (dateStr) => {
 };
 
 const todayVali = ref(false);
+// const todayCheck = () => {
+//   if (!formitem.value.service_date) {
+//     todayVali.value = false;
+//     return;
+//   }
+//   todayVali.value = isAfterToday(formitem.value.service_date);
+// };
 const todayCheck = () => {
   if (!formitem.value.service_date) {
     todayVali.value = false;
     return;
   }
-  todayVali.value = isAfterToday(formitem.value.service_date);
+  todayVali.value = props.allowBackDate
+    ? true
+    : isAfterToday(formitem.value.service_date);
 };
 
 const priceArray = ref([]);

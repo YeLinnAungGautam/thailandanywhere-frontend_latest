@@ -212,6 +212,7 @@ const sub_total_airline = computed(() => {
     return 0;
   }
 });
+const allowBackDate = ref(false);
 
 const grand_total_real = computed(() => {
   let final = sub_total_real.value - sub_total_discount.value * 1;
@@ -1424,6 +1425,22 @@ onMounted(async () => {
   <Layout>
     <div class="grid grid-cols-6 gap-4">
       <div class="col-span-4 h-[85vh] overflow-hidden">
+        <div
+          v-if="authStore?.isSuperAdmin"
+          class="flex justify-end items-center gap-x-2 pb-2"
+        >
+          <span class="text-xs font-medium text-gray-600">Allow Back Date</span>
+          <Switch
+            v-model="allowBackDate"
+            :class="allowBackDate ? 'bg-[#ff613c]' : 'bg-gray-300'"
+            class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors"
+          >
+            <span
+              :class="allowBackDate ? 'translate-x-5' : 'translate-x-1'"
+              class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform"
+            />
+          </Switch>
+        </div>
         <div class="space-y-4">
           <!-- sale info part -->
           <div
@@ -1470,6 +1487,7 @@ onMounted(async () => {
           <transition name="slide" mode="out-in">
             <component
               :is="currentComponent"
+              :allow-back-date="allowBackDate"
               :key="currentTag"
               @formData="changeGetItem"
             />
@@ -1548,6 +1566,7 @@ onMounted(async () => {
           <ItemList
             :data="formData"
             @remove="removeItemList"
+            :allow-back-date="allowBackDate"
             :grand="grand_total"
           />
         </div>

@@ -87,6 +87,10 @@ const closeDetail = () => {
   details_images.value = [];
 };
 
+const props = defineProps({
+  allowBackDate: { type: Boolean, default: false },
+});
+
 const emit = defineEmits(["formData"]);
 
 const formitem = ref({
@@ -210,7 +214,9 @@ const isAfterToday = (date) => {
 };
 const todayCheck = () => {
   console.log(formitem.value.service_date);
-  todayVali.value = isAfterToday(formitem.value.service_date);
+  todayVali.value = props.allowBackDate
+    ? true
+    : isAfterToday(formitem.value.service_date);
   console.log(todayVali.value, "this is value");
 };
 
@@ -329,7 +335,7 @@ watch(
   [search_city],
   debounce(async (newValue) => {
     await searchFilterCity();
-  }, 500)
+  }, 500),
 );
 
 watch(bottomOfWindow, (newVal) => {
@@ -346,7 +352,7 @@ watch(bottomOfWindow, (newVal) => {
 
         changePage(
           vantours?.value?.meta?.links[vantours?.value?.meta?.current_page + 1]
-            .url
+            .url,
         );
       }
     }
@@ -383,7 +389,7 @@ watch(
   debounce(async (newValue) => {
     destsList.value = [];
     await vantourStore.getListAction(watchSystem.value);
-  }, 500)
+  }, 500),
 );
 
 const getCarImage = (type) => {

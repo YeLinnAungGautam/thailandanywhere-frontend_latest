@@ -38,6 +38,10 @@ const changeAddOnList = (message) => {
   addOnList.value = [];
 };
 
+const props = defineProps({
+  allowBackDate: { type: Boolean, default: false },
+});
+
 // const addOnSellingPrice = computed(() => {
 //   let result = 0;
 //   if (addOnList.value != null) {
@@ -204,7 +208,9 @@ const isAfterToday = (date) => {
 };
 const todayCheck = () => {
   console.log(formitem.value.service_date);
-  todayVali.value = isAfterToday(formitem.value.service_date);
+  todayVali.value = props.allowBackDate
+    ? true
+    : isAfterToday(formitem.value.service_date);
   console.log(todayVali.value, "this is value");
 };
 

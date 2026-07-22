@@ -28,6 +28,10 @@ const detailModal = ref(false);
 const details = ref(null);
 const details_images = ref([]);
 
+const props = defineProps({
+  allowBackDate: { type: Boolean, default: false },
+});
+
 const viewDetail = (data) => {
   console.log(data, "this is data");
   details_images.value = [];
@@ -164,7 +168,9 @@ const isAfterToday = (date) => {
 };
 const todayCheck = () => {
   console.log(formitem.value.service_date);
-  todayVali.value = isAfterToday(formitem.value.service_date);
+  todayVali.value = props.allowBackDate
+    ? true
+    : isAfterToday(formitem.value.service_date);
   console.log(todayVali.value, "this is value");
 };
 
@@ -241,7 +247,7 @@ watch(bottomOfWindow, (newVal) => {
 
         changePage(
           airlines?.value?.meta?.links[airlines?.value?.meta?.current_page + 1]
-            .url
+            .url,
         );
       }
     }
@@ -273,7 +279,7 @@ watch(
   debounce(async (newValue) => {
     destsList.value = [];
     await airlineStore.getListAction(watchSystem.value);
-  }, 500)
+  }, 500),
 );
 
 onMounted(async () => {
